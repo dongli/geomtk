@@ -20,6 +20,7 @@ public:
     Domain(int numDim);
     virtual ~Domain();
 
+    virtual int getNumDim();
     virtual void setAxis(int dim,
                          double start, BndType bndTypeStart,
                          double end, BndType bndTypeEnd);

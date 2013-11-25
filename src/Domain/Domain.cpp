@@ -14,6 +14,10 @@ Domain::~Domain() {
     delete [] bndTypeEnds;
 }
 
+int Domain::getNumDim() {
+    return numDim;
+}
+
 void Domain::setAxis(int dim,
                      double start, BndType bndTypeStart,
                      double end, BndType bndTypeEnd) {
