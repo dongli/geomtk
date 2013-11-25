@@ -1,14 +1,18 @@
-SimToolkit
-==========
+GeoMTK
+======
 
-# Introduction
+Introduction
+------------
 
-This toolkit is used to assit the development of my Lagrangian dynamics
-program. The following items are enclosed.
+This toolkit (Geofluid Modeling Toolkit) is used to assist the development of
+my Lagrangian dynamics program, but it may be useful for other projects.
+
+The following items are enclosed:
 
 - Domain class hierarchies;
-- Mesh class specification;
+- Mesh class hierarchies;
 
-# Author
+Author
+------
 
 - Li Dong <dongli@lasg.iap.ac.cn>
