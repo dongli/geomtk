@@ -1,6 +1,10 @@
 SRC_DIR = ../src
 GTEST_DIR = ../external/gtest-1.7.0
 
+ifndef ARMA_ROOT
+    ARMA_ROOT = /usr/local
+endif
+
 VPATH = $(SRC_DIR) \
         $(SRC_DIR)/Domain $(SRC_DIR)/Domain/test \
         $(SRC_DIR)/Mesh $(SRC_DIR)/Mesh/test \
@@ -8,11 +12,14 @@ VPATH = $(SRC_DIR) \
         $(GTEST_DIR)/src
 
 INCLUDES = $(foreach path,$(VPATH),-I$(path)) \
-           -isystem $(GTEST_DIR)/include -I$(GTEST_DIR)
+           -isystem $(GTEST_DIR)/include -I$(GTEST_DIR) \
+           -I$(ARMA_ROOT)/include
+LIBRARIES = -L$(ARMA_ROOT)/lib64 -larmadillo -L.
 
 CC = g++
-LIBTOOL = libtool
-CPPFLAGS = 
+#LC = libtool --mode=link $(CC) -static -o
+LC = ar cru
+CPPFLAGS = -pthread
 
 %.o: %.cpp
 	$(CC) $(CPPFLAGS) -c $< $(INCLUDES)
@@ -37,11 +44,11 @@ RLLVectorField.o: RLLVectorField.h Field.o RLLMesh.o
 test.o: Domain_test.h SphereDomain_test.h StructuredMesh_test.h
 
 libgeomtk.a: $(OBJECTS)
-	$(LIBTOOL) -static -o $@ $^
+	$(LC) $@ $^
 libgtest.a: gtest-all.o
-	$(LIBTOOL) -static -o $@ $^
+	$(LC) $@ $^
 test: libgeomtk.a libgtest.a test.o
-	$(CC) $(CPPFLAGS) -o $@ $^ $(INCLUDES)
+	$(CC) $(CPPFLAGS) -o $@ test.o $(INCLUDES) $(LIBRARIES) -lgeomtk -lgtest
 	./test
 
 .PHONY:
