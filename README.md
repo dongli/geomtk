@@ -11,6 +11,7 @@ The following items are enclosed:
 
 - Domain class hierarchies;
 - Mesh class hierarchies;
+- Field class hierarchies;
 
 Author
 ------

@@ -13,8 +13,10 @@ public:
     StructuredMesh(Domain &domain);
     virtual ~StructuredMesh();
 
-    void setCoords(int dim, int size, double *full, double *half);
-    const vec& getCoords(int dim, StaggerType staggerType) const;
+    void setGridCoords(int dim, int size, double *full, double *half);
+    const vec& getGridCoords(int dim, StaggerType staggerType) const;
+
+    int getNumGrid(int dim, StaggerType staggerType) const;
 };
 
 #endif

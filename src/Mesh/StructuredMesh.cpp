@@ -14,7 +14,7 @@ StructuredMesh::~StructuredMesh() {
     delete [] halfIntervals;
 }
 
-void StructuredMesh::setCoords(int dim, int size, double *full, double *half) {
+void StructuredMesh::setGridCoords(int dim, int size, double *full, double *half) {
     // sanity check
     if (dim >= domain->getNumDim()) {
         REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension (" << domain->getNumDim() << ")!")
@@ -88,7 +88,7 @@ void StructuredMesh::setCoords(int dim, int size, double *full, double *half) {
     }
 }
 
-const vec& StructuredMesh::getCoords(int dim, StaggerType staggerType) const {
+const vec& StructuredMesh::getGridCoords(int dim, StaggerType staggerType) const {
     // sanity check
     if (dim >= domain->getNumDim()) {
         REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension (" << domain->getNumDim() << ")!")
@@ -98,6 +98,21 @@ const vec& StructuredMesh::getCoords(int dim, StaggerType staggerType) const {
             return fullCoords[dim];
         case EDGE: case VERTEX:
             return halfCoords[dim];
+        default:
+            REPORT_ERROR("Unknown stagger type!")
+    }
+}
+
+int StructuredMesh::getNumGrid(int dim, StaggerType staggerType) const {
+    // sanity check
+    if (dim >= domain->getNumDim()) {
+        REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension (" << domain->getNumDim() << ")!")
+    }
+    switch (staggerType) {
+        case CENTER:
+            return fullCoords[dim].size();
+        case EDGE: case VERTEX:
+            return halfCoords[dim].size();
         default:
             REPORT_ERROR("Unknown stagger type!")
     }

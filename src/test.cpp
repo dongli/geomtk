@@ -3,6 +3,7 @@
 #include "Domain/test/SphereDomain_test.h"
 #include "Mesh/test/Mesh_test.h"
 #include "Mesh/test/StructuredMesh_test.h"
+#include "Field/test/RLLScalarField_test.h"
 
 int main(int argc, char *argv[])
 {

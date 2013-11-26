@@ -25,12 +25,12 @@ TEST_F(StructuredMeshTest, SetCoords) {
         fullLon[i] = i*dlon;
         halfLon[i] = i*dlon+dlon*0.5;
     }
-    mesh->setCoords(0, numLon, fullLon, halfLon);
-    const vec &lon1 = mesh->getCoords(0, CENTER);
+    mesh->setGridCoords(0, numLon, fullLon, halfLon);
+    const vec &lon1 = mesh->getGridCoords(0, CENTER);
     EXPECT_EQ(numLon+2, lon1.size());
     EXPECT_EQ(fullLon[0]-dlon, lon1(0));
     EXPECT_EQ(fullLon[numLon-1]+dlon, lon1(numLon+1));
-    const vec &lon2 = mesh->getCoords(0, EDGE);
+    const vec &lon2 = mesh->getGridCoords(0, EDGE);
     EXPECT_EQ(numLon+2, lon2.size());
     EXPECT_EQ(halfLon[0]-dlon, lon2(0));
     EXPECT_EQ(halfLon[numLon-1]+dlon, lon2(numLon+1));
@@ -44,12 +44,12 @@ TEST_F(StructuredMeshTest, SetCoords) {
     for (int j = 0; j < numLat-1; ++j) {
         halfLat[j] = dlat*0.5+j*dlat-M_PI_2;
     }
-    mesh->setCoords(1, numLat, fullLat, halfLat);
-    const vec &lat1 = mesh->getCoords(1, CENTER);
+    mesh->setGridCoords(1, numLat, fullLat, halfLat);
+    const vec &lat1 = mesh->getGridCoords(1, CENTER);
     EXPECT_EQ(numLat, lat1.size());
     EXPECT_EQ(mesh->getDomain().getAxisStart(1), lat1(0));
     EXPECT_EQ(mesh->getDomain().getAxisEnd(1), lat1(numLat-1));
-    const vec &lat2 = mesh->getCoords(1, EDGE);
+    const vec &lat2 = mesh->getGridCoords(1, EDGE);
     EXPECT_EQ(numLat-1, lat2.size());
     EXPECT_EQ(lat1(0)+dlat*0.5, lat2(0));
     // NOTE: The equality is not exact!

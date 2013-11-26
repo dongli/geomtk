@@ -4,6 +4,8 @@
 #include <armadillo>
 
 using arma::vec;
+using arma::mat;
+using arma::cube;
 
 #include <iostream>
 #include <iomanip>
