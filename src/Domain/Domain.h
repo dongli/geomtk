@@ -17,18 +17,19 @@ protected:
     BndType *bndTypeEnds;
 
 public:
+    Domain();
     Domain(int numDim);
     virtual ~Domain();
 
-    virtual int getNumDim();
+    virtual int getNumDim() const;
     virtual void setAxis(int dim,
                          double start, BndType bndTypeStart,
                          double end, BndType bndTypeEnd);
-    virtual double getAxisStart(int dim);
-    virtual double getAxisEnd(int dim);
-    virtual double getAxisSpan(int dim);
-    virtual BndType getAxisStartBndType(int dim);
-    virtual BndType getAxisEndBndType(int dim);
+    virtual double getAxisStart(int dim) const;
+    virtual double getAxisEnd(int dim) const;
+    virtual double getAxisSpan(int dim) const;
+    virtual BndType getAxisStartBndType(int dim) const;
+    virtual BndType getAxisEndBndType(int dim) const;
 };
 
 #endif

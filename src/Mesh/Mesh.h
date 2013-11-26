@@ -14,6 +14,8 @@ protected:
 public:
     Mesh(Domain &domain);
     virtual ~Mesh();
+
+    const Domain& getDomain();
 };
 
 #endif

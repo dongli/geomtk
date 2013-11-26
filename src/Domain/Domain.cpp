@@ -1,5 +1,14 @@
 #include "Domain.h"
 
+Domain::Domain() {
+    this->numDim = 2;
+    axisStarts.resize(numDim);
+    axisEnds.resize(numDim);
+    axisSpans.resize(numDim);
+    bndTypeStarts = new BndType[numDim];
+    bndTypeEnds = new BndType[numDim];
+}
+
 Domain::Domain(int numDim) {
     this->numDim = numDim;
     axisStarts.resize(numDim);
@@ -14,7 +23,7 @@ Domain::~Domain() {
     delete [] bndTypeEnds;
 }
 
-int Domain::getNumDim() {
+int Domain::getNumDim() const {
     return numDim;
 }
 
@@ -31,7 +40,7 @@ void Domain::setAxis(int dim,
         }
     }
     if (start >= end) {
-        REPORT_ERROR("Axis start is smaller than end!")
+        REPORT_WARNING("Axis start is smaller than end!")
     }
 
     axisStarts(dim) = start;
@@ -41,7 +50,7 @@ void Domain::setAxis(int dim,
     axisSpans(dim) = end-start;
 }
 
-double Domain::getAxisStart(int dim) {
+double Domain::getAxisStart(int dim) const {
     // sanity check
     if (dim >= numDim) {
         REPORT_ERROR("Argument dim (" << dim << ") exceeds numDim (" << numDim << ")!")
@@ -49,7 +58,7 @@ double Domain::getAxisStart(int dim) {
     return axisStarts(dim);
 }
 
-double Domain::getAxisEnd(int dim) {
+double Domain::getAxisEnd(int dim) const {
     // sanity check
     if (dim >= numDim) {
         REPORT_ERROR("Argument dim (" << dim << ") exceeds numDim (" << numDim << ")!")
@@ -57,7 +66,7 @@ double Domain::getAxisEnd(int dim) {
     return axisEnds(dim);
 }
 
-double Domain::getAxisSpan(int dim) {
+double Domain::getAxisSpan(int dim) const {
     // sanity check
     if (dim >= numDim) {
         REPORT_ERROR("Argument dim (" << dim << ") exceeds numDim (" << numDim << ")!")
@@ -65,7 +74,7 @@ double Domain::getAxisSpan(int dim) {
     return axisSpans(dim);
 }
 
-BndType Domain::getAxisStartBndType(int dim) {
+BndType Domain::getAxisStartBndType(int dim) const {
     // sanity check
     if (dim >= numDim) {
         REPORT_ERROR("Argument dim (" << dim << ") exceeds numDim (" << numDim << ")!")
@@ -73,7 +82,7 @@ BndType Domain::getAxisStartBndType(int dim) {
     return bndTypeStarts[dim];
 }
 
-BndType Domain::getAxisEndBndType(int dim) {
+BndType Domain::getAxisEndBndType(int dim) const {
     // sanity check
     if (dim >= numDim) {
         REPORT_ERROR("Argument dim (" << dim << ") exceeds numDim (" << numDim << ")!")

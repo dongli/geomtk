@@ -6,9 +6,11 @@
 class SphereDomain : public Domain {
     double radius;
 public:
+    SphereDomain();
     SphereDomain(int numDim);
     virtual ~SphereDomain();
 
+    void reverseLatitudeAxis();
     double getRadius();
     void setRadius(double radius);
 };

@@ -6,3 +6,7 @@ Mesh::Mesh(Domain &domain) {
 
 Mesh::~Mesh() {
 }
+
+const Domain& Mesh::getDomain() {
+    return *domain;
+}

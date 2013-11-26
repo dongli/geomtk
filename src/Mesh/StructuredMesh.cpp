@@ -54,11 +54,51 @@ void StructuredMesh::setCoords(int dim, int size, double *full, double *half) {
         } else {
             REPORT_ERROR("Don't know how to handle input grid coordinates of dimension " << dim << "!")
         }
-    } else {
-        REPORT_ERROR("Under construction!")
-        fullCoords[dim].resize(size);
-        halfCoords[dim].resize(size);
-        fullIntervals[dim].resize(size-1);
-        halfIntervals[dim].resize(size-1);
+    } else if (domain->getAxisStartBndType(dim) == POLE) {
+        if (full[0] == domain->getAxisStart(dim) &&
+            full[size-1] == domain->getAxisEnd(dim)) {
+            fullCoords[dim].resize(size);
+            halfCoords[dim].resize(size-1);
+            fullIntervals[dim].resize(size);
+            halfIntervals[dim].resize(size-1);
+            for (int i = 0; i < size; ++i) {
+                fullCoords[dim](i) = full[i];
+            }
+            for (int i = 0; i < size-1; ++i) {
+                halfCoords[dim](i) = half[i];
+            }
+            for (int i = 1; i < size-1; ++i) {
+                fullIntervals[dim](i) = half[i]-half[i-1];
+            }
+            fullIntervals[dim](0) = half[0]-domain->getAxisStart(dim);
+            fullIntervals[dim](size-1) = domain->getAxisEnd(dim)-half[size-2];
+            for (int i = 0; i < size-1; ++i) {
+                halfIntervals[dim](i) = full[i+1]-full[i];
+            }
+        } else if (half[0] == domain->getAxisStart(dim) &&
+                   half[size] == domain->getAxisEnd(dim)) {
+            REPORT_ERROR("Under construction!")
+            fullCoords[dim].resize(size);
+            halfCoords[dim].resize(size+1);
+            fullIntervals[dim].resize(size);
+            halfIntervals[dim].resize(size+1);
+        } else {
+            REPORT_ERROR("Unhandled branch!")
+        }
+    }
+}
+
+const vec& StructuredMesh::getCoords(int dim, StaggerType staggerType) const {
+    // sanity check
+    if (dim >= domain->getNumDim()) {
+        REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension (" << domain->getNumDim() << ")!")
+    }
+    switch (staggerType) {
+        case CENTER:
+            return fullCoords[dim];
+        case EDGE: case VERTEX:
+            return halfCoords[dim];
+        default:
+            REPORT_ERROR("Unknown stagger type!")
     }
 }

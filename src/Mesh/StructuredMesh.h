@@ -14,6 +14,7 @@ public:
     virtual ~StructuredMesh();
 
     void setCoords(int dim, int size, double *full, double *half);
+    const vec& getCoords(int dim, StaggerType staggerType) const;
 };
 
 #endif

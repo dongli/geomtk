@@ -6,6 +6,7 @@
 class PlaneDomain : public Domain {
 public:
     PlaneDomain();
+    virtual ~PlaneDomain();
 };
 
 #endif
