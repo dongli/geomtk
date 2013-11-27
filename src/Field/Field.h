@@ -12,7 +12,7 @@ public:
     Field(Mesh &mesh);
     virtual ~Field();
 
-    virtual void applyBndCond() = 0;
+    virtual void applyBndCond(int timeLevel) = 0;
 
     const Mesh& getMesh();
 };

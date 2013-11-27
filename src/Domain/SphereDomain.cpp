@@ -13,10 +13,6 @@ SphereDomain::SphereDomain(int numDim) : Domain(numDim) {
 SphereDomain::~SphereDomain() {
 }
 
-void SphereDomain::reverseLatitudeAxis() {
-    setAxis(1, M_PI_2, POLE, -M_PI_2, POLE);
-}
-
 inline double SphereDomain::getRadius() {
     return radius;
 }

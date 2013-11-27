@@ -19,7 +19,7 @@ LIBRARIES = -L$(ARMA_ROOT)/lib64 -larmadillo -L.
 CC = g++
 #LC = libtool --mode=link $(CC) -static -o
 LC = ar cru
-CPPFLAGS = -pthread
+CPPFLAGS = -pthread -DUNIT_TEST
 
 %.o: %.cpp
 	$(CC) $(CPPFLAGS) -c $< $(INCLUDES)

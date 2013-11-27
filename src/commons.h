@@ -60,4 +60,11 @@ inline string getFunctionName(const string &str) {
     cout << MESSAGE << endl; \
 }
 
+// -----------------------------------------------------------------------------
+// access specifier modifying macros
+#ifdef UNIT_TEST
+#define private public
+#define protected public
+#endif
+
 #endif

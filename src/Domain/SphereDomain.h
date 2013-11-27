@@ -3,6 +3,10 @@
 
 #include "Domain.h"
 
+enum Pole {
+	SOUTH_POLE = 0, NORTH_POLE = 1
+};
+
 class SphereDomain : public Domain {
     double radius;
 public:
@@ -10,7 +14,6 @@ public:
     SphereDomain(int numDim);
     virtual ~SphereDomain();
 
-    void reverseLatitudeAxis();
     double getRadius();
     void setRadius(double radius);
 };

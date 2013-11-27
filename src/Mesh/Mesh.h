@@ -15,7 +15,7 @@ public:
     Mesh(Domain &domain);
     virtual ~Mesh();
 
-    const Domain& getDomain();
+    const Domain& getDomain() const;
 };
 
 #endif

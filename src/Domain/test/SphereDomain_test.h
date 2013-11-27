@@ -24,9 +24,3 @@ TEST_F(SphereDomainTest, Constructor) {
     EXPECT_EQ(POLE, sphere->getAxisStartBndType(1));
     EXPECT_EQ(POLE, sphere->getAxisEndBndType(1));
 }
-
-TEST_F(SphereDomainTest, ReverseLatitudeAxis) {
-    sphere->reverseLatitudeAxis();
-    EXPECT_EQ(M_PI_2, sphere->getAxisStart(1));
-    EXPECT_EQ(-M_PI_2, sphere->getAxisEnd(1));
-}

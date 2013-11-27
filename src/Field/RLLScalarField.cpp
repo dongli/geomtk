@@ -11,17 +11,15 @@ RLLScalarField::~RLLScalarField() {
     delete [] staggerTypes;
 }
 
-void RLLScalarField::applyBndCond() {
+void RLLScalarField::applyBndCond(int timeLevel) {
     // zonal periodic boundary condition
     int nx = data.get(0).n_rows;
     int ny = data.get(0).n_cols;
     int nz = data.get(0).n_slices;
-    for (int l = 0; l < data.getNumLevel(); ++l) {
-        for (int k = 0; k < nz; ++k) {
-            for (int j = 0; j < ny; ++j) {
-                data.get(l)(0, j, k) = data.get(l)(nx-2, j, k);
-                data.get(l)(nx-1, j, k) = data.get(l)(1, j, k);
-            }
+    for (int k = 0; k < nz; ++k) {
+        for (int j = 0; j < ny; ++j) {
+            data.get(timeLevel)(0, j, k) = data.get(timeLevel)(nx-2, j, k);
+            data.get(timeLevel)(nx-1, j, k) = data.get(timeLevel)(1, j, k);
         }
     }
 }

@@ -12,7 +12,7 @@ public:
     RLLScalarField(Mesh &mesh);
     virtual ~RLLScalarField();
 
-    virtual void applyBndCond();
+    virtual void applyBndCond(int timeLevel);
 
     virtual void create(StaggerType lonStaggerType,
                         StaggerType latStaggerType);
