@@ -41,7 +41,8 @@ RLLMesh.o: RLLMesh.h StructuredMesh.o
 Field.o: Field.h Mesh.o
 RLLScalarField.o: RLLScalarField.h Field.o RLLMesh.o
 RLLVectorField.o: RLLVectorField.h Field.o RLLMesh.o
-test.o: Domain_test.h SphereDomain_test.h StructuredMesh_test.h
+test.o: Domain_test.h SphereDomain_test.h \
+        StructuredMesh_test.h RLLScalarField_test.h
 
 libgeomtk.a: $(OBJECTS)
 	$(LC) $@ $^

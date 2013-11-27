@@ -12,6 +12,8 @@ public:
     Field(Mesh &mesh);
     virtual ~Field();
 
+    virtual void applyBndCond() = 0;
+
     const Mesh& getMesh();
 };
 

@@ -88,32 +88,56 @@ void StructuredMesh::setGridCoords(int dim, int size, double *full, double *half
     }
 }
 
-const vec& StructuredMesh::getGridCoords(int dim, StaggerType staggerType) const {
+vec StructuredMesh::getGridCoords(int dim, StaggerType staggerType,
+                                  bool hasVirtualGrids) const {
     // sanity check
     if (dim >= domain->getNumDim()) {
         REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension (" << domain->getNumDim() << ")!")
     }
-    switch (staggerType) {
-        case CENTER:
-            return fullCoords[dim];
-        case EDGE: case VERTEX:
-            return halfCoords[dim];
-        default:
-            REPORT_ERROR("Unknown stagger type!")
+    if (domain->getAxisStartBndType(dim) == PERIODIC && !hasVirtualGrids) {
+        switch (staggerType) {
+            case CENTER:
+                return fullCoords[dim](span(1, fullCoords[dim].size()-2));
+            case EDGE: case VERTEX:
+                return halfCoords[dim](span(1, halfCoords[dim].size()-2));
+            default:
+                REPORT_ERROR("Unknown stagger type!")
+        }
+    } else {
+        switch (staggerType) {
+            case CENTER:
+                return fullCoords[dim];
+            case EDGE: case VERTEX:
+                return halfCoords[dim];
+            default:
+                REPORT_ERROR("Unknown stagger type!")
+        }
     }
 }
 
-int StructuredMesh::getNumGrid(int dim, StaggerType staggerType) const {
+int StructuredMesh::getNumGrid(int dim, StaggerType staggerType,
+                               bool hasVirtualGrids) const {
     // sanity check
     if (dim >= domain->getNumDim()) {
         REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension (" << domain->getNumDim() << ")!")
     }
-    switch (staggerType) {
-        case CENTER:
-            return fullCoords[dim].size();
-        case EDGE: case VERTEX:
-            return halfCoords[dim].size();
-        default:
-            REPORT_ERROR("Unknown stagger type!")
+    if (domain->getAxisStartBndType(dim) == PERIODIC && !hasVirtualGrids) {
+        switch (staggerType) {
+            case CENTER:
+                return fullCoords[dim].size()-2;
+            case EDGE: case VERTEX:
+                return halfCoords[dim].size()-2;
+            default:
+                REPORT_ERROR("Unknown stagger type!")
+        }
+    } else {
+        switch (staggerType) {
+            case CENTER:
+                return fullCoords[dim].size();
+            case EDGE: case VERTEX:
+                return halfCoords[dim].size();
+            default:
+                REPORT_ERROR("Unknown stagger type!")
+        }
     }
 }

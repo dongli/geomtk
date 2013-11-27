@@ -12,11 +12,16 @@ public:
     RLLScalarField(Mesh &mesh);
     virtual ~RLLScalarField();
 
+    virtual void applyBndCond();
+
     virtual void create(StaggerType lonStaggerType,
                         StaggerType latStaggerType);
     virtual void create(StaggerType lonStaggerType,
                         StaggerType latStaggerType,
                         StaggerType levStaggerType);
+
+    double operator()(int timeLevel, int i, int j, int k = 0) const;
+    double& operator()(int timeLevel, int i, int j, int k = 0);
 };
 
 #endif

@@ -17,7 +17,8 @@ protected:
     }
 };
 
-TEST_F(StructuredMeshTest, SetCoords) {
+TEST_F(StructuredMeshTest, SetGridCoords) {
+    // -------------------------------------------------------------------------
     int numLon = 10;
     double fullLon[numLon], halfLon[numLon];
     double dlon = 2.0*M_PI/numLon;
@@ -26,14 +27,15 @@ TEST_F(StructuredMeshTest, SetCoords) {
         halfLon[i] = i*dlon+dlon*0.5;
     }
     mesh->setGridCoords(0, numLon, fullLon, halfLon);
-    const vec &lon1 = mesh->getGridCoords(0, CENTER);
-    EXPECT_EQ(numLon+2, lon1.size());
-    EXPECT_EQ(fullLon[0]-dlon, lon1(0));
-    EXPECT_EQ(fullLon[numLon-1]+dlon, lon1(numLon+1));
-    const vec &lon2 = mesh->getGridCoords(0, EDGE);
-    EXPECT_EQ(numLon+2, lon2.size());
-    EXPECT_EQ(halfLon[0]-dlon, lon2(0));
-    EXPECT_EQ(halfLon[numLon-1]+dlon, lon2(numLon+1));
+    EXPECT_EQ(numLon+2, mesh->getNumGrid(0, CENTER, true));
+    vec lon1 = mesh->getGridCoords(0, CENTER);
+    EXPECT_EQ(numLon, lon1.size());
+    EXPECT_EQ(fullLon[0], lon1(0));
+    EXPECT_EQ(fullLon[numLon-1], lon1(numLon-1));
+    vec lon2 = mesh->getGridCoords(0, EDGE);
+    EXPECT_EQ(numLon, lon2.size());
+    EXPECT_EQ(halfLon[0], lon2(0));
+    EXPECT_EQ(halfLon[numLon-1], lon2(numLon-1));
     // -------------------------------------------------------------------------
     int numLat = 10;
     double fullLat[numLat], halfLat[numLat-1];
@@ -45,11 +47,11 @@ TEST_F(StructuredMeshTest, SetCoords) {
         halfLat[j] = dlat*0.5+j*dlat-M_PI_2;
     }
     mesh->setGridCoords(1, numLat, fullLat, halfLat);
-    const vec &lat1 = mesh->getGridCoords(1, CENTER);
+    vec lat1 = mesh->getGridCoords(1, CENTER);
     EXPECT_EQ(numLat, lat1.size());
     EXPECT_EQ(mesh->getDomain().getAxisStart(1), lat1(0));
     EXPECT_EQ(mesh->getDomain().getAxisEnd(1), lat1(numLat-1));
-    const vec &lat2 = mesh->getGridCoords(1, EDGE);
+    vec lat2 = mesh->getGridCoords(1, EDGE);
     EXPECT_EQ(numLat-1, lat2.size());
     EXPECT_EQ(lat1(0)+dlat*0.5, lat2(0));
     // NOTE: The equality is not exact!

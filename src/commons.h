@@ -6,6 +6,7 @@
 using arma::vec;
 using arma::mat;
 using arma::cube;
+using arma::span;
 
 #include <iostream>
 #include <iomanip>

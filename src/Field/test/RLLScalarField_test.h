@@ -39,5 +39,12 @@ protected:
 
 TEST_F(RLLScalarFieldTest, Create) {
     field->create(CENTER, CENTER);
-    
+    EXPECT_EQ(10, mesh->getNumGrid(0, CENTER));
+    EXPECT_EQ(10, mesh->getNumGrid(1, CENTER));
+    for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
+            (*field)(0, i, j) = i+j*mesh->getNumGrid(0, CENTER);
+        }
+    }
+    field->applyBndCond();
 }
