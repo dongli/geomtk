@@ -9,7 +9,7 @@ VPATH = $(SRC_DIR) \
         $(SRC_DIR)/Domain $(SRC_DIR)/Domain/test \
         $(SRC_DIR)/Mesh $(SRC_DIR)/Mesh/test \
         $(SRC_DIR)/Field $(SRC_DIR)/Field/test \
-        $(GTEST_DIR)/src
+        $(GTEST_DIR)/include $(GTEST_DIR)/src
 
 INCLUDES = $(foreach path,$(VPATH),-I$(path)) \
            -isystem $(GTEST_DIR)/include -I$(GTEST_DIR) \
@@ -17,39 +17,39 @@ INCLUDES = $(foreach path,$(VPATH),-I$(path)) \
 LIBRARIES = -L$(ARMA_ROOT)/lib64 -larmadillo -L.
 
 CC = g++
-#LC = libtool --mode=link $(CC) -static -o
+# LC = libtool -static -o
 LC = ar cru
 CPPFLAGS = -pthread -DUNIT_TEST -g -O0
 
 %.o: %.cpp
-	$(CC) $(CPPFLAGS) -c $< $(INCLUDES)
+	@echo " Building object of $<"
+	@$(CC) $(CPPFLAGS) -c $< $(INCLUDES)
 %.o: %.cc
-	$(CC) $(CPPFLAGS) -c $< $(INCLUDES)
+	@echo " Building object of $<"
+	@$(CC) $(CPPFLAGS) -c $< $(INCLUDES)
+%.d: %.cpp %.h
+	@echo " Extracting dependencies of $<"
+	@$(CC) -MM -MG -MT '$(patsubst %.cpp,%.o,$(notdir $<))' $< -MF $@
+%.d: %.cpp
+	@echo " Extracting dependencies of $<"
+	@$(CC) -MM -MG -MT '$(patsubst %.cpp,%.o,$(notdir $<))' $< -MF $@
 
 all: libgeomtk.a libgtest.a
 
-OBJECTS = Domain.o PlaneDomain.o SphereDomain.o \
-          Mesh.o StructuredMesh.o RLLMesh.o \
-          Field.o RLLScalarField.o RLLVectorField.o RLLVelocityField.o
+OBJECTS = $(foreach path,$(shell find ../src -name '*.cpp'), \
+		$(patsubst %.cpp,%.o,$(notdir $(path))))
+DEPENDS = $(foreach obj,$(OBJECTS),$(patsubst %.o,%.d,$(obj)))
 
-Domain.o: Domain.h commons.h
-PlaneDomain.o: PlaneDomain.h Domain.o
-SphereDomain.o: SphereDomain.h Domain.o
-Mesh.o: Mesh.h commons.h Domain.o
-StructuredMesh.o: StructuredMesh.h Mesh.o
-RLLMesh.o: RLLMesh.h StructuredMesh.o
-Field.o: Field.h Mesh.o
-RLLScalarField.o: RLLScalarField.h Field.o RLLMesh.o
-RLLVectorField.o: RLLVectorField.h Field.o RLLMesh.o
-RLLVelocityField.o: RLLVelocityField.h RLLVectorField.o
-test.o: Domain_test.h SphereDomain_test.h \
-        StructuredMesh_test.h RLLMesh_test.h \
-        RLLScalarField_test.h RLLVectorField_test.h RLLVelocityField_test.h
+ifneq ($(MAKECMDGOALS),clean)
+-include $(DEPENDS)
+endif
 
-libgeomtk.a: $(OBJECTS)
-	$(LC) $@ $^
-libgtest.a: gtest-all.o
-	$(LC) $@ $^
+depends: $(DEPENDS)
+
+libgeomtk.a: $(OBJECTS) $(DEPENDS)
+	$(LC) $@ $(OBJECTS)
+libgtest.a: gtest-all.o $(DEPENDS)
+	$(LC) $@ $<
 test: libgeomtk.a libgtest.a test.o
 	$(CC) $(CPPFLAGS) -o $@ test.o $(INCLUDES) $(LIBRARIES) -lgeomtk -lgtest
 	./test
@@ -57,4 +57,4 @@ test: libgeomtk.a libgtest.a test.o
 .PHONY:
 
 clean:
-	rm -rf *.o libgeomtk.a libgtest.a test
+	rm -rf *.d *.o libgeomtk.a libgtest.a test

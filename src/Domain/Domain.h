@@ -7,6 +7,23 @@ enum BndType {
     PERIODIC, OPEN, POLE, RIGID, INVALID
 };
 
+/**
+ * @class SpaceCoord
+ * @brief This class is used to describe the space coordinate of a point.
+ */
+
+class SpaceCoord {
+protected:
+    vec coords;
+public:
+    SpaceCoord(int numDim);
+    virtual ~SpaceCoord();
+
+    double operator()(int i) const;
+    double& operator()(int i);
+    vec& operator()();
+};
+
 class Domain {
 protected:
     int numDim;

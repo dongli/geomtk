@@ -9,9 +9,10 @@ my Lagrangian dynamics program, but it may be useful for other projects.
 
 The following items are enclosed:
 
-- Domain class hierarchies;
-- Mesh class hierarchies;
-- Field class hierarchies;
+- SpaceCoord class hierarchy;
+- Domain class hierarchy;
+- Mesh class hierarchy;
+- Field class hierarchy;
 
 Basic usage
 -----------
@@ -32,6 +33,10 @@ RLLScalarField q(mesh);
 RLLVectorField v(mesh);
 
 sphere.setRadius(6371.299e3);
+
+mesh.setGridCoords(0, 128, lonFull, lonHalf); // lonFull and lonHalf are 'double' arrays
+mesh.setGridCoords(1, 60, latFull, latHalf); // latFull and latHalf are 'double' arrays
+mesh.setGridCoords(2, 26, levFull, levHalf); // levFull and levHalf are 'double' arrays
 
 // zonal virtual grids are added, which is apparent to user
 q.create(CENTER, CENTER, CENTER);

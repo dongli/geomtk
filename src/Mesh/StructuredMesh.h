@@ -9,6 +9,7 @@ protected:
     vec *halfCoords;
     vec *fullIntervals;
     vec *halfIntervals;
+    bool *equidistant;
 public:
     StructuredMesh(Domain &domain);
     virtual ~StructuredMesh();
@@ -50,6 +51,8 @@ public:
      */
     int getNumGrid(int dim, StaggerType staggerType,
                    bool hasVirtualGrids = false) const;
+
+    bool isEquidistant(int dim) const;
 };
 
 #endif

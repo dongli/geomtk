@@ -5,6 +5,10 @@ StructuredMesh::StructuredMesh(Domain &domain) : Mesh(domain) {
     halfCoords = new vec[domain.getNumDim()];
     fullIntervals = new vec[domain.getNumDim()];
     halfIntervals = new vec[domain.getNumDim()];
+    equidistant = new bool[domain.getNumDim()];
+    for (int i = 0; i < domain.getNumDim(); ++i) {
+        equidistant[i] = true;
+    }
 }
 
 StructuredMesh::~StructuredMesh() {
@@ -12,6 +16,7 @@ StructuredMesh::~StructuredMesh() {
     delete [] halfCoords;
     delete [] fullIntervals;
     delete [] halfIntervals;
+    delete [] equidistant;
 }
 
 void StructuredMesh::setGridCoords(int dim, int size, double *full, double *half) {
@@ -103,6 +108,13 @@ void StructuredMesh::setGridCoords(int dim, int size, double *full, double *half
         REPORT_ERROR("Axis " << dim << " is not set!")
     } else {
         REPORT_ERROR("Unhandled branch!")
+    }
+    // check if grids are equidistant
+    for (int i = 1; i < fullIntervals[dim].size(); ++i) {
+        if (fullIntervals[dim](i) != fullIntervals[dim](0)) {
+            equidistant[dim] = false;
+            break;
+        }
     }
 }
 

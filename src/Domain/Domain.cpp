@@ -1,5 +1,26 @@
 #include "Domain.h"
 
+SpaceCoord::SpaceCoord(int numDim) {
+    coords.resize(numDim);
+}
+
+SpaceCoord::~SpaceCoord() {
+}
+
+double SpaceCoord::operator()(int i) const {
+    return coords(i);
+}
+
+double& SpaceCoord::operator()(int i) {
+    return coords(i);
+}
+
+vec& SpaceCoord::operator()() {
+    return coords;
+}
+
+// -----------------------------------------------------------------------------
+
 Domain::Domain() {
     this->numDim = 2;
     axisStarts.resize(numDim);

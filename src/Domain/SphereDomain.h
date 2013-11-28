@@ -7,6 +7,11 @@ enum Pole {
 	SOUTH_POLE = 0, NORTH_POLE = 1
 };
 
+class SphereCoord : public SpaceCoord {
+protected:
+public:
+};
+
 class SphereDomain : public Domain {
     double radius;
 public:

@@ -19,8 +19,10 @@ using std::setprecision;
 #include <assert.h>
 #include <cmath>
 #include <string>
+#include <vector>
 
 using std::string;
+using std::vector;
 
 // -----------------------------------------------------------------------------
 // report macros
