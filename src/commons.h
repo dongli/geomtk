@@ -60,6 +60,11 @@ inline string getFunctionName(const string &str) {
     cout << MESSAGE << endl; \
 }
 
+#define CHECK_POINT \
+{ \
+    cout << "[Check point]: " << __FILE__ << ": " << __LINE__ << endl; \
+}
+
 // -----------------------------------------------------------------------------
 // access specifier modifying macros
 #ifdef UNIT_TEST

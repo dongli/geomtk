@@ -1,3 +1,6 @@
+#ifndef __RLLScalarField_test__
+#define __RLLScalarField_test__
+
 #include "RLLScalarField.h"
 
 class RLLScalarFieldTest : public ::testing::Test {
@@ -53,3 +56,5 @@ TEST_F(RLLScalarFieldTest, Create) {
         EXPECT_EQ(field->data.get(0)(n-1, j, 0), field->data.get(0)(1, j, 0));
     }
 }
+
+#endif

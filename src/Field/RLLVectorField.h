@@ -2,6 +2,7 @@
 #define __RLLVectorField__
 
 #include "Field.h"
+#include "SphereDomain.h"
 #include "RLLMesh.h"
 
 class RLLVectorField : public Field {
@@ -11,6 +12,8 @@ protected:
 public:
     RLLVectorField(Mesh &mesh);
     virtual ~RLLVectorField();
+
+    virtual void applyBndCond(int timeLevel);
 
     virtual void create(StaggerType uLonStaggerType,
                         StaggerType uLatStaggerType,
@@ -25,6 +28,9 @@ public:
                         StaggerType wLonStaggerType,
                         StaggerType wLatStaggerType,
                         StaggerType wLevStaggerType);
+
+    double operator()(int timeLevel, int dim, int i, int j, int k = 0) const;
+    double& operator()(int timeLevel, int dim, int i, int j, int k = 0);
 };
 
 #endif

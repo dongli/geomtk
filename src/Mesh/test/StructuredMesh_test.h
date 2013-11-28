@@ -1,3 +1,6 @@
+#ifndef __StructuredMesh_test__
+#define __StructuredMesh_test__
+
 #include "SphereDomain.h"
 #include "StructuredMesh.h"
 
@@ -28,6 +31,7 @@ TEST_F(StructuredMeshTest, SetGridCoords) {
     }
     mesh->setGridCoords(0, numLon, fullLon, halfLon);
     EXPECT_EQ(numLon+2, mesh->getNumGrid(0, CENTER, true));
+    EXPECT_EQ(numLon, mesh->getNumGrid(0, CENTER));
     vec lon1 = mesh->getGridCoords(0, CENTER);
     EXPECT_EQ(numLon, lon1.size());
     EXPECT_EQ(fullLon[0], lon1(0));
@@ -57,3 +61,5 @@ TEST_F(StructuredMeshTest, SetGridCoords) {
     // NOTE: The equality is not exact!
     EXPECT_GT(1.0e-15, std::abs(lat1(numLat-1)-dlat*0.5-lat2(numLat-2)));
 }
+
+#endif

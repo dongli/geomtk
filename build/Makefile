@@ -19,7 +19,7 @@ LIBRARIES = -L$(ARMA_ROOT)/lib64 -larmadillo -L.
 CC = g++
 #LC = libtool --mode=link $(CC) -static -o
 LC = ar cru
-CPPFLAGS = -pthread -DUNIT_TEST
+CPPFLAGS = -pthread -DUNIT_TEST -g -O0
 
 %.o: %.cpp
 	$(CC) $(CPPFLAGS) -c $< $(INCLUDES)
@@ -30,19 +30,21 @@ all: libgeomtk.a libgtest.a
 
 OBJECTS = Domain.o PlaneDomain.o SphereDomain.o \
           Mesh.o StructuredMesh.o RLLMesh.o \
-          Field.o RLLScalarField.o RLLVectorField.o
+          Field.o RLLScalarField.o RLLVectorField.o RLLVelocityField.o
 
 Domain.o: Domain.h commons.h
 PlaneDomain.o: PlaneDomain.h Domain.o
 SphereDomain.o: SphereDomain.h Domain.o
-Mesh.o: Mesh.h commons.h
+Mesh.o: Mesh.h commons.h Domain.o
 StructuredMesh.o: StructuredMesh.h Mesh.o
 RLLMesh.o: RLLMesh.h StructuredMesh.o
 Field.o: Field.h Mesh.o
 RLLScalarField.o: RLLScalarField.h Field.o RLLMesh.o
 RLLVectorField.o: RLLVectorField.h Field.o RLLMesh.o
+RLLVelocityField.o: RLLVelocityField.h RLLVectorField.o
 test.o: Domain_test.h SphereDomain_test.h \
-        StructuredMesh_test.h RLLScalarField_test.h
+        StructuredMesh_test.h RLLMesh_test.h \
+        RLLScalarField_test.h RLLVectorField_test.h RLLVelocityField_test.h
 
 libgeomtk.a: $(OBJECTS)
 	$(LC) $@ $^

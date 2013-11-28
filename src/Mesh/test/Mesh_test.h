@@ -1,3 +1,6 @@
+#ifndef __Mesh_test__
+#define __Mesh_test__
+
 #include "Mesh.h"
 #include "SphereDomain.h"
 #include "gtest/gtest.h"
@@ -16,3 +19,5 @@ protected:
 
     }
 };
+
+#endif

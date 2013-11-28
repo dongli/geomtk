@@ -1,3 +1,6 @@
+#ifndef __Domain_test__
+#define __Domain_test__
+
 #include "Domain.h"
 #include "gtest/gtest.h"
 
@@ -33,3 +36,5 @@ TEST_F(DomainTest, SetAxis) {
     EXPECT_EQ(RIGID, d2->getAxisStartBndType(1));
     EXPECT_EQ(RIGID, d2->getAxisEndBndType(1));
 }
+
+#endif

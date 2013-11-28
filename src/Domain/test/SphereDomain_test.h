@@ -1,3 +1,6 @@
+#ifndef __SphereDomain_test__
+#define __SphereDomain_test__
+
 #include "SphereDomain.h"
 
 class SphereDomainTest : public ::testing::Test {
@@ -24,3 +27,5 @@ TEST_F(SphereDomainTest, Constructor) {
     EXPECT_EQ(POLE, sphere->getAxisStartBndType(1));
     EXPECT_EQ(POLE, sphere->getAxisEndBndType(1));
 }
+
+#endif

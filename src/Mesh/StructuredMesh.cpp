@@ -54,7 +54,8 @@ void StructuredMesh::setGridCoords(int dim, int size, double *full, double *half
         } else {
             REPORT_ERROR("Don't know how to handle input grid coordinates of dimension " << dim << "!")
         }
-    } else if (domain->getAxisStartBndType(dim) == POLE) {
+    } else if (domain->getAxisStartBndType(dim) == POLE ||
+               domain->getAxisStartBndType(dim) == RIGID) {
         if (full[0] == domain->getAxisStart(dim) &&
             full[size-1] == domain->getAxisEnd(dim)) {
             fullCoords[dim].resize(size);
@@ -77,14 +78,31 @@ void StructuredMesh::setGridCoords(int dim, int size, double *full, double *half
             }
         } else if (half[0] == domain->getAxisStart(dim) &&
                    half[size] == domain->getAxisEnd(dim)) {
-            REPORT_ERROR("Under construction!")
             fullCoords[dim].resize(size);
             halfCoords[dim].resize(size+1);
             fullIntervals[dim].resize(size);
             halfIntervals[dim].resize(size+1);
+            for (int i = 0; i < size; ++i) {
+                fullCoords[dim](i) = full[i];
+            }
+            for (int i = 0; i < size+1; ++i) {
+                halfCoords[dim](i) = half[i];
+            }
+            for (int i = 0; i < size; ++i) {
+                fullIntervals[dim](i) = half[i+1]-half[i];
+            }
+            for (int i = 1; i < size; ++i) {
+                halfIntervals[dim](i) = half[i+1]-half[i];
+            }
+            halfIntervals[dim](0) = full[0]-domain->getAxisStart(dim);
+            halfIntervals[dim](size) = domain->getAxisEnd(dim)-full[size-1];
         } else {
             REPORT_ERROR("Unhandled branch!")
         }
+    } else if (domain->getAxisStartBndType(dim) == INVALID) {
+        REPORT_ERROR("Axis " << dim << " is not set!")
+    } else {
+        REPORT_ERROR("Unhandled branch!")
     }
 }
 

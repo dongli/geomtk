@@ -4,7 +4,7 @@
 #include "commons.h"
 
 enum BndType {
-    PERIODIC, OPEN, POLE, RIGID
+    PERIODIC, OPEN, POLE, RIGID, INVALID
 };
 
 class Domain {

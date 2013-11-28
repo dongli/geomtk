@@ -7,6 +7,10 @@ Domain::Domain() {
     axisSpans.resize(numDim);
     bndTypeStarts = new BndType[numDim];
     bndTypeEnds = new BndType[numDim];
+    for (int i = 0; i < numDim; ++i) {
+        bndTypeStarts[i] = INVALID;
+        bndTypeEnds[i] = INVALID;
+    }
 }
 
 Domain::Domain(int numDim) {
@@ -16,6 +20,10 @@ Domain::Domain(int numDim) {
     axisSpans.resize(numDim);
     bndTypeStarts = new BndType[numDim];
     bndTypeEnds = new BndType[numDim];
+    for (int i = 0; i < numDim; ++i) {
+        bndTypeStarts[i] = INVALID;
+        bndTypeEnds[i] = INVALID;
+    }
 }
 
 Domain::~Domain() {
