@@ -21,7 +21,7 @@ public:
     /**
      * @brief Locate the given space coordinate in the mesh.
      */
-    virtual void locate(SpaceCoord &x) = 0;
+    virtual void locate(const SpaceCoord &x) = 0;
 };
 
 #endif

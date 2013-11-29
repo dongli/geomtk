@@ -5,10 +5,7 @@ ifndef ARMA_ROOT
     ARMA_ROOT = /usr/local
 endif
 
-VPATH = $(SRC_DIR) \
-        $(SRC_DIR)/Domain $(SRC_DIR)/Domain/test \
-        $(SRC_DIR)/Mesh $(SRC_DIR)/Mesh/test \
-        $(SRC_DIR)/Field $(SRC_DIR)/Field/test \
+VPATH = $(shell find $(SRC_DIR) -type d) \
         $(GTEST_DIR)/include $(GTEST_DIR)/src
 
 INCLUDES = $(foreach path,$(VPATH),-I$(path)) \
@@ -51,7 +48,7 @@ libgeomtk.a: $(OBJECTS) $(DEPENDS)
 	@$(LC) $@ $(OBJECTS)
 libgtest.a: gtest-all.o $(DEPENDS)
 	@echo " Building library $@"
-	$(LC) $@ $<
+	@$(LC) $@ $<
 test: libgeomtk.a libgtest.a test.o
 	@echo " Building test"
 	@$(CC) $(CPPFLAGS) -o $@ test.o $(INCLUDES) $(LIBRARIES) -lgeomtk -lgtest

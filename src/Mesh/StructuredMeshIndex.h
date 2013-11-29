@@ -22,7 +22,7 @@ public:
     /**
      * @see MeshIndex::locate(SpaceCoord x)
      */
-    virtual void locate(SpaceCoord &x);
+    virtual void locate(const SpaceCoord &x);
 };
 
 #endif

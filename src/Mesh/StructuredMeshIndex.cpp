@@ -26,7 +26,7 @@ int& StructuredMeshIndex::operator()(int dim, StaggerType staggerType) {
     return indices[staggerType][dim];
 }
 
-void StructuredMeshIndex::locate(SpaceCoord &x) {
+void StructuredMeshIndex::locate(const SpaceCoord &x) {
     const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
     for (int m = 0; m < mesh.getDomain().getNumDim(); ++m) {
         // sanity check

@@ -26,7 +26,7 @@ bool RLLMeshIndex::isOnPole() const {
     return onPole;
 }
 
-void RLLMeshIndex::locate(SpaceCoord &x) {
+void RLLMeshIndex::locate(const SpaceCoord &x) {
     StructuredMeshIndex::locate(x);
     const RLLMesh &mesh = static_cast<const RLLMesh&>(*(this->mesh));
     if (indices[CENTER][1] == 0) {

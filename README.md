@@ -13,6 +13,13 @@ The following items are enclosed:
 - Domain class hierarchy;
 - Mesh class hierarchy;
 - Field class hierarchy;
+- Regrid class hierarchy;
+
+The Lagrangian advection scheme that I am developing should be able to be
+applied to models with different mesh systems. The above `Mesh`, `Field` and
+`Regrid` class hierarchies are designed for this purpose by hiding the mesh
+details from the scheme, so the switching among models will be easy and the
+core of the scheme will not be changed.
 
 Basic usage
 -----------
@@ -31,6 +38,7 @@ SphereDomain sphere(3);
 RLLMesh mesh(sphere);
 RLLScalarField q(mesh);
 RLLVectorField v(mesh);
+RLLRegrid regrid(mesh);
 
 sphere.setRadius(6371.299e3);
 
@@ -50,6 +58,15 @@ for (int k = 0; k < mesh.getNumGrid(2, CENTER); ++k) {
 		}
 	}
 }
+
+// interpolate field onto a point
+SphereCoord x(3);
+x(0) = ...;
+x(1) = ...;
+x(2) = ...;
+
+double y;
+regrid.run(q, x, y);
 
 ```
 

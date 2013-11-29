@@ -25,7 +25,7 @@ public:
      * judgement.
      * @see MeshIndex::locate(SpaceCoord)
      */
-    virtual void locate(SpaceCoord &x);
+    virtual void locate(const SpaceCoord &x);
 };
 
 #endif
