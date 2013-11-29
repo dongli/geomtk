@@ -47,3 +47,17 @@ void RLLMeshIndex::locate(const SpaceCoord &x) {
         onPole = false;
     }
 }
+
+void RLLMeshIndex::print() {
+    StructuredMeshIndex::print();
+    cout << "inPolarCap: " << inPolarCap << endl;
+    cout << "onPole: " << onPole << endl;
+    cout << "pole: ";
+    if (pole == SOUTH_POLE) {
+        cout << "SOUTH_POLE" << endl;
+    } else if (pole == NORTH_POLE) {
+        cout << "NORTH_POLE" << endl;
+    } else if (pole == NOT_POLE) {
+        cout << "NOT_POLE" << endl;
+    }
+}

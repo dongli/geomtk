@@ -26,6 +26,8 @@ public:
      * @see MeshIndex::locate(SpaceCoord)
      */
     virtual void locate(const SpaceCoord &x);
+
+    virtual void print();
 };
 
 #endif
