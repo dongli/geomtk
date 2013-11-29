@@ -77,7 +77,7 @@ RLLVelocityField::~RLLVelocityField() {
 }
 
 void RLLVelocityField::applyBndCond(int timeLevel) {
-	RLLVectorField::applyBndCond(timeLevel);
+    RLLVectorField::applyBndCond(timeLevel);
     rings[0].update(timeLevel, SOUTH_POLE, data);
     rings[1].update(timeLevel, NORTH_POLE, data);
 }
@@ -87,7 +87,7 @@ void RLLVelocityField::create(StaggerType uLonStaggerType,
                               StaggerType vLonStaggerType,
                               StaggerType vLatStaggerType) {
     RLLVectorField::create(uLonStaggerType, uLatStaggerType,
-    					   vLonStaggerType, vLatStaggerType);
+                           vLonStaggerType, vLatStaggerType);
     rings[0].create(*mesh); rings[1].create(*mesh);
 }
 
@@ -101,7 +101,7 @@ void RLLVelocityField::create(StaggerType uLonStaggerType,
                               StaggerType wLatStaggerType,
                               StaggerType wLevStaggerType) {
     RLLVectorField::create(uLonStaggerType, uLatStaggerType, uLevStaggerType,
-    					   vLonStaggerType, vLatStaggerType, vLevStaggerType,
-    					   wLonStaggerType, wLatStaggerType, wLevStaggerType);
+                           vLonStaggerType, vLatStaggerType, vLevStaggerType,
+                           wLonStaggerType, wLatStaggerType, wLevStaggerType);
     rings[0].create(*mesh); rings[1].create(*mesh);
 }

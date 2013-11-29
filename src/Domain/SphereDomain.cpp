@@ -3,7 +3,7 @@
 SphereCoord::SphereCoord(int numDim) : SpaceCoord(numDim) {
 }
 
-SphereCoord::~SphereCoord() {	
+SphereCoord::~SphereCoord() {
 }
 
 SphereDomain::SphereDomain() : Domain(2) {

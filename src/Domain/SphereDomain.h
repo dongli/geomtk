@@ -4,14 +4,14 @@
 #include "Domain.h"
 
 enum Pole {
-	SOUTH_POLE = 0, NORTH_POLE = 1
+    SOUTH_POLE = 0, NORTH_POLE = 1, NOT_POLE = 2
 };
 
 class SphereCoord : public SpaceCoord {
 protected:
 public:
-	SphereCoord(int numDim);
-	virtual ~SphereCoord();
+    SphereCoord(int numDim);
+    virtual ~SphereCoord();
 };
 
 class SphereDomain : public Domain {

@@ -35,12 +35,12 @@ class RLLVelocityField : public RLLVectorField {
 protected:
     PolarRing *rings;
 public:
-	RLLVelocityField(Mesh &mesh);
-	virtual ~RLLVelocityField();
+    RLLVelocityField(Mesh &mesh);
+    virtual ~RLLVelocityField();
 
-	virtual void applyBndCond(int timeLevel);
+    virtual void applyBndCond(int timeLevel);
 
-	virtual void create(StaggerType uLonStaggerType,
+    virtual void create(StaggerType uLonStaggerType,
                         StaggerType uLatStaggerType,
                         StaggerType vLonStaggerType,
                         StaggerType vLatStaggerType);

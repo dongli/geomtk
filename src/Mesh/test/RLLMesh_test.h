@@ -5,12 +5,12 @@
 
 class RLLMeshTest : public ::testing::Test {
 protected:
-	SphereDomain *sphere;
-	RLLMesh *mesh;
+    SphereDomain *sphere;
+    RLLMesh *mesh;
 
-	virtual void SetUp() {
-		sphere = new SphereDomain(3);
-		mesh = new RLLMesh(*sphere);
+    virtual void SetUp() {
+        sphere = new SphereDomain(3);
+        mesh = new RLLMesh(*sphere);
         int numLon = 10;
         double fullLon[numLon], halfLon[numLon];
         double dlon = 2.0*M_PI/numLon;
@@ -40,28 +40,28 @@ protected:
         }
         sphere->setAxis(2, 0.0, RIGID, 1.0, RIGID);
         mesh->setGridCoords(2, numLev, fullLev, halfLev);
-	}
+    }
 
-	virtual void TearDown() {
-		delete mesh;
-		delete sphere;
-	}
+    virtual void TearDown() {
+        delete mesh;
+        delete sphere;
+    }
 };
 
 TEST_F(RLLMeshTest, CheckGridCoords) {
-	// check dimension sizes
-	ASSERT_EQ(10, mesh->getNumGrid(0, CENTER));
-	ASSERT_EQ(12, mesh->getNumGrid(0, CENTER, true));
-	ASSERT_EQ(10, mesh->getNumGrid(0, EDGE));
-	ASSERT_EQ(12, mesh->getNumGrid(0, EDGE, true));
-	ASSERT_EQ(10, mesh->getNumGrid(1, CENTER));
-	ASSERT_EQ(10, mesh->getNumGrid(1, CENTER, true));
-	ASSERT_EQ(9, mesh->getNumGrid(1, EDGE));
-	ASSERT_EQ(9, mesh->getNumGrid(1, EDGE, true));
-	ASSERT_EQ(5, mesh->getNumGrid(2, CENTER));
-	ASSERT_EQ(5, mesh->getNumGrid(2, CENTER, true));
-	ASSERT_EQ(6, mesh->getNumGrid(2, EDGE));
-	ASSERT_EQ(6, mesh->getNumGrid(2, EDGE, true));
+    // check dimension sizes
+    ASSERT_EQ(10, mesh->getNumGrid(0, CENTER));
+    ASSERT_EQ(12, mesh->getNumGrid(0, CENTER, true));
+    ASSERT_EQ(10, mesh->getNumGrid(0, EDGE));
+    ASSERT_EQ(12, mesh->getNumGrid(0, EDGE, true));
+    ASSERT_EQ(10, mesh->getNumGrid(1, CENTER));
+    ASSERT_EQ(10, mesh->getNumGrid(1, CENTER, true));
+    ASSERT_EQ(9, mesh->getNumGrid(1, EDGE));
+    ASSERT_EQ(9, mesh->getNumGrid(1, EDGE, true));
+    ASSERT_EQ(5, mesh->getNumGrid(2, CENTER));
+    ASSERT_EQ(5, mesh->getNumGrid(2, CENTER, true));
+    ASSERT_EQ(6, mesh->getNumGrid(2, EDGE));
+    ASSERT_EQ(6, mesh->getNumGrid(2, EDGE, true));
     // check cosine and sine
     vec lonFull = mesh->getGridCoords(0, CENTER, true);
     for (int i = 0; i < mesh->getNumGrid(0, CENTER, true); ++i) {
