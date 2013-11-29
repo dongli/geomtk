@@ -22,7 +22,7 @@ StructuredMesh::~StructuredMesh() {
 void StructuredMesh::setGridCoords(int dim, int size, double *full, double *half) {
     // sanity check
     if (dim >= domain->getNumDim()) {
-        REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension (" << domain->getNumDim() << ")!")
+        REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension (" << domain->getNumDim() << ")!");
     }
     if (domain->getAxisStartBndType(dim) == PERIODIC) {
         fullCoords[dim].resize(size+2);
@@ -57,7 +57,7 @@ void StructuredMesh::setGridCoords(int dim, int size, double *full, double *half
             halfCoords[dim](0) = domain->getAxisStart(dim)-halfIntervals[dim](size);
             halfCoords[dim](size+1) = domain->getAxisEnd(dim);
         } else {
-            REPORT_ERROR("Don't know how to handle input grid coordinates of dimension " << dim << "!")
+            REPORT_ERROR("Don't know how to handle input grid coordinates of dimension " << dim << "!");
         }
     } else if (domain->getAxisStartBndType(dim) == POLE ||
                domain->getAxisStartBndType(dim) == RIGID) {
@@ -102,12 +102,25 @@ void StructuredMesh::setGridCoords(int dim, int size, double *full, double *half
             halfIntervals[dim](0) = full[0]-domain->getAxisStart(dim);
             halfIntervals[dim](size) = domain->getAxisEnd(dim)-full[size-1];
         } else {
-            REPORT_ERROR("Unhandled branch!")
+            REPORT_ERROR("Unhandled branch!");
         }
     } else if (domain->getAxisStartBndType(dim) == INVALID) {
-        REPORT_ERROR("Axis " << dim << " is not set!")
+        REPORT_ERROR("Axis " << dim << " is not set!");
     } else {
-        REPORT_ERROR("Unhandled branch!")
+        REPORT_ERROR("Unhandled branch!");
+    }
+    // check if grids are equidistant
+    for (int i = 1; i < fullIntervals[dim].size(); ++i) {
+        if (fullIntervals[dim](i) != fullIntervals[dim](0)) {
+            equidistant[dim] = false;
+            break;
+        }
+    }
+    for (int i = 1; i < halfIntervals[dim].size(); ++i) {
+        if (halfIntervals[dim](i) != halfIntervals[dim](0)) {
+            equidistant[dim] = false;
+            break;
+        }
     }
     // check if grids are equidistant
     for (int i = 1; i < fullIntervals[dim].size(); ++i) {
@@ -122,7 +135,7 @@ vec StructuredMesh::getGridCoords(int dim, StaggerType staggerType,
                                   bool hasVirtualGrids) const {
     // sanity check
     if (dim >= domain->getNumDim()) {
-        REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension (" << domain->getNumDim() << ")!")
+        REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension (" << domain->getNumDim() << ")!");
     }
     if (domain->getAxisStartBndType(dim) == PERIODIC && !hasVirtualGrids) {
         switch (staggerType) {
@@ -131,7 +144,7 @@ vec StructuredMesh::getGridCoords(int dim, StaggerType staggerType,
             case EDGE: case VERTEX:
                 return halfCoords[dim](span(1, halfCoords[dim].size()-2));
             default:
-                REPORT_ERROR("Unknown stagger type!")
+                REPORT_ERROR("Unknown stagger type!");
         }
     } else {
         switch (staggerType) {
@@ -140,7 +153,7 @@ vec StructuredMesh::getGridCoords(int dim, StaggerType staggerType,
             case EDGE: case VERTEX:
                 return halfCoords[dim];
             default:
-                REPORT_ERROR("Unknown stagger type!")
+                REPORT_ERROR("Unknown stagger type!");
         }
     }
 }
@@ -149,7 +162,7 @@ int StructuredMesh::getNumGrid(int dim, StaggerType staggerType,
                                bool hasVirtualGrids) const {
     // sanity check
     if (dim >= domain->getNumDim()) {
-        REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension (" << domain->getNumDim() << ")!")
+        REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension (" << domain->getNumDim() << ")!");
     }
     if (domain->getAxisStartBndType(dim) == PERIODIC && !hasVirtualGrids) {
         switch (staggerType) {
@@ -158,7 +171,7 @@ int StructuredMesh::getNumGrid(int dim, StaggerType staggerType,
             case EDGE: case VERTEX:
                 return halfCoords[dim].size()-2;
             default:
-                REPORT_ERROR("Unknown stagger type!")
+                REPORT_ERROR("Unknown stagger type!");
         }
     } else {
         switch (staggerType) {
@@ -167,7 +180,11 @@ int StructuredMesh::getNumGrid(int dim, StaggerType staggerType,
             case EDGE: case VERTEX:
                 return halfCoords[dim].size();
             default:
-                REPORT_ERROR("Unknown stagger type!")
+                REPORT_ERROR("Unknown stagger type!");
         }
     }
+}
+
+bool StructuredMesh::isEquidistant(int dim) const {
+    return equidistant[dim];
 }

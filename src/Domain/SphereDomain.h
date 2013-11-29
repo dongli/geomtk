@@ -10,6 +10,8 @@ enum Pole {
 class SphereCoord : public SpaceCoord {
 protected:
 public:
+	SphereCoord(int numDim);
+	virtual ~SphereCoord();
 };
 
 class SphereDomain : public Domain {

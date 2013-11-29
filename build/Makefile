@@ -47,12 +47,16 @@ endif
 depends: $(DEPENDS)
 
 libgeomtk.a: $(OBJECTS) $(DEPENDS)
-	$(LC) $@ $(OBJECTS)
+	@echo " Building library $@"
+	@$(LC) $@ $(OBJECTS)
 libgtest.a: gtest-all.o $(DEPENDS)
+	@echo " Building library $@"
 	$(LC) $@ $<
 test: libgeomtk.a libgtest.a test.o
-	$(CC) $(CPPFLAGS) -o $@ test.o $(INCLUDES) $(LIBRARIES) -lgeomtk -lgtest
-	./test
+	@echo " Building test"
+	@$(CC) $(CPPFLAGS) -o $@ test.o $(INCLUDES) $(LIBRARIES) -lgeomtk -lgtest
+	@echo " Running test"
+	@./test
 
 .PHONY:
 

@@ -40,6 +40,7 @@ TEST_F(StructuredMeshTest, SetGridCoords) {
     EXPECT_EQ(numLon, lon2.size());
     EXPECT_EQ(halfLon[0], lon2(0));
     EXPECT_EQ(halfLon[numLon-1], lon2(numLon-1));
+    EXPECT_EQ(true, mesh->isEquidistant(0));
     // -------------------------------------------------------------------------
     int numLat = 10;
     double fullLat[numLat], halfLat[numLat-1];
@@ -60,6 +61,7 @@ TEST_F(StructuredMeshTest, SetGridCoords) {
     EXPECT_EQ(lat1(0)+dlat*0.5, lat2(0));
     // NOTE: The equality is not exact!
     EXPECT_GT(1.0e-15, std::abs(lat1(numLat-1)-dlat*0.5-lat2(numLat-2)));
+    EXPECT_EQ(false, mesh->isEquidistant(1));
 }
 
 #endif

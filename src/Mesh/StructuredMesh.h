@@ -4,6 +4,7 @@
 #include "Mesh.h"
 
 class StructuredMesh : public Mesh {
+    friend class StructuredMeshIndex;
 protected:
     vec *fullCoords;
     vec *halfCoords;

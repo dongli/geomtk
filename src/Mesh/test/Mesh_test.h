@@ -3,7 +3,6 @@
 
 #include "Mesh.h"
 #include "SphereDomain.h"
-#include "gtest/gtest.h"
 
 class MeshTest : public ::testing::Test {
 protected:
