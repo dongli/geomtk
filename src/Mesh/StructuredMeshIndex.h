@@ -6,7 +6,7 @@
 
 class StructuredMeshIndex : public MeshIndex {
 protected:
-    vector<int> indices[3];
+    int **indices;
 public:
     StructuredMeshIndex(Mesh &mesh);
     virtual ~StructuredMeshIndex();

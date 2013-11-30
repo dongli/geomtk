@@ -1,29 +1,35 @@
 #include "StructuredMeshIndex.h"
 
 StructuredMeshIndex::StructuredMeshIndex(Mesh &mesh) : MeshIndex(mesh) {
-    indices[CENTER].resize(mesh.getDomain().getNumDim());
-    indices[EDGE].resize(mesh.getDomain().getNumDim());
-    indices[VERTEX].resize(mesh.getDomain().getNumDim());
+    // NOTE: Index is 3D no matter the dimension size of domain.
+    indices = new int*[3];
+    for (int i = 0; i < 3; ++i) {
+        indices[i] = new int[3];
+    }
     reset();
 }
 
 StructuredMeshIndex::~StructuredMeshIndex() {
+    for (int i = 0; i < 3; ++i) {
+        delete [] indices[i];
+    }
+    delete [] indices;
 }
 
 void StructuredMeshIndex::reset() {
     for (int m = 0; m < mesh->getDomain().getNumDim(); ++m) {
-        indices[CENTER][m] = UNDEFINED_MESH_INDEX;
-        indices[EDGE][m] = UNDEFINED_MESH_INDEX;
-        indices[VERTEX][m] = UNDEFINED_MESH_INDEX;
+        indices[m][CENTER] = UNDEFINED_MESH_INDEX;
+        indices[m][EDGE] = UNDEFINED_MESH_INDEX;
+        indices[m][VERTEX] = UNDEFINED_MESH_INDEX;
     }
 }
 
 int StructuredMeshIndex::operator()(int dim, StaggerType staggerType) const {
-    return indices[staggerType][dim];
+    return indices[dim][staggerType];
 }
 
 int& StructuredMeshIndex::operator()(int dim, StaggerType staggerType) {
-    return indices[staggerType][dim];
+    return indices[dim][staggerType];
 }
 
 void StructuredMeshIndex::locate(const SpaceCoord &x) {
@@ -49,23 +55,23 @@ void StructuredMeshIndex::locate(const SpaceCoord &x) {
                 REPORT_ERROR("Coordinate x is out of range on dimension " << m << "!");
             }
         }
-        if (indices[CENTER][m] == UNDEFINED_MESH_INDEX) {
+        if (indices[m][CENTER] == UNDEFINED_MESH_INDEX) {
             for (int i = 0; i < mesh.fullCoords[m].size()-1; ++i) {
                 if (x(m) >= mesh.fullCoords[m](i) && x(m) <= mesh.fullCoords[m](i+1)) {
                     // cout << setw(5) << m << setw(5) << i;
                     // cout << setw(10) << x(m);
                     // cout << setw(10) << mesh.fullCoords[m](i);
                     // cout << setw(10) << mesh.fullCoords[m](i+1) << endl;
-                    indices[CENTER][m] = i;
+                    indices[m][CENTER] = i;
                     break;
                 }
             }
             if (mesh.getDomain().getAxisStartBndType(m) == POLE) {
                 if (x(m) < mesh.halfCoords[m](0)) {
-                    indices[EDGE][m] = -1;
+                    indices[m][EDGE] = -1;
                     continue;
                 } else if (x(m) > mesh.halfCoords[m](mesh.halfCoords[m].size()-1)) {
-                    indices[EDGE][m] = mesh.halfCoords[m].size()-1;
+                    indices[m][EDGE] = mesh.halfCoords[m].size()-1;
                     continue;
                 }
             }
@@ -75,7 +81,7 @@ void StructuredMeshIndex::locate(const SpaceCoord &x) {
                     // cout << setw(10) << x(m);
                     // cout << setw(10) << mesh.halfCoords[m](i);
                     // cout << setw(10) << mesh.halfCoords[m](i+1) << endl;
-                    indices[EDGE][m] = i;
+                    indices[m][EDGE] = i;
                     break;
                 }
             }
@@ -87,8 +93,8 @@ void StructuredMeshIndex::locate(const SpaceCoord &x) {
 
 void StructuredMeshIndex::print() {
     cout << "Center indices: ";
-    for (int m = 0; m < indices[CENTER].size(); ++m) {
-        cout << setw(5) << indices[CENTER][m];
+    for (int m = 0; m < 3; ++m) {
+        cout << setw(5) << indices[m][CENTER];
     }
     cout << endl;
 }

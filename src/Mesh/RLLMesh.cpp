@@ -50,7 +50,7 @@ void RLLMesh::setGridCoords(int dim, int size, double *full, double *half) {
     }
 }
 
-double RLLMesh::getCosLon(StaggerType staggerType, int i) {
+double RLLMesh::getCosLon(StaggerType staggerType, int i) const {
     switch (staggerType) {
         case CENTER:
             return cosLonFull(i);
@@ -59,7 +59,7 @@ double RLLMesh::getCosLon(StaggerType staggerType, int i) {
     }
 }
 
-double RLLMesh::getSinLon(StaggerType staggerType, int i) {
+double RLLMesh::getSinLon(StaggerType staggerType, int i) const {
     switch (staggerType) {
         case CENTER:
             return sinLonFull(i);
@@ -68,7 +68,7 @@ double RLLMesh::getSinLon(StaggerType staggerType, int i) {
     }
 }
 
-double RLLMesh::getCosLat(StaggerType staggerType, int i) {
+double RLLMesh::getCosLat(StaggerType staggerType, int i) const {
     switch (staggerType) {
         case CENTER:
             return cosLatFull(i);
@@ -77,7 +77,7 @@ double RLLMesh::getCosLat(StaggerType staggerType, int i) {
     }
 }
 
-double RLLMesh::getSinLat(StaggerType staggerType, int i) {
+double RLLMesh::getSinLat(StaggerType staggerType, int i) const {
     switch (staggerType) {
         case CENTER:
             return sinLatFull(i);
@@ -86,7 +86,7 @@ double RLLMesh::getSinLat(StaggerType staggerType, int i) {
     }
 }
 
-double RLLMesh::getSinLat2(StaggerType staggerType, int i) {
+double RLLMesh::getSinLat2(StaggerType staggerType, int i) const {
     switch (staggerType) {
         case CENTER:
             return sinLatFull2(i);

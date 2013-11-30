@@ -19,11 +19,11 @@ public:
 
     virtual void setGridCoords(int dim, int size, double *full, double *half);
 
-    double getCosLon(StaggerType staggerType, int i);
-    double getSinLon(StaggerType staggerType, int i);
-    double getCosLat(StaggerType staggerType, int j);
-    double getSinLat(StaggerType staggerType, int j);
-    double getSinLat2(StaggerType staggerType, int j);
+    double getCosLon(StaggerType staggerType, int i) const;
+    double getSinLon(StaggerType staggerType, int i) const;
+    double getCosLat(StaggerType staggerType, int j) const;
+    double getSinLat(StaggerType staggerType, int j) const;
+    double getSinLat2(StaggerType staggerType, int j) const;
 };
 
 #endif

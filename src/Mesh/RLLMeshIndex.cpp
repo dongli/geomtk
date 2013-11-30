@@ -29,10 +29,10 @@ bool RLLMeshIndex::isOnPole() const {
 void RLLMeshIndex::locate(const SpaceCoord &x) {
     StructuredMeshIndex::locate(x);
     const RLLMesh &mesh = static_cast<const RLLMesh&>(*(this->mesh));
-    if (indices[CENTER][1] == 0) {
+    if (indices[1][CENTER] == 0) {
         pole = SOUTH_POLE;
         inPolarCap = true;
-    } else if (indices[CENTER][1] == mesh.fullCoords[1].size()-2) {
+    } else if (indices[1][CENTER] == mesh.fullCoords[1].size()-2) {
         pole = NORTH_POLE;
         inPolarCap = true;
     } else {

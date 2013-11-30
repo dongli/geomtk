@@ -162,7 +162,7 @@ int StructuredMesh::getNumGrid(int dim, StaggerType staggerType,
                                bool hasVirtualGrids) const {
     // sanity check
     if (dim >= domain->getNumDim()) {
-        REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension (" << domain->getNumDim() << ")!");
+        return 1;
     }
     if (domain->getAxisStartBndType(dim) == PERIODIC && !hasVirtualGrids) {
         switch (staggerType) {
