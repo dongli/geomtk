@@ -158,6 +158,32 @@ vec StructuredMesh::getGridCoords(int dim, StaggerType staggerType,
     }
 }
 
+double StructuredMesh::getGridCoord(int dim, StaggerType staggerType, int i) const {
+    // sanity check
+    if (dim >= domain->getNumDim()) {
+        REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension (" << domain->getNumDim() << ")!");
+    }
+    if (domain->getAxisStartBndType(dim) == PERIODIC) {
+        switch (staggerType) {
+            case CENTER:
+                return fullCoords[dim](i+1);
+            case EDGE: case VERTEX:
+                return halfCoords[dim](i+1);
+            default:
+                REPORT_ERROR("Unknown stagger type!");
+        }
+    } else {
+        switch (staggerType) {
+            case CENTER:
+                return fullCoords[dim](i);
+            case EDGE: case VERTEX:
+                return halfCoords[dim](i);
+            default:
+                REPORT_ERROR("Unknown stagger type!");
+        }
+    }
+}
+
 int StructuredMesh::getNumGrid(int dim, StaggerType staggerType,
                                bool hasVirtualGrids) const {
     // sanity check

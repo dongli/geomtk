@@ -40,6 +40,8 @@ public:
     vec getGridCoords(int dim, StaggerType staggerType,
                       bool hasVirtualGrids = false) const;
 
+    double getGridCoord(int dim, StaggerType staggerType, int i) const;
+
     /**
      * @brief A getter for grid number.
      * This method returns the grid number excluding the potential virtual
