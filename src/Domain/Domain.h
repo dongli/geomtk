@@ -47,6 +47,8 @@ public:
     virtual double getAxisSpan(int dim) const;
     virtual BndType getAxisStartBndType(int dim) const;
     virtual BndType getAxisEndBndType(int dim) const;
+
+    virtual double calcDistance(const SpaceCoord &x, const SpaceCoord &y) const;
 };
 
 #endif

@@ -24,7 +24,7 @@ public:
      */
     virtual void locate(const SpaceCoord &x);
 
-    virtual void print();
+    virtual void print() const;
 };
 
 #endif

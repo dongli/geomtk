@@ -118,3 +118,7 @@ BndType Domain::getAxisEndBndType(int dim) const {
     }
     return bndTypeEnds[dim];
 }
+
+double Domain::calcDistance(const SpaceCoord &x, const SpaceCoord &y) const {
+    REPORT_ERROR("Domain does not implement this method!");
+}

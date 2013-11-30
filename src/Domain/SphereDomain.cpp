@@ -26,3 +26,30 @@ inline double SphereDomain::getRadius() {
 void SphereDomain::setRadius(double radius) {
     this->radius = radius;
 }
+
+double SphereDomain::calcDistance(const SpaceCoord &x,
+                                  const SpaceCoord &y) const {
+    double dlon = x(0)-y(0);
+    double tmp1 = sin(x(1))*sin(y(1));
+    double tmp2 = cos(x(1))*cos(y(1))*cos(dlon);
+    double tmp3 = min(1.0, max(-1.0, tmp1+tmp2));
+    return radius*acos(tmp3);
+}
+
+double SphereDomain::calcDistance(const SpaceCoord &x, double lon,
+                                  double lat) const {
+    double dlon = x(0)-lon;
+    double tmp1 = sin(x(1))*sin(lat);
+    double tmp2 = cos(x(1))*cos(lat)*cos(dlon);
+    double tmp3 = min(1.0, max(-1.0, tmp1+tmp2));
+    return radius*acos(tmp3);
+}
+
+double SphereDomain::calcDistance(const SpaceCoord &x, double lon,
+                                  double sinLat, double cosLat) const {
+    double dlon = x(0)-lon;
+    double tmp1 = sin(x(1))*sinLat;
+    double tmp2 = cos(x(1))*cosLat*cos(dlon);
+    double tmp3 = min(1.0, max(-1.0, tmp1+tmp2));
+    return radius*acos(tmp3);
+}

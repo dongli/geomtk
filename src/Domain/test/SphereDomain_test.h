@@ -5,27 +5,41 @@
 
 class SphereDomainTest : public ::testing::Test {
 protected:
-    SphereDomain *sphere;
+    SphereDomain *domain;
 
     virtual void SetUp() {
-        sphere = new SphereDomain(2);
+        domain = new SphereDomain(2);
+        domain->setRadius(1.0);
     }
 
     virtual void TearDown() {
-        delete sphere;
+        delete domain;
     }
 };
 
 TEST_F(SphereDomainTest, Constructor) {
-    EXPECT_EQ(0.0, sphere->getAxisStart(0));
-    EXPECT_EQ(2.0*M_PI, sphere->getAxisEnd(0));
-    EXPECT_EQ(PERIODIC, sphere->getAxisStartBndType(0));
-    EXPECT_EQ(PERIODIC, sphere->getAxisEndBndType(0));
-    EXPECT_EQ(2.0*M_PI, sphere->getAxisSpan(0));
-    EXPECT_EQ(-M_PI_2, sphere->getAxisStart(1));
-    EXPECT_EQ(M_PI_2, sphere->getAxisEnd(1));
-    EXPECT_EQ(POLE, sphere->getAxisStartBndType(1));
-    EXPECT_EQ(POLE, sphere->getAxisEndBndType(1));
+    EXPECT_EQ(0.0, domain->getAxisStart(0));
+    EXPECT_EQ(2.0*M_PI, domain->getAxisEnd(0));
+    EXPECT_EQ(PERIODIC, domain->getAxisStartBndType(0));
+    EXPECT_EQ(PERIODIC, domain->getAxisEndBndType(0));
+    EXPECT_EQ(2.0*M_PI, domain->getAxisSpan(0));
+    EXPECT_EQ(-M_PI_2, domain->getAxisStart(1));
+    EXPECT_EQ(M_PI_2, domain->getAxisEnd(1));
+    EXPECT_EQ(POLE, domain->getAxisStartBndType(1));
+    EXPECT_EQ(POLE, domain->getAxisEndBndType(1));
+}
+
+TEST_F(SphereDomainTest, CalcDistance) {
+    SphereCoord x(2), y(2);
+
+    x(0) = 1.0/3.0*M_PI;
+    x(1) = 1.0/3.0*M_PI;
+
+    y(0) = 1.0/3.0*M_PI;
+    y(1) = -1.0/3.0*M_PI;
+
+    double d = domain->calcDistance(x, y);
+    ASSERT_EQ(x(1)-y(1), d);
 }
 
 #endif

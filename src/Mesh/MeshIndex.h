@@ -23,7 +23,7 @@ public:
      */
     virtual void locate(const SpaceCoord &x) = 0;
 
-    virtual void print() = 0;
+    virtual void print() const = 0;
 };
 
 #endif

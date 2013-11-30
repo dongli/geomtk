@@ -91,7 +91,7 @@ void StructuredMeshIndex::locate(const SpaceCoord &x) {
     }
 }
 
-void StructuredMeshIndex::print() {
+void StructuredMeshIndex::print() const {
     cout << "Center indices: ";
     for (int m = 0; m < 3; ++m) {
         cout << setw(5) << indices[m][CENTER];

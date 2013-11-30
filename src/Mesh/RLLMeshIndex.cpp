@@ -48,7 +48,7 @@ void RLLMeshIndex::locate(const SpaceCoord &x) {
     }
 }
 
-void RLLMeshIndex::print() {
+void RLLMeshIndex::print() const {
     StructuredMeshIndex::print();
     cout << "inPolarCap: " << inPolarCap << endl;
     cout << "onPole: " << onPole << endl;

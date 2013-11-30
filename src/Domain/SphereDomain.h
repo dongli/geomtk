@@ -23,6 +23,12 @@ public:
 
     double getRadius();
     void setRadius(double radius);
+
+    virtual double calcDistance(const SpaceCoord &x, const SpaceCoord &y) const;
+    virtual double calcDistance(const SpaceCoord &x, double lon,
+                                double lat) const;
+    virtual double calcDistance(const SpaceCoord &x, double lon,
+                                double sinLat, double cosLat) const;
 };
 
 #endif
