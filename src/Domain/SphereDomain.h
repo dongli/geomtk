@@ -14,6 +14,22 @@ public:
     virtual ~SphereCoord();
 };
 
+class SphereVelocity : public Velocity {
+protected:
+    double vt[2];
+public:
+    SphereVelocity(int numDim);
+    virtual ~SphereVelocity();
+
+    /**
+     * @brief Subscript operator of transformed velocity.
+     */
+    double operator[](int dim) const;
+    double& operator[](int dim);
+
+    void print() const;
+};
+
 class SphereDomain : public Domain {
     double radius;
 public:

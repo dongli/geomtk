@@ -21,6 +21,27 @@ vec& SpaceCoord::operator()() {
 
 // -----------------------------------------------------------------------------
 
+Velocity::Velocity(int numDim) {
+    velocity.resize(numDim);
+}
+
+Velocity::~Velocity() {
+}
+
+double Velocity::operator()(int i) const {
+    return velocity(i);
+}
+
+double& Velocity::operator()(int i) {
+    return velocity(i);
+}
+
+vec& Velocity::operator()() {
+    return velocity;
+}
+
+// -----------------------------------------------------------------------------
+
 Domain::Domain() {
     this->numDim = 2;
     axisStarts.resize(numDim);

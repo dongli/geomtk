@@ -6,6 +6,33 @@ SphereCoord::SphereCoord(int numDim) : SpaceCoord(numDim) {
 SphereCoord::~SphereCoord() {
 }
 
+SphereVelocity::SphereVelocity(int numDim) : Velocity(numDim) {
+}
+
+SphereVelocity::~SphereVelocity() {
+}
+
+double SphereVelocity::operator[](int dim) const {
+    if (dim > 2) {
+        REPORT_ERROR("Transformed velocity is only 2D!");
+    }
+    return vt[dim];
+}
+
+double& SphereVelocity::operator[](int dim) {
+    if (dim > 2) {
+        REPORT_ERROR("Transformed velocity is only 2D!");
+    }
+    return vt[dim];
+}
+
+void SphereVelocity::print() const {
+    cout << "Transformed velocity: ";
+    cout << setw(20) << vt[0] << setw(20) << vt[1] << endl;
+}
+
+// -----------------------------------------------------------------------------
+
 SphereDomain::SphereDomain() : Domain(2) {
     setAxis(0, 0.0, PERIODIC, 2.0*M_PI, PERIODIC);
     setAxis(1, -M_PI_2, POLE, M_PI_2, POLE);

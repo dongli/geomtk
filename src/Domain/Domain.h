@@ -24,6 +24,18 @@ public:
     vec& operator()();
 };
 
+class Velocity {
+protected:
+    vec velocity;
+public:
+    Velocity(int numDim);
+    virtual ~Velocity();
+
+    double operator()(int i) const;
+    double& operator()(int i);
+    vec& operator()();
+};
+
 class Domain {
 protected:
     int numDim;
