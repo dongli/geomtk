@@ -66,6 +66,14 @@ void PolarRing::update(int timeLevel, Pole pole, TimeLevels<cube, 2> *data) {
     }
 }
 
+double PolarRing::getOriginalData(int dim, int timeLevel, int i, int k) const {
+    return data[dim].get(timeLevel)(i, k);
+}
+
+double PolarRing::getTransformedData(int dim, int timeLevel, int i, int k) const {
+    return tranData[dim].get(timeLevel)(i, k);
+}
+
 // -----------------------------------------------------------------------------
 
 RLLVelocityField::RLLVelocityField(Mesh &mesh) : RLLVectorField(mesh) {
@@ -104,4 +112,8 @@ void RLLVelocityField::create(StaggerType uLonStaggerType,
                            vLonStaggerType, vLatStaggerType, vLevStaggerType,
                            wLonStaggerType, wLatStaggerType, wLevStaggerType);
     rings[0].create(*mesh); rings[1].create(*mesh);
+}
+
+const PolarRing& RLLVelocityField::getPolarRing(Pole pole) const {
+    return rings[pole];
 }

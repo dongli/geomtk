@@ -29,6 +29,9 @@ public:
      * @param data the host field data.
      */
     void update(int timeLevel, Pole pole, TimeLevels<cube, 2> *data);
+
+    double getOriginalData(int dim, int timeLevel, int i, int k) const;
+    double getTransformedData(int dim, int timeLevel, int i, int k) const;
 };
 
 class RLLVelocityField : public RLLVectorField {
@@ -53,6 +56,8 @@ public:
                         StaggerType wLonStaggerType,
                         StaggerType wLatStaggerType,
                         StaggerType wLevStaggerType);
+
+    virtual const PolarRing& getPolarRing(Pole pole) const;
 };
 
 #endif
