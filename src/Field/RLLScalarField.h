@@ -3,6 +3,11 @@
 
 #include "StructuredScalarField.h"
 
+/**
+ * RLLScalarField
+ * This class describes the scalar field on the RLL mesh.
+ */
+
 class RLLScalarField : public StructuredScalarField {
 public:
     RLLScalarField(Mesh &mesh);

@@ -60,8 +60,10 @@ void StructuredScalarField::create(StaggerType xStaggerType,
     }
 }
 
-double StructuredScalarField::operator()(int timeLevel, int i, int j, int k) const {
-    //! Handle virtual boundary grids.
+double StructuredScalarField::operator()(int timeLevel,
+                                         int i, int j, int k) const {
+    // The virtual boundary grids at the periodic boundary conditions are
+    // hiden from user.
     int I, J;
     if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
         I = i+1;
@@ -77,7 +79,8 @@ double StructuredScalarField::operator()(int timeLevel, int i, int j, int k) con
 }
 
 double& StructuredScalarField::operator()(int timeLevel, int i, int j, int k) {
-    //! Handle virtual boundary grids.
+    // The virtual boundary grids at the periodic boundary conditions are
+    // hiden from user.
     int I, J;
     if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
         I = i+1;

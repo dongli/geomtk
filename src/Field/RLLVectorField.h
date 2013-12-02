@@ -4,6 +4,11 @@
 #include "StructuredVectorField.h"
 #include "RLLMesh.h"
 
+/**
+ * RLLVectorField
+ * This class describes the vector field on the RLL mesh.
+ */
+
 class RLLVectorField : public StructuredVectorField {
 public:
     RLLVectorField(Mesh &mesh);

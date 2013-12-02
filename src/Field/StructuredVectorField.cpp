@@ -32,14 +32,14 @@ void StructuredVectorField::applyBndCond(int timeLevel) {
     }
 }
 
-void StructuredVectorField::create(StaggerType xLonStaggerType,
-                                   StaggerType xLatStaggerType,
-                                   StaggerType yLonStaggerType,
-                                   StaggerType yLatStaggerType) {
-    staggerTypes[0][0] = xLonStaggerType;
-    staggerTypes[0][1] = xLatStaggerType;
-    staggerTypes[1][0] = yLonStaggerType;
-    staggerTypes[1][1] = yLatStaggerType;
+void StructuredVectorField::create(StaggerType uXStaggerType,
+                                   StaggerType uYStaggerType,
+                                   StaggerType vXStaggerType,
+                                   StaggerType vYStaggerType) {
+    staggerTypes[0][0] = uXStaggerType;
+    staggerTypes[0][1] = uYStaggerType;
+    staggerTypes[1][0] = vXStaggerType;
+    staggerTypes[1][1] = vYStaggerType;
     const StructuredMesh &mesh = dynamic_cast<const StructuredMesh&>(*(this->mesh));
     for (int l = 0; l < data[0].getNumLevel(); ++l) {
         for (int m = 0; m < mesh.getDomain().getNumDim(); ++m) {
@@ -49,27 +49,27 @@ void StructuredVectorField::create(StaggerType xLonStaggerType,
     }
 }
 
-void StructuredVectorField::create(StaggerType xLonStaggerType,
-                                   StaggerType xLatStaggerType,
-                                   StaggerType xLevStaggerType,
-                                   StaggerType yLonStaggerType,
-                                   StaggerType yLatStaggerType,
-                                   StaggerType yLevStaggerType,
-                                   StaggerType zLonStaggerType,
-                                   StaggerType zLatStaggerType,
-                                   StaggerType zLevStaggerType) {
+void StructuredVectorField::create(StaggerType uXStaggerType,
+                                   StaggerType uYStaggerType,
+                                   StaggerType uZStaggerType,
+                                   StaggerType vXStaggerType,
+                                   StaggerType vYStaggerType,
+                                   StaggerType vZStaggerType,
+                                   StaggerType wXStaggerType,
+                                   StaggerType wYStaggerType,
+                                   StaggerType wZStaggerType) {
     if (mesh->getDomain().getNumDim() != 3) {
         REPORT_ERROR("The domain is not 3D!")
     }
-    staggerTypes[0][0] = xLonStaggerType;
-    staggerTypes[0][1] = xLatStaggerType;
-    staggerTypes[0][2] = xLevStaggerType;
-    staggerTypes[1][0] = yLonStaggerType;
-    staggerTypes[1][1] = yLatStaggerType;
-    staggerTypes[1][2] = yLevStaggerType;
-    staggerTypes[2][0] = zLonStaggerType;
-    staggerTypes[2][1] = zLatStaggerType;
-    staggerTypes[2][2] = zLevStaggerType;
+    staggerTypes[0][0] = uXStaggerType;
+    staggerTypes[0][1] = uYStaggerType;
+    staggerTypes[0][2] = uZStaggerType;
+    staggerTypes[1][0] = vXStaggerType;
+    staggerTypes[1][1] = vYStaggerType;
+    staggerTypes[1][2] = vZStaggerType;
+    staggerTypes[2][0] = wXStaggerType;
+    staggerTypes[2][1] = wYStaggerType;
+    staggerTypes[2][2] = wZStaggerType;
     const StructuredMesh &mesh = dynamic_cast<const StructuredMesh&>(*(this->mesh));
     for (int l = 0; l < data[0].getNumLevel(); ++l) {
         for (int m = 0; m < mesh.getDomain().getNumDim(); ++m) {
@@ -81,7 +81,8 @@ void StructuredVectorField::create(StaggerType xLonStaggerType,
 }
 
 double StructuredVectorField::operator()(int timeLevel, int dim, int i, int j, int k) const {
-    //! Handle virtual boundary grids.
+    // The virtual boundary grids at the periodic boundary conditions are
+    // hiden from user.
     int I, J;
     if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
         I = i+1;
@@ -97,7 +98,8 @@ double StructuredVectorField::operator()(int timeLevel, int dim, int i, int j, i
 }
 
 double& StructuredVectorField::operator()(int timeLevel, int dim, int i, int j, int k) {
-    //! Handle virtual boundary grids.
+    // The virtual boundary grids at the periodic boundary conditions are
+    // hiden from user.
     int I, J;
     if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
         I = i+1;
