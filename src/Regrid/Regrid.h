@@ -4,6 +4,11 @@
 #include "commons.h"
 #include "Mesh.h"
 #include "Field.h"
+#include "MeshIndex.h"
+
+enum RegridMethod {
+    BILINEAR, TRILINEAR
+};
 
 /**
  * @class Regrid
@@ -18,7 +23,10 @@ public:
     Regrid(Mesh &mesh);
     virtual ~Regrid();
 
-    virtual void run(const Field &f, const SpaceCoord &x, double &y) = 0;
+    virtual void run(RegridMethod method, int timeLevel, const Field &f,
+                     const SpaceCoord &x, double &y, MeshIndex *idx = NULL) = 0;
+    virtual void run(RegridMethod method, int timeLevel, const Field &f,
+                     const SpaceCoord &x, vec &y, MeshIndex *idx = NULL) = 0;
 };
 
 #endif

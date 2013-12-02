@@ -1,17 +1,21 @@
-#include "StructuredRegrid.h"
+#include "RLLRegrid.h"
 
-class StructuredRegridTest : public ::testing::Test {
+class RLLRegridTest : public ::testing::Test {
 protected:
     SphereDomain *domain;
     RLLMesh *mesh;
-    StructuredRegrid *regrid;
-    RLLVectorField *v;
+    RLLRegrid *regrid;
+    RLLScalarField *q;
+    RLLVelocityField *v;
 
     virtual void SetUp() {
         domain = new SphereDomain(2);
         mesh = new RLLMesh(*domain);
-        regrid = new StructuredRegrid(*mesh);
-        v = new RLLVectorField(*mesh);
+        regrid = new RLLRegrid(*mesh);
+        q = new RLLScalarField(*mesh);
+        v = new RLLVelocityField(*mesh);
+
+        domain->setRadius(1.0);
 
         int numLon = 5;
         double fullLon[numLon], halfLon[numLon];
@@ -39,20 +43,27 @@ protected:
                 (*v)(1, 0, i, j) = i+j*mesh->getNumGrid(0, CENTER);
             }
         }
+        v->applyBndCond(0);
     }
 
     virtual void TearDown() {
+        delete q;
         delete regrid;
-        delete v;
         delete mesh;
         delete domain;
     }
 };
 
-TEST_F(StructuredRegridTest, Run) {
-    SpaceCoord x(2);
-    vec y(2);
+TEST_F(RLLRegridTest, Run) {
+    SphereCoord x(2);
+    double y;
 
-    x(1) = -0.2*M_PI;
-    regrid->run(BILINEAR, 0, *v, x, y);
+    x(0) = 1.9*M_PI;
+    x(1) = 0.2*M_PI;
+
+    SphereVelocity z(2);
+    regrid->run(BILINEAR, 0, *v, x, z);
+    
+    x(0) = 0.41*M_PI;
+    regrid->run(BILINEAR, 0, *v, x, z);
 }

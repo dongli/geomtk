@@ -45,11 +45,9 @@ protected:
 //     \      -      |      +      |      +      |      +      |      +      |      +      \      -
 // -0.4*PI          0.0         0.4*PI        0.8*PI        1.2*PI        1.6*PI        2.0*PI
 //        -0.2*PI        0.2*PI        0.6*PI        1.0*PI        1.4*PI        1.8*PI        2.2*PI
-//                                                 o
 //     |      +      |      +      |      +      |      +      |
 // -0.5*PI      -0.25*PI          0.0        0.25*PI        0.5*PI
 //      -0.375*PI     -0.125*PI      0.125*PI      0.375*PI
-//                              o
 
 TEST_F(StructuredMeshIndexTest, Locate) {
     SphereCoord x(domain->getNumDim());
@@ -57,22 +55,22 @@ TEST_F(StructuredMeshIndexTest, Locate) {
     x(0) =  0.9*M_PI;
     x(1) = -0.11*M_PI;
     index->locate(x);
-    ASSERT_EQ(3, (*index)(0, CENTER));
+    ASSERT_EQ(2, (*index)(0, CENTER));
     ASSERT_EQ(1, (*index)(1, CENTER));
-    ASSERT_EQ(2, (*index)(0, EDGE));
+    ASSERT_EQ(1, (*index)(0, EDGE));
     ASSERT_EQ(1, (*index)(1, EDGE));
 
     x(0) = 0.14*M_PI;
     index->reset();
     index->locate(x);
-    ASSERT_EQ(1, (*index)(0, CENTER));
-    ASSERT_EQ(0, (*index)(0, EDGE));
+    ASSERT_EQ(0, (*index)(0, CENTER));
+    ASSERT_EQ(-1, (*index)(0, EDGE));
 
     x(0) = 1.9*M_PI;
     index->reset();
     index->locate(x);
-    ASSERT_EQ(5, (*index)(0, CENTER));
-    ASSERT_EQ(5, (*index)(0, EDGE));
+    ASSERT_EQ(4, (*index)(0, CENTER));
+    ASSERT_EQ(4, (*index)(0, EDGE));
 
     x(1) = -0.4*M_PI;
     index->reset();

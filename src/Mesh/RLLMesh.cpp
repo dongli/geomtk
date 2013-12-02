@@ -5,6 +5,7 @@ RLLMesh::RLLMesh(Domain &domain) : StructuredMesh(domain) {
     if (dynamic_cast<SphereDomain*>(&domain) == NULL) {
         REPORT_ERROR("The domain should be SphereDomain!");
     }
+    poleRadius = 1.0*RAD;
 }
 
 RLLMesh::~RLLMesh() {

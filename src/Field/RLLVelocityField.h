@@ -2,6 +2,7 @@
 #define __RLLVelocityField__
 
 #include "RLLVectorField.h"
+#include "SphereDomain.h"
 
 /**
  * @class PolarRing

@@ -9,7 +9,10 @@ public:
     StructuredRegrid(Mesh &mesh);
     virtual ~StructuredRegrid();
 
-    virtual void run(const Field &f, const SpaceCoord &x, double &y);
+    virtual void run(RegridMethod method, int timeLevel, const Field &f,
+                     const SpaceCoord &x, double &y, MeshIndex *idx = NULL);
+    virtual void run(RegridMethod method, int timeLevel, const Field &f,
+                     const SpaceCoord &x, vec &y, MeshIndex *idx = NULL);
 };
 
 #endif

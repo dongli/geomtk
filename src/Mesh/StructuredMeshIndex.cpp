@@ -22,6 +22,12 @@ void StructuredMeshIndex::reset() {
         indices[m][EDGE] = UNDEFINED_MESH_INDEX;
         indices[m][VERTEX] = UNDEFINED_MESH_INDEX;
     }
+    // set the extra dimension indices to 0
+    for (int m = mesh->getDomain().getNumDim(); m < 3; ++m) {
+        indices[m][CENTER] = 0;
+        indices[m][EDGE] = 0;
+        indices[m][VERTEX] = 0;
+    }
 }
 
 int StructuredMeshIndex::operator()(int dim, StaggerType staggerType) const {
@@ -88,13 +94,22 @@ void StructuredMeshIndex::locate(const SpaceCoord &x) {
         } else {
             REPORT_ERROR("Under construction!");
         }
+        if (mesh.getDomain().getAxisStartBndType(m) == PERIODIC) {
+            // minus 1 to hide virtual boundary grids
+            indices[m][CENTER]--; indices[m][EDGE]--;
+        }
     }
 }
 
 void StructuredMeshIndex::print() const {
-    cout << "Center indices: ";
+    cout << "Center indices:";
     for (int m = 0; m < 3; ++m) {
-        cout << setw(5) << indices[m][CENTER];
+        cout << setw(10) << indices[m][CENTER];
+    }
+    cout << endl;
+    cout << "Edge indices:  ";
+    for (int m = 0; m < 3; ++m) {
+        cout << setw(10) << indices[m][EDGE];
     }
     cout << endl;
 }

@@ -10,6 +10,7 @@
 #include "Field/test/RLLVectorField_test.h"
 #include "Field/test/RLLVelocityField_test.h"
 #include "Regrid/test/StructuredRegrid_test.h"
+#include "Regrid/test/RLLRegrid_test.h"
 
 int main(int argc, char *argv[])
 {

@@ -1,7 +1,7 @@
 #include "RLLMeshIndex.h"
 
 RLLMeshIndex::RLLMeshIndex(Mesh &mesh) : StructuredMeshIndex(mesh) {
-
+    reset();
 }
 
 RLLMeshIndex::~RLLMeshIndex() {

@@ -4,7 +4,7 @@
 #include "commons.h"
 #include "Mesh.h"
 
-#define UNDEFINED_MESH_INDEX -99999
+#define UNDEFINED_MESH_INDEX -999
 
 /**
  * @class MeshIndex

@@ -46,7 +46,8 @@ inline string getFunctionName(const string &str) {
 #define REPORT_ERROR(MESSAGE) \
 { \
     cout << "[Error]: "; \
-    cout << getFunctionName(__PRETTY_FUNCTION__) << ": "; \
+    cout << getFunctionName(__PRETTY_FUNCTION__) << ":"; \
+    cout << __LINE__ << ": "; \
     cout << MESSAGE << endl; \
     exit(-1); \
 }
@@ -76,5 +77,9 @@ inline string getFunctionName(const string &str) {
 #define private public
 #define protected public
 #endif
+
+// ------------------------------------------------------------------------------
+// constants
+const double RAD = M_PI/180.0;
 
 #endif
