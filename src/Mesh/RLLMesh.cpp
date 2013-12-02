@@ -54,18 +54,18 @@ void RLLMesh::setGridCoords(int dim, int size, double *full, double *half) {
 double RLLMesh::getCosLon(StaggerType staggerType, int i) const {
     switch (staggerType) {
         case CENTER:
-            return cosLonFull(i);
+            return cosLonFull(i+1);
         case EDGE: case VERTEX:
-            return cosLonHalf(i);
+            return cosLonHalf(i+1);
     }
 }
 
 double RLLMesh::getSinLon(StaggerType staggerType, int i) const {
     switch (staggerType) {
         case CENTER:
-            return sinLonFull(i);
+            return sinLonFull(i+1);
         case EDGE: case VERTEX:
-            return sinLonHalf(i);
+            return sinLonHalf(i+1);
     }
 }
 

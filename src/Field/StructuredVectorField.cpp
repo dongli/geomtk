@@ -81,11 +81,35 @@ void StructuredVectorField::create(StaggerType xLonStaggerType,
 }
 
 double StructuredVectorField::operator()(int timeLevel, int dim, int i, int j, int k) const {
-    return data[dim].get(timeLevel)(i+1, j, k);
+    //! Handle virtual boundary grids.
+    int I, J;
+    if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
+        I = i+1;
+    } else {
+        I = i;
+    }
+    if (mesh->getDomain().getAxisStartBndType(1) == PERIODIC) {
+        J = j+1;
+    } else {
+        J = j;
+    }
+    return data[dim].get(timeLevel)(I, J, k);
 }
 
 double& StructuredVectorField::operator()(int timeLevel, int dim, int i, int j, int k) {
-    return data[dim].get(timeLevel)(i+1, j, k);
+    //! Handle virtual boundary grids.
+    int I, J;
+    if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
+        I = i+1;
+    } else {
+        I = i;
+    }
+    if (mesh->getDomain().getAxisStartBndType(1) == PERIODIC) {
+        J = j+1;
+    } else {
+        J = j;
+    }
+    return data[dim].get(timeLevel)(I, J, k);
 }
 
 StaggerType StructuredVectorField::getStaggerType(int comp, int dim) const {

@@ -26,10 +26,13 @@ public:
 
 class Velocity {
 protected:
-    vec velocity;
+    vec v;
 public:
+    Velocity();
     Velocity(int numDim);
     virtual ~Velocity();
+
+    virtual void setNumDim(int numDim);
 
     double operator()(int i) const;
     double& operator()(int i);

@@ -12,8 +12,7 @@
 
 class PolarRing {
 protected:
-    TimeLevels<mat, 2> data[3];
-    TimeLevels<mat, 2> tranData[3];
+    TimeLevels<SphereVelocity, 2> **vr;
     RLLMesh *mesh;
 public:
     PolarRing();
@@ -31,9 +30,11 @@ public:
      */
     void update(int timeLevel, Pole pole, TimeLevels<cube, 2> *data);
 
-    double getOriginalData(int dim, int timeLevel, int i, int k) const;
-    double getTransformedData(int dim, int timeLevel, int i, int k) const;
+    double getOriginalData(int timeLevel, int dim, int i, int k) const;
+    double getTransformedData(int timeLevel, int dim, int i, int k) const;
 };
+
+// -----------------------------------------------------------------------------
 
 class RLLVelocityField : public RLLVectorField {
 protected:

@@ -19,6 +19,9 @@ public:
                         StaggerType yStaggerType,
                         StaggerType zStaggerType);
 
+    /**
+     * @brief Subscript operator of scalar field.
+     */
     double operator()(int timeLevel, int i, int j, int k = 0) const;
     double& operator()(int timeLevel, int i, int j, int k = 0);
 };

@@ -5,12 +5,12 @@
 
 class RLLMeshTest : public ::testing::Test {
 protected:
-    SphereDomain *sphere;
+    SphereDomain *domain;
     RLLMesh *mesh;
 
     virtual void SetUp() {
-        sphere = new SphereDomain(3);
-        mesh = new RLLMesh(*sphere);
+        domain = new SphereDomain(3);
+        mesh = new RLLMesh(*domain);
         int numLon = 10;
         double fullLon[numLon], halfLon[numLon];
         double dlon = 2.0*M_PI/numLon;
@@ -38,13 +38,13 @@ protected:
         for (int k = 0; k < numLev+1; ++k) {
             halfLev[k] = k*dlev;
         }
-        sphere->setAxis(2, 0.0, RIGID, 1.0, RIGID);
+        domain->setAxis(2, 0.0, RIGID, 1.0, RIGID);
         mesh->setGridCoords(2, numLev, fullLev, halfLev);
     }
 
     virtual void TearDown() {
         delete mesh;
-        delete sphere;
+        delete domain;
     }
 };
 
@@ -66,14 +66,14 @@ TEST_F(RLLMeshTest, CheckGridCoords) {
     ASSERT_EQ(M_PI_2, mesh->getGridCoord(1, CENTER, mesh->getNumGrid(1, CENTER)-1));
     // check cosine and sine
     vec lonFull = mesh->getGridCoords(0, CENTER, true);
-    for (int i = 0; i < mesh->getNumGrid(0, CENTER, true); ++i) {
-        ASSERT_EQ(cos(lonFull(i)), mesh->getCosLon(CENTER, i));
-        ASSERT_EQ(sin(lonFull(i)), mesh->getSinLon(CENTER, i));
+    for (int i = -1; i < mesh->getNumGrid(0, CENTER)+1; ++i) {
+        ASSERT_EQ(cos(lonFull(i+1)), mesh->getCosLon(CENTER, i));
+        ASSERT_EQ(sin(lonFull(i+1)), mesh->getSinLon(CENTER, i));
     }
     vec lonHalf = mesh->getGridCoords(0, EDGE, true);
-    for (int i = 0; i < mesh->getNumGrid(0, EDGE, true); ++i) {
-        ASSERT_EQ(cos(lonHalf(i)), mesh->getCosLon(EDGE, i));
-        ASSERT_EQ(sin(lonHalf(i)), mesh->getSinLon(EDGE, i));
+    for (int i = -1; i < mesh->getNumGrid(0, EDGE)+1; ++i) {
+        ASSERT_EQ(cos(lonHalf(i+1)), mesh->getCosLon(EDGE, i));
+        ASSERT_EQ(sin(lonHalf(i+1)), mesh->getSinLon(EDGE, i));
     }
     vec latFull = mesh->getGridCoords(1, CENTER, true);
     for (int j = 0; j < mesh->getNumGrid(1, CENTER, true); ++j) {

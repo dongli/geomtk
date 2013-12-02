@@ -21,23 +21,31 @@ vec& SpaceCoord::operator()() {
 
 // -----------------------------------------------------------------------------
 
+Velocity::Velocity() {
+    v.resize(3);
+}
+
 Velocity::Velocity(int numDim) {
-    velocity.resize(numDim);
+    v.resize(numDim);
 }
 
 Velocity::~Velocity() {
 }
 
+void Velocity::setNumDim(int numDim) {
+    v.resize(numDim);
+}
+
 double Velocity::operator()(int i) const {
-    return velocity(i);
+    return v(i);
 }
 
 double& Velocity::operator()(int i) {
-    return velocity(i);
+    return v(i);
 }
 
 vec& Velocity::operator()() {
-    return velocity;
+    return v;
 }
 
 // -----------------------------------------------------------------------------

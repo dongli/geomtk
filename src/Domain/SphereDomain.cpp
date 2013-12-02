@@ -6,6 +6,11 @@ SphereCoord::SphereCoord(int numDim) : SpaceCoord(numDim) {
 SphereCoord::~SphereCoord() {
 }
 
+// -----------------------------------------------------------------------------
+
+SphereVelocity::SphereVelocity() {
+}
+
 SphereVelocity::SphereVelocity(int numDim) : Velocity(numDim) {
 }
 
@@ -24,6 +29,23 @@ double& SphereVelocity::operator[](int dim) {
         REPORT_ERROR("Transformed velocity is only 2D!");
     }
     return vt[dim];
+}
+
+void SphereVelocity::transformToPS(const SpaceCoord &x) {
+    double sign = x(1) < 0.0 ? -1.0 : 1.0;
+    double sinLat = sin(x(1));
+    double sinLat2 = sinLat*sinLat;
+    double sinLon = sin(x(0));
+    double cosLon = cos(x(0));
+    vt[0] = sign*(-sinLon/sinLat*v(0)-cosLon/sinLat2*v(1));
+    vt[1] = sign*( cosLon/sinLat*v(0)-sinLon/sinLat2*v(1));
+}
+
+void SphereVelocity::transformToPS(double sinLat, double sinLat2,
+                                   double sinLon, double cosLon) {
+    double sign = sinLat < 0.0 ? -1.0 : 1.0;
+    vt[0] = sign*(-sinLon/sinLat*v(0)-cosLon/sinLat2*v(1));
+    vt[1] = sign*( cosLon/sinLat*v(0)-sinLon/sinLat2*v(1));
 }
 
 void SphereVelocity::print() const {

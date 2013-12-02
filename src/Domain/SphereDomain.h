@@ -20,6 +20,7 @@ class SphereVelocity : public Velocity {
 protected:
     double vt[2];
 public:
+    SphereVelocity();
     SphereVelocity(int numDim);
     virtual ~SphereVelocity();
 
@@ -28,6 +29,13 @@ public:
      */
     double operator[](int dim) const;
     double& operator[](int dim);
+
+    /**
+     * @brief Transform velocity onto Polar Stereographic plane.
+     */
+    void transformToPS(const SpaceCoord &x);
+    void transformToPS(double sinLat, double sinLat2,
+                       double sinLon, double cosLon);
 
     void print() const;
 };

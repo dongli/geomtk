@@ -88,17 +88,17 @@ void RLLRegrid::run(RegridMethod method, int timeLevel, const RLLVelocityField &
             double d = domain.calcDistance(x, mesh.getGridCoord(0, CENTER, i),
                                            sinLat, cosLat);
             if (d < eps) {
-                y[0] = ring.getTransformedData(0, timeLevel, i, k);
-                y[1] = ring.getTransformedData(1, timeLevel, i, k);
-                y(0) = ring.getOriginalData(0, timeLevel, i, k);
-                y(1) = ring.getOriginalData(1, timeLevel, i, k);
+                y[0] = ring.getTransformedData(timeLevel, 0, i, k);
+                y[1] = ring.getTransformedData(timeLevel, 1, i, k);
+                y(0) = ring.getOriginalData(timeLevel, 0, i, k);
+                y(1) = ring.getOriginalData(timeLevel, 1, i, k);
                 match = true;
                 break;
             } else {
                 double w = 1.0/d;
                 ws += w;
-                y[0] += w*ring.getTransformedData(0, timeLevel, i, k);
-                y[1] += w*ring.getTransformedData(1, timeLevel, i, k);
+                y[0] += w*ring.getTransformedData(timeLevel, 0, i, k);
+                y[1] += w*ring.getTransformedData(timeLevel, 1, i, k);
             }
         }
         if (!match) {
