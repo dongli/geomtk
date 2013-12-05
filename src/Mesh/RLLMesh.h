@@ -2,6 +2,9 @@
 #define __RLLMesh__
 
 #include "StructuredMesh.h"
+class SphereCoord;
+class SphereVelocity;
+class RLLMeshIndex;
 
 class RLLMesh : public StructuredMesh {
 protected:
@@ -24,6 +27,9 @@ public:
     double getCosLat(StaggerType staggerType, int j) const;
     double getSinLat(StaggerType staggerType, int j) const;
     double getSinLat2(StaggerType staggerType, int j) const;
+
+    void move(const SphereCoord &x0, double dt, const SphereVelocity &v,
+              const RLLMeshIndex &idx, SphereCoord &x1) const;
 };
 
 #endif

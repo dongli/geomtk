@@ -56,6 +56,8 @@ public:
      * @return The scalar on the given indices.
      */
     double& operator()(int timeLevel, int i, int j, int k = 0);
+
+    virtual StaggerType getStaggerType(int dim) const;
 };
 
 #endif

@@ -2,6 +2,7 @@
 #define __RLLMesh_test__
 
 #include "RLLMesh.h"
+#include "RLLMeshIndex.h"
 
 class RLLMeshTest : public ::testing::Test {
 protected:
@@ -87,6 +88,44 @@ TEST_F(RLLMeshTest, CheckGridCoords) {
         ASSERT_EQ(sin(latHalf(j)), mesh->getSinLat(EDGE, j));
         ASSERT_EQ(pow(sin(latHalf(j)), 2), mesh->getSinLat2(EDGE, j));
     }
+}
+
+TEST_F(RLLMeshTest, Move) {
+    SphereCoord x0(3), x1(3);
+    double dt = 0.1;
+    SphereVelocity v(3);
+    RLLMeshIndex idx(*mesh);
+
+    x0(0) = 0.1;
+    x0(1) = 0.0;
+    x0(2) = 0.5;
+    idx.locate(x0);
+    v(0) = 0.1*M_PI;
+    v(1) = 0.0;
+    v(2) = 0.0;
+    mesh->move(x0, dt, v, idx, x1);
+    ASSERT_EQ(x0(0)+v(0)*dt, x1(0));
+    ASSERT_EQ(x0(1), x1(1));
+
+    v(0) = PI2;
+    mesh->move(x0, dt, v, idx, x1);
+    ASSERT_GT(1.0e-15, abs(x0(0)+v(0)*dt-x1(0)));
+    ASSERT_EQ(x0(1), x1(1));
+
+    x0(1) = 89.5*RAD;
+    v(0) = 0.0;
+    v(1) = 0.0;
+    v.transformToPS(x0);
+    idx.reset();
+    idx.locate(x0);
+    mesh->move(x0, dt, v, idx, x1);
+    ASSERT_GT(1.0e-15, abs(x0(0)-x1(0)));
+    ASSERT_GT(1.0e-15, abs(x0(1)-x1(1)));
+
+    v(0) = 1.0*RAD;
+    v.transformToPS(x0);
+    mesh->move(x0, dt, v, idx, x1);
+    // TODO: How to test?
 }
 
 #endif

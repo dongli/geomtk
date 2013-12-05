@@ -42,4 +42,17 @@ TEST_F(SphereDomainTest, CalcDistance) {
     ASSERT_EQ(x(1)-y(1), d);
 }
 
+TEST_F(SphereDomainTest, TransformPS) {
+    SphereCoord x(2);
+
+    double lon = 0.34*M_PI;
+    double lat = -0.4*M_PI_2;
+    x(0) = lon;
+    x(1) = lat;
+    x.transformToPS(*domain);
+    x.transformFromPS(*domain);
+    ASSERT_EQ(lon, x(0));
+    ASSERT_EQ(lat, x(1));
+}
+
 #endif

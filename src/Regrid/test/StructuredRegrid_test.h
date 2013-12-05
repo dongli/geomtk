@@ -31,14 +31,6 @@ protected:
             halfLat[j] = dlat*0.5+j*dlat-M_PI_2;
         }
         mesh->setGridCoords(1, numLat, fullLat, halfLat);
-
-        v->create(EDGE, CENTER, CENTER, EDGE);
-        for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
-            for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
-                (*v)(0, 0, i, j) = i+j*mesh->getNumGrid(0, CENTER);
-                (*v)(1, 0, i, j) = i+j*mesh->getNumGrid(0, CENTER);
-            }
-        }
     }
 
     virtual void TearDown() {
@@ -50,9 +42,25 @@ protected:
 };
 
 TEST_F(StructuredRegridTest, Run) {
+    v->create(EDGE, CENTER, CENTER, EDGE);
+    for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, EDGE); ++i) {
+            (*v)(0, 0, i, j) = 5.0;
+        }
+    }
+    for (int j = 0; j < mesh->getNumGrid(1, EDGE); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
+            (*v)(0, 1, i, j) = 1.0;
+        }
+    }
+    v->applyBndCond(0);
+
     SpaceCoord x(2);
     vec y(2);
 
+    x(0) = 0.1*M_PI;
     x(1) = -0.2*M_PI;
     regrid->run(BILINEAR, 0, *v, x, y);
+    ASSERT_EQ(5.0, y(0));
+    ASSERT_EQ(1.0, y(1));
 }

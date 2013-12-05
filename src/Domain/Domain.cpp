@@ -19,6 +19,14 @@ vec& SpaceCoord::operator()() {
     return coords;
 }
 
+void SpaceCoord::print() const {
+    cout << "Coordinate:";
+    for (int i = 0; i < coords.size(); ++i) {
+        cout << setw(20) << coords(i);
+    }
+    cout << endl;
+}
+
 // -----------------------------------------------------------------------------
 
 Velocity::Velocity() {
@@ -46,6 +54,14 @@ double& Velocity::operator()(int i) {
 
 vec& Velocity::operator()() {
     return v;
+}
+
+void Velocity::print() const {
+    cout << "Velocity:";
+    for (int i = 0; i < v.size(); ++i) {
+        cout << setw(20) << v(i);
+    }
+    cout << endl;
 }
 
 // -----------------------------------------------------------------------------

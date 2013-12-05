@@ -15,6 +15,7 @@ using std::cout;
 using std::endl;
 using std::setw;
 using std::setprecision;
+using std::setfill;
 
 #include <assert.h>
 #include <cmath>
@@ -81,5 +82,6 @@ inline string getFunctionName(const string &str) {
 // ------------------------------------------------------------------------------
 // constants
 const double RAD = M_PI/180.0;
+const double PI2 = M_PI*2.0;
 
 #endif

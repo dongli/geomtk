@@ -32,9 +32,9 @@ void StructuredRegrid::run(RegridMethod method, int timeLevel, const Field &f,
     } else {
         idx = static_cast<StructuredMeshIndex*>(idx_);
     }
+    // cout << " x(0) =" << setw(10) << x(0) << endl;
+    // cout << " x(1) =" << setw(10) << x(1) << endl;
     // idx->print();
-    // cout << setw(5) << mesh.getNumGrid(0, CENTER) << setw(5) << mesh.getNumGrid(0, EDGE) << endl;
-    // cout << setw(5) << mesh.getNumGrid(1, CENTER) << setw(5) << mesh.getNumGrid(1, EDGE) << endl;
     switch (method) {
         case BILINEAR:
             int i1, i2, i3, i4, j1, j2, j3, j4;
@@ -48,21 +48,46 @@ void StructuredRegrid::run(RegridMethod method, int timeLevel, const Field &f,
                     REPORT_ERROR("Vector field component 1 is one CENTER-EDGE mesh, "
                                  "and the point is located outside its region!");
                 }
+                // cout << "----------------------------------" << endl;
+                // cout << " i1 =" << setw(10) << i1 << endl;
+                // cout << " i2 =" << setw(10) << i2 << endl;
+                // cout << " j1 =" << setw(10) << j1 << endl;
+                // cout << " j2 =" << setw(10) << j2 << endl;
                 double x1 = mesh.getGridCoord(0, g->getStaggerType(m, 0), i1);
                 double x2 = mesh.getGridCoord(0, g->getStaggerType(m, 0), i2);
                 double X = (x(0)-x1)/(x2-x1);
                 double y1 = mesh.getGridCoord(1, g->getStaggerType(m, 1), j1);
-                double y2 = mesh.getGridCoord(1, g->getStaggerType(m, 1), j2);
-                double Y = (x(0)-y1)/(y2-y1);
+                double y2 = mesh.getGridCoord(1, g->getStaggerType(m, 1), j3);
+                double Y = (x(1)-y1)/(y2-y1);
+                // cout << "----------------------------------" << endl;
+                // cout << " x1 =" << setw(10) << x1 << endl;
+                // cout << " x2 =" << setw(10) << x2 << endl;
+                // cout << " y1 =" << setw(10) << y1 << endl;
+                // cout << " y2 =" << setw(10) << y2 << endl;
+                // cout << "----------------------------------" << endl;
+                // cout << " X  =" << setw(10) << X << endl;
+                // cout << " Y  =" << setw(10) << Y << endl;
                 double f1 = (*g)(timeLevel, m, i1, j1, 0);
                 double f2 = (*g)(timeLevel, m, i2, j2, 0);
                 double f3 = (*g)(timeLevel, m, i3, j3, 0);
                 double f4 = (*g)(timeLevel, m, i4, j4, 0);
+                // cout << "----------------------------------" << endl;
+                // cout << " f1 =" << setw(10) << f1 << endl;
+                // cout << " f2 =" << setw(10) << f2 << endl;
+                // cout << " f3 =" << setw(10) << f3 << endl;
+                // cout << " f4 =" << setw(10) << f4 << endl;
                 double a = f1;
                 double b = f2-f1;
                 double c = f3-f1;
                 double d = f1-f2-f3+f4;
+                // cout << "----------------------------------" << endl;
+                // cout << " a  =" << setw(10) << a << endl;
+                // cout << " b  =" << setw(10) << b << endl;
+                // cout << " c  =" << setw(10) << c << endl;
+                // cout << " d  =" << setw(10) << d << endl;
                 y(m) = a+b*X+c*Y+d*X*Y;
+                // cout << "----------------------------------" << endl;
+                // cout << " y(" << m << ") =" << setw(10) << y(m) << endl;
             }
             break;
         case TRILINEAR:

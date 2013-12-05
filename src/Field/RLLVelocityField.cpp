@@ -59,16 +59,24 @@ void PolarRing::update(int timeLevel, Pole pole, TimeLevels<cube, 2> *data) {
             }
         }
     }
+    // -------------------------------------------------------------------------
     // transform velocity
     double cosLon, sinLon, sinLat, sinLat2;
     j = pole == SOUTH_POLE ? 1 : mesh->getNumGrid(1, CENTER)-2;
     sinLat = mesh->getSinLat(CENTER, j);
     sinLat2 = mesh->getSinLat2(CENTER, j);
-    for (int i = -1; i < mesh->getNumGrid(0, CENTER)+1; ++i) {
+    for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
+        cosLon = mesh->getCosLon(CENTER, i);
+        sinLon = mesh->getSinLon(CENTER, i);
         for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-            cosLon = mesh->getCosLon(CENTER, i);
-            sinLon = mesh->getSinLon(CENTER, i);
-            vr[i+1][k].get(timeLevel).transformToPS(sinLat, sinLat2, cosLon, sinLon);
+            vr[i+1][k].get(timeLevel).transformToPS(sinLat, sinLat2, sinLon, cosLon);
+        }
+    }
+    // periodic boundary condition
+    for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
+        for (int m = 0; m < mesh->getDomain().getNumDim(); ++m) {
+            vr[0][k].get(timeLevel)[m] = vr[nx-2][k].get(timeLevel)[m];
+            vr[nx-1][k].get(timeLevel)[m] = vr[1][k].get(timeLevel)[m];
         }
     }
 }
@@ -78,7 +86,43 @@ double PolarRing::getOriginalData(int timeLevel, int dim, int i, int k) const {
 }
 
 double PolarRing::getTransformedData(int timeLevel, int dim, int i, int k) const {
-    return vr[i+1][k].get(timeLevel)(dim);
+    return vr[i+1][k].get(timeLevel)[dim];
+}
+
+void PolarRing::print() const {
+    int l = 0;
+    cout << "---------------------------------------------------------------" << endl;
+    cout << "Reorganized original velocity:" << endl;
+    cout << "dim";
+    for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
+        cout << setw(10) << i;
+    }
+    cout << endl;
+    for (int m = 0; m < mesh->getDomain().getNumDim(); ++m) {
+        cout << setw(2) << m << ":";
+        for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
+            for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
+                cout << setw(10) << setprecision(2) << getOriginalData(l, m, i, k);
+            }
+        }
+        cout << endl;
+    }
+    cout << "---------------------------------------------------------------" << endl;
+    cout << "Transformed velocity:" << endl;
+    cout << "dim";
+    for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
+        cout << setw(10) << i;
+    }
+    cout << endl;
+    for (int m = 0; m < mesh->getDomain().getNumDim(); ++m) {
+        cout << setw(2) << m << ":";
+        for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
+            for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
+                cout << setw(10) << setprecision(2) << getTransformedData(l, m, i, k);
+            }
+        }
+        cout << endl;
+    }
 }
 
 // -----------------------------------------------------------------------------

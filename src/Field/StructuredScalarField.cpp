@@ -94,3 +94,7 @@ double& StructuredScalarField::operator()(int timeLevel, int i, int j, int k) {
     }
     return data.get(timeLevel)(I, J, k);
 }
+
+StaggerType StructuredScalarField::getStaggerType(int dim) const {
+    return staggerTypes[dim];
+}

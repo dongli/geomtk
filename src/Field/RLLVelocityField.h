@@ -49,7 +49,7 @@ public:
      * @param k the level index of ring grids.
      */
     double getOriginalData(int timeLevel, int dim,
-                           int i, int k) const;
+                           int i, int k = 0) const;
 
     /**
      * Return the transformed velocity.
@@ -59,7 +59,9 @@ public:
      * @param k the level index of ring grids.
      */
     double getTransformedData(int timeLevel, int dim,
-                              int i, int k) const;
+                              int i, int k = 0) const;
+
+    void print() const;
 };
 
 // -----------------------------------------------------------------------------

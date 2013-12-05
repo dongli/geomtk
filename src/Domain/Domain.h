@@ -8,8 +8,8 @@ enum BndType {
 };
 
 /**
- * @class SpaceCoord
- * @brief This class is used to describe the space coordinate of a point.
+ * SpaceCoord
+ * This class describes the space coordinate of a point.
  */
 
 class SpaceCoord {
@@ -22,7 +22,11 @@ public:
     double operator()(int i) const;
     double& operator()(int i);
     vec& operator()();
+
+    virtual void print() const;
 };
+
+// -----------------------------------------------------------------------------
 
 class Velocity {
 protected:
@@ -37,7 +41,11 @@ public:
     double operator()(int i) const;
     double& operator()(int i);
     vec& operator()();
+
+    virtual void print() const;
 };
+
+// -----------------------------------------------------------------------------
 
 class Domain {
 protected:

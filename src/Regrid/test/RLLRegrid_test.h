@@ -35,15 +35,6 @@ protected:
             halfLat[j] = dlat*0.5+j*dlat-M_PI_2;
         }
         mesh->setGridCoords(1, numLat, fullLat, halfLat);
-
-        v->create(EDGE, CENTER, CENTER, EDGE);
-        for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
-            for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
-                (*v)(0, 0, i, j) = i+j*mesh->getNumGrid(0, CENTER);
-                (*v)(1, 0, i, j) = i+j*mesh->getNumGrid(0, CENTER);
-            }
-        }
-        v->applyBndCond(0);
     }
 
     virtual void TearDown() {
@@ -54,7 +45,27 @@ protected:
     }
 };
 
+//     \      -      |      +      |      +      |      +      |      +      |      +      \      -
+// -0.4*PI          0.0         0.4*PI        0.8*PI        1.2*PI        1.6*PI        2.0*PI
+//        -0.2*PI        0.2*PI        0.6*PI        1.0*PI        1.4*PI        1.8*PI        2.2*PI
+//     |      +      |      +      |      +      |      +      |
+// -0.5*PI      -0.25*PI          0.0        0.25*PI        0.5*PI
+//      -0.375*PI     -0.125*PI      0.125*PI      0.375*PI
+
 TEST_F(RLLRegridTest, Run) {
+    v->create(EDGE, CENTER, CENTER, EDGE);
+    for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, EDGE); ++i) {
+            (*v)(0, 0, i, j) = 5.0;
+        }
+    }
+    for (int j = 0; j < mesh->getNumGrid(1, EDGE); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
+            (*v)(0, 1, i, j) = 5.0;
+        }
+    }
+    v->applyBndCond(0);
+
     SphereCoord x(2);
     double y;
 
@@ -63,7 +74,15 @@ TEST_F(RLLRegridTest, Run) {
 
     SphereVelocity z(2);
     regrid->run(BILINEAR, 0, *v, x, z);
+    ASSERT_EQ(5.0, z(0));
+    ASSERT_EQ(5.0, z(1));
     
-    x(0) = 0.41*M_PI;
+    x(0) = 0.1*M_PI;
+    x(1) = 0.26*M_PI;
     regrid->run(BILINEAR, 0, *v, x, z);
+    // z.print();
+    z.transformFromPS(x);
+    // z.print();
+    ASSERT_EQ(5.0, z(0));
+    ASSERT_EQ(5.0, z(1));
 }
