@@ -1,7 +1,15 @@
 find_package (Armadillo)
-if (Armadillo_FOUND)
-    message (STATUS "DDD")
-endif (Armadillo_FOUND)
+if (ARMADILLO_FOUND)
+    if (DEFINED ENV{ARMADILLO_ROOT})
+        message ("@@ Use user provided library Armadillo!")
+        message ("@@ ARMADILLO_ROOT = $ENV{ARMADILLO_ROOT}")
+        find_package (Armadillo HINTS $ENV{ARMADILLO_ROOT})
+    else ()
+        message (FATAL_ERROR "CMake couldn't find library Armadillo! "
+                             "If it have been installed and you know where it is, "
+                             "set ARMADILLO_ROOT (e.g. in .bashrc) to it.")
+    endif ()
+endif ()
 
 set (SRC_DIRS
     "${PROJECT_SOURCE_DIR}/src"
@@ -16,7 +24,7 @@ foreach (dir ${SRC_DIRS})
     aux_source_directory ("${dir}" tmp)
     set (SRCS ${SRCS} ${tmp})
     include_directories ("${dir}")
-endforeach (dir)
+endforeach ()
 
 add_library (geomtk STATIC ${SRCS})
 target_link_libraries (geomtk armadillo)
@@ -44,7 +52,7 @@ if (CMAKE_BUILD_TYPE MATCHES DEBUG)
         if (EXISTS "${dir}/test")
             include_directories ("${dir}/test")
         endif (EXISTS "${dir}/test")
-    endforeach (dir)
+    endforeach ()
     include_directories (${gtest_SOURCE_DIR} ${gtest_SOURCE_DIR}/include)
     
     add_executable (geomtk_test "${PROJECT_SOURCE_DIR}/src/test/test.cpp")
@@ -57,4 +65,4 @@ if (CMAKE_BUILD_TYPE MATCHES DEBUG)
         NAME geomtk_test
         COMMAND geomtk_test
     )
-endif (CMAKE_BUILD_TYPE MATCHES DEBUG)
+endif ()
