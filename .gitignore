@@ -16,3 +16,11 @@
 # Doxygen files
 doc/html
 doc/latex
+
+# CMake files
+CMakeFiles
+CMakeCache.txt
+cmake_install.cmake
+install_manifest.txt
+Testing
+CTestTestfile.cmake

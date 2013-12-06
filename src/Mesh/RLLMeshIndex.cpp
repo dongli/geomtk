@@ -32,7 +32,8 @@ void RLLMeshIndex::locate(const SpaceCoord &x) {
     if (indices[1][CENTER] == 0) {
         pole = SOUTH_POLE;
         inPolarCap = true;
-    } else if (indices[1][CENTER] == mesh.fullCoords[1].size()-2) {
+    } else if (indices[1][CENTER] == mesh.getNumGrid(1, CENTER)-2) {
+        
         pole = NORTH_POLE;
         inPolarCap = true;
     } else {

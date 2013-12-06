@@ -9,6 +9,11 @@ enum Pole {
 
 class SphereDomain;
 
+/**
+ * SphereCoord
+ * This class describes the coordinate of sphere.
+ */
+
 class SphereCoord : public SpaceCoord {
 protected:
     double xt[2]; // horizontal coordinate on polar stereographic plane
