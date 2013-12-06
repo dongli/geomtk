@@ -1,5 +1,5 @@
 find_package (Armadillo)
-if (ARMADILLO_FOUND)
+if (NOT ARMADILLO_FOUND)
     if (DEFINED ENV{ARMADILLO_ROOT})
         message ("@@ Use user provided library Armadillo!")
         message ("@@ ARMADILLO_ROOT = $ENV{ARMADILLO_ROOT}")
@@ -26,6 +26,7 @@ foreach (dir ${SRC_DIRS})
     include_directories ("${dir}")
 endforeach ()
 
+include_directories (${ARMADILLO_INCLUDE_DIRS})
 add_library (geomtk STATIC ${SRCS})
 target_link_libraries (geomtk armadillo)
 
