@@ -26,3 +26,4 @@ Testing
 DartConfiguration.tcl
 CTestTestfile.cmake
 Makefile
+cmake_uninstall.cmake

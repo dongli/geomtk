@@ -1,31 +1,19 @@
-cmake_minimum_required (VERSION 2.6)
+# ------------------------------------------------------------------------------
+# CMake build script for GeoMTK.
+#
+# Copyright 2013.
+#
+# Authors:
+#   - Li Dong <dongli@lasg.iap.ac.cn>
+# ------------------------------------------------------------------------------
+
+cmake_minimum_required (VERSION 2.8)
 
 project (geomtk CXX)
 
-include (CTest)
-
 # ------------------------------------------------------------------------------
-# external dependencies
-if (CMAKE_BUILD_TYPE MATCHES DEBUG)
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/external/gtest-1.7.0")
-endif ()
-
-find_package (Armadillo)
-if (NOT ARMADILLO_FOUND)
-    if (DEFINED ENV{ARMADILLO_ROOT})
-        message ("@@ Use user provided library Armadillo!")
-        message ("@@ ARMADILLO_ROOT = $ENV{ARMADILLO_ROOT}")
-        find_package (Armadillo HINTS $ENV{ARMADILLO_ROOT})
-    else ()
-        message (FATAL_ERROR "CMake couldn't find library Armadillo! "
-                             "If it have been installed and you know where it is, "
-                             "set ARMADILLO_ROOT (e.g. in .bashrc) to it.")
-    endif ()
-endif ()
-
-# ------------------------------------------------------------------------------
-# internal sources
-set (source_dirs
+# source directory structure
+set (source_directories
     "${PROJECT_SOURCE_DIR}/src"
     "${PROJECT_SOURCE_DIR}/src/Domain"
     "${PROJECT_SOURCE_DIR}/src/Mesh"
@@ -33,54 +21,84 @@ set (source_dirs
     "${PROJECT_SOURCE_DIR}/src/Regrid"
 )
 
-foreach (dir ${source_dirs})
+# ------------------------------------------------------------------------------
+# collect sources and headers
+foreach (dir ${source_directories})
+    include_directories ("${dir}")
     # source files
     aux_source_directory ("${dir}" tmp1)
     list (APPEND sources ${tmp1})
-    include_directories ("${dir}")
     # header files
-    execute_process (COMMAND
-        find ${dir} -maxdepth 1 -name "*.h"
-        OUTPUT_VARIABLE tmp2
-    )
+    file (GLOB tmp2 "${dir}/*.h")
     list (APPEND headers ${tmp2})
-endforeach ()
-string (REGEX REPLACE "\n" ";" headers ${headers})
-
-include_directories (${ARMADILLO_INCLUDE_DIRS})
-add_library (geomtk STATIC ${sources})
-target_link_libraries (geomtk armadillo)
-
-install (TARGETS geomtk
-    ARCHIVE DESTINATION lib
-)
-foreach (header IN ITEMS ${headers})
-	if (${header} MATCHES "geomtk.h")
-	    install (FILES ${header}
-	        DESTINATION "include"
-	    )
-	else ()
-		install (FILES ${header}
-	        DESTINATION "include/geomtk"
-	    )
-	endif ()
 endforeach ()
 
 # ------------------------------------------------------------------------------
-# testing
+# external libraries
+find_package (Armadillo)
+if (NOT ARMADILLO_FOUND)
+    if (DEFINED ENV{ARMADILLO_ROOT})
+        message ("@@ Use user provided library Armadillo!")
+        message ("@@ ARMADILLO_ROOT = $ENV{ARMADILLO_ROOT}")
+        find_package (Armadillo HINTS $ENV{ARMADILLO_ROOT})
+    else ()
+        message (FATAL_ERROR
+            "CMake couldn't find library Armadillo! "
+            "If it have been installed and you know where it is, "
+            "set ARMADILLO_ROOT (e.g. in .bashrc) to it."
+        )
+    endif ()
+endif ()
+
+# ------------------------------------------------------------------------------
+# library targets
+add_library (geomtk STATIC ${sources})
+include_directories (${ARMADILLO_INCLUDE_DIRS})
+target_link_libraries (geomtk armadillo)
+
+# ------------------------------------------------------------------------------
+# install rules
+install (TARGETS geomtk ARCHIVE DESTINATION lib)
+foreach (header ${headers})
+    if (${header} MATCHES "geomtk.h")
+        install (FILES ${header}
+            DESTINATION "include"
+        )
+    else ()
+        install (FILES ${header}
+            DESTINATION "include/geomtk"
+        )
+    endif ()
+endforeach ()
+
+# ------------------------------------------------------------------------------
+# uninstall rules
+configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY
+)
+add_custom_target (uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
+)
+
+# ------------------------------------------------------------------------------
+# testing target
 if (CMAKE_BUILD_TYPE MATCHES DEBUG)
+    include (CTest)
     enable_testing ()
-    
+    add_subdirectory ("${PROJECT_SOURCE_DIR}/external/gtest-1.7.0")
+
     foreach (dir ${SRC_DIRS})
         if (EXISTS "${dir}/test")
             include_directories ("${dir}/test")
         endif (EXISTS "${dir}/test")
     endforeach ()
     include_directories (${gtest_SOURCE_DIR} ${gtest_SOURCE_DIR}/include)
-    
+
     add_executable (geomtk_test "${PROJECT_SOURCE_DIR}/src/test/test.cpp")
     target_link_libraries (geomtk_test gtest gtest_main geomtk)
-    
+
     set_target_properties (geomtk geomtk_test
         PROPERTIES COMPILE_FLAGS "-DUNIT_TEST"
     )
@@ -89,4 +107,3 @@ if (CMAKE_BUILD_TYPE MATCHES DEBUG)
         COMMAND geomtk_test
     )
 endif ()
-
