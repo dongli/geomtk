@@ -46,30 +46,30 @@ inline string getFunctionName(const string &str) {
 
 #define REPORT_ERROR(MESSAGE) \
 { \
-    cout << "[Error]: "; \
-    cout << getFunctionName(__PRETTY_FUNCTION__) << ":"; \
-    cout << __LINE__ << ": "; \
-    cout << MESSAGE << endl; \
+    std::cout << "[Error]: "; \
+    std::cout << geomtk::getFunctionName(__PRETTY_FUNCTION__) << ":"; \
+    std::cout << __LINE__ << ": "; \
+    std::cout << MESSAGE << std::endl; \
     exit(-1); \
 }
 
 #define REPORT_NOTICE(MESSAGE) \
 { \
-    cout << "[Notice]: "; \
-    cout << getFunctionName(__PRETTY_FUNCTION__) << ": "; \
-    cout << MESSAGE << endl; \
+    std::cout << "[Notice]: "; \
+    std::cout << geomtk::getFunctionName(__PRETTY_FUNCTION__) << ": "; \
+    std::cout << MESSAGE << std::endl; \
 }
 
 #define REPORT_WARNING(MESSAGE) \
 { \
-    cout << "[Warning]: "; \
-    cout << getFunctionName(__PRETTY_FUNCTION__) << ": "; \
-    cout << MESSAGE << endl; \
+    std::cout << "[Warning]: "; \
+    std::cout << geomtk::getFunctionName(__PRETTY_FUNCTION__) << ": "; \
+    std::cout << MESSAGE << std::endl; \
 }
 
 #define CHECK_POINT \
 { \
-    cout << "[Check point]: " << __FILE__ << ": " << __LINE__ << endl; \
+    std::cout << "[Check point]: " << __FILE__ << ": " << __LINE__ << std::endl; \
 }
 
 // -----------------------------------------------------------------------------
