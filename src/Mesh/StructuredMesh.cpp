@@ -1,5 +1,7 @@
 #include "StructuredMesh.h"
 
+namespace geomtk {
+
 StructuredMesh::StructuredMesh(Domain &domain) : Mesh(domain) {
     fullCoords = new vec[domain.getNumDim()];
     halfCoords = new vec[domain.getNumDim()];
@@ -213,4 +215,6 @@ int StructuredMesh::getNumGrid(int dim, StaggerType staggerType,
 
 bool StructuredMesh::isEquidistant(int dim) const {
     return equidistant[dim];
+}
+
 }

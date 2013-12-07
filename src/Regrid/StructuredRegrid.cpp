@@ -3,6 +3,8 @@
 #include "StructuredScalarField.h"
 #include "StructuredVectorField.h"
 
+namespace geomtk {
+
 StructuredRegrid::StructuredRegrid(Mesh &mesh) : Regrid(mesh) {
 }
 
@@ -97,4 +99,6 @@ void StructuredRegrid::run(RegridMethod method, int timeLevel, const Field &f,
     if (idx_ == NULL) {
         delete idx;
     }
+}
+
 }

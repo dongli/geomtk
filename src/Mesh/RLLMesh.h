@@ -2,6 +2,9 @@
 #define __RLLMesh__
 
 #include "StructuredMesh.h"
+
+namespace geomtk {
+
 class SphereCoord;
 class SphereVelocity;
 class RLLMeshIndex;
@@ -31,5 +34,7 @@ public:
     void move(const SphereCoord &x0, double dt, const SphereVelocity &v,
               const RLLMeshIndex &idx, SphereCoord &x1) const;
 };
+
+}
 
 #endif

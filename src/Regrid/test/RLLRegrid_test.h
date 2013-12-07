@@ -1,4 +1,9 @@
+#ifndef __RLLRegrid_test__
+#define __RLLRegrid_test__
+
 #include "RLLRegrid.h"
+
+using namespace geomtk;
 
 class RLLRegridTest : public ::testing::Test {
 protected:
@@ -86,3 +91,5 @@ TEST_F(RLLRegridTest, Run) {
     ASSERT_EQ(5.0, z(0));
     ASSERT_EQ(5.0, z(1));
 }
+
+#endif

@@ -6,6 +6,8 @@
 #include "Field.h"
 #include "MeshIndex.h"
 
+namespace geomtk {
+
 enum RegridMethod {
     BILINEAR, TRILINEAR
 };
@@ -28,5 +30,7 @@ public:
     virtual void run(RegridMethod method, int timeLevel, const Field &f,
                      const SpaceCoord &x, vec &y, MeshIndex *idx = NULL) = 0;
 };
+
+}
 
 #endif

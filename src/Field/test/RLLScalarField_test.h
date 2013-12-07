@@ -3,6 +3,8 @@
 
 #include "RLLScalarField.h"
 
+using namespace geomtk;
+
 class RLLScalarFieldTest : public ::testing::Test {
 protected:
     SphereDomain *sphere;

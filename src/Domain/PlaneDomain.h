@@ -3,10 +3,14 @@
 
 #include "Domain.h"
 
+namespace geomtk {
+
 class PlaneDomain : public Domain {
 public:
     PlaneDomain();
     virtual ~PlaneDomain();
 };
+
+}
 
 #endif

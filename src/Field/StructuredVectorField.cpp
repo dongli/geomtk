@@ -1,5 +1,7 @@
 #include "StructuredVectorField.h"
 
+namespace geomtk {
+
 StructuredVectorField::StructuredVectorField(Mesh &mesh) : Field(mesh) {
     if (dynamic_cast<StructuredMesh*>(&mesh) == NULL) {
         REPORT_ERROR("Mesh should be StructuredMesh!")
@@ -116,4 +118,6 @@ double& StructuredVectorField::operator()(int timeLevel, int dim, int i, int j, 
 
 StaggerType StructuredVectorField::getStaggerType(int comp, int dim) const {
     return staggerTypes[comp][dim];
+}
+
 }

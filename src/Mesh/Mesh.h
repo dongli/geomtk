@@ -4,6 +4,8 @@
 #include "commons.h"
 #include "Domain.h"
 
+namespace geomtk {
+
 enum StaggerType {
     CENTER, EDGE, VERTEX
 };
@@ -22,5 +24,7 @@ public:
 
     const Domain& getDomain() const;
 };
+
+}
 
 #endif

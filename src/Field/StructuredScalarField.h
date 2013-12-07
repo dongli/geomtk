@@ -3,6 +3,8 @@
 
 #include "Field.h"
 
+namespace geomtk {
+
 class StructuredScalarField : public Field {
 protected:
     TimeLevels<cube, 2> data;
@@ -59,5 +61,7 @@ public:
 
     virtual StaggerType getStaggerType(int dim) const;
 };
+
+}
 
 #endif

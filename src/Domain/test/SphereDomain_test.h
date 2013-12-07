@@ -3,6 +3,8 @@
 
 #include "SphereDomain.h"
 
+using namespace geomtk;
+
 class SphereDomainTest : public ::testing::Test {
 protected:
     SphereDomain *domain;

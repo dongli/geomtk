@@ -1,26 +1,26 @@
-#ifndef __commons__
-#define __commons__
+#ifndef __geomtk_commons__
+#define __geomtk_commons__
 
 #include <armadillo>
+#include <iostream>
+#include <iomanip>
+#include <assert.h>
+#include <cmath>
+#include <string>
+#include <vector>
+
+namespace geomtk {
 
 using arma::vec;
 using arma::mat;
 using arma::cube;
 using arma::span;
 
-#include <iostream>
-#include <iomanip>
-
 using std::cout;
 using std::endl;
 using std::setw;
 using std::setprecision;
 using std::setfill;
-
-#include <assert.h>
-#include <cmath>
-#include <string>
-#include <vector>
 
 using std::string;
 using std::vector;
@@ -83,5 +83,7 @@ inline string getFunctionName(const string &str) {
 // constants
 const double RAD = M_PI/180.0;
 const double PI2 = M_PI*2.0;
+
+}
 
 #endif

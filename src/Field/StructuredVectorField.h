@@ -4,6 +4,8 @@
 #include "Field.h"
 #include "StructuredMesh.h"
 
+namespace geomtk {
+
 /**
  * StructuredVectorField
  * This class describes the vector field on the structured mesh.
@@ -63,5 +65,7 @@ public:
 
     virtual StaggerType getStaggerType(int comp, int dim) const;
 };
+
+}
 
 #endif

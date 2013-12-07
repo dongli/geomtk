@@ -4,6 +4,8 @@
 #include "Domain.h"
 #include "gtest/gtest.h"
 
+using namespace geomtk;
+
 class DomainTest : public ::testing::Test {
 protected:
     Domain *d2;

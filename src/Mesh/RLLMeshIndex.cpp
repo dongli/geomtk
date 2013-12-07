@@ -1,5 +1,7 @@
 #include "RLLMeshIndex.h"
 
+namespace geomtk {
+
 RLLMeshIndex::RLLMeshIndex(Mesh &mesh) : StructuredMeshIndex(mesh) {
     reset();
 }
@@ -61,4 +63,6 @@ void RLLMeshIndex::print() const {
     } else if (pole == NOT_POLE) {
         cout << "NOT_POLE" << endl;
     }
+}
+
 }

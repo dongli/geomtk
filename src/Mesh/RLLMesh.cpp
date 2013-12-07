@@ -2,6 +2,8 @@
 #include "SphereDomain.h"
 #include "RLLMeshIndex.h"
 
+namespace geomtk {
+
 RLLMesh::RLLMesh(Domain &domain) : StructuredMesh(domain) {
     if (dynamic_cast<SphereDomain*>(&domain) == NULL) {
         REPORT_ERROR("The domain should be SphereDomain!");
@@ -131,4 +133,6 @@ void RLLMesh::move(const SphereCoord &x0, double dt, const SphereVelocity &v,
         x1(2) = x0(2)+dlev;
         assert(x1(2) >= domain.getAxisStart(2) && x1(2) <= domain.getAxisEnd(2));
     }
+}
+
 }

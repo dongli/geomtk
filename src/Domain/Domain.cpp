@@ -1,5 +1,7 @@
 #include "Domain.h"
 
+namespace geomtk {
+
 SpaceCoord::SpaceCoord(int numDim) {
     coords.resize(numDim);
 }
@@ -166,4 +168,6 @@ BndType Domain::getAxisEndBndType(int dim) const {
 
 double Domain::calcDistance(const SpaceCoord &x, const SpaceCoord &y) const {
     REPORT_ERROR("Domain does not implement this method!");
+}
+
 }

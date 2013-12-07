@@ -4,6 +4,8 @@
 #include "RLLMesh.h"
 #include "RLLMeshIndex.h"
 
+using namespace geomtk;
+
 class RLLMeshTest : public ::testing::Test {
 protected:
     SphereDomain *domain;

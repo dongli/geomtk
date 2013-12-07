@@ -5,6 +5,8 @@
 #include "Mesh.h"
 #include "TimeLevels.h"
 
+namespace geomtk {
+
 /**
  * Field
  * This is the base class for describing field on a mesh.
@@ -29,5 +31,7 @@ public:
      */
     const Mesh& getMesh();
 };
+
+}
 
 #endif

@@ -1,4 +1,9 @@
+#ifndef __StructuredRegrid_test__
+#define __StructuredRegrid_test__
+
 #include "StructuredRegrid.h"
+
+using namespace geomtk;
 
 class StructuredRegridTest : public ::testing::Test {
 protected:
@@ -64,3 +69,5 @@ TEST_F(StructuredRegridTest, Run) {
     ASSERT_EQ(5.0, y(0));
     ASSERT_EQ(1.0, y(1));
 }
+
+#endif

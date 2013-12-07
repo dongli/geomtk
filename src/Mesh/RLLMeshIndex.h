@@ -5,6 +5,8 @@
 #include "RLLMesh.h"
 #include "SphereDomain.h"
 
+namespace geomtk {
+
 class RLLMeshIndex : public StructuredMeshIndex {
 protected:
     Pole pole;
@@ -29,5 +31,7 @@ public:
 
     virtual void print() const;
 };
+
+}
 
 #endif

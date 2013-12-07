@@ -2,6 +2,9 @@
 #define __RLLRegrid__
 
 #include "Regrid.h"
+
+namespace geomtk {
+
 class RLLVelocityField;
 class SphereVelocity;
 
@@ -22,5 +25,7 @@ public:
     virtual void run(RegridMethod method, int timeLevel, const RLLVelocityField &f,
                      const SpaceCoord &x, SphereVelocity &y);
 };
+
+}
 
 #endif

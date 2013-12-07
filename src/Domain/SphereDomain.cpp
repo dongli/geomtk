@@ -1,5 +1,7 @@
 #include "SphereDomain.h"
 
+namespace geomtk {
+
 SphereCoord::SphereCoord(int numDim) : SpaceCoord(numDim) {
 }
 
@@ -142,4 +144,6 @@ double SphereDomain::calcDistance(const SpaceCoord &x, double lon,
     double tmp2 = cos(x(1))*cosLat*cos(dlon);
     double tmp3 = min(1.0, max(-1.0, tmp1+tmp2));
     return radius*acos(tmp3);
+}
+
 }

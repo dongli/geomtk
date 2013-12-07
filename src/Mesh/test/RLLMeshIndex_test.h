@@ -1,4 +1,9 @@
+#ifndef __RLLMeshIndex_test__
+#define __RLLMeshIndex_test__
+
 #include "RLLMeshIndex.h"
+
+using namespace geomtk;
 
 class RLLMeshIndexTest : public ::testing::Test {
 protected:
@@ -100,3 +105,5 @@ TEST_F(RLLMeshIndexTest, Locate) {
     ASSERT_EQ(true, (*index).isInPolarCap());
     ASSERT_EQ(true, (*index).isOnPole());
 }
+
+#endif

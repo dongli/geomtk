@@ -3,6 +3,8 @@
 
 #include "RLLVelocityField.h"
 
+using namespace geomtk;
+
 class RLLVelocityFieldTest : public ::testing::Test {
 protected:
     SphereDomain *domain;

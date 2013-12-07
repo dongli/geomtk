@@ -1,5 +1,7 @@
 #include "RLLVelocityField.h"
 
+namespace geomtk {
+
 PolarRing::PolarRing() {
     vr = NULL;
 }
@@ -167,4 +169,6 @@ void RLLVelocityField::create(StaggerType uLonStaggerType,
 
 const PolarRing& RLLVelocityField::getPolarRing(Pole pole) const {
     return rings[pole];
+}
+
 }

@@ -1,6 +1,8 @@
 #include "StructuredScalarField.h"
 #include "StructuredMesh.h"
 
+namespace geomtk {
+
 StructuredScalarField::StructuredScalarField(Mesh &mesh) : Field(mesh) {
     if (dynamic_cast<StructuredMesh*>(&mesh) == NULL) {
         REPORT_ERROR("Mesh should comply StructuredMesh!");
@@ -97,4 +99,6 @@ double& StructuredScalarField::operator()(int timeLevel, int i, int j, int k) {
 
 StaggerType StructuredScalarField::getStaggerType(int dim) const {
     return staggerTypes[dim];
+}
+
 }

@@ -4,6 +4,8 @@
 #include "Mesh.h"
 #include "SphereDomain.h"
 
+using namespace geomtk;
+
 class MeshTest : public ::testing::Test {
 protected:
     SphereDomain *sphere;

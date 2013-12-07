@@ -3,6 +3,8 @@
 
 #include "Regrid.h"
 
+namespace geomtk {
+
 class StructuredRegrid : public Regrid {
 protected:
 public:
@@ -14,5 +16,7 @@ public:
     virtual void run(RegridMethod method, int timeLevel, const Field &f,
                      const SpaceCoord &x, vec &y, MeshIndex *idx = NULL);
 };
+
+}
 
 #endif

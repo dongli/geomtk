@@ -3,6 +3,8 @@
 
 #include "Mesh.h"
 
+namespace geomtk {
+
 class StructuredMesh : public Mesh {
 protected:
     vec *fullCoords;
@@ -56,5 +58,7 @@ public:
 
     bool isEquidistant(int dim) const;
 };
+
+}
 
 #endif

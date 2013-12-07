@@ -3,6 +3,8 @@
 
 #include "StructuredScalarField.h"
 
+namespace geomtk {
+
 /**
  * RLLScalarField
  * This class describes the scalar field on the RLL mesh.
@@ -13,6 +15,8 @@ public:
     RLLScalarField(Mesh &mesh);
     virtual ~RLLScalarField();
 };
+
+}
 
 #endif
 

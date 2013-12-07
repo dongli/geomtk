@@ -4,6 +4,8 @@
 #include "commons.h"
 #include "Mesh.h"
 
+namespace geomtk {
+
 #define UNDEFINED_MESH_INDEX -999
 
 /**
@@ -25,5 +27,7 @@ public:
 
     virtual void print() const = 0;
 };
+
+}
 
 #endif

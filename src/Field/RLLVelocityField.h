@@ -4,6 +4,8 @@
 #include "RLLVectorField.h"
 #include "SphereDomain.h"
 
+namespace geomtk {
+
 /**
  * PolarRing
  * This class is for handling velocity interpolating in Pole region, since the
@@ -129,5 +131,7 @@ public:
      */
     virtual const PolarRing& getPolarRing(Pole pole) const;
 };
+
+}
 
 #endif

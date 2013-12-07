@@ -8,6 +8,8 @@
  * @tparam N the number of time levels that are stored.
  */
 
+namespace geomtk {
+
 template <typename T, int N>
 class TimeLevels {
     T data[N];
@@ -37,6 +39,8 @@ T TimeLevels<T, N>::get(int level) const {
 template <typename T, int N>
 T& TimeLevels<T, N>::get(int level) {
     return data[level];
+}
+
 }
 
 #endif /* defined(__Lady__TimeLevels__) */

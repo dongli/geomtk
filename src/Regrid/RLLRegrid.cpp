@@ -5,6 +5,8 @@
 #include "RLLVectorField.h"
 #include "RLLVelocityField.h"
 
+namespace geomtk {
+
 RLLRegrid::RLLRegrid(Mesh &mesh) : Regrid(mesh) {
 }
 
@@ -212,4 +214,6 @@ void RLLRegrid::run(RegridMethod method, int timeLevel, const RLLVelocityField &
             REPORT_ERROR("Under construction!");
         }
     }
+}
+
 }

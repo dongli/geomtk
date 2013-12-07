@@ -6,7 +6,8 @@
  *
  * Copyright 2013.
  *
- * Authors: Li Dong <dongli@lasg.iap.ac.cn>
+ * Authors:
+ *   - Li Dong <dongli@lasg.iap.ac.cn>
  */
 
 #include "geomtk/commons.h"

@@ -1,6 +1,8 @@
 #include "RLLScalarField.h"
 #include "RLLMesh.h"
 
+namespace geomtk {
+
 RLLScalarField::RLLScalarField(Mesh &mesh) : StructuredScalarField(mesh) {
     if (dynamic_cast<RLLMesh*>(&mesh) == NULL) {
         REPORT_ERROR("Mesh should comply RLLMesh!");
@@ -8,4 +10,6 @@ RLLScalarField::RLLScalarField(Mesh &mesh) : StructuredScalarField(mesh) {
 }
 
 RLLScalarField::~RLLScalarField() {
+}
+
 }

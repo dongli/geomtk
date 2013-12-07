@@ -3,6 +3,8 @@
 
 #include "Domain.h"
 
+namespace geomtk {
+
 enum Pole {
     SOUTH_POLE = 0, NORTH_POLE = 1, NOT_POLE = 2
 };
@@ -98,5 +100,7 @@ public:
     virtual double calcDistance(const SpaceCoord &x, double lon,
                                 double sinLat, double cosLat) const;
 };
+
+}
 
 #endif

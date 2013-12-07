@@ -4,6 +4,8 @@
 #include "MeshIndex.h"
 #include "StructuredMesh.h"
 
+namespace geomtk {
+
 class StructuredMeshIndex : public MeshIndex {
 protected:
     int **indices;
@@ -26,5 +28,7 @@ public:
 
     virtual void print() const;
 };
+
+}
 
 #endif

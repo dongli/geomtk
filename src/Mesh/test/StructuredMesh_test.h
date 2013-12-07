@@ -4,6 +4,8 @@
 #include "SphereDomain.h"
 #include "StructuredMesh.h"
 
+using namespace geomtk;
+
 class StructuredMeshTest : public ::testing::Test {
 protected:
     SphereDomain *sphere;

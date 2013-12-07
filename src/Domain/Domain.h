@@ -3,6 +3,8 @@
 
 #include "commons.h"
 
+namespace geomtk {
+
 enum BndType {
     PERIODIC, OPEN, POLE, RIGID, INVALID
 };
@@ -73,5 +75,7 @@ public:
 
     virtual double calcDistance(const SpaceCoord &x, const SpaceCoord &y) const;
 };
+
+}
 
 #endif

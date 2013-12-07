@@ -1,5 +1,7 @@
 #include "StructuredMeshIndex.h"
 
+namespace geomtk {
+
 StructuredMeshIndex::StructuredMeshIndex(Mesh &mesh) : MeshIndex(mesh) {
     // NOTE: Index is 3D no matter the dimension size of domain.
     indices = new int*[3];
@@ -105,4 +107,6 @@ void StructuredMeshIndex::print() const {
         cout << setw(10) << indices[m][EDGE];
     }
     cout << endl;
+}
+
 }
