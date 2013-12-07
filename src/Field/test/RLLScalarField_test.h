@@ -54,8 +54,8 @@ TEST_F(RLLScalarFieldTest, Create) {
     field->applyBndCond(0);
     int n = mesh->getNumGrid(0, CENTER, true);
     for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
-        EXPECT_EQ(field->data.get(0)(0, j, 0), field->data.get(0)(n-2, j, 0));
-        EXPECT_EQ(field->data.get(0)(n-1, j, 0), field->data.get(0)(1, j, 0));
+        EXPECT_EQ(field->data.getLevel(0)(0, j, 0), field->data.getLevel(0)(n-2, j, 0));
+        EXPECT_EQ(field->data.getLevel(0)(n-1, j, 0), field->data.getLevel(0)(1, j, 0));
     }
 }
 

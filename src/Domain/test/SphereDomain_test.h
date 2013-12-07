@@ -19,6 +19,22 @@ protected:
     }
 };
 
+TEST_F(SphereDomainTest, SphereCoordOperator) {
+    SphereCoord a(2), b(2);
+
+    a(0) = 1.0;
+    a(1) = 2.0;
+
+    a.transformToPS(*domain);
+
+    b = a;
+
+    ASSERT_EQ(a(0), b(0));
+    ASSERT_EQ(a(1), b(1));
+    ASSERT_EQ(a[0], b[0]);
+    ASSERT_EQ(a[1], b[1]);
+}
+
 TEST_F(SphereDomainTest, Constructor) {
     EXPECT_EQ(0.0, domain->getAxisStart(0));
     EXPECT_EQ(2.0*M_PI, domain->getAxisEnd(0));

@@ -81,10 +81,10 @@ TEST_F(RLLVelocityFieldTest, CreateAndSet) {
             x(0) = mesh->getGridCoord(0, CENTER, i);
             x(1) = mesh->getGridCoord(1, CENTER, j);
             SphereVelocity u(2);
-            u = v->rings[l].vr[i+1][0].get(0);
+            u = v->rings[l].vr[i+1][0].getLevel(0);
             u.transformFromPS(x);
-            ASSERT_GT(1.0e-15, abs(v->rings[l].vr[i+1][0].get(0)(0)-u(0)));
-            ASSERT_GT(1.0e-15, abs(v->rings[l].vr[i+1][0].get(0)(1)-u(1)));
+            ASSERT_GT(1.0e-15, abs(v->rings[l].vr[i+1][0].getLevel(0)(0)-u(0)));
+            ASSERT_GT(1.0e-15, abs(v->rings[l].vr[i+1][0].getLevel(0)(1)-u(1)));
         }
     }}
 

@@ -16,6 +16,15 @@ double& SphereCoord::operator[](int i) {
     return xt[i];
 }
 
+SphereCoord& SphereCoord::operator=(const SphereCoord &other) {
+    if (this != &other) {
+        SpaceCoord::operator=(other);
+        this->xt[0] = other.xt[0];
+        this->xt[1] = other.xt[1];
+    }
+    return *this;
+}
+
 void SphereCoord::transformToPS(const SphereDomain &domain) {
     double sign = coords(1) < 0.0 ? -1.0 : 1.0;
     double tanLat = tan(coords(1));
@@ -62,6 +71,15 @@ double& SphereVelocity::operator[](int dim) {
         REPORT_ERROR("Transformed velocity is only 2D!");
     }
     return vt[dim];
+}
+
+SphereVelocity& SphereVelocity::operator=(const SphereVelocity &other) {
+    if (this != &other) {
+        Velocity::operator=(other);
+        this->vt[0] = other.vt[0];
+        this->vt[1] = other.vt[1];
+    }
+    return *this;
 }
 
 void SphereVelocity::transformToPS(const SpaceCoord &x) {

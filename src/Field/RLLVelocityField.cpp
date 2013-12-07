@@ -22,7 +22,7 @@ void PolarRing::create(Mesh &mesh) {
         vr[i] = new TimeLevels<SphereVelocity, 2>[this->mesh->getNumGrid(2, CENTER)];
         for (int k = 0; k < this->mesh->getNumGrid(2, CENTER); ++k) {
             for (int l = 0; l < vr[i][k].getNumLevel(); ++l) {
-                vr[i][k].get(l).setNumDim(mesh.getDomain().getNumDim());
+                vr[i][k].getLevel(l).setNumDim(mesh.getDomain().getNumDim());
             }
         }
     }
@@ -34,30 +34,30 @@ void PolarRing::update(int timeLevel, Pole pole, TimeLevels<cube, 2> *data) {
     int j = pole == SOUTH_POLE ? 1 : mesh->getNumGrid(1, CENTER)-2; // off the Pole
     for (int i = 1; i < mesh->getNumGrid(0, CENTER, true)-1; ++i) {
         for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-            vr[i][k].get(timeLevel)(0) =
-                (data[0].get(timeLevel)(i-1, j, k)+
-                 data[0].get(timeLevel)(i,   j, k))*0.5;
+            vr[i][k].getLevel(timeLevel)(0) =
+                (data[0].getLevel(timeLevel)(i-1, j, k)+
+                 data[0].getLevel(timeLevel)(i,   j, k))*0.5;
         }
     }
     // periodic boundary condition
     for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-        vr[0][k].get(timeLevel)(0) = vr[nx-2][k].get(timeLevel)(0);
-        vr[nx-1][k].get(timeLevel)(0) = vr[1][k].get(timeLevel)(0);
+        vr[0][k].getLevel(timeLevel)(0) = vr[nx-2][k].getLevel(timeLevel)(0);
+        vr[nx-1][k].getLevel(timeLevel)(0) = vr[1][k].getLevel(timeLevel)(0);
     }
     j = pole == SOUTH_POLE ? 0 : mesh->getNumGrid(1, EDGE)-2;
     for (int i = 0; i < mesh->getNumGrid(0, CENTER, true); ++i) {
         for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-            vr[i][k].get(timeLevel)(1) =
-                (data[1].get(timeLevel)(i, j,   k)+
-                 data[1].get(timeLevel)(i, j+1, k))*0.5;
+            vr[i][k].getLevel(timeLevel)(1) =
+                (data[1].getLevel(timeLevel)(i, j,   k)+
+                 data[1].getLevel(timeLevel)(i, j+1, k))*0.5;
         }
     }
     if (mesh->getDomain().getNumDim() == 3) {
         for (int i = 0; i < mesh->getNumGrid(0, CENTER, true); ++i) {
             for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-                vr[i][k].get(timeLevel)(2) =
-                    (data[2].get(timeLevel)(i, j, k)+
-                     data[2].get(timeLevel)(i, j, k+1))*0.5;
+                vr[i][k].getLevel(timeLevel)(2) =
+                    (data[2].getLevel(timeLevel)(i, j, k)+
+                     data[2].getLevel(timeLevel)(i, j, k+1))*0.5;
             }
         }
     }
@@ -71,24 +71,25 @@ void PolarRing::update(int timeLevel, Pole pole, TimeLevels<cube, 2> *data) {
         cosLon = mesh->getCosLon(CENTER, i);
         sinLon = mesh->getSinLon(CENTER, i);
         for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-            vr[i+1][k].get(timeLevel).transformToPS(sinLat, sinLat2, sinLon, cosLon);
+            vr[i+1][k].getLevel(timeLevel)
+                .transformToPS(sinLat, sinLat2, sinLon, cosLon);
         }
     }
     // periodic boundary condition
     for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
         for (int m = 0; m < mesh->getDomain().getNumDim(); ++m) {
-            vr[0][k].get(timeLevel)[m] = vr[nx-2][k].get(timeLevel)[m];
-            vr[nx-1][k].get(timeLevel)[m] = vr[1][k].get(timeLevel)[m];
+            vr[0][k].getLevel(timeLevel)[m] = vr[nx-2][k].getLevel(timeLevel)[m];
+            vr[nx-1][k].getLevel(timeLevel)[m] = vr[1][k].getLevel(timeLevel)[m];
         }
     }
 }
 
 double PolarRing::getOriginalData(int timeLevel, int dim, int i, int k) const {
-    return vr[i+1][k].get(timeLevel)(dim);
+    return vr[i+1][k].getLevel(timeLevel)(dim);
 }
 
 double PolarRing::getTransformedData(int timeLevel, int dim, int i, int k) const {
-    return vr[i+1][k].get(timeLevel)[dim];
+    return vr[i+1][k].getLevel(timeLevel)[dim];
 }
 
 void PolarRing::print() const {

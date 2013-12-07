@@ -22,13 +22,13 @@ StructuredVectorField::~StructuredVectorField() {
 void StructuredVectorField::applyBndCond(int timeLevel) {
     // zonal periodic boundary condition
     for (int l = 0; l < mesh->getDomain().getNumDim(); ++l) {
-        int nx = data[l].get(0).n_rows;
-        int ny = data[l].get(0).n_cols;
-        int nz = data[l].get(0).n_slices;
+        int nx = data[l].getLevel(0).n_rows;
+        int ny = data[l].getLevel(0).n_cols;
+        int nz = data[l].getLevel(0).n_slices;
         for (int k = 0; k < nz; ++k) {
             for (int j = 0; j < ny; ++j) {
-                data[l].get(timeLevel)(0, j, k) = data[l].get(timeLevel)(nx-2, j, k);
-                data[l].get(timeLevel)(nx-1, j, k) = data[l].get(timeLevel)(1, j, k);
+                data[l].getLevel(timeLevel)(0, j, k) = data[l].getLevel(timeLevel)(nx-2, j, k);
+                data[l].getLevel(timeLevel)(nx-1, j, k) = data[l].getLevel(timeLevel)(1, j, k);
             }
         }
     }
@@ -45,8 +45,8 @@ void StructuredVectorField::create(StaggerType uXStaggerType,
     const StructuredMesh &mesh = dynamic_cast<const StructuredMesh&>(*(this->mesh));
     for (int l = 0; l < data[0].getNumLevel(); ++l) {
         for (int m = 0; m < mesh.getDomain().getNumDim(); ++m) {
-            data[m].get(l).reshape(mesh.getNumGrid(0, staggerTypes[m][0], true),
-                                   mesh.getNumGrid(1, staggerTypes[m][1]), 1);
+            data[m].getLevel(l).reshape(mesh.getNumGrid(0, staggerTypes[m][0], true),
+                                        mesh.getNumGrid(1, staggerTypes[m][1]), 1);
         }
     }
 }
@@ -75,9 +75,9 @@ void StructuredVectorField::create(StaggerType uXStaggerType,
     const StructuredMesh &mesh = dynamic_cast<const StructuredMesh&>(*(this->mesh));
     for (int l = 0; l < data[0].getNumLevel(); ++l) {
         for (int m = 0; m < mesh.getDomain().getNumDim(); ++m) {
-            data[m].get(l).reshape(mesh.getNumGrid(0, staggerTypes[m][0], true),
-                                   mesh.getNumGrid(1, staggerTypes[m][1]),
-                                   mesh.getNumGrid(2, staggerTypes[m][2]));
+            data[m].getLevel(l).reshape(mesh.getNumGrid(0, staggerTypes[m][0], true),
+                                        mesh.getNumGrid(1, staggerTypes[m][1]),
+                                        mesh.getNumGrid(2, staggerTypes[m][2]));
         }
     }
 }
@@ -96,7 +96,7 @@ double StructuredVectorField::operator()(int timeLevel, int dim, int i, int j, i
     } else {
         J = j;
     }
-    return data[dim].get(timeLevel)(I, J, k);
+    return data[dim].getLevel(timeLevel)(I, J, k);
 }
 
 double& StructuredVectorField::operator()(int timeLevel, int dim, int i, int j, int k) {
@@ -113,7 +113,7 @@ double& StructuredVectorField::operator()(int timeLevel, int dim, int i, int j, 
     } else {
         J = j;
     }
-    return data[dim].get(timeLevel)(I, J, k);
+    return data[dim].getLevel(timeLevel)(I, J, k);
 }
 
 StaggerType StructuredVectorField::getStaggerType(int comp, int dim) const {

@@ -23,24 +23,24 @@ public:
     /**
      * Get the variable on the needed time level.
      */
-    T get(int level) const;
+    T getLevel(int level) const;
 
     /**
      * Get the variable on the needed time level.
      */
-    T& get(int level);
+    T& getLevel(int level);
 };
 
 template <typename T, int N>
-T TimeLevels<T, N>::get(int level) const {
+T TimeLevels<T, N>::getLevel(int level) const {
     return data[level];
 }
 
 template <typename T, int N>
-T& TimeLevels<T, N>::get(int level) {
+T& TimeLevels<T, N>::getLevel(int level) {
     return data[level];
 }
 
 }
 
-#endif /* defined(__Lady__TimeLevels__) */
+#endif

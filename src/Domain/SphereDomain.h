@@ -26,6 +26,8 @@ public:
     double operator[](int i) const;
     double& operator[](int i);
 
+    SphereCoord& operator=(const SphereCoord& other);
+
     void transformToPS(const SphereDomain &domain);
 
     void transformFromPS(const SphereDomain &domain);
@@ -54,6 +56,8 @@ public:
      * @param dim which dimension of velocity that is needed.
      */
     double& operator[](int dim);
+
+    SphereVelocity& operator=(const SphereVelocity &other);
 
     /**
      * Transform velocity onto polar stereographic plane.

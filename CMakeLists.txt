@@ -89,7 +89,7 @@ if (CMAKE_BUILD_TYPE MATCHES DEBUG)
     enable_testing ()
     add_subdirectory ("${PROJECT_SOURCE_DIR}/external/gtest-1.7.0")
 
-    foreach (dir ${SRC_DIRS})
+    foreach (dir ${source_directories})
         if (EXISTS "${dir}/test")
             include_directories ("${dir}/test")
         endif (EXISTS "${dir}/test")
