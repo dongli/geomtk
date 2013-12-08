@@ -80,7 +80,13 @@ target_link_libraries (geomtk
 
 # ------------------------------------------------------------------------------
 # install rules
-install (TARGETS geomtk ARCHIVE DESTINATION lib)
+install (TARGETS geomtk
+    EXPORT geomtk-targets
+    ARCHIVE DESTINATION lib
+)
+install (EXPORT geomtk-targets
+    DESTINATION lib/geomtk
+)
 foreach (header ${headers})
     if (${header} MATCHES "geomtk.h")
         install (FILES ${header}
