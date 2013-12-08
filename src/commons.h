@@ -2,6 +2,7 @@
 #define __geomtk_commons__
 
 #include <armadillo>
+#include <netcdf.h>
 #include <iostream>
 #include <iomanip>
 #include <assert.h>

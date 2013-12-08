@@ -17,7 +17,7 @@ public:
     virtual ~StructuredMesh();
 
     /**
-     * @brief A setter for grid coordinates.
+     * A setter for grid coordinates.
      * This method sets the grid coordinates including the full grids and the
      * half grids. The internal grids will be set according to the domain
      * boundary conditions.
@@ -29,7 +29,13 @@ public:
     virtual void setGridCoords(int dim, int size, double *full, double *half);
 
     /**
-     * @brief A getter for grid coordinates.
+     * A setter for grid coordinates.
+     */
+    virtual void setGridCoords(int dim, const string &fileName,
+                               const string &fullName, const string &halfName);
+
+    /**
+     * A getter for grid coordinates.
      * This method returns the grid coordinates excluding the potential virtual
      * boundary grids. The virtual boundary grids are added when boundary
      * conditions are periodic.

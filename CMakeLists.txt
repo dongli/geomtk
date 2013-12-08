@@ -50,11 +50,33 @@ if (NOT ARMADILLO_FOUND)
     endif ()
 endif ()
 
+set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
+find_package (NETCDF)
+if (NOT NETCDF_FOUND)
+    if (DEFINED ENV{NETCDF_ROOT})
+        message ("@@ Use user provided library NetCDF!")
+        message ("@@ NETCDF_ROOT = $ENV{NETCDF_ROOT}")
+        find_package (NETCDF HINTS $ENV{NETCDF_ROOT})
+    else ()
+        message (FATAL_ERROR
+            "CMake couldn't find library NetCDF! "
+            "If it have been installed and you know where it is, "
+            "set NETCDF_ROOT (e.g. in .bashrc) to it."
+        )
+    endif ()
+endif ()
+
 # ------------------------------------------------------------------------------
 # library targets
 add_library (geomtk STATIC ${sources})
-include_directories (${ARMADILLO_INCLUDE_DIRS})
-target_link_libraries (geomtk armadillo)
+include_directories (
+    ${ARMADILLO_INCLUDE_DIRS}
+    ${NETCDF_INCLUDE_DIRS}
+)
+target_link_libraries (geomtk
+    ${ARMADILLO_LIBRARIES}
+    ${NETCDF_LIBRARIES}
+)
 
 # ------------------------------------------------------------------------------
 # install rules

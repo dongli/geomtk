@@ -133,6 +133,55 @@ void StructuredMesh::setGridCoords(int dim, int size, double *full, double *half
     }
 }
 
+void StructuredMesh::setGridCoords(int dim, const string &fileName,
+                                   const string &fullName,
+                                   const string &halfName) {
+    // read coordinates from netCDF file
+    int ncId, fullDimId, halfDimId, fullVarId, halfVarId;
+    size_t fullSize, halfSize;
+    double *full, *half;
+
+    if (nc_open(fileName.c_str(), NC_NOCLOBBER, &ncId) != NC_NOERR) {
+        REPORT_ERROR("Failed to open " << fileName << "!");
+    }
+    if (nc_inq_dimid(ncId, fullName.c_str(), &fullDimId) != NC_NOERR) {
+        REPORT_ERROR("Failed to inquire dimension " << fullName <<
+                     " in " << fileName << "!");
+    }
+    if (nc_inq_dimlen(ncId, fullDimId, &fullSize) != NC_NOERR) {
+        REPORT_ERROR("Failed to inquire dimension length of " << fullName <<
+                     " in " << fileName << "!");
+    }
+    full = new double[fullSize];
+    if (nc_inq_dimid(ncId, halfName.c_str(), &halfDimId) != NC_NOERR) {
+        REPORT_ERROR("Failed to inquire dimension " << halfName <<
+                     " in " << fileName << "!");
+    }
+    if (nc_inq_dimlen(ncId, halfDimId, &halfSize) != NC_NOERR) {
+        REPORT_ERROR("Failed to inquire dimension length of " << halfName <<
+                     " in " << fileName << "!");
+    }
+    half = new double[halfSize];
+    if (nc_inq_varid(ncId, fullName.c_str(), &fullVarId) != NC_NOERR) {
+        REPORT_ERROR("Failed to inquire variable " << fullName <<
+                     " in " << fileName << "!");
+    }
+    if (nc_get_var(ncId, fullVarId, full) != NC_NOERR) {
+        REPORT_ERROR("Failed to get variable " << fullName <<
+                     " in " << fileName << "!");
+    }
+    if (nc_inq_varid(ncId, halfName.c_str(), &halfVarId) != NC_NOERR) {
+        REPORT_ERROR("Failed to inquire variable " << halfName <<
+                     " in " << fileName << "!");
+    }
+    if (nc_get_var(ncId, halfVarId, half) != NC_NOERR) {
+        REPORT_ERROR("Failed to get variable " << halfName <<
+                     " in " << fileName << "!");
+    }
+
+    setGridCoords(dim, fullSize, full, half);
+}
+
 vec StructuredMesh::getGridCoords(int dim, StaggerType staggerType,
                                   bool hasVirtualGrids) const {
     // sanity check
