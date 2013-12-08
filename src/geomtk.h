@@ -10,28 +10,28 @@
  *   - Li Dong <dongli@lasg.iap.ac.cn>
  */
 
-#include "geomtk/commons.h"
-#include "geomtk/TimeLevels.h"
+#include "geomtk_commons.h"
+#include "TimeLevels.h"
 // Domain class hierarchy
-#include "geomtk/Domain.h"
-#include "geomtk/SphereDomain.h"
+#include "Domain.h"
+#include "SphereDomain.h"
 // Mesh class hierarchy
-#include "geomtk/Mesh.h"
-#include "geomtk/MeshIndex.h"
-#include "geomtk/StructuredMesh.h"
-#include "geomtk/StructuredMeshIndex.h"
-#include "geomtk/RLLMesh.h"
-#include "geomtk/RLLMeshIndex.h"
+#include "Mesh.h"
+#include "MeshIndex.h"
+#include "StructuredMesh.h"
+#include "StructuredMeshIndex.h"
+#include "RLLMesh.h"
+#include "RLLMeshIndex.h"
 // Field class hierarchy
-#include "geomtk/Field.h"
-#include "geomtk/StructuredScalarField.h"
-#include "geomtk/StructuredVectorField.h"
-#include "geomtk/RLLScalarField.h"
-#include "geomtk/RLLVectorField.h"
-#include "geomtk/RLLVelocityField.h"
+#include "Field.h"
+#include "StructuredScalarField.h"
+#include "StructuredVectorField.h"
+#include "RLLScalarField.h"
+#include "RLLVectorField.h"
+#include "RLLVelocityField.h"
 // Regrid class hierarchy
-#include "geomtk/Regrid.h"
-#include "geomtk/RLLRegrid.h"
-#include "geomtk/StructuredRegrid.h"
+#include "Regrid.h"
+#include "RLLRegrid.h"
+#include "StructuredRegrid.h"
 
 #endif

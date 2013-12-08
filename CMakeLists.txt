@@ -9,6 +9,14 @@
 
 cmake_minimum_required (VERSION 2.8)
 
+# ------------------------------------------------------------------------------
+# check if there is upper project
+if (DEFINED PROJECT_NAME)
+    message ("@@ GeoMTK is used as a submodule.")
+    set (use_as_submodule TRUE)
+endif ()
+
+# ------------------------------------------------------------------------------
 project (geomtk CXX)
 
 # ------------------------------------------------------------------------------
@@ -20,6 +28,11 @@ set (source_directories
     "${PROJECT_SOURCE_DIR}/src/Field"
     "${PROJECT_SOURCE_DIR}/src/Regrid"
 )
+# record the source directories for upper project
+if (use_as_submodule)
+    set (GEOMTK_INCLUDE_DIRS ${source_directories} PARENT_SCOPE)
+    set (GEOMTK_LIBRARY_DIRS ${PROJECT_BINARY_DIR} PARENT_SCOPE)
+endif ()
 
 # ------------------------------------------------------------------------------
 # collect sources and headers
@@ -88,15 +101,9 @@ install (EXPORT geomtk-targets
     DESTINATION lib/geomtk
 )
 foreach (header ${headers})
-    if (${header} MATCHES "geomtk.h")
-        install (FILES ${header}
-            DESTINATION "include"
-        )
-    else ()
-        install (FILES ${header}
-            DESTINATION "include/geomtk"
-        )
-    endif ()
+    install (FILES ${header}
+        DESTINATION "include/geomtk"
+    )
 endforeach ()
 
 # ------------------------------------------------------------------------------

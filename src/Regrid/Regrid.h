@@ -1,7 +1,7 @@
 #ifndef __Regrid__
 #define __Regrid__
 
-#include "commons.h"
+#include "geomtk_commons.h"
 #include "Mesh.h"
 #include "Field.h"
 #include "MeshIndex.h"

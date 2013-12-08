@@ -1,7 +1,7 @@
 #ifndef __MeshIndex__
 #define __MeshIndex__
 
-#include "commons.h"
+#include "geomtk_commons.h"
 #include "Mesh.h"
 
 namespace geomtk {
