@@ -103,6 +103,8 @@ public:
                                 double lat) const;
     virtual double calcDistance(const SpaceCoord &x, double lon,
                                 double sinLat, double cosLat) const;
+
+    virtual string getBrief() const;
 };
 
 }

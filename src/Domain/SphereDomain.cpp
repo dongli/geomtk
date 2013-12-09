@@ -164,4 +164,9 @@ double SphereDomain::calcDistance(const SpaceCoord &x, double lon,
     return radius*acos(tmp3);
 }
 
+string SphereDomain::getBrief() const {
+    string brief = "sphere domain";
+    return brief;
+}
+
 }
