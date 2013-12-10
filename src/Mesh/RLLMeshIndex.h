@@ -18,6 +18,8 @@ public:
 
     virtual void reset();
 
+    virtual RLLMeshIndex& operator=(const RLLMeshIndex &other);
+
     Pole getPole() const;
     bool isInPolarCap() const;
     bool isOnPole() const;

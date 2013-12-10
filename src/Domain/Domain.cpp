@@ -69,7 +69,7 @@ void Velocity::print() const {
 // -----------------------------------------------------------------------------
 
 Domain::Domain() {
-    this->numDim = 2;
+    numDim = 2;
     axisStarts.resize(numDim);
     axisEnds.resize(numDim);
     axisSpans.resize(numDim);

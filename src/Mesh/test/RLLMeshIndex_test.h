@@ -106,4 +106,18 @@ TEST_F(RLLMeshIndexTest, Locate) {
     ASSERT_EQ(true, (*index).isOnPole());
 }
 
+TEST_F(RLLMeshIndexTest, AssignmentOperator) {
+    RLLMeshIndex a(3), b(3);
+
+    a.onPole = true;
+    a.inPolarCap = true;
+    a.pole = NORTH_POLE;
+
+    b = a;
+
+    ASSERT_EQ(a.onPole, b.onPole);
+    ASSERT_EQ(a.inPolarCap, b.inPolarCap);
+    ASSERT_EQ(a.pole, b.pole);
+}
+
 #endif

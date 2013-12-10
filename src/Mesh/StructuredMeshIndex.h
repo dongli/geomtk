@@ -22,6 +22,8 @@ public:
     virtual int operator()(int dim, StaggerType staggerType) const;
     virtual int& operator()(int dim, StaggerType staggerType);
 
+    virtual StructuredMeshIndex& operator=(const StructuredMeshIndex &other);
+
     /**
      * @see MeshIndex::locate(SpaceCoord x)
      */

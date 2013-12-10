@@ -18,6 +18,8 @@ public:
     MeshIndex(int numDim);
     virtual ~MeshIndex();
 
+    virtual MeshIndex& operator=(const MeshIndex &other);
+
     /**
      * @brief Locate the given space coordinate in the mesh.
      */

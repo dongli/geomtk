@@ -87,4 +87,30 @@ TEST_F(StructuredMeshIndexTest, Locate) {
     ASSERT_EQ(3, (*index)(1, EDGE));
 }
 
+TEST_F(StructuredMeshIndexTest, AssignmentOperator) {
+    StructuredMeshIndex a(3), b(3);
+
+    a.indices[0][CENTER] = 1;
+    a.indices[0][EDGE] = 2;
+    a.indices[0][VERTEX] = 3;
+    a.indices[1][CENTER] = 4;
+    a.indices[1][EDGE] = 5;
+    a.indices[1][VERTEX] = 6;
+    a.indices[2][CENTER] = 7;
+    a.indices[2][EDGE] = 8;
+    a.indices[2][VERTEX] = 9;
+
+    b = a;
+
+    ASSERT_EQ(a.indices[0][CENTER], b.indices[0][CENTER]);
+    ASSERT_EQ(a.indices[0][EDGE],   b.indices[0][EDGE]);
+    ASSERT_EQ(a.indices[0][VERTEX], b.indices[0][VERTEX]);
+    ASSERT_EQ(a.indices[1][CENTER], b.indices[1][CENTER]);
+    ASSERT_EQ(a.indices[1][EDGE],   b.indices[1][EDGE]);
+    ASSERT_EQ(a.indices[1][VERTEX], b.indices[1][VERTEX]);
+    ASSERT_EQ(a.indices[2][CENTER], b.indices[2][CENTER]);
+    ASSERT_EQ(a.indices[2][EDGE],   b.indices[2][EDGE]);
+    ASSERT_EQ(a.indices[2][VERTEX], b.indices[2][VERTEX]);
+}
+
 #endif

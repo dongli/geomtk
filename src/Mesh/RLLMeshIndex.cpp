@@ -16,6 +16,16 @@ void RLLMeshIndex::reset() {
     onPole = false;
 }
 
+RLLMeshIndex& RLLMeshIndex::operator=(const RLLMeshIndex &other) {
+    StructuredMeshIndex::operator=(other);
+    if (this != &other) {
+        pole = other.pole;
+        inPolarCap = other.inPolarCap;
+        onPole = other.onPole;
+    }
+    return *this;
+}
+
 Pole RLLMeshIndex::getPole() const {
     return pole;
 }

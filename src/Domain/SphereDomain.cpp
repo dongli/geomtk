@@ -115,13 +115,12 @@ void SphereVelocity::print() const {
 
 // -----------------------------------------------------------------------------
 
-SphereDomain::SphereDomain() : Domain(2) {
-    radius = 1.0;
-    setAxis(0, 0.0, PERIODIC, 2.0*M_PI, PERIODIC);
-    setAxis(1, -M_PI_2, POLE, M_PI_2, POLE);
+SphereDomain::SphereDomain() {
+    SphereDomain(2);
 }
 
 SphereDomain::SphereDomain(int numDim) : Domain(numDim) {
+    radius = 1.0;
     setAxis(0, 0.0, PERIODIC, 2.0*M_PI, PERIODIC);
     setAxis(1, -M_PI_2, POLE, M_PI_2, POLE);
 }

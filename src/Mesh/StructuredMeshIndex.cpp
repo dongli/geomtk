@@ -41,6 +41,19 @@ int& StructuredMeshIndex::operator()(int dim, StaggerType staggerType) {
     return indices[dim][staggerType];
 }
 
+StructuredMeshIndex& StructuredMeshIndex::operator=(const StructuredMeshIndex &other) {
+    MeshIndex::operator=(other);
+    if (this != &other) {
+        numDim = other.numDim;
+        for (int m = 0; m < 3; ++m) {
+            indices[m][CENTER] = other.indices[m][CENTER];
+            indices[m][EDGE] = other.indices[m][EDGE];
+            indices[m][VERTEX] = other.indices[m][VERTEX];
+        }
+    }
+    return *this;
+}
+
 void StructuredMeshIndex::locate(const Mesh &mesh_, const SpaceCoord &x) {
     const StructuredMesh &mesh = static_cast<const StructuredMesh&>(mesh_);
     const Domain &domain = mesh.getDomain();
@@ -83,7 +96,9 @@ void StructuredMeshIndex::locate(const Mesh &mesh_, const SpaceCoord &x) {
                         continue;
                     }
                 }
-                for (int i = indices[m][CENTER]-1; i < indices[m][CENTER]+1; ++i) {
+                int i1 = max(indices[m][CENTER]-2, 0);
+                int i2 = min(indices[m][CENTER]+2, mesh.getNumGrid(m, CENTER)-1);
+                for (int i = i1; i < i2; ++i) {
                     if (x(m) >= mesh.getGridCoord(m, EDGE, i) &&
                         x(m) <= mesh.getGridCoord(m, EDGE, i+1)) {
                         indices[m][EDGE] = i;
