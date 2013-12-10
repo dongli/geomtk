@@ -9,7 +9,7 @@ Field::Field(Mesh &mesh) {
 Field::~Field() {
 }
 
-const Mesh& Field::getMesh() {
+const Mesh& Field::getMesh() const {
     return *mesh;
 }
 

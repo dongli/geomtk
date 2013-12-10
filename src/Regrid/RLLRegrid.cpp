@@ -22,8 +22,8 @@ void RLLRegrid::run(RegridMethod method, int timeLevel, const Field &f,
     }
     RLLMeshIndex *idx;
     if (idx_ == NULL) {
-        idx = new RLLMeshIndex(*(this->mesh));
-        idx->locate(x);
+        idx = new RLLMeshIndex(mesh.getDomain().getNumDim());
+        idx->locate(*(this->mesh), x);
     } else {
         idx = static_cast<RLLMeshIndex*>(idx_);
     }
@@ -89,13 +89,14 @@ void RLLRegrid::run(RegridMethod method, int timeLevel, const Field &f,
 void RLLRegrid::run(RegridMethod method, int timeLevel, const Field &f,
                     const SpaceCoord &x, vec &y, MeshIndex *idx_) {
     const RLLVectorField *g = dynamic_cast<const RLLVectorField*>(&f);
+    const RLLMesh &mesh = static_cast<const RLLMesh&>(*(this->mesh));
     if (g == NULL) {
         REPORT_ERROR("Mesh should comply RLLVectorField!");
     }
     RLLMeshIndex *idx;
     if (idx_ == NULL) {
-        idx = new RLLMeshIndex(*mesh);
-        idx->locate(x);
+        idx = new RLLMeshIndex(mesh.getDomain().getNumDim());
+        idx->locate(mesh, x);
     } else {
         idx = static_cast<RLLMeshIndex*>(idx_);
     }
@@ -112,8 +113,8 @@ void RLLRegrid::run(RegridMethod method, int timeLevel, const Field &f,
 void RLLRegrid::run(RegridMethod method, int timeLevel, const RLLVelocityField &f,
                     const SpaceCoord &x, SphereVelocity &y) {
     const RLLMesh &mesh = static_cast<const RLLMesh&>(*(this->mesh));
-    RLLMeshIndex idx(*(this->mesh));
-    idx.locate(x);
+    RLLMeshIndex idx(mesh.getDomain().getNumDim());
+    idx.locate(mesh, x);
     // cout << " x(0) =" << setw(10) << x(0) << endl;
     // cout << " x(1) =" << setw(10) << x(1) << endl;
     // idx.print();

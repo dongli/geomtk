@@ -14,7 +14,7 @@ protected:
     virtual void SetUp() {
         domain = new SphereDomain(2);
         mesh = new RLLMesh(*domain);
-        index = new RLLMeshIndex(*mesh);
+        index = new RLLMeshIndex(domain->getNumDim());
 
         mesh->setPoleRadius(0.1*M_PI);
 
@@ -57,7 +57,7 @@ TEST_F(RLLMeshIndexTest, Locate) {
 
     x(0) =  0.9*M_PI;
     x(1) = -0.11*M_PI;
-    index->locate(x);
+    index->locate(*mesh, x);
     ASSERT_EQ(2, (*index)(0, CENTER));
     ASSERT_EQ(1, (*index)(1, CENTER));
     ASSERT_EQ(1, (*index)(0, EDGE));
@@ -68,19 +68,19 @@ TEST_F(RLLMeshIndexTest, Locate) {
 
     x(0) = 0.14*M_PI;
     index->reset();
-    index->locate(x);
+    index->locate(*mesh, x);
     ASSERT_EQ(0, (*index)(0, CENTER));
     ASSERT_EQ(-1, (*index)(0, EDGE));
 
     x(0) = 1.9*M_PI;
     index->reset();
-    index->locate(x);
+    index->locate(*mesh, x);
     ASSERT_EQ(4, (*index)(0, CENTER));
     ASSERT_EQ(4, (*index)(0, EDGE));
 
     x(1) = -0.2*M_PI;
     index->reset();
-    index->locate(x);
+    index->locate(*mesh, x);
     ASSERT_EQ(1, (*index)(1, CENTER));
     ASSERT_EQ(0, (*index)(1, EDGE));
     ASSERT_EQ(NOT_POLE, (*index).getPole());
@@ -89,7 +89,7 @@ TEST_F(RLLMeshIndexTest, Locate) {
 
     x(1) = -0.39*M_PI;
     index->reset();
-    index->locate(x);
+    index->locate(*mesh, x);
     ASSERT_EQ(0, (*index)(1, CENTER));
     ASSERT_EQ(-1, (*index)(1, EDGE));
     ASSERT_EQ(SOUTH_POLE, (*index).getPole());
@@ -98,7 +98,7 @@ TEST_F(RLLMeshIndexTest, Locate) {
 
     x(1) = 0.41*M_PI;
     index->reset();
-    index->locate(x);
+    index->locate(*mesh, x);
     ASSERT_EQ(3, (*index)(1, CENTER));
     ASSERT_EQ(3, (*index)(1, EDGE));
     ASSERT_EQ(NORTH_POLE, (*index).getPole());

@@ -9,8 +9,9 @@ namespace geomtk {
 class StructuredMeshIndex : public MeshIndex {
 protected:
     int **indices;
+    int numDim;
 public:
-    StructuredMeshIndex(Mesh &mesh);
+    StructuredMeshIndex(int numDim);
     virtual ~StructuredMeshIndex();
 
     /**
@@ -24,7 +25,7 @@ public:
     /**
      * @see MeshIndex::locate(SpaceCoord x)
      */
-    virtual void locate(const SpaceCoord &x);
+    virtual void locate(const Mesh &mesh, const SpaceCoord &x);
 
     virtual void print() const;
 };

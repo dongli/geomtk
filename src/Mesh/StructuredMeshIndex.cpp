@@ -2,7 +2,8 @@
 
 namespace geomtk {
 
-StructuredMeshIndex::StructuredMeshIndex(Mesh &mesh) : MeshIndex(mesh) {
+StructuredMeshIndex::StructuredMeshIndex(int numDim) : MeshIndex(numDim) {
+    this->numDim = numDim;
     // NOTE: Index is 3D no matter the dimension size of domain.
     indices = new int*[3];
     for (int i = 0; i < 3; ++i) {
@@ -19,13 +20,13 @@ StructuredMeshIndex::~StructuredMeshIndex() {
 }
 
 void StructuredMeshIndex::reset() {
-    for (int m = 0; m < mesh->getDomain().getNumDim(); ++m) {
+    for (int m = 0; m < numDim; ++m) {
         indices[m][CENTER] = UNDEFINED_MESH_INDEX;
         indices[m][EDGE] = UNDEFINED_MESH_INDEX;
         indices[m][VERTEX] = UNDEFINED_MESH_INDEX;
     }
     // set the extra dimension indices to 0
-    for (int m = mesh->getDomain().getNumDim(); m < 3; ++m) {
+    for (int m = numDim; m < 3; ++m) {
         indices[m][CENTER] = 0;
         indices[m][EDGE] = 0;
         indices[m][VERTEX] = 0;
@@ -40,8 +41,8 @@ int& StructuredMeshIndex::operator()(int dim, StaggerType staggerType) {
     return indices[dim][staggerType];
 }
 
-void StructuredMeshIndex::locate(const SpaceCoord &x) {
-    const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
+void StructuredMeshIndex::locate(const Mesh &mesh_, const SpaceCoord &x) {
+    const StructuredMesh &mesh = static_cast<const StructuredMesh&>(mesh_);
     const Domain &domain = mesh.getDomain();
     for (int m = 0; m < domain.getNumDim(); ++m) {
         // sanity check

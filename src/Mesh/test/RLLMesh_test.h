@@ -96,12 +96,12 @@ TEST_F(RLLMeshTest, Move) {
     SphereCoord x0(3), x1(3);
     double dt = 0.1;
     SphereVelocity v(3);
-    RLLMeshIndex idx(*mesh);
+    RLLMeshIndex idx(3);
 
     x0(0) = 0.1;
     x0(1) = 0.0;
     x0(2) = 0.5;
-    idx.locate(x0);
+    idx.locate(*mesh, x0);
     v(0) = 0.1*M_PI;
     v(1) = 0.0;
     v(2) = 0.0;
@@ -119,7 +119,7 @@ TEST_F(RLLMeshTest, Move) {
     v(1) = 0.0;
     v.transformToPS(x0);
     idx.reset();
-    idx.locate(x0);
+    idx.locate(*mesh, x0);
     mesh->move(x0, dt, v, idx, x1);
     ASSERT_GT(1.0e-15, abs(x0(0)-x1(0)));
     ASSERT_GT(1.0e-15, abs(x0(1)-x1(1)));

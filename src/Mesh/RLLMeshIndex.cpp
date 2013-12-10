@@ -2,7 +2,7 @@
 
 namespace geomtk {
 
-RLLMeshIndex::RLLMeshIndex(Mesh &mesh) : StructuredMeshIndex(mesh) {
+RLLMeshIndex::RLLMeshIndex(int numDim) : StructuredMeshIndex(numDim) {
     reset();
 }
 
@@ -28,9 +28,9 @@ bool RLLMeshIndex::isOnPole() const {
     return onPole;
 }
 
-void RLLMeshIndex::locate(const SpaceCoord &x) {
-    StructuredMeshIndex::locate(x);
-    const RLLMesh &mesh = static_cast<const RLLMesh&>(*(this->mesh));
+void RLLMeshIndex::locate(const Mesh &mesh_, const SpaceCoord &x) {
+    StructuredMeshIndex::locate(mesh_, x);
+    const RLLMesh &mesh = static_cast<const RLLMesh&>(mesh_);
     if (indices[1][CENTER] == 0) {
         pole = SOUTH_POLE;
         inPolarCap = true;

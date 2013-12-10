@@ -15,7 +15,7 @@ protected:
     virtual void SetUp() {
         domain = new SphereDomain(2);
         mesh = new StructuredMesh(*domain);
-        index = new StructuredMeshIndex(*mesh);
+        index = new StructuredMeshIndex(domain->getNumDim());
 
         int numLon = 5;
         double fullLon[numLon], halfLon[numLon];
@@ -56,7 +56,7 @@ TEST_F(StructuredMeshIndexTest, Locate) {
 
     x(0) =  0.9*M_PI;
     x(1) = -0.11*M_PI;
-    index->locate(x);
+    index->locate(*mesh, x);
     ASSERT_EQ(2, (*index)(0, CENTER));
     ASSERT_EQ(1, (*index)(1, CENTER));
     ASSERT_EQ(1, (*index)(0, EDGE));
@@ -64,25 +64,25 @@ TEST_F(StructuredMeshIndexTest, Locate) {
 
     x(0) = 0.14*M_PI;
     index->reset();
-    index->locate(x);
+    index->locate(*mesh, x);
     ASSERT_EQ(0, (*index)(0, CENTER));
     ASSERT_EQ(-1, (*index)(0, EDGE));
 
     x(0) = 1.9*M_PI;
     index->reset();
-    index->locate(x);
+    index->locate(*mesh, x);
     ASSERT_EQ(4, (*index)(0, CENTER));
     ASSERT_EQ(4, (*index)(0, EDGE));
 
     x(1) = -0.4*M_PI;
     index->reset();
-    index->locate(x);
+    index->locate(*mesh, x);
     ASSERT_EQ(0, (*index)(1, CENTER));
     ASSERT_EQ(-1, (*index)(1, EDGE));
 
     x(1) = 0.41*M_PI;
     index->reset();
-    index->locate(x);
+    index->locate(*mesh, x);
     ASSERT_EQ(3, (*index)(1, CENTER));
     ASSERT_EQ(3, (*index)(1, EDGE));
 }

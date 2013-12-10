@@ -17,7 +17,8 @@ protected:
     }
 
     virtual void TearDown() {
-
+        delete mesh;
+        delete sphere;
     }
 };
 

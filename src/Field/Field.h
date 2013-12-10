@@ -29,7 +29,7 @@ public:
      * Return the underlying mesh.
      * @return The mesh object.
      */
-    const Mesh& getMesh();
+    const Mesh& getMesh() const;
 };
 
 }

@@ -27,6 +27,7 @@ set (source_directories
     "${PROJECT_SOURCE_DIR}/src/Mesh"
     "${PROJECT_SOURCE_DIR}/src/Field"
     "${PROJECT_SOURCE_DIR}/src/Regrid"
+    "${PROJECT_SOURCE_DIR}/src/Utils"
 )
 # record the source directories for upper project
 if (use_as_submodule)
@@ -64,20 +65,7 @@ if (NOT ARMADILLO_FOUND)
 endif ()
 
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
-find_package (NETCDF)
-if (NOT NETCDF_FOUND)
-    if (DEFINED ENV{NETCDF_ROOT})
-        message ("@@ Use user provided library NetCDF!")
-        message ("@@ NETCDF_ROOT = $ENV{NETCDF_ROOT}")
-        find_package (NETCDF HINTS $ENV{NETCDF_ROOT})
-    else ()
-        message (FATAL_ERROR
-            "CMake couldn't find library NetCDF! "
-            "If it have been installed and you know where it is, "
-            "set NETCDF_ROOT (e.g. in .bashrc) to it."
-        )
-    endif ()
-endif ()
+find_package (NETCDF COMPONENTS C)
 
 # ------------------------------------------------------------------------------
 # library targets
@@ -88,7 +76,7 @@ include_directories (
 )
 target_link_libraries (geomtk
     ${ARMADILLO_LIBRARIES}
-    ${NETCDF_LIBRARIES}
+    ${NETCDF_C_LIBRARIES}
 )
 
 # ------------------------------------------------------------------------------
@@ -132,7 +120,11 @@ if (CMAKE_BUILD_TYPE MATCHES DEBUG)
     include_directories (${gtest_SOURCE_DIR} ${gtest_SOURCE_DIR}/include)
 
     add_executable (geomtk_test "${PROJECT_SOURCE_DIR}/src/test/test.cpp")
-    target_link_libraries (geomtk_test gtest gtest_main geomtk)
+    target_link_libraries (geomtk_test
+        ${NETCDF_LIBRARIES}
+        gtest gtest_main
+        geomtk
+    )
 
     set_target_properties (geomtk geomtk_test
         PROPERTIES COMPILE_FLAGS "-DUNIT_TEST"

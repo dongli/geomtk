@@ -13,7 +13,7 @@ protected:
     bool inPolarCap;
     bool onPole;
 public:
-    RLLMeshIndex(Mesh &mesh);
+    RLLMeshIndex(int numDim);
     virtual ~RLLMeshIndex();
 
     virtual void reset();
@@ -27,7 +27,7 @@ public:
      * judgement.
      * @see MeshIndex::locate(SpaceCoord)
      */
-    virtual void locate(const SpaceCoord &x);
+    virtual void locate(const Mesh &mesh, const SpaceCoord &x);
 
     virtual void print() const;
 };

@@ -29,8 +29,8 @@ void StructuredRegrid::run(RegridMethod method, int timeLevel, const Field &f,
     StructuredMesh &mesh = static_cast<StructuredMesh&>(*(this->mesh));
     StructuredMeshIndex *idx;
     if (idx_ == NULL) {
-        idx = new StructuredMeshIndex(mesh);
-        idx->locate(x);
+        idx = new StructuredMeshIndex(mesh.getDomain().getNumDim());
+        idx->locate(mesh, x);
     } else {
         idx = static_cast<StructuredMeshIndex*>(idx_);
     }

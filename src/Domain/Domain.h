@@ -75,7 +75,7 @@ public:
 
     virtual double calcDistance(const SpaceCoord &x, const SpaceCoord &y) const;
 
-    virtual string getBrief() const = 0;
+    virtual string getBrief() const;
 };
 
 }

@@ -14,16 +14,14 @@ namespace geomtk {
  */
 
 class MeshIndex {
-protected:
-    Mesh *mesh;
 public:
-    MeshIndex(Mesh &mesh);
+    MeshIndex(int numDim);
     virtual ~MeshIndex();
 
     /**
      * @brief Locate the given space coordinate in the mesh.
      */
-    virtual void locate(const SpaceCoord &x) = 0;
+    virtual void locate(const Mesh &mesh, const SpaceCoord &x) = 0;
 
     virtual void print() const = 0;
 };

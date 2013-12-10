@@ -9,7 +9,6 @@ RLLMesh::RLLMesh(Domain &domain) : StructuredMesh(domain) {
         REPORT_ERROR("The domain should be SphereDomain!");
     }
     poleRadius = 1.0*RAD;
-    REPORT_NOTICE("RLLMesh is initialized.");
 }
 
 RLLMesh::~RLLMesh() {
