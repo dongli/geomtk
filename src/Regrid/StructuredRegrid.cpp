@@ -5,7 +5,7 @@
 
 namespace geomtk {
 
-StructuredRegrid::StructuredRegrid(Mesh &mesh) : Regrid(mesh) {
+StructuredRegrid::StructuredRegrid(const Mesh &mesh) : Regrid(mesh) {
 }
 
 StructuredRegrid::~StructuredRegrid() {
@@ -26,7 +26,7 @@ void StructuredRegrid::run(RegridMethod method, int timeLevel, const Field &f,
     if (g == NULL) {
         REPORT_ERROR("Mesh should be compatible with StructuredVectorField!");
     }
-    StructuredMesh &mesh = static_cast<StructuredMesh&>(*(this->mesh));
+    const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
     StructuredMeshIndex *idx;
     if (idx_ == NULL) {
         idx = new StructuredMeshIndex(mesh.getDomain().getNumDim());

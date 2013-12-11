@@ -20,9 +20,9 @@ enum RegridMethod {
 
 class Regrid {
 protected:
-    Mesh *mesh;
+    const Mesh *mesh;
 public:
-    Regrid(Mesh &mesh);
+    Regrid(const Mesh &mesh);
     virtual ~Regrid();
 
     virtual void run(RegridMethod method, int timeLevel, const Field &f,

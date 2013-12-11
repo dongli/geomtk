@@ -82,6 +82,38 @@ SphereVelocity& SphereVelocity::operator=(const SphereVelocity &other) {
     return *this;
 }
 
+SphereVelocity& SphereVelocity::operator+(const SphereVelocity &other) {
+    Velocity::operator+(other);
+    // TODO: Clarify that we operator on vt directly is properly.
+    vt[0] += other.vt[0];
+    vt[1] += other.vt[1];
+    return *this;
+}
+
+SphereVelocity& SphereVelocity::operator-(const SphereVelocity &other) {
+    Velocity::operator-(other);
+    // TODO: Clarify that we operator on vt directly is properly.
+    vt[0] -= other.vt[0];
+    vt[1] -= other.vt[1];
+    return *this;
+}
+
+SphereVelocity& SphereVelocity::operator*(double scale) {
+    Velocity::operator*(scale);
+    // TODO: Clarify that we operator on vt directly is properly.
+    vt[0] *= scale;
+    vt[1] *= scale;
+    return *this;
+}
+
+SphereVelocity& SphereVelocity::operator/(double scale) {
+    Velocity::operator/(scale);
+    // TODO: Clarify that we operator on vt directly is properly.
+    vt[0] /= scale;
+    vt[1] /= scale;
+    return *this;
+}
+
 void SphereVelocity::transformToPS(const SpaceCoord &x) {
     double sinLat = sin(x(1));
     double sinLat2 = sinLat*sinLat;

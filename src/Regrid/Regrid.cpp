@@ -2,7 +2,7 @@
 
 namespace geomtk {
 
-Regrid::Regrid(Mesh &mesh) {
+Regrid::Regrid(const Mesh &mesh) {
     this->mesh = &mesh;
 }
 

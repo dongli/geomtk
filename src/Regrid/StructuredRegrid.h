@@ -8,7 +8,7 @@ namespace geomtk {
 class StructuredRegrid : public Regrid {
 protected:
 public:
-    StructuredRegrid(Mesh &mesh);
+    StructuredRegrid(const Mesh &mesh);
     virtual ~StructuredRegrid();
 
     virtual void run(RegridMethod method, int timeLevel, const Field &f,

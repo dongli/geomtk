@@ -2,6 +2,7 @@
 #define __RLLRegrid__
 
 #include "Regrid.h"
+#include "RLLMeshIndex.h"
 
 namespace geomtk {
 
@@ -11,7 +12,7 @@ class SphereVelocity;
 class RLLRegrid : public Regrid {
 protected:
 public:
-    RLLRegrid(Mesh &mesh);
+    RLLRegrid(const Mesh &mesh);
     virtual ~RLLRegrid();
 
     virtual void run(RegridMethod method, int timeLevel, const Field &f,
@@ -19,11 +20,11 @@ public:
     virtual void run(RegridMethod method, int timelevel, const Field &f,
                      const SpaceCoord &x, vec &y, MeshIndex *idx = NULL);
     /**
-     * @brief Interpolate velocity field.
+     * Interpolator of velocity field onto given coordinate.
      * Velocity field is special, because its direction is singular on Poles.
      */
     virtual void run(RegridMethod method, int timeLevel, const RLLVelocityField &f,
-                     const SpaceCoord &x, SphereVelocity &y);
+                     const SpaceCoord &x, SphereVelocity &y, RLLMeshIndex *idx = NULL);
 };
 
 }

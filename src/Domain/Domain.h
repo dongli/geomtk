@@ -44,6 +44,11 @@ public:
     double& operator()(int i);
     vec& operator()();
 
+    Velocity& operator+(const Velocity &other);
+    Velocity& operator-(const Velocity &other);
+    Velocity& operator*(double scale);
+    Velocity& operator/(double scale);
+
     virtual void print() const;
 };
 

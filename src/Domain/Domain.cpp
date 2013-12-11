@@ -58,6 +58,26 @@ vec& Velocity::operator()() {
     return v;
 }
 
+Velocity& Velocity::operator+(const Velocity &other) {
+    v += other.v;
+    return *this;
+}
+
+Velocity& Velocity::operator-(const Velocity &other) {
+    v -= other.v;
+    return *this;
+}
+
+Velocity& Velocity::operator*(double scale) {
+    v *= scale;
+    return *this;
+}
+
+Velocity& Velocity::operator/(double scale) {
+    v /= scale;
+    return *this;
+}
+
 void Velocity::print() const {
     cout << "Velocity:";
     for (int i = 0; i < v.size(); ++i) {

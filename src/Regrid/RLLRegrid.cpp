@@ -1,13 +1,12 @@
 #include "RLLRegrid.h"
 #include "RLLMesh.h"
-#include "RLLMeshIndex.h"
 #include "RLLScalarField.h"
 #include "RLLVectorField.h"
 #include "RLLVelocityField.h"
 
 namespace geomtk {
 
-RLLRegrid::RLLRegrid(Mesh &mesh) : Regrid(mesh) {
+RLLRegrid::RLLRegrid(const Mesh &mesh) : Regrid(mesh) {
 }
 
 RLLRegrid::~RLLRegrid() {
@@ -111,19 +110,24 @@ void RLLRegrid::run(RegridMethod method, int timeLevel, const Field &f,
 }
 
 void RLLRegrid::run(RegridMethod method, int timeLevel, const RLLVelocityField &f,
-                    const SpaceCoord &x, SphereVelocity &y) {
+                    const SpaceCoord &x, SphereVelocity &y, RLLMeshIndex *idx_) {
     const RLLMesh &mesh = static_cast<const RLLMesh&>(*(this->mesh));
-    RLLMeshIndex idx(mesh.getDomain().getNumDim());
-    idx.locate(mesh, x);
+    RLLMeshIndex *idx;
+    if (idx_ == NULL) {
+        idx = new RLLMeshIndex(mesh.getDomain().getNumDim());
+        idx->locate(mesh, x);
+    } else {
+        idx = static_cast<RLLMeshIndex*>(idx_);
+    }
     // cout << " x(0) =" << setw(10) << x(0) << endl;
     // cout << " x(1) =" << setw(10) << x(1) << endl;
-    // idx.print();
-    if (idx.isInPolarCap()) {
+    // idx->print();
+    if (idx->isInPolarCap()) {
         const SphereDomain &domain = static_cast<const SphereDomain&>(mesh.getDomain());
-        const PolarRing &ring = f.getPolarRing(idx.getPole());
+        const PolarRing &ring = f.getPolarRing(idx->getPole());
         const double eps = 1.0e-10;
-        int j = idx.getPole() == SOUTH_POLE ? 1 : mesh.getNumGrid(1, CENTER)-2;
-        int k = idx(2, CENTER);
+        int j = idx->getPole() == SOUTH_POLE ? 1 : mesh.getNumGrid(1, CENTER)-2;
+        int k = (*idx)(2, CENTER);
         double sinLat = mesh.getSinLat(CENTER, j);
         double cosLat = mesh.getCosLat(CENTER, j);
         // horizontal velocity
@@ -156,7 +160,7 @@ void RLLRegrid::run(RegridMethod method, int timeLevel, const RLLVelocityField &
         if (domain.getNumDim() == 3) {
             REPORT_ERROR("Under construction!");
             // linear interpolation
-            int i = idx(0, CENTER);
+            int i = (*idx)(0, CENTER);
             double z1 = mesh.getGridCoord(2, EDGE, k);
             double z2 = mesh.getGridCoord(2, EDGE, k+1);
             double c = z2-x(2);
@@ -166,9 +170,9 @@ void RLLRegrid::run(RegridMethod method, int timeLevel, const RLLVelocityField &
         if (method == BILINEAR) {
             int i1, i2, i3, i4, j1, j2, j3, j4;
             for (int m = 0; m < 2; ++m) {
-                i1 = idx(0, f.getStaggerType(m, 0));
+                i1 = (*idx)(0, f.getStaggerType(m, 0));
                 i2 = i1+1; i3 = i1; i4 = i2;
-                j1 = idx(1, f.getStaggerType(m, 1));
+                j1 = (*idx)(1, f.getStaggerType(m, 1));
                 j2 = j1; j3 = j1+1; j4 = j3;
                 // cout << "----------------------------------" << endl;
                 // cout << " i1 =" << setw(10) << i1 << endl;
@@ -214,6 +218,9 @@ void RLLRegrid::run(RegridMethod method, int timeLevel, const RLLVelocityField &
         } else {
             REPORT_ERROR("Under construction!");
         }
+    }
+    if (idx_ == NULL) {
+        delete idx;
     }
 }
 

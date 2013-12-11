@@ -59,6 +59,11 @@ public:
 
     SphereVelocity& operator=(const SphereVelocity &other);
 
+    SphereVelocity& operator+(const SphereVelocity &other);
+    SphereVelocity& operator-(const SphereVelocity &other);
+    SphereVelocity& operator*(double scale);
+    SphereVelocity& operator/(double scale);
+
     /**
      * Transform velocity onto polar stereographic plane.
      * @param x the space coordinate.
