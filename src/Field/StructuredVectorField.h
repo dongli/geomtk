@@ -13,10 +13,10 @@ namespace geomtk {
 
 class StructuredVectorField : public Field {
 protected:
-    TimeLevels<cube, 2> data[3];
+    TimeLevels<cube, 2> *data[3];
     StaggerType **staggerTypes;
 public:
-    StructuredVectorField(Mesh &mesh);
+    StructuredVectorField(const Mesh &mesh, bool hasHalfLevel = false);
     virtual ~StructuredVectorField();
 
     /**
@@ -25,7 +25,7 @@ public:
      * according to the boundary conditions.
      * @param timeLevel the time level.
      */
-    virtual void applyBndCond(int timeLevel);
+    virtual void applyBndCond(int timeLevel, bool updateHalfLevel = false);
 
     /**
      * Create the memory storage of the vector field.

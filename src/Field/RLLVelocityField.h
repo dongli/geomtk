@@ -18,8 +18,8 @@ namespace geomtk {
 
 class PolarRing {
 protected:
-    TimeLevels<SphereVelocity, 2> **vr;
-    RLLMesh *mesh;
+    TimeLevels<SphereVelocity, 2> ***vr;
+    const RLLMesh *mesh;
 public:
     PolarRing();
     ~PolarRing();
@@ -30,7 +30,7 @@ public:
      * transformed onto a polar stereographic plane.
      * @param mesh The underlying mesh.
      */
-    void create(Mesh &mesh);
+    void create(const Mesh &mesh, bool hasHalfLevel = false);
 
     /**
      * Update velocity on the polar ring.
@@ -40,8 +40,8 @@ public:
      * @param pole which Pole the polar ring is at.
      * @param data the host field data.
      */
-    void update(int timeLevel, Pole pole,
-                TimeLevels<cube, 2> *data);
+    void update(int timeLevel, Pole pole, TimeLevels<cube, 2> **data,
+                bool updateHalfLevel = false);
 
     /**
      * Return the original velocity.
@@ -50,8 +50,7 @@ public:
      * @param i the longitude index of ring grids.
      * @param k the level index of ring grids.
      */
-    double getOriginalData(int timeLevel, int dim,
-                           int i, int k = 0) const;
+    double getOriginalData(int timeLevel, int dim, int i, int k = 0) const;
 
     /**
      * Return the transformed velocity.
@@ -60,8 +59,7 @@ public:
      * @param i the longitude index of ring grids.
      * @param k the level index of ring grids.
      */
-    double getTransformedData(int timeLevel, int dim,
-                              int i, int k = 0) const;
+    double getTransformedData(int timeLevel, int dim, int i, int k = 0) const;
 
     void print() const;
 };
@@ -77,9 +75,11 @@ public:
 
 class RLLVelocityField : public RLLVectorField {
 protected:
-    PolarRing *rings;
+    PolarRing rings[2];
+private:
+    bool hasHalfLevel;
 public:
-    RLLVelocityField(Mesh &mesh);
+    RLLVelocityField(const Mesh &mesh, bool hasHalfLevel = false);
     virtual ~RLLVelocityField();
 
     /**
@@ -88,7 +88,7 @@ public:
      * according to the boundary conditions.
      * @param timeLevel the time level.
      */
-    virtual void applyBndCond(int timeLevel);
+    virtual void applyBndCond(int timeLevel, bool updateHalfLevel = false);
 
     /**
      * Create the memory storage for the velocity field.

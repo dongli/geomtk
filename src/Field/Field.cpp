@@ -2,7 +2,7 @@
 
 namespace geomtk {
 
-Field::Field(Mesh &mesh) {
+Field::Field(const Mesh &mesh, bool hasHalfLevel) {
     this->mesh = &mesh;
 }
 

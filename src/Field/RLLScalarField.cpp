@@ -3,8 +3,9 @@
 
 namespace geomtk {
 
-RLLScalarField::RLLScalarField(Mesh &mesh) : StructuredScalarField(mesh) {
-    if (dynamic_cast<RLLMesh*>(&mesh) == NULL) {
+RLLScalarField::RLLScalarField(const Mesh &mesh, bool hasHalfLevel)
+        : StructuredScalarField(mesh, hasHalfLevel) {
+    if (dynamic_cast<const RLLMesh*>(&mesh) == NULL) {
         REPORT_ERROR("Mesh should comply RLLMesh!");
     }
 }

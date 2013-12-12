@@ -7,10 +7,10 @@ namespace geomtk {
 
 class StructuredScalarField : public Field {
 protected:
-    TimeLevels<cube, 2> data;
+    TimeLevels<cube, 2> *data;
     StaggerType *staggerTypes;
 public:
-    StructuredScalarField(Mesh &mesh);
+    StructuredScalarField(const Mesh &mesh, bool hasHalfLevel = false);
     virtual ~StructuredScalarField();
 
     /**
@@ -19,7 +19,7 @@ public:
      * according to the boundary conditions.
      * @param timeLevel the time level.
      */
-    virtual void applyBndCond(int timeLevel);
+    virtual void applyBndCond(int timeLevel, bool updateHalfLevel = false);
 
     /**
      * Create the memory storage for the scalar field.

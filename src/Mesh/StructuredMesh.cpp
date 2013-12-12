@@ -8,8 +8,9 @@ StructuredMesh::StructuredMesh(Domain &domain) : Mesh(domain) {
     fullIntervals = new vec[domain.getNumDim()];
     halfIntervals = new vec[domain.getNumDim()];
     equidistant = new bool[domain.getNumDim()];
-    for (int i = 0; i < domain.getNumDim(); ++i) {
-        equidistant[i] = true;
+    for (int m = 0; m < domain.getNumDim(); ++m) {
+        fullCoords[m].resize(0);
+        equidistant[m] = true;
     }
 }
 
@@ -128,6 +129,14 @@ void StructuredMesh::setGridCoords(int dim, int size, double *full, double *half
     for (int i = 1; i < fullIntervals[dim].size(); ++i) {
         if (fullIntervals[dim](i) != fullIntervals[dim](0)) {
             equidistant[dim] = false;
+            break;
+        }
+    }
+    // mark the set status
+    set = true;
+    for (int m = 0; m < domain->getNumDim(); ++m) {
+        if (fullCoords[m].size() == 0) {
+            set = false;
             break;
         }
     }

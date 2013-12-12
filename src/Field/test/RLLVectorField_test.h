@@ -59,15 +59,15 @@ TEST_F(RLLVectorFieldTest, CreateAndSet) {
                   CENTER, EDGE,   CENTER,
                   CENTER, CENTER, EDGE);
     // check data dimension sizes
-    ASSERT_EQ(12, field->data[0].getLevel(0).n_rows);
-    ASSERT_EQ(10, field->data[0].getLevel(0).n_cols);
-    ASSERT_EQ(5,  field->data[0].getLevel(0).n_slices);
-    ASSERT_EQ(12, field->data[1].getLevel(0).n_rows);
-    ASSERT_EQ(9,  field->data[1].getLevel(0).n_cols);
-    ASSERT_EQ(5,  field->data[1].getLevel(0).n_slices);
-    ASSERT_EQ(12, field->data[2].getLevel(0).n_rows);
-    ASSERT_EQ(10, field->data[2].getLevel(0).n_cols);
-    ASSERT_EQ(6,  field->data[2].getLevel(0).n_slices);
+    ASSERT_EQ(12, field->data[0]->getLevel(0).n_rows);
+    ASSERT_EQ(10, field->data[0]->getLevel(0).n_cols);
+    ASSERT_EQ(5,  field->data[0]->getLevel(0).n_slices);
+    ASSERT_EQ(12, field->data[1]->getLevel(0).n_rows);
+    ASSERT_EQ(9,  field->data[1]->getLevel(0).n_cols);
+    ASSERT_EQ(5,  field->data[1]->getLevel(0).n_slices);
+    ASSERT_EQ(12, field->data[2]->getLevel(0).n_rows);
+    ASSERT_EQ(10, field->data[2]->getLevel(0).n_cols);
+    ASSERT_EQ(6,  field->data[2]->getLevel(0).n_slices);
     // set data
     for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
         for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
@@ -79,12 +79,12 @@ TEST_F(RLLVectorFieldTest, CreateAndSet) {
     // apply boundary condition
     field->applyBndCond(0);
     // check virtual boundary grids
-    int n = mesh->getNumGrid(0, CENTER, true);
+    int n = mesh->getNumGrid(0, CENTER);
     for (int m = 0; m < domain->getNumDim(); ++m) {
         for (int k = 0; k < mesh->getNumGrid(2, field->getStaggerType(m, 2)); ++k) {
             for (int j = 0; j < mesh->getNumGrid(1, field->getStaggerType(m, 1)); ++j) {
-                ASSERT_EQ(field->data[m].getLevel(0)(0,   j, k), field->data[m].getLevel(0)(n-2, j, k));
-                ASSERT_EQ(field->data[m].getLevel(0)(n-1, j, k), field->data[m].getLevel(0)(1, j, k));
+                ASSERT_EQ((*field)(0, m, -1, j, k), (*field)(0, m, n-1, j, k));
+                ASSERT_EQ((*field)(0, m,  n, j, k), (*field)(0, m,   0, j, k));
             }
         }
     }

@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include "Time_test.h"
 #include "Domain_test.h"
 #include "SphereDomain_test.h"
 #include "Mesh_test.h"

@@ -3,31 +3,36 @@
 
 namespace geomtk {
 
-StructuredScalarField::StructuredScalarField(Mesh &mesh) : Field(mesh) {
-    if (dynamic_cast<StructuredMesh*>(&mesh) == NULL) {
+StructuredScalarField::StructuredScalarField(const Mesh &mesh, bool hasHalfLevel)
+        : Field(mesh, hasHalfLevel) {
+    if (dynamic_cast<const StructuredMesh*>(&mesh) == NULL) {
         REPORT_ERROR("Mesh should comply StructuredMesh!");
     }
+    data = new TimeLevels<cube, 2>(hasHalfLevel);
     staggerTypes = new StaggerType[mesh.getDomain().getNumDim()];
 }
 
 StructuredScalarField::~StructuredScalarField() {
+    delete data;
     delete [] staggerTypes;
 }
 
-void StructuredScalarField::applyBndCond(int timeLevel) {
-    int nx = data.getLevel(0).n_rows;
-    int ny = data.getLevel(0).n_cols;
-    int nz = data.getLevel(0).n_slices;
-    const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
-    if (mesh.getDomain().getAxisStartBndType(0) == PERIODIC) {
+void StructuredScalarField::applyBndCond(int timeLevel, bool updateHalfLevel) {
+    int nx = data->getLevel(0).n_rows;
+    int ny = data->getLevel(0).n_cols;
+    int nz = data->getLevel(0).n_slices;
+    if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
         for (int k = 0; k < nz; ++k) {
             for (int j = 0; j < ny; ++j) {
-                data.getLevel(timeLevel)(0, j, k) = data.getLevel(timeLevel)(nx-2, j, k);
-                data.getLevel(timeLevel)(nx-1, j, k) = data.getLevel(timeLevel)(1, j, k);
+                data->getLevel(timeLevel)(0, j, k) = data->getLevel(timeLevel)(nx-2, j, k);
+                data->getLevel(timeLevel)(nx-1, j, k) = data->getLevel(timeLevel)(1, j, k);
             }
         }
     } else {
         REPORT_ERROR("Under construction!");
+    }
+    if (updateHalfLevel && data->hasHalfLevel()) {
+        data->updateHalfLevel();
     }
 }
 
@@ -39,8 +44,8 @@ void StructuredScalarField::create(StaggerType xStaggerType,
     staggerTypes[0] = xStaggerType;
     staggerTypes[1] = yStaggerType;
     const StructuredMesh &mesh = dynamic_cast<const StructuredMesh&>(*(this->mesh));
-    for (int i = 0; i < data.getNumLevel(); ++i) {
-        data.getLevel(i).reshape(mesh.getNumGrid(0, xStaggerType, true),
+    for (int i = 0; i < data->getNumLevel(); ++i) {
+        data->getLevel(i).reshape(mesh.getNumGrid(0, xStaggerType, true),
                                  mesh.getNumGrid(1, yStaggerType), 1);
     }
 }
@@ -55,8 +60,8 @@ void StructuredScalarField::create(StaggerType xStaggerType,
     staggerTypes[1] = yStaggerType;
     staggerTypes[2] = zStaggerType;
     const StructuredMesh &mesh = dynamic_cast<const StructuredMesh&>(*(this->mesh));
-    for (int i = 0; i < data.getNumLevel(); ++i) {
-        data.getLevel(i).reshape(mesh.getNumGrid(0, xStaggerType, true),
+    for (int i = 0; i < data->getNumLevel(); ++i) {
+        data->getLevel(i).reshape(mesh.getNumGrid(0, xStaggerType, true),
                             mesh.getNumGrid(1, yStaggerType),
                             mesh.getNumGrid(2, zStaggerType));
     }
@@ -77,7 +82,7 @@ double StructuredScalarField::operator()(int timeLevel,
     } else {
         J = j;
     }
-    return data.getLevel(timeLevel)(I, J, k);
+    return data->getLevel(timeLevel)(I, J, k);
 }
 
 double& StructuredScalarField::operator()(int timeLevel, int i, int j, int k) {
@@ -94,7 +99,7 @@ double& StructuredScalarField::operator()(int timeLevel, int i, int j, int k) {
     } else {
         J = j;
     }
-    return data.getLevel(timeLevel)(I, J, k);
+    return data->getLevel(timeLevel)(I, J, k);
 }
 
 StaggerType StructuredScalarField::getStaggerType(int dim) const {

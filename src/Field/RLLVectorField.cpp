@@ -2,8 +2,9 @@
 
 namespace geomtk {
 
-RLLVectorField::RLLVectorField(Mesh &mesh) : StructuredVectorField(mesh) {
-    if (dynamic_cast<RLLMesh*>(&mesh) == NULL) {
+RLLVectorField::RLLVectorField(const Mesh &mesh, bool hasHalfLevel)
+        : StructuredVectorField(mesh, hasHalfLevel) {
+    if (dynamic_cast<const RLLMesh*>(&mesh) == NULL) {
         REPORT_ERROR("Mesh should be RLLMesh!")
     }
 }

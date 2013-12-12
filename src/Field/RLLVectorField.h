@@ -13,7 +13,7 @@ namespace geomtk {
 
 class RLLVectorField : public StructuredVectorField {
 public:
-    RLLVectorField(Mesh &mesh);
+    RLLVectorField(const Mesh &mesh, bool hasHalfLevel = false);
     virtual ~RLLVectorField();
 };
 

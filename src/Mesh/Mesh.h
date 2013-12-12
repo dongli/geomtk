@@ -18,11 +18,13 @@ enum ArakawaGrid {
 class Mesh {
 protected:
     Domain *domain;
+    bool set;
 public:
     Mesh(Domain &domain);
     virtual ~Mesh();
 
     const Domain& getDomain() const;
+    bool isSet() const;
 };
 
 }

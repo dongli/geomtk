@@ -72,7 +72,6 @@ TEST_F(RLLRegridTest, Run) {
     v->applyBndCond(0);
 
     SphereCoord x(2);
-    double y;
 
     x(0) = 1.9*M_PI;
     x(1) = 0.2*M_PI;

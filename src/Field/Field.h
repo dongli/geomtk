@@ -7,6 +7,8 @@
 
 namespace geomtk {
 
+#define UPDATE_HALF_LEVEL true
+
 /**
  * Field
  * This is the base class for describing field on a mesh.
@@ -14,16 +16,16 @@ namespace geomtk {
 
 class Field {
 protected:
-    Mesh *mesh;
+    const Mesh *mesh;
 public:
-    Field(Mesh &mesh);
+    Field(const Mesh &mesh, bool hasHalfLevel = false);
     virtual ~Field();
 
     /**
      * Apply the boundary conditions.
      * @param timeLevel the time level.
      */
-    virtual void applyBndCond(int timeLevel) = 0;
+    virtual void applyBndCond(int timeLevel, bool updateHalfLevel = false) = 0;
 
     /**
      * Return the underlying mesh.
