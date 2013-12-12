@@ -13,6 +13,7 @@
 #include "geomtk_commons.h"
 #include "TimeLevels.h"
 #include "TimeManager.h"
+#include "StampString.h"
 // Domain class hierarchy
 #include "Domain.h"
 #include "SphereDomain.h"

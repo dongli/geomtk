@@ -68,7 +68,9 @@ double Time::getSeconds(const Time &other) const {
         res += (small->getDaysOfMonth(small->month)-small->day)*86400;
         res += (big->day-1)*86400;
     } else {
-        res += (big->day-small->day-1)*86400;
+        if (small->day < big->day) {
+            res += (big->day-small->day-1)*86400;
+        }
     }
     // =========================================================================
     flag = flag || small->day != big->day;
@@ -76,7 +78,9 @@ double Time::getSeconds(const Time &other) const {
         res += (24-small->hour-1)*3600;
         res += big->hour*3600;
     } else {
-        res += (big->hour-small->hour-1)*3600;
+        if (small->hour < big->hour) {
+            res += (big->hour-small->hour-1)*3600;
+        }
     }
     // =========================================================================
     flag = flag || small->hour != big->hour;
@@ -84,7 +88,9 @@ double Time::getSeconds(const Time &other) const {
         res += (60-small->minute-1)*60;
         res += big->minute*60;
     } else {
-        res += (big->minute-small->minute-1)*60;
+        if (small->minute < big->minute) {
+            res += (big->minute-small->minute-1)*3600;
+        }
     }
     // =========================================================================
     flag = flag || small->minute != big->minute;
@@ -219,6 +225,11 @@ Time Time::operator+(double seconds) const {
     }
     return res;
 }
+    
+Time& Time::operator+=(double seconds) {
+    *this = *this+seconds;
+    return *this;
+}
 
 Time Time::operator-(double seconds) const {
     Time res = *this;
@@ -311,9 +322,10 @@ Time& Time::operator=(const Time &other) {
 }
 
 bool Time::operator==(const Time &other) const {
+    static const double eps = 1.0e-15;
     if (year == other.year && month == other.month &&
         day == other.day && hour == other.hour &&
-        minute == other.minute && second == other.second) {
+        minute == other.minute && abs(second-other.second) < eps) {
         return true;
     } else {
         return false;
@@ -348,6 +360,18 @@ bool Time::operator<=(const Time &other) const {
     return !Time::operator>(other);
 }
 
+string Time::s(bool onlyDate) const {
+    char tmp[100];
+    if (onlyDate) {
+        sprintf(tmp, "%4.4d-%2.2d-%2.2d", year, month, day);
+    } else {
+        sprintf(tmp, "%4.4d-%2.2d-%2.2d %2.2d:%2.2d:%f",
+                year, month, day, hour, minute, second);
+    }
+    string res = tmp;
+    return res;
+}
+    
 // -----------------------------------------------------------------------------
 
 TimeManager::TimeManager() {
@@ -379,6 +403,8 @@ void TimeManager::advance() {
     int tmp = oldLevel;
     oldLevel = newLevel;
     newLevel = tmp;
+    currTime += stepSize;
+    REPORT_NOTICE(currTime);
 }
 
 bool TimeManager::isFinished() const {
@@ -387,6 +413,10 @@ bool TimeManager::isFinished() const {
     } else {
         return false;
     }
+}
+
+const Time& TimeManager::getCurrTime() const {
+    return currTime;
 }
 
 double TimeManager::getSeconds() const {

@@ -22,6 +22,7 @@ using std::endl;
 using std::setw;
 using std::setprecision;
 using std::setfill;
+using std::ostream;
 
 using std::string;
 using std::vector;

@@ -62,6 +62,7 @@ public:
     int getNextMonth(int month = -1) const;
 
     Time operator+(double seconds) const;
+    Time& operator+=(double seconds);
     Time operator-(double seconds) const;
     Time& operator=(const Time &other);
     bool operator==(const Time &other) const;
@@ -69,6 +70,13 @@ public:
     bool operator>=(const Time &other) const;
     bool operator<(const Time &other) const;
     bool operator<=(const Time &other) const;
+
+    string s(bool onlyDate = false) const;
+
+    friend inline ostream& operator<<(ostream &os, Time &other) {
+        os << other.s();
+        return os;
+    }
 };
 
 class TimeManager {
@@ -88,6 +96,7 @@ public:
     void advance();
     bool isFinished() const;
 
+    const Time& getCurrTime() const;
     double getStepSize() const;
     int getNumStep() const;
     double getSeconds() const;
