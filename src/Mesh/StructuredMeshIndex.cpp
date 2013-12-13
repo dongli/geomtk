@@ -66,6 +66,10 @@ void StructuredMeshIndex::locate(const Mesh &mesh_, const SpaceCoord &x) {
         if (indices[m][CENTER] == UNDEFINED_MESH_INDEX) {
             if (domain.getAxisStartBndType(m) == PERIODIC) {
                 for (int i = 0; i < mesh.getNumGrid(m, CENTER); ++i) {
+                    // cout << setw(5) << i;
+                    // cout << setw(10) << mesh.getGridCoord(m, CENTER, i);
+                    // cout << setw(10) << x(m);
+                    // cout << setw(10) << mesh.getGridCoord(m, CENTER, i+1) << endl;
                     if (x(m) >= mesh.getGridCoord(m, CENTER, i) &&
                         x(m) <= mesh.getGridCoord(m, CENTER, i+1)) {
                         indices[m][CENTER] = i;
@@ -107,8 +111,79 @@ void StructuredMeshIndex::locate(const Mesh &mesh_, const SpaceCoord &x) {
                 }
             }
         } else {
-            REPORT_ERROR("Under construction!");
+            if (domain.getAxisStartBndType(m) == PERIODIC) {
+                if (x(m) < mesh.getGridCoord(m, CENTER, indices[m][CENTER])) {
+                    for (int i = indices[m][CENTER]-1; i >= 0; --i) {
+                        // cout << setw(5) << i;
+                        // cout << setw(10) << mesh.getGridCoord(m, CENTER, i);
+                        // cout << setw(10) << x(m);
+                        // cout << setw(10) << mesh.getGridCoord(m, CENTER, i+1) << endl;
+                        if (x(m) >= mesh.getGridCoord(m, CENTER, i) &&
+                            x(m) <= mesh.getGridCoord(m, CENTER, i+1)) {
+                            indices[m][CENTER] = i;
+                            break;
+                        }
+                    }
+                } else if (x(m) > mesh.getGridCoord(m, CENTER, indices[m][CENTER]+1)) {
+                    for (int i = indices[m][CENTER]+1; i < mesh.getNumGrid(m, CENTER); ++i) {
+                        if (x(m) >= mesh.getGridCoord(m, CENTER, i) &&
+                            x(m) <= mesh.getGridCoord(m, CENTER, i+1)) {
+                            indices[m][CENTER] = i;
+                            break;
+                        }
+                    }
+                }
+                for (int i = indices[m][CENTER]-1; i < indices[m][CENTER]+1; ++i) {
+                    if (x(m) >= mesh.getGridCoord(m, EDGE, i) &&
+                        x(m) <= mesh.getGridCoord(m, EDGE, i+1)) {
+                        indices[m][EDGE] = i;
+                        break;
+                    }
+                }
+            } else {
+                if (x(m) < mesh.getGridCoord(m, CENTER, indices[m][CENTER])) {
+                    for (int i = indices[m][CENTER]-1; i >= 0; --i) {
+                        // cout << setw(5) << i;
+                        // cout << setw(10) << mesh.getGridCoord(m, CENTER, i);
+                        // cout << setw(10) << x(m);
+                        // cout << setw(10) << mesh.getGridCoord(m, CENTER, i+1) << endl;
+                        if (x(m) >= mesh.getGridCoord(m, CENTER, i) &&
+                            x(m) <= mesh.getGridCoord(m, CENTER, i+1)) {
+                            indices[m][CENTER] = i;
+                            break;
+                        }
+                    }
+                } else if (x(m) > mesh.getGridCoord(m, CENTER, indices[m][CENTER]+1)) {
+                    for (int i = indices[m][CENTER]+1; i < mesh.getNumGrid(m, CENTER); ++i) {
+                        if (x(m) >= mesh.getGridCoord(m, CENTER, i) &&
+                            x(m) <= mesh.getGridCoord(m, CENTER, i+1)) {
+                            indices[m][CENTER] = i;
+                            break;
+                        }
+                    }
+                }
+                if (domain.getAxisStartBndType(m) == POLE) {
+                    if (x(m) < mesh.getGridCoord(m, EDGE, 0)) {
+                        indices[m][EDGE] = -1;
+                        continue;
+                    } else if (x(m) > mesh.getGridCoord(m, EDGE, mesh.getNumGrid(m, EDGE)-1)) {
+                        indices[m][EDGE] = mesh.getNumGrid(m, EDGE)-1;
+                        continue;
+                    }
+                }
+                int i1 = max(indices[m][CENTER]-2, 0);
+                int i2 = min(indices[m][CENTER]+2, mesh.getNumGrid(m, CENTER)-1);
+                for (int i = i1; i < i2; ++i) {
+                    if (x(m) >= mesh.getGridCoord(m, EDGE, i) &&
+                        x(m) <= mesh.getGridCoord(m, EDGE, i+1)) {
+                        indices[m][EDGE] = i;
+                        break;
+                    }
+                }
+            }
         }
+        assert(indices[m][CENTER] != UNDEFINED_MESH_INDEX);
+        assert(indices[m][EDGE] != UNDEFINED_MESH_INDEX);
     }
 }
 

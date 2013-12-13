@@ -11,6 +11,9 @@ protected:
     StaggerType *staggerTypes;
 public:
     StructuredScalarField(const Mesh &mesh, bool hasHalfLevel = false);
+    StructuredScalarField(const string &name, const string &units,
+                          const string &longName, const Mesh &mesh,
+                          bool hasHalfLevel = false);
     virtual ~StructuredScalarField();
 
     /**

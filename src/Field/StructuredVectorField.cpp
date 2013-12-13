@@ -3,7 +3,25 @@
 namespace geomtk {
 
 StructuredVectorField::StructuredVectorField(const Mesh &mesh, bool hasHalfLevel)
-        : Field(mesh, hasHalfLevel) {
+    : Field(mesh, hasHalfLevel) {
+    if (dynamic_cast<const StructuredMesh*>(&mesh) == NULL) {
+        REPORT_ERROR("Mesh should be StructuredMesh!")
+    }
+    for (int i = 0; i < 3; ++i) {
+        data[i] = new TimeLevels<cube, 2>(hasHalfLevel);
+    }
+    staggerTypes = new StaggerType*[mesh.getDomain().getNumDim()];
+    for (int i = 0; i < mesh.getDomain().getNumDim(); ++i) {
+        staggerTypes[i] = new StaggerType[mesh.getDomain().getNumDim()];
+    }
+}
+    
+StructuredVectorField::StructuredVectorField(const string &name,
+                                             const string &units,
+                                             const string &longName,
+                                             const Mesh &mesh,
+                                             bool hasHalfLevel)
+    : Field(name, units, longName, mesh, hasHalfLevel) {
     if (dynamic_cast<const StructuredMesh*>(&mesh) == NULL) {
         REPORT_ERROR("Mesh should be StructuredMesh!")
     }

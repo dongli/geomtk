@@ -3,8 +3,9 @@
 
 namespace geomtk {
 
-StructuredScalarField::StructuredScalarField(const Mesh &mesh, bool hasHalfLevel)
-        : Field(mesh, hasHalfLevel) {
+StructuredScalarField::StructuredScalarField(const Mesh &mesh,
+                                             bool hasHalfLevel)
+    : Field(mesh, hasHalfLevel) {
     if (dynamic_cast<const StructuredMesh*>(&mesh) == NULL) {
         REPORT_ERROR("Mesh should comply StructuredMesh!");
     }
@@ -12,6 +13,19 @@ StructuredScalarField::StructuredScalarField(const Mesh &mesh, bool hasHalfLevel
     staggerTypes = new StaggerType[mesh.getDomain().getNumDim()];
 }
 
+StructuredScalarField::StructuredScalarField(const string &name,
+                                             const string &units,
+                                             const string &longName,
+                                             const Mesh &mesh,
+                                             bool hasHalfLevel)
+    : Field(name, units, longName, mesh, hasHalfLevel) {
+    if (dynamic_cast<const StructuredMesh*>(&mesh) == NULL) {
+        REPORT_ERROR("Mesh should comply StructuredMesh!");
+    }
+    data = new TimeLevels<cube, 2>(hasHalfLevel);
+    staggerTypes = new StaggerType[mesh.getDomain().getNumDim()];
+}
+    
 StructuredScalarField::~StructuredScalarField() {
     delete data;
     delete [] staggerTypes;

@@ -80,6 +80,9 @@ private:
     bool hasHalfLevel;
 public:
     RLLVelocityField(const Mesh &mesh, bool hasHalfLevel = false);
+    RLLVelocityField(const string &name, const string &units,
+                     const string &longName, const Mesh &mesh,
+                     bool hasHalfLevel = false);
     virtual ~RLLVelocityField();
 
     /**

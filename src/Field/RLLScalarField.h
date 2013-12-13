@@ -13,6 +13,9 @@ namespace geomtk {
 class RLLScalarField : public StructuredScalarField {
 public:
     RLLScalarField(const Mesh &mesh, bool hasHalfLevel = false);
+    RLLScalarField(const string &name, const string &units,
+                   const string &longName, const Mesh &mesh,
+                   bool hasHalfLevel = false);
     virtual ~RLLScalarField();
 };
 

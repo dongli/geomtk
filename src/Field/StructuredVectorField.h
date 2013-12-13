@@ -17,6 +17,9 @@ protected:
     StaggerType **staggerTypes;
 public:
     StructuredVectorField(const Mesh &mesh, bool hasHalfLevel = false);
+    StructuredVectorField(const string &name, const string &units,
+                          const string &longName, const Mesh &mesh,
+                          bool hasHalfLevel = false);
     virtual ~StructuredVectorField();
 
     /**

@@ -151,7 +151,14 @@ void PolarRing::print() const {
 // -----------------------------------------------------------------------------
 
 RLLVelocityField::RLLVelocityField(const Mesh &mesh, bool hasHalfLevel)
-        : RLLVectorField(mesh, hasHalfLevel) {
+    : RLLVectorField(mesh, hasHalfLevel) {
+    this->hasHalfLevel = hasHalfLevel;
+}
+    
+RLLVelocityField::RLLVelocityField(const string &name, const string &units,
+                                   const string &longName, const Mesh &mesh,
+                                   bool hasHalfLevel)
+    : RLLVectorField(name, units, longName, mesh, hasHalfLevel) {
     this->hasHalfLevel = hasHalfLevel;
 }
 

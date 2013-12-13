@@ -16,9 +16,14 @@ namespace geomtk {
 
 class Field {
 protected:
+    string name;
+    string units;
+    string longName;
     const Mesh *mesh;
 public:
     Field(const Mesh &mesh, bool hasHalfLevel = false);
+    Field(const string &name, const string &units, const string &longName,
+          const Mesh &mesh, bool hasHalfLevel = false);
     virtual ~Field();
 
     /**
