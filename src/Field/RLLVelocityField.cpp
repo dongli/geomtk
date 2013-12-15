@@ -170,6 +170,12 @@ void RLLVelocityField::applyBndCond(int timeLevel, bool updateHalfLevel) {
     rings[0].update(timeLevel, SOUTH_POLE, data, updateHalfLevel);
     rings[1].update(timeLevel, NORTH_POLE, data, updateHalfLevel);
 }
+    
+void RLLVelocityField::create(ArakawaGrid gridType) {
+    RLLVectorField::create(gridType);
+    rings[0].create(*mesh, hasHalfLevel);
+    rings[1].create(*mesh, hasHalfLevel);
+}
 
 void RLLVelocityField::create(StaggerType uLonStaggerType,
                               StaggerType uLatStaggerType,

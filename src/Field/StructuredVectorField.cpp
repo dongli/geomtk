@@ -68,11 +68,46 @@ void StructuredVectorField::applyBndCond(int timeLevel, bool updateHalfLevel) {
         }
     }
 }
+    
+void StructuredVectorField::create(geomtk::ArakawaGrid gridType) {
+    this->gridType = gridType;
+    switch (gridType) {
+        case A_GRID:
+            REPORT_ERROR("Under construction!");
+            break;
+        case B_GRID:
+            REPORT_ERROR("Under construction!");
+            break;
+        case C_GRID:
+            if (mesh->getDomain().getNumDim() == 2) {
+                create(EDGE, CENTER, CENTER, EDGE);
+            } else if (mesh->getDomain().getNumDim() == 3) {
+                create(EDGE, CENTER, CENTER, CENTER, EDGE, CENTER,
+                       CENTER, CENTER, EDGE);
+            }
+            break;
+        case D_GRID:
+            REPORT_ERROR("Under construction!");
+            break;
+        case E_GRID:
+            REPORT_ERROR("Under construction!");
+            break;
+    }
+}
 
 void StructuredVectorField::create(StaggerType uXStaggerType,
                                    StaggerType uYStaggerType,
                                    StaggerType vXStaggerType,
                                    StaggerType vYStaggerType) {
+    if (uXStaggerType == CENTER && uYStaggerType == CENTER &&
+        vXStaggerType == CENTER && vYStaggerType == CENTER) {
+        gridType = A_GRID;
+    } else if (uXStaggerType == EDGE && uYStaggerType == CENTER &&
+               vXStaggerType == CENTER && vYStaggerType == EDGE) {
+        gridType = C_GRID;
+    } else {
+        REPORT_ERROR("Under construction!");
+    }
     staggerTypes[0][0] = uXStaggerType;
     staggerTypes[0][1] = uYStaggerType;
     staggerTypes[1][0] = vXStaggerType;
@@ -97,6 +132,17 @@ void StructuredVectorField::create(StaggerType uXStaggerType,
                                    StaggerType wZStaggerType) {
     if (mesh->getDomain().getNumDim() != 3) {
         REPORT_ERROR("The domain is not 3D!")
+    }
+    if (uXStaggerType == CENTER && uYStaggerType == CENTER && uZStaggerType == CENTER &&
+        vXStaggerType == CENTER && vYStaggerType == CENTER && vZStaggerType == CENTER &&
+        wXStaggerType == CENTER && wYStaggerType == CENTER && wZStaggerType == CENTER) {
+        gridType = A_GRID;
+    } else if (uXStaggerType == EDGE && uYStaggerType == CENTER && uZStaggerType == CENTER &&
+               vXStaggerType == CENTER && vYStaggerType == EDGE && vZStaggerType == CENTER &&
+               wXStaggerType == CENTER && wYStaggerType == CENTER && wZStaggerType == EDGE) {
+        gridType = C_GRID;
+    } else {
+        REPORT_ERROR("Under construction!");
     }
     staggerTypes[0][0] = uXStaggerType;
     staggerTypes[0][1] = uYStaggerType;

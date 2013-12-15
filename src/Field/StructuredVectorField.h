@@ -14,6 +14,7 @@ namespace geomtk {
 class StructuredVectorField : public Field {
 protected:
     TimeLevels<cube, 2> *data[3];
+    ArakawaGrid gridType;
     StaggerType **staggerTypes;
 public:
     StructuredVectorField(const Mesh &mesh, bool hasHalfLevel = false);
@@ -30,6 +31,8 @@ public:
      */
     virtual void applyBndCond(int timeLevel, bool updateHalfLevel = false);
 
+    virtual void create(ArakawaGrid gridType);
+    
     /**
      * Create the memory storage of the vector field.
      * @param uXStaggerType the stagger type of the x grids of u.

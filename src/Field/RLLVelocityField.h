@@ -93,6 +93,8 @@ public:
      */
     virtual void applyBndCond(int timeLevel, bool updateHalfLevel = false);
 
+    virtual void create(ArakawaGrid gridType);
+
     /**
      * Create the memory storage for the velocity field.
      * @param uLonStaggerType the stagger type of longitude grids of u.

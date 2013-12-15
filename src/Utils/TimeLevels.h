@@ -24,7 +24,7 @@ public:
     /**
      * Return the number of time levels.
      */
-    int getNumLevel() { return N; }
+    int getNumLevel();
 
     /**
      * Get the variable on the needed time level.
@@ -58,6 +58,15 @@ TimeLevels<T, N>::TimeLevels(bool hasHalfLevel) {
 template <typename T, int N>
 TimeLevels<T, N>::~TimeLevels() {
     delete [] data;
+}
+
+template <typename T, int N>
+int TimeLevels<T, N>::getNumLevel() {
+    if (halfLevel) {
+        return N+(N-1);
+    } else {
+        return N;
+    }
 }
 
 template <typename T, int N>
