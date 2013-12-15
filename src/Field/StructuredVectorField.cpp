@@ -163,6 +163,107 @@ void StructuredVectorField::create(StaggerType uXStaggerType,
     }
 }
 
+void StructuredVectorField::convert(ArakawaGrid gridType, int timeLevel,
+                                    cube &u, cube &v) {
+    const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
+    if (this->gridType == C_GRID && gridType == A_GRID) {
+        if (u.n_rows != mesh.getNumGrid(0, CENTER)) {
+            REPORT_ERROR("");
+        } else if (u.n_cols != mesh.getNumGrid(1, CENTER)) {
+            REPORT_ERROR("");
+        }
+        if (v.n_rows != mesh.getNumGrid(0, CENTER)) {
+            REPORT_ERROR("");
+        } else if (v.n_cols != mesh.getNumGrid(1, CENTER)) {
+            REPORT_ERROR("");
+        }
+        if (mesh.getDomain().getAxisStartBndType(0) == PERIODIC) {
+            for (int j = 0; j < mesh.getNumGrid(1, CENTER); ++j) {
+                for (int i = 0; i < mesh.getNumGrid(0, CENTER); ++i) {
+                    u(i, j, 0) = (data[0]->getLevel(timeLevel)(  i, j, 0)+
+                                  data[0]->getLevel(timeLevel)(i+1, j, 0))*0.5;
+                }
+            }
+        } else {
+            REPORT_ERROR("Under construction!");
+        }
+        if (mesh.getDomain().getAxisStartBndType(1) == POLE) {
+            for (int j = 1; j < mesh.getNumGrid(1, CENTER)-1; ++j) {
+                for (int i = 0; i < mesh.getNumGrid(0, CENTER); ++i) {
+                    v(i, j, 0) = (data[1]->getLevel(timeLevel)(i,   j, 0)+
+                                  data[1]->getLevel(timeLevel)(i, j-1, 0))*0.5;
+                }
+            }
+        } else {
+            REPORT_ERROR("Under construction!");
+        }
+    }
+}
+
+void StructuredVectorField::convert(ArakawaGrid gridType, int timeLevel,
+                                    cube u, cube v, cube w) {
+    const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
+    if (this->gridType == C_GRID && gridType == A_GRID) {
+        if (u.n_rows != mesh.getNumGrid(0, CENTER)) {
+            REPORT_ERROR("");
+        } else if (u.n_cols != mesh.getNumGrid(1, CENTER)) {
+            REPORT_ERROR("");
+        } else if (u.n_slices != mesh.getNumGrid(2, CENTER)) {
+            REPORT_ERROR("");
+        }
+        if (v.n_rows != mesh.getNumGrid(0, CENTER)) {
+            REPORT_ERROR("");
+        } else if (v.n_cols != mesh.getNumGrid(1, CENTER)) {
+            REPORT_ERROR("");
+        } else if (v.n_slices != mesh.getNumGrid(2, CENTER)) {
+            REPORT_ERROR("");
+        }
+        if (w.n_rows != mesh.getNumGrid(0, CENTER)) {
+            REPORT_ERROR("");
+        } else if (w.n_cols != mesh.getNumGrid(1, CENTER)) {
+            REPORT_ERROR("");
+        } else if (w.n_slices != mesh.getNumGrid(2, CENTER)) {
+            REPORT_ERROR("");
+        }
+        if (mesh.getDomain().getAxisStartBndType(0) == PERIODIC) {
+            for (int k = 0; k < mesh.getNumGrid(2, CENTER); ++k) {
+                for (int j = 0; j < mesh.getNumGrid(1, CENTER); ++j) {
+                    for (int i = 0; i < mesh.getNumGrid(0, CENTER); ++i) {
+                        u(i, j, k) = (data[0]->getLevel(timeLevel)(  i, j, k)+
+                                      data[0]->getLevel(timeLevel)(i+1, j, k))*0.5;
+                    }
+                }
+            }
+        } else {
+            REPORT_ERROR("Under construction!");
+        }
+        if (mesh.getDomain().getAxisStartBndType(1) == POLE) {
+            for (int k = 0; k < mesh.getNumGrid(2, CENTER); ++k) {
+                for (int j = 1; j < mesh.getNumGrid(1, CENTER)-1; ++j) {
+                    for (int i = 0; i < mesh.getNumGrid(0, CENTER); ++i) {
+                        v(i, j, k) = (data[1]->getLevel(timeLevel)(i,   j, k)+
+                                      data[1]->getLevel(timeLevel)(i, j-1, k))*0.5;
+                    }
+                }
+            }
+        } else {
+            REPORT_ERROR("Under construction!");
+        }
+        if (mesh.getDomain().getAxisStartBndType(2) == RIGID) {
+            for (int k = 1; k < mesh.getNumGrid(2, CENTER)-1; ++k) {
+                for (int j = 0; j < mesh.getNumGrid(1, CENTER); ++j) {
+                    for (int i = 0; i < mesh.getNumGrid(0, CENTER); ++i) {
+                        w(i, j, k) = (data[2]->getLevel(timeLevel)(i, j, k)+
+                                      data[2]->getLevel(timeLevel)(i, j, k-1))*0.5;
+                    }
+                }
+            }
+        } else {
+            REPORT_ERROR("Under construction!");
+        }
+    }
+}
+
 double StructuredVectorField::operator()(int timeLevel, int dim, int i, int j, int k) const {
     // The virtual boundary grids at the periodic boundary conditions are
     // hiden from user.

@@ -66,6 +66,19 @@ public:
                         StaggerType zYStaggerType,
                         StaggerType zZStaggerType);
 
+    /**
+     * Convert field from current grid type to the given type.
+     * Typical usage is conversion from C grid to A grid and vice verse.
+     * @param gridType the grid type for conversion.
+     * @param timeLevel the time level.
+     * @param u output of u component.
+     * @param v output of v component.
+     * @param w output of w component (only in 3D).
+     */
+    virtual void convert(ArakawaGrid gridType, int timeLevel, cube &u, cube &v);
+    virtual void convert(ArakawaGrid gridType, int timeLevel,
+                         cube u, cube v, cube w);
+
     double operator()(int timeLevel, int dim, int i, int j, int k = 0) const;
     double& operator()(int timeLevel, int dim, int i, int j, int k = 0);
 
