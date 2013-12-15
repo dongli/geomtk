@@ -91,7 +91,7 @@ void PolarRing::update(int timeLevel, Pole pole, TimeLevels<cube, 2> **data,
     // -------------------------------------------------------------------------
     // update half level
     if (updateHalfLevel && vr[0][0]->hasHalfLevel()) {
-        if (vr[0][0]->getNumLevel() != 2) {
+        if (vr[0][0]->getNumLevel() != 3) { // including half level
             REPORT_ERROR("Sorry, GeoMTK does not support half-time-level "
                          "when there are more than two time levels!");
         }

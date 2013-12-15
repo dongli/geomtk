@@ -45,7 +45,10 @@ void SphereCoord::print() const {
     cout << "Coordinate:";
     cout << setw(20) << coords(0)/RAD;
     cout << setw(20) << coords(1)/RAD;
-    cout << setw(20) << coords(2) << endl;
+    if (coords.size() == 3) {
+        cout << setw(20) << coords(2);
+    }
+    cout << endl;
 }
 
 // -----------------------------------------------------------------------------

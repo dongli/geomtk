@@ -22,25 +22,36 @@ public:
     virtual ~TimeLevels();
 
     /**
-     * Return the number of time levels.
+     *  Get the time level number including half level if has.
+     *
+     *  @return The time level number.
      */
     int getNumLevel();
 
     /**
-     * Get the variable on the needed time level.
+     *  Get the variable on the given time level (not changed).
+     *
+     *  @param level the time level.
+     *
+     *  @return The variable.
      */
     T getLevel(int level) const;
 
     /**
-     * Get the variable on the needed time level.
+     *  Get the variable on the given time level.
+     *
+     *  @param level the time level.
+     *
+     *  @return The variable.
      */
     T& getLevel(int level);
 
     bool hasHalfLevel() const;
 
     /**
-     * Update the variable on half time level.
-     * @note Assume two time levels.
+     *  Update the variable on half time level.
+     *
+     *  @note Assume two time levels.
      */
     void updateHalfLevel();
 };

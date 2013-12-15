@@ -188,7 +188,7 @@ void StructuredMesh::setGridCoords(int dim, const string &fileName,
                      " in " << fileName << "!");
     }
 
-    setGridCoords(dim, fullSize, full, half);
+    setGridCoords(dim, static_cast<int>(fullSize), full, half);
 }
 
 vec StructuredMesh::getGridCoords(int dim, StaggerType staggerType,

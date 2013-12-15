@@ -17,32 +17,42 @@ public:
     virtual ~StructuredMesh();
 
     /**
-     * A setter for grid coordinates.
-     * This method sets the grid coordinates including the full grids and the
-     * half grids. The internal grids will be set according to the domain
-     * boundary conditions.
-     * @param dim the dimension index.
-     * @param size the size of full grids (maybe also for half).
-     * @param full the full grid coordinates.
-     * @param half the half grid coordinates.
+     *  Set the grid coordinates along an axis.
+     *
+     *  This method sets the grid coordinates including the full grids and the
+     *  half grids. The internal grids will be set according to the domain
+     *  boundary conditions.
+     *
+     *  @param dim  the dimension index of the axis.
+     *  @param size the size of the full grids.
+     *  @param full the full grid coordinates.
+     *  @param half the half grid coordinates.
      */
     virtual void setGridCoords(int dim, int size, double *full, double *half);
 
     /**
-     * A setter for grid coordinates.
+     *  Set the grid coordinates along an axis.
+     *
+     *  @param dim      the dimension index of the axis.
+     *  @param fileName the file (netCDF) name that contains grid coordinates.
+     *  @param fullName the variable name of the full coordinates.
+     *  @param halfName the variable name of the half coordinates.
      */
     virtual void setGridCoords(int dim, const string &fileName,
                                const string &fullName, const string &halfName);
 
     /**
-     * A getter for grid coordinates.
-     * This method returns the grid coordinates excluding the potential virtual
-     * boundary grids. The virtual boundary grids are added when boundary
-     * conditions are periodic.
-     * @param dim the dimension index.
-     * @param staggerType the grid stagger type.
-     * @param hasVirtualGrids flag for enclosing virtual boundary grids.
-     * @return The grid coordinates
+     *  Return the grid coordinates along an axis.
+     *
+     *  This method returns the grid coordinates excluding the potential virtual
+     *  boundary grids. The virtual boundary grids are added when boundary
+     *  conditions are periodic.
+     *
+     *  @param dim             the dimension index.
+     *  @param staggerType     the grid stagger type.
+     *  @param hasVirtualGrids flag for enclosing virtual boundary grids.
+     *
+     *  @return The grid coordinates
      */
     vec getGridCoords(int dim, StaggerType staggerType,
                       bool hasVirtualGrids = false) const;
@@ -50,18 +60,28 @@ public:
     double getGridCoord(int dim, StaggerType staggerType, int i) const;
 
     /**
-     * @brief A getter for grid number.
-     * This method returns the grid number excluding the potential virtual
-     * boundary grids. The virtual boundary grids are added when boundary
-     * conditions are periodic.
-     * @param dim the dimension index.
-     * @param staggerType the grid stagger type.
-     * @param hasVirtualGrids flag for enclosing virtual boundary grids.
-     * @return The grid number
+     *  Return the grid number.
+     *
+     *  This method returns the grid number excluding the potential virtual
+     *  boundary grids. The virtual boundary grids are added when boundary
+     *  conditions are periodic.
+     *
+     *  @param dim             the dimension index (start from zero).
+     *  @param staggerType     the grid stagger type.
+     *  @param hasVirtualGrids flag for enclosing virtual boundary grids.
+     *
+     *  @return The grid number
      */
     int getNumGrid(int dim, StaggerType staggerType,
                    bool hasVirtualGrids = false) const;
 
+    /**
+     *  Inquire if the grids along an axis is equidistant or not.
+     *
+     *  @param dim the dimension index (start from zero).
+     *
+     *  @return A boolean.
+     */
     bool isEquidistant(int dim) const;
 };
 

@@ -15,7 +15,7 @@ public:
     virtual ~StructuredMeshIndex();
 
     /**
-     * @brief Reset the indices to undefined status.
+     *  Reset the indices to undefined status.
      */
     virtual void reset();
 
@@ -25,7 +25,7 @@ public:
     virtual StructuredMeshIndex& operator=(const StructuredMeshIndex &other);
 
     /**
-     * @see MeshIndex::locate(SpaceCoord x)
+     *  MeshIndex::locate(SpaceCoord x)
      */
     virtual void locate(const Mesh &mesh, const SpaceCoord &x);
 
