@@ -61,9 +61,9 @@ public:
      */
     int getNextMonth(int month = -1) const;
 
-    Time operator+(double seconds) const;
+    const Time operator+(double seconds) const;
     Time& operator+=(double seconds);
-    Time operator-(double seconds) const;
+    const Time operator-(double seconds) const;
     Time& operator=(const Time &other);
     bool operator==(const Time &other) const;
     bool operator>(const Time &other) const;

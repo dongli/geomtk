@@ -173,7 +173,7 @@ int Time::getNextMonth(int month) const {
     return month == 12 ? 1 : month+1;
 }
     
-Time Time::operator+(double seconds) const {
+const Time Time::operator+(double seconds) const {
     Time res = *this;
     double remain = seconds; // remained time (unit will be changed)
     // -------------------------------------------------------------------------
@@ -231,7 +231,7 @@ Time& Time::operator+=(double seconds) {
     return *this;
 }
 
-Time Time::operator-(double seconds) const {
+const Time Time::operator-(double seconds) const {
     Time res = *this;
     double remain = seconds; // remained time (unit will be changed)
     // -------------------------------------------------------------------------

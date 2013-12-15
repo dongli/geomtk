@@ -58,24 +58,28 @@ vec& Velocity::operator()() {
     return v;
 }
 
-Velocity& Velocity::operator+(const Velocity &other) {
-    v += other.v;
-    return *this;
+const Velocity Velocity::operator+(const Velocity &other) const {
+    Velocity res;
+    res.v = v+other.v;
+    return res;
 }
 
-Velocity& Velocity::operator-(const Velocity &other) {
-    v -= other.v;
-    return *this;
+const Velocity Velocity::operator-(const Velocity &other) const {
+    Velocity res;
+    res.v = v-other.v;
+    return res;
 }
 
-Velocity& Velocity::operator*(double scale) {
-    v *= scale;
-    return *this;
+const Velocity Velocity::operator*(double scale) const {
+    Velocity res;
+    res.v = v*scale;
+    return res;
 }
 
-Velocity& Velocity::operator/(double scale) {
-    v /= scale;
-    return *this;
+const Velocity Velocity::operator/(double scale) const {
+    Velocity res;
+    res.v = v/scale;
+    return res;
 }
 
 void Velocity::print() const {

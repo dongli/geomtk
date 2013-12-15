@@ -85,36 +85,40 @@ SphereVelocity& SphereVelocity::operator=(const SphereVelocity &other) {
     return *this;
 }
 
-SphereVelocity& SphereVelocity::operator+(const SphereVelocity &other) {
-    Velocity::operator+(other);
+const SphereVelocity SphereVelocity::operator+(const SphereVelocity &other) const {
+    SphereVelocity res;
+    Velocity &tmp = res; tmp = Velocity::operator+(other);
     // TODO: Clarify that we operator on vt directly is properly.
-    vt[0] += other.vt[0];
-    vt[1] += other.vt[1];
-    return *this;
+    res.vt[0] = vt[0]+other.vt[0];
+    res.vt[1] = vt[1]+other.vt[1];
+    return res;
 }
 
-SphereVelocity& SphereVelocity::operator-(const SphereVelocity &other) {
-    Velocity::operator-(other);
+const SphereVelocity SphereVelocity::operator-(const SphereVelocity &other) const {
+    SphereVelocity res;
+    Velocity &tmp = res; tmp = Velocity::operator-(other);
     // TODO: Clarify that we operator on vt directly is properly.
-    vt[0] -= other.vt[0];
-    vt[1] -= other.vt[1];
-    return *this;
+    res.vt[0] = vt[0]-other.vt[0];
+    res.vt[1] = vt[1]-other.vt[1];
+    return res;
 }
 
-SphereVelocity& SphereVelocity::operator*(double scale) {
-    Velocity::operator*(scale);
+const SphereVelocity SphereVelocity::operator*(double scale) const {
+    SphereVelocity res;
+    Velocity &tmp = res; tmp = Velocity::operator*(scale);
     // TODO: Clarify that we operator on vt directly is properly.
-    vt[0] *= scale;
-    vt[1] *= scale;
-    return *this;
+    res.vt[0] = vt[0]*scale;
+    res.vt[1] = vt[1]*scale;
+    return res;
 }
 
-SphereVelocity& SphereVelocity::operator/(double scale) {
-    Velocity::operator/(scale);
+const SphereVelocity SphereVelocity::operator/(double scale) const {
+    SphereVelocity res;
+    Velocity &tmp = res; tmp = Velocity::operator/(scale);
     // TODO: Clarify that we operator on vt directly is properly.
-    vt[0] /= scale;
-    vt[1] /= scale;
-    return *this;
+    res.vt[0] = vt[0]/scale;
+    res.vt[1] = vt[1]/scale;
+    return res;
 }
 
 void SphereVelocity::transformToPS(const SpaceCoord &x) {
