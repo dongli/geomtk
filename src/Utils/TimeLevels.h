@@ -11,6 +11,7 @@
 namespace geomtk {
 
 #define HAS_HALF_LEVEL true
+#define INCLUDE_HALF_LEVEL true
 
 template <typename T, int N>
 class TimeLevels {
@@ -26,7 +27,7 @@ public:
      *
      *  @return The time level number.
      */
-    int getNumLevel();
+    int getNumLevel(bool includeHalfLevel = false);
 
     /**
      *  Get the variable on the given time level (not changed).
@@ -72,8 +73,8 @@ TimeLevels<T, N>::~TimeLevels() {
 }
 
 template <typename T, int N>
-int TimeLevels<T, N>::getNumLevel() {
-    if (halfLevel) {
+int TimeLevels<T, N>::getNumLevel(bool includeHalfLevel) {
+    if (halfLevel && includeHalfLevel) {
         return N+(N-1);
     } else {
         return N;
@@ -98,7 +99,8 @@ bool TimeLevels<T, N>::hasHalfLevel() const {
 template <typename T, int N>
 void TimeLevels<T, N>::updateHalfLevel() {
     if (N != 2) {
-        REPORT_ERROR("Half time level is only supported when there are two time levels!");
+        REPORT_ERROR("Half time level is only supported when "
+                     "there are two full time levels!");
     }
     data[2] = (data[0]+data[1])*0.5;
 }

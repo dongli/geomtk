@@ -58,9 +58,9 @@ void StructuredScalarField::create(StaggerType xStaggerType,
     staggerTypes[0] = xStaggerType;
     staggerTypes[1] = yStaggerType;
     const StructuredMesh &mesh = dynamic_cast<const StructuredMesh&>(*(this->mesh));
-    for (int i = 0; i < data->getNumLevel(); ++i) {
+    for (int i = 0; i < data->getNumLevel(INCLUDE_HALF_LEVEL); ++i) {
         data->getLevel(i).reshape(mesh.getNumGrid(0, xStaggerType, true),
-                                 mesh.getNumGrid(1, yStaggerType), 1);
+                                  mesh.getNumGrid(1, yStaggerType), 1);
     }
 }
 
@@ -74,10 +74,10 @@ void StructuredScalarField::create(StaggerType xStaggerType,
     staggerTypes[1] = yStaggerType;
     staggerTypes[2] = zStaggerType;
     const StructuredMesh &mesh = dynamic_cast<const StructuredMesh&>(*(this->mesh));
-    for (int i = 0; i < data->getNumLevel(); ++i) {
+    for (int i = 0; i < data->getNumLevel(INCLUDE_HALF_LEVEL); ++i) {
         data->getLevel(i).reshape(mesh.getNumGrid(0, xStaggerType, true),
-                            mesh.getNumGrid(1, yStaggerType),
-                            mesh.getNumGrid(2, zStaggerType));
+                                  mesh.getNumGrid(1, yStaggerType),
+                                  mesh.getNumGrid(2, zStaggerType));
     }
 }
 

@@ -113,7 +113,7 @@ void StructuredVectorField::create(StaggerType uXStaggerType,
     staggerTypes[1][0] = vXStaggerType;
     staggerTypes[1][1] = vYStaggerType;
     const StructuredMesh &mesh = dynamic_cast<const StructuredMesh&>(*(this->mesh));
-    for (int l = 0; l < data[0]->getNumLevel(); ++l) {
+    for (int l = 0; l < data[0]->getNumLevel(INCLUDE_HALF_LEVEL); ++l) {
         for (int m = 0; m < mesh.getDomain().getNumDim(); ++m) {
             data[m]->getLevel(l).reshape(mesh.getNumGrid(0, staggerTypes[m][0], true),
                                          mesh.getNumGrid(1, staggerTypes[m][1]), 1);
@@ -154,7 +154,7 @@ void StructuredVectorField::create(StaggerType uXStaggerType,
     staggerTypes[2][1] = wYStaggerType;
     staggerTypes[2][2] = wZStaggerType;
     const StructuredMesh &mesh = dynamic_cast<const StructuredMesh&>(*(this->mesh));
-    for (int l = 0; l < data[0]->getNumLevel(); ++l) {
+    for (int l = 0; l < data[0]->getNumLevel(INCLUDE_HALF_LEVEL); ++l) {
         for (int m = 0; m < mesh.getDomain().getNumDim(); ++m) {
             data[m]->getLevel(l).reshape(mesh.getNumGrid(0, staggerTypes[m][0], true),
                                          mesh.getNumGrid(1, staggerTypes[m][1]),

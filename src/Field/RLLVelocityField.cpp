@@ -26,7 +26,7 @@ void PolarRing::create(const Mesh &mesh, bool hasHalfLevel) {
         vr[i] = new TimeLevels<SphereVelocity, 2>*[this->mesh->getNumGrid(2, CENTER)];
         for (int k = 0; k < this->mesh->getNumGrid(2, CENTER); ++k) {
             vr[i][k] = new TimeLevels<SphereVelocity, 2>(hasHalfLevel);
-            for (int l = 0; l < vr[i][k]->getNumLevel(); ++l) {
+            for (int l = 0; l < vr[i][k]->getNumLevel(INCLUDE_HALF_LEVEL); ++l) {
                 vr[i][k]->getLevel(l).setNumDim(mesh.getDomain().getNumDim());
             }
         }
@@ -91,14 +91,9 @@ void PolarRing::update(int timeLevel, Pole pole, TimeLevels<cube, 2> **data,
     // -------------------------------------------------------------------------
     // update half level
     if (updateHalfLevel && vr[0][0]->hasHalfLevel()) {
-        if (vr[0][0]->getNumLevel() != 3) { // including half level
-            REPORT_ERROR("Sorry, GeoMTK does not support half-time-level "
-                         "when there are more than two time levels!");
-        }
         for (int i = -1; i < mesh->getNumGrid(0, CENTER)+1; ++i) {
             for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-                vr[i+1][k]->getLevel(2) = (vr[i+1][k]->getLevel(0)+
-                                           vr[i+1][k]->getLevel(1))*0.5;
+                vr[i+1][k]->updateHalfLevel();
             }
         }
     }
