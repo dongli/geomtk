@@ -45,6 +45,29 @@ protected:
     }
 };
 
+TEST_F(RLLMeshIndexTest, AssignmentOperator) {
+    RLLMeshIndex a(3), b(3);
+
+    a.onPole = true;
+    a.inPolarCap = true;
+    a.pole = NORTH_POLE;
+    a.moveOnPole = true;
+
+    b = a;
+
+    ASSERT_EQ(a.onPole, b.onPole);
+    ASSERT_EQ(a.inPolarCap, b.inPolarCap);
+    ASSERT_EQ(a.pole, b.pole);
+    ASSERT_EQ(a.moveOnPole, b.moveOnPole);
+}
+
+TEST_F(RLLMeshIndexTest, Basic) {
+    RLLMeshIndex a(2);
+
+    a.toggleMoveOnPole();
+    ASSERT_EQ(true, a.isMoveOnPole());
+}
+
 //     \      -      |      +      |      +      |      +      |      +      |      +      \      -
 // -0.4*PI          0.0         0.4*PI        0.8*PI        1.2*PI        1.6*PI        2.0*PI
 //        -0.2*PI        0.2*PI        0.6*PI        1.0*PI        1.4*PI        1.8*PI        2.2*PI
@@ -104,20 +127,6 @@ TEST_F(RLLMeshIndexTest, Locate) {
     ASSERT_EQ(NORTH_POLE, (*index).getPole());
     ASSERT_EQ(true, (*index).isInPolarCap());
     ASSERT_EQ(true, (*index).isOnPole());
-}
-
-TEST_F(RLLMeshIndexTest, AssignmentOperator) {
-    RLLMeshIndex a(3), b(3);
-
-    a.onPole = true;
-    a.inPolarCap = true;
-    a.pole = NORTH_POLE;
-
-    b = a;
-
-    ASSERT_EQ(a.onPole, b.onPole);
-    ASSERT_EQ(a.inPolarCap, b.inPolarCap);
-    ASSERT_EQ(a.pole, b.pole);
 }
 
 #endif

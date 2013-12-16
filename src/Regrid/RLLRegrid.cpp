@@ -163,8 +163,11 @@ void RLLRegrid::run(RegridMethod method, int timeLevel, const RLLVelocityField &
             int i = (*idx)(0, CENTER);
             double z1 = mesh.getGridCoord(2, EDGE, k);
             double z2 = mesh.getGridCoord(2, EDGE, k+1);
-            double c = z2-x(2);
+            double c = (z2-x(2))/(z2-z1);
             y(2) = c*f(timeLevel, 2, i, j, k)+(1.0-c)*f(timeLevel, 2, i, j, k+1);
+        }
+        if (!idx->isMoveOnPole()) {
+            y.transformFromPS(x);
         }
     } else {
         if (method == BILINEAR) {
@@ -217,6 +220,9 @@ void RLLRegrid::run(RegridMethod method, int timeLevel, const RLLVelocityField &
             }
         } else {
             REPORT_ERROR("Under construction!");
+        }
+        if (idx->isMoveOnPole()) {
+            y.transformToPS(x);
         }
     }
     if (idx_ == NULL) {

@@ -14,6 +14,11 @@ void RLLMeshIndex::reset() {
     pole = NOT_POLE;
     inPolarCap = false;
     onPole = false;
+    moveOnPole = false;
+}
+
+void RLLMeshIndex::toggleMoveOnPole() {
+    moveOnPole = true;
 }
 
 RLLMeshIndex& RLLMeshIndex::operator=(const RLLMeshIndex &other) {
@@ -22,6 +27,7 @@ RLLMeshIndex& RLLMeshIndex::operator=(const RLLMeshIndex &other) {
         pole = other.pole;
         inPolarCap = other.inPolarCap;
         onPole = other.onPole;
+        moveOnPole = other.moveOnPole;
     }
     return *this;
 }
@@ -36,6 +42,10 @@ bool RLLMeshIndex::isInPolarCap() const {
 
 bool RLLMeshIndex::isOnPole() const {
     return onPole;
+}
+
+bool RLLMeshIndex::isMoveOnPole() const {
+    return moveOnPole;
 }
 
 void RLLMeshIndex::locate(const Mesh &mesh_, const SpaceCoord &x) {
@@ -73,6 +83,7 @@ void RLLMeshIndex::print() const {
     } else if (pole == NOT_POLE) {
         cout << "NOT_POLE" << endl;
     }
+    cout << "moveOnPole: " << moveOnPole << endl;
 }
 
 }

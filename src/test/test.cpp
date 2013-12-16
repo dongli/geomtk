@@ -1,3 +1,5 @@
+#define UNIT_TEST
+
 #include "gtest/gtest.h"
 #include "Time_test.h"
 #include "Domain_test.h"

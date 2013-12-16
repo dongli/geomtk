@@ -58,7 +58,7 @@ protected:
 //      -0.375*PI     -0.125*PI      0.125*PI      0.375*PI
 
 TEST_F(RLLRegridTest, Run) {
-    v->create(EDGE, CENTER, CENTER, EDGE);
+    v->create(C_GRID);
     for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
         for (int i = 0; i < mesh->getNumGrid(0, EDGE); ++i) {
             (*v)(0, 0, i, j) = 5.0;
@@ -80,15 +80,31 @@ TEST_F(RLLRegridTest, Run) {
     regrid->run(BILINEAR, 0, *v, x, z);
     ASSERT_EQ(5.0, z(0));
     ASSERT_EQ(5.0, z(1));
-    
+
+    // When 'moveOnPole' is true, the interpolated transformed velocity is
+    // transformed back.
+    z(0) = 0.0;
+    z(1) = 0.0;
     x(0) = 0.1*M_PI;
     x(1) = 0.26*M_PI;
-    regrid->run(BILINEAR, 0, *v, x, z);
-    // z.print();
-    z.transformFromPS(x);
-    // z.print();
-    ASSERT_EQ(5.0, z(0));
-    ASSERT_EQ(5.0, z(1));
+    RLLMeshIndex idx(2);
+    idx.locate(*mesh, x);
+    idx.toggleMoveOnPole(); // set 'moveOnPole' to true
+    regrid->run(BILINEAR, 0, *v, x, z, &idx);
+    ASSERT_EQ(0.0, z(0));
+    ASSERT_EQ(0.0, z(1));
+
+    // When 'moveOnPole' is false, the interpolated transformed velocity is
+    // not transformed back.
+    z(0) = 0.0;
+    z(1) = 0.0;
+    x(0) = 0.1*M_PI;
+    x(1) = 0.26*M_PI;
+    idx.reset();
+    idx.locate(*mesh, x);
+    regrid->run(BILINEAR, 0, *v, x, z, &idx);
+    ASSERT_NE(0.0, z(0));
+    ASSERT_NE(0.0, z(1));
 }
 
 #endif

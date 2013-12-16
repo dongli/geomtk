@@ -107,30 +107,18 @@ add_custom_target (uninstall
 
 # ------------------------------------------------------------------------------
 # testing target
-if (CMAKE_BUILD_TYPE MATCHES DEBUG)
-    include (CTest)
-    enable_testing ()
-    add_subdirectory ("${PROJECT_SOURCE_DIR}/external/gtest-1.7.0")
+add_subdirectory ("${PROJECT_SOURCE_DIR}/external/gtest-1.7.0")
 
-    foreach (dir ${source_directories})
-        if (EXISTS "${dir}/test")
-            include_directories ("${dir}/test")
-        endif (EXISTS "${dir}/test")
-    endforeach ()
-    include_directories (${gtest_SOURCE_DIR} ${gtest_SOURCE_DIR}/include)
+foreach (dir ${source_directories})
+    if (EXISTS "${dir}/test")
+        include_directories ("${dir}/test")
+    endif (EXISTS "${dir}/test")
+endforeach ()
+include_directories (${gtest_SOURCE_DIR} ${gtest_SOURCE_DIR}/include)
 
-    add_executable (geomtk_test "${PROJECT_SOURCE_DIR}/src/test/test.cpp")
-    target_link_libraries (geomtk_test
-        ${NETCDF_LIBRARIES}
-        gtest gtest_main
-        geomtk
-    )
-
-    set_target_properties (geomtk geomtk_test
-        PROPERTIES COMPILE_FLAGS "-DUNIT_TEST"
-    )
-    add_test (
-        NAME geomtk_test
-        COMMAND geomtk_test
-    )
-endif ()
+add_executable (test_geomtk "${PROJECT_SOURCE_DIR}/src/test/test.cpp")
+target_link_libraries (test_geomtk
+    ${NETCDF_LIBRARIES}
+    gtest gtest_main
+    geomtk
+)
