@@ -85,15 +85,15 @@ void RLLTensorField::calcFromVector(const RLLVectorField &vector,
     for (int k = 0; k < mesh.getNumGrid(2, CENTER); ++k) {
         for (int j = 1; j < mesh.getNumGrid(1, CENTER)-1; ++j) {
             double RcosLat = R*mesh.getCosLat(CENTER, j);
-            double dlat0 = mesh.getGridInterval(1, CENTER, j);
-            double dlat1 = mesh.getGridInterval(1, EDGE, j-1);
-            double dlat2 = mesh.getGridInterval(1, EDGE,   j);
+            double dlat0 = mesh.getGridInterval(1, EDGE, j);
+            double dlat1 = mesh.getGridInterval(1, CENTER, j-1);
+            double dlat2 = mesh.getGridInterval(1, CENTER,   j);
             double tanLat0 = mesh.getTanLat(CENTER, j);
             double tanLat1 = mesh.getTanLat(EDGE, j-1);
             double tanLat2 = mesh.getTanLat(EDGE,   j);
             for (int i = 0; i < mesh.getNumGrid(0, CENTER); ++i) {
                 // =============================================================
-                double dlon = mesh.getGridInterval(0, CENTER, i);
+                double dlon = mesh.getGridInterval(0, EDGE, i);
                 double u1 = vector(timeLevel, 0, i-1, j-1, k);
                 double u2 = vector(timeLevel, 0,   i, j-1, k);
                 double u3 = vector(timeLevel, 0, i-1,   j, k);
