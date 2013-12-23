@@ -24,7 +24,7 @@ public:
     /**
      *  Toggle 'moveOnPole' boolean.
      */
-    void toggleMoveOnPole();
+    void setMoveOnPole(bool moveOnPole);
 
     Pole getPole() const;
     bool isInPolarCap() const;

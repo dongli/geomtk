@@ -52,12 +52,32 @@ public:
      *  @param staggerType     the grid stagger type.
      *  @param hasVirtualGrids flag for enclosing virtual boundary grids.
      *
-     *  @return The grid coordinates
+     *  @return The grid coordinates.
      */
     vec getGridCoords(int dim, StaggerType staggerType,
                       bool hasVirtualGrids = false) const;
 
+    /**
+     *  Return the grid coordinate along an axis and with a given grid index.
+     *
+     *  @param dim         the dimension index.
+     *  @param staggerType the grid stagger type.
+     *  @param i           the grid index.
+     *
+     *  @return The grid coordinate.
+     */
     double getGridCoord(int dim, StaggerType staggerType, int i) const;
+
+    /**
+     *  Return the grid interval along an axis and with a given grid index.
+     *
+     *  @param dim         the dimension index.
+     *  @param staggerType the grid stagger type.
+     *  @param i           the grid index.
+     *
+     *  @return The grid interval.
+     */
+    double getGridInterval(int dim, StaggerType staggerType, int i) const;
 
     /**
      *  Return the grid number.
@@ -70,7 +90,7 @@ public:
      *  @param staggerType     the grid stagger type.
      *  @param hasVirtualGrids flag for enclosing virtual boundary grids.
      *
-     *  @return The grid number
+     *  @return The grid number.
      */
     int getNumGrid(int dim, StaggerType staggerType,
                    bool hasVirtualGrids = false) const;

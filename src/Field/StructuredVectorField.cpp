@@ -5,7 +5,7 @@ namespace geomtk {
 StructuredVectorField::StructuredVectorField(const Mesh &mesh, bool hasHalfLevel)
     : Field(mesh, hasHalfLevel) {
     if (dynamic_cast<const StructuredMesh*>(&mesh) == NULL) {
-        REPORT_ERROR("Mesh should be StructuredMesh!")
+        REPORT_ERROR("Mesh should be StructuredMesh!");
     }
     for (int i = 0; i < 3; ++i) {
         data[i] = new TimeLevels<cube, 2>(hasHalfLevel);
@@ -23,7 +23,7 @@ StructuredVectorField::StructuredVectorField(const string &name,
                                              bool hasHalfLevel)
     : Field(name, units, longName, mesh, hasHalfLevel) {
     if (dynamic_cast<const StructuredMesh*>(&mesh) == NULL) {
-        REPORT_ERROR("Mesh should be StructuredMesh!")
+        REPORT_ERROR("Mesh should be StructuredMesh!");
     }
     for (int i = 0; i < 3; ++i) {
         data[i] = new TimeLevels<cube, 2>(hasHalfLevel);
@@ -53,8 +53,10 @@ void StructuredVectorField::applyBndCond(int timeLevel, bool updateHalfLevel) {
             int nz = data[m]->getLevel(0).n_slices;
             for (int k = 0; k < nz; ++k) {
                 for (int j = 0; j < ny; ++j) {
-                    data[m]->getLevel(timeLevel)(0, j, k) = data[m]->getLevel(timeLevel)(nx-2, j, k);
-                    data[m]->getLevel(timeLevel)(nx-1, j, k) = data[m]->getLevel(timeLevel)(1, j, k);
+                    data[m]->getLevel(timeLevel)(0, j, k) =
+                        data[m]->getLevel(timeLevel)(nx-2, j, k);
+                    data[m]->getLevel(timeLevel)(nx-1, j, k) =
+                        data[m]->getLevel(timeLevel)(1, j, k);
                 }
             }
         }
@@ -112,7 +114,7 @@ void StructuredVectorField::create(StaggerType uXStaggerType,
     staggerTypes[0][1] = uYStaggerType;
     staggerTypes[1][0] = vXStaggerType;
     staggerTypes[1][1] = vYStaggerType;
-    const StructuredMesh &mesh = dynamic_cast<const StructuredMesh&>(*(this->mesh));
+    const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
     for (int l = 0; l < data[0]->getNumLevel(INCLUDE_HALF_LEVEL); ++l) {
         for (int m = 0; m < mesh.getDomain().getNumDim(); ++m) {
             data[m]->getLevel(l).reshape(mesh.getNumGrid(0, staggerTypes[m][0], true),
@@ -180,8 +182,8 @@ void StructuredVectorField::convert(ArakawaGrid gridType, int timeLevel,
         if (mesh.getDomain().getAxisStartBndType(0) == PERIODIC) {
             for (int j = 0; j < mesh.getNumGrid(1, CENTER); ++j) {
                 for (int i = 0; i < mesh.getNumGrid(0, CENTER); ++i) {
-                    u(i, j, 0) = (data[0]->getLevel(timeLevel)(  i, j, 0)+
-                                  data[0]->getLevel(timeLevel)(i+1, j, 0))*0.5;
+                    u(i, j, 0) = ((*this)(timeLevel, 0, i-1, j)+
+                                  (*this)(timeLevel, 0,   i, j))*0.5;
                 }
             }
         } else {
@@ -190,8 +192,8 @@ void StructuredVectorField::convert(ArakawaGrid gridType, int timeLevel,
         if (mesh.getDomain().getAxisStartBndType(1) == POLE) {
             for (int j = 1; j < mesh.getNumGrid(1, CENTER)-1; ++j) {
                 for (int i = 0; i < mesh.getNumGrid(0, CENTER); ++i) {
-                    v(i, j, 0) = (data[1]->getLevel(timeLevel)(i,   j, 0)+
-                                  data[1]->getLevel(timeLevel)(i, j-1, 0))*0.5;
+                    v(i, j, 0) = ((*this)(timeLevel, 1, i,   j)+
+                                  (*this)(timeLevel, 1, i, j-1))*0.5;
                 }
             }
         } else {
@@ -296,6 +298,10 @@ double& StructuredVectorField::operator()(int timeLevel, int dim, int i, int j, 
         J = j;
     }
     return data[dim]->getLevel(timeLevel)(I, J, k);
+}
+
+ArakawaGrid StructuredVectorField::getGridType() const {
+    return gridType;
 }
 
 StaggerType StructuredVectorField::getStaggerType(int comp, int dim) const {

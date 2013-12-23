@@ -22,48 +22,99 @@ StructuredMesh::~StructuredMesh() {
     delete [] equidistant;
 }
 
-void StructuredMesh::setGridCoords(int dim, int size, double *full, double *half) {
+void StructuredMesh::setGridCoords(int dim, int size,
+                                   double *full, double *half) {
     // sanity check
     if (dim >= domain->getNumDim()) {
-        REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension (" << domain->getNumDim() << ")!");
+        REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension ("
+                     << domain->getNumDim() << ")!");
     }
+    // -------------------------------------------------------------------------
     if (domain->getAxisStartBndType(dim) == PERIODIC) {
         fullCoords[dim].resize(size+2);
         halfCoords[dim].resize(size+2);
         fullIntervals[dim].resize(size+1);
         halfIntervals[dim].resize(size+1);
-        for (int i = 0; i < size-1; ++i) {
-            fullIntervals[dim](i+1) = half[i+1]-half[i];
-            halfIntervals[dim](i+1) = full[i+1]-full[i];
-        }
-        for (int i = 0; i < size; ++i) {
-            fullCoords[dim](i+1) = full[i];
-            halfCoords[dim](i+1) = half[i];
-        }
-        // add virtual grids at two ends for periodic boundary condition
         if (full[0] == domain->getAxisStart(dim)) {
-            fullIntervals[dim](size) = domain->getAxisEnd(dim)-full[size-1];
-            fullIntervals[dim](0) = fullIntervals[dim](size);
-            halfIntervals[dim](0) = domain->getAxisSpan(dim)-half[size-1]+half[0];
-            halfIntervals[dim](size) = halfIntervals[dim](0);
-            fullCoords[dim](0) = domain->getAxisStart(dim)-fullIntervals[dim](size);
+            /*
+             o - full grid   0 - virtual full grid
+             * - half grid   x - virtual half grid
+             
+             size = 4
+              _______________________________________
+             |                                       |
+             |    0         1         2         3    |    4         5
+             0         1         2         3         4         5
+             0----x----o----*----o----*----o----*----o----*----0----x
+                       |                                       |
+                       |_______________________________________|
+                     start                                    end
+             */
+            // =================================================================
+            fullCoords[dim](0) = full[0]-domain->getAxisEnd(dim)+full[size-1];
+            halfCoords[dim](0) = half[size-1]-domain->getAxisSpan(dim);
+            for (int i = 0; i < size; ++i) {
+                fullCoords[dim](i+1) = full[i];
+                halfCoords[dim](i+1) = half[i];
+            }
             fullCoords[dim](size+1) = domain->getAxisEnd(dim);
-            halfCoords[dim](0) = half[0]-halfIntervals[dim](0);
-            halfCoords[dim](size+1) = half[size-1]+halfIntervals[dim](size);
+            halfCoords[dim](size+1) = domain->getAxisSpan(dim)+half[0];
+            // =================================================================
+            for (int i = 1; i < size+1; ++i) {
+                fullIntervals[dim](i) = halfCoords[dim](i)-halfCoords[dim](i-1);
+            }
+            fullIntervals[dim](0) = fullIntervals[dim](size);
+            for (int i = 0; i < size; ++i) {
+                halfIntervals[dim](i) = fullCoords[dim](i+1)-fullCoords[dim](i);
+            }
+            halfIntervals[dim](size) = halfIntervals[dim](0);
         } else if (half[0] == domain->getAxisStart(dim)) {
-            fullIntervals[dim](0) = domain->getAxisSpan(dim)-full[size-1]+full[0];
-            fullIntervals[dim](size) = fullIntervals[dim](0);
-            halfIntervals[dim](size) = domain->getAxisEnd(dim)-half[size-1];
-            halfIntervals[dim](0) = halfIntervals[dim](size);
-            fullCoords[dim](0) = full[0]-fullIntervals[dim](0);
-            fullCoords[dim](size+1) = full[size-1]+fullIntervals[dim](size);
-            halfCoords[dim](0) = domain->getAxisStart(dim)-halfIntervals[dim](size);
+            /*
+             o - full grid   0 - virtual full grid
+             * - half grid   x - virtual half grid
+             
+             size = 4
+              _______________________________________
+             |                                       |
+             |    0         1         2         3    |    4         5
+             0         1         2         3         4         5
+             x----0----*----o----*----o----*----o----*----o----x----0
+                       |                                       |
+                       |_______________________________________|
+                     start                                    end
+             */
+            // =================================================================
+            fullCoords[dim](0) = full[size-1]-domain->getAxisSpan(dim);
+            halfCoords[dim](0) = half[0]-domain->getAxisEnd(dim)+half[size-1];
+            for (int i = 0; i < size; ++i) {
+                fullCoords[dim](i+1) = full[i];
+                halfCoords[dim](i+1) = half[i];
+            }
+            fullCoords[dim](size+1) = domain->getAxisSpan(dim)+full[0];
             halfCoords[dim](size+1) = domain->getAxisEnd(dim);
+            // =================================================================
+            for (int i = 0; i < size; ++i) {
+                fullIntervals[dim](i) = halfCoords[dim](i+1)-halfCoords[dim](i);
+            }
+            fullIntervals[dim](size) = fullIntervals[dim](0);
+            for (int i = 1; i < size+1; ++i) {
+                halfIntervals[dim](i) = fullCoords[dim](i)-fullCoords[dim](i-1);
+            }
+            halfIntervals[dim](0) = halfIntervals[dim](size);
         } else {
-            REPORT_ERROR("Don't know how to handle input grid coordinates of dimension " << dim << "!");
+            REPORT_ERROR("Don't know how to handle input grid coordinates "
+                         "of dimension " << dim << "!");
         }
-    } else if (domain->getAxisStartBndType(dim) == POLE ||
-               domain->getAxisStartBndType(dim) == RIGID) {
+//        for (int i = 0; i < size+2; ++i) {
+//            cout << setw(10) << fullCoords[dim](i)/RAD << setw(10) << halfCoords[dim](i)/RAD << endl;
+//        }
+//        for (int i = 0; i < size+1; ++i) {
+//            cout << setw(10) << fullIntervals[dim](i)/RAD << setw(10) << halfIntervals[dim](i)/RAD << endl;
+//        }
+    }
+    // -------------------------------------------------------------------------
+    else if (domain->getAxisStartBndType(dim) == POLE ||
+             domain->getAxisStartBndType(dim) == RIGID) {
         if (full[0] == domain->getAxisStart(dim) &&
             full[size-1] == domain->getAxisEnd(dim)) {
             fullCoords[dim].resize(size);
@@ -107,11 +158,16 @@ void StructuredMesh::setGridCoords(int dim, int size, double *full, double *half
         } else {
             REPORT_ERROR("Unhandled branch!");
         }
-    } else if (domain->getAxisStartBndType(dim) == INVALID) {
+    }
+    // -------------------------------------------------------------------------
+    else if (domain->getAxisStartBndType(dim) == INVALID) {
         REPORT_ERROR("Axis " << dim << " is not set!");
-    } else {
+    }
+    // -------------------------------------------------------------------------
+    else {
         REPORT_ERROR("Unhandled branch!");
     }
+    // -------------------------------------------------------------------------
     // check if grids are equidistant
     for (int i = 1; i < fullIntervals[dim].size(); ++i) {
         if (fullIntervals[dim](i) != fullIntervals[dim](0)) {
@@ -125,13 +181,7 @@ void StructuredMesh::setGridCoords(int dim, int size, double *full, double *half
             break;
         }
     }
-    // check if grids are equidistant
-    for (int i = 1; i < fullIntervals[dim].size(); ++i) {
-        if (fullIntervals[dim](i) != fullIntervals[dim](0)) {
-            equidistant[dim] = false;
-            break;
-        }
-    }
+    // -------------------------------------------------------------------------
     // mark the set status
     set = true;
     for (int m = 0; m < domain->getNumDim(); ++m) {
@@ -238,6 +288,34 @@ double StructuredMesh::getGridCoord(int dim, StaggerType staggerType, int i) con
                 return fullCoords[dim](i);
             case EDGE: case VERTEX:
                 return halfCoords[dim](i);
+            default:
+                REPORT_ERROR("Unknown stagger type!");
+        }
+    }
+}
+    
+double StructuredMesh::getGridInterval(int dim, StaggerType staggerType,
+                                       int i) const {
+    // sanity check
+    if (dim >= domain->getNumDim()) {
+        REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension ("
+                     << domain->getNumDim() << ")!");
+    }
+    if (domain->getAxisStartBndType(dim) == PERIODIC) {
+        switch (staggerType) {
+            case CENTER:
+                return fullIntervals[dim](i+1);
+            case EDGE: case VERTEX:
+                return halfIntervals[dim](i+1);
+            default:
+                REPORT_ERROR("Unknown stagger type!");
+        }
+    } else {
+        switch (staggerType) {
+            case CENTER:
+                return fullIntervals[dim](i);
+            case EDGE: case VERTEX:
+                return halfIntervals[dim](i);
             default:
                 REPORT_ERROR("Unknown stagger type!");
         }

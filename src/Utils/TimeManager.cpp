@@ -322,7 +322,7 @@ Time& Time::operator=(const Time &other) {
 }
 
 bool Time::operator==(const Time &other) const {
-    static const double eps = 1.0e-15;
+    static const double eps = 1.0e-12;
     if (year == other.year && month == other.month &&
         day == other.day && hour == other.hour &&
         minute == other.minute && abs(second-other.second) < eps) {

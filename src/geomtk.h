@@ -28,6 +28,7 @@
 #include "Field.h"
 #include "StructuredScalarField.h"
 #include "StructuredVectorField.h"
+#include "StructuredTensorField.h"
 #include "RLLScalarField.h"
 #include "RLLVectorField.h"
 #include "RLLVelocityField.h"

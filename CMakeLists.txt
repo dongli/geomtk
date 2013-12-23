@@ -39,12 +39,12 @@ endif ()
 # collect sources and headers
 foreach (dir ${source_directories})
     include_directories ("${dir}")
-    # source files
-    aux_source_directory ("${dir}" tmp1)
-    list (APPEND sources ${tmp1})
     # header files
-    file (GLOB tmp2 "${dir}/*.h")
-    list (APPEND headers ${tmp2})
+    file (GLOB tmp1 "${dir}/*.h")
+    list (APPEND headers ${tmp1})
+    # source files
+    aux_source_directory ("${dir}" tmp2)
+    list (APPEND sources ${tmp2})
 endforeach ()
 
 # ------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ find_package (NETCDF COMPONENTS C)
 
 # ------------------------------------------------------------------------------
 # library targets
-add_library (geomtk STATIC ${sources})
+add_library (geomtk STATIC ${headers} ${sources})
 include_directories (
     ${ARMADILLO_INCLUDE_DIRS}
     ${NETCDF_INCLUDE_DIRS}
@@ -81,29 +81,27 @@ target_link_libraries (geomtk
 
 # ------------------------------------------------------------------------------
 # install rules
-install (TARGETS geomtk
-    EXPORT geomtk-targets
-    ARCHIVE DESTINATION lib
-)
-install (EXPORT geomtk-targets
-    DESTINATION lib/geomtk
-)
-foreach (header ${headers})
-    install (FILES ${header}
-        DESTINATION "include/geomtk"
-    )
-endforeach ()
+if (${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
+    install (TARGETS geomtk ARCHIVE DESTINATION lib)
+    foreach (header ${headers})
+        install (FILES ${header}
+            DESTINATION "include/geomtk"
+        )
+    endforeach ()
+endif ()
 
 # ------------------------------------------------------------------------------
 # uninstall rules
-configure_file (
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-    IMMEDIATE @ONLY
-)
-add_custom_target (uninstall
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
-)
+if (${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
+    configure_file (
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+        IMMEDIATE @ONLY
+    )
+    add_custom_target (uninstall
+        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
+    )
+endif ()
 
 # ------------------------------------------------------------------------------
 # testing target
@@ -112,11 +110,13 @@ add_subdirectory ("${PROJECT_SOURCE_DIR}/external/gtest-1.7.0")
 foreach (dir ${source_directories})
     if (EXISTS "${dir}/test")
         include_directories ("${dir}/test")
+        file (GLOB tmp1 "${dir}/test/*.h")
+        list (APPEND test_headers ${tmp1})
     endif (EXISTS "${dir}/test")
 endforeach ()
 include_directories (${gtest_SOURCE_DIR} ${gtest_SOURCE_DIR}/include)
 
-add_executable (test_geomtk "${PROJECT_SOURCE_DIR}/src/test/test.cpp")
+add_executable (test_geomtk ${test_headers} "${PROJECT_SOURCE_DIR}/src/test/test.cpp")
 target_link_libraries (test_geomtk
     ${NETCDF_LIBRARIES}
     gtest gtest_main

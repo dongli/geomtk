@@ -17,8 +17,8 @@ void RLLMeshIndex::reset() {
     moveOnPole = false;
 }
 
-void RLLMeshIndex::toggleMoveOnPole() {
-    moveOnPole = true;
+void RLLMeshIndex::setMoveOnPole(bool moveOnPole) {
+    this->moveOnPole = moveOnPole;
 }
 
 RLLMeshIndex& RLLMeshIndex::operator=(const RLLMeshIndex &other) {

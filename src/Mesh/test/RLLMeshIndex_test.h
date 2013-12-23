@@ -64,7 +64,7 @@ TEST_F(RLLMeshIndexTest, AssignmentOperator) {
 TEST_F(RLLMeshIndexTest, Basic) {
     RLLMeshIndex a(2);
 
-    a.toggleMoveOnPole();
+    a.setMoveOnPole(true);
     ASSERT_EQ(true, a.isMoveOnPole());
 }
 

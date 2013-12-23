@@ -89,7 +89,7 @@ TEST_F(RLLRegridTest, Run) {
     x(1) = 0.26*M_PI;
     RLLMeshIndex idx(2);
     idx.locate(*mesh, x);
-    idx.toggleMoveOnPole(); // set 'moveOnPole' to true
+    idx.setMoveOnPole(true);
     regrid->run(BILINEAR, 0, *v, x, z, &idx);
     ASSERT_EQ(0.0, z(0));
     ASSERT_EQ(0.0, z(1));

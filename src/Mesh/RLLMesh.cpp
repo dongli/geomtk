@@ -34,23 +34,30 @@ void RLLMesh::setGridCoords(int dim, int size, double *full, double *half) {
     cosLatHalf.resize(halfCoords[1].size());
     sinLatHalf.resize(halfCoords[1].size());
     sinLatHalf2.resize(halfCoords[1].size());
-    for (int i = 0; i < fullCoords[0].size(); ++i) {
-        cosLonFull(i) = cos(fullCoords[0](i));
-        sinLonFull(i) = sin(fullCoords[0](i));
-    }
-    for (int i = 0; i < halfCoords[0].size(); ++i) {
-        cosLonHalf(i) = cos(halfCoords[0](i));
-        sinLonHalf(i) = sin(halfCoords[0](i));
-    }
-    for (int j = 0; j < fullCoords[1].size(); ++j) {
-        cosLatFull(j) = cos(fullCoords[1](j));
-        sinLatFull(j) = sin(fullCoords[1](j));
-        sinLatFull2(j) = sinLatFull(j)*sinLatFull(j);
-    }
-    for (int j = 0; j < halfCoords[1].size(); ++j) {
-        cosLatHalf(j) = cos(halfCoords[1](j));
-        sinLatHalf(j) = sin(halfCoords[1](j));
-        sinLatHalf2(j) = sinLatHalf(j)*sinLatHalf(j);
+    tanLatFull.resize(fullCoords[1].size());
+    tanLatHalf.resize(halfCoords[1].size());
+    if (dim == 0) {
+        for (int i = 0; i < fullCoords[0].size(); ++i) {
+            cosLonFull(i) = cos(fullCoords[0](i));
+            sinLonFull(i) = sin(fullCoords[0](i));
+        }
+        for (int i = 0; i < halfCoords[0].size(); ++i) {
+            cosLonHalf(i) = cos(halfCoords[0](i));
+            sinLonHalf(i) = sin(halfCoords[0](i));
+        }
+    } else if (dim == 1) {
+        for (int j = 0; j < fullCoords[1].size(); ++j) {
+            cosLatFull(j) = cos(fullCoords[1](j));
+            sinLatFull(j) = sin(fullCoords[1](j));
+            sinLatFull2(j) = sinLatFull(j)*sinLatFull(j);
+            tanLatFull(j) = tan(fullCoords[1](j));
+        }
+        for (int j = 0; j < halfCoords[1].size(); ++j) {
+            cosLatHalf(j) = cos(halfCoords[1](j));
+            sinLatHalf(j) = sin(halfCoords[1](j));
+            sinLatHalf2(j) = sinLatHalf(j)*sinLatHalf(j);
+            tanLatHalf(j) = tan(halfCoords[1](j));
+        }
     }
 }
 
@@ -72,30 +79,39 @@ double RLLMesh::getSinLon(StaggerType staggerType, int i) const {
     }
 }
 
-double RLLMesh::getCosLat(StaggerType staggerType, int i) const {
+double RLLMesh::getCosLat(StaggerType staggerType, int j) const {
     switch (staggerType) {
         case CENTER:
-            return cosLatFull(i);
+            return cosLatFull(j);
         case EDGE: case VERTEX:
-            return cosLatHalf(i);
+            return cosLatHalf(j);
     }
 }
 
-double RLLMesh::getSinLat(StaggerType staggerType, int i) const {
+double RLLMesh::getSinLat(StaggerType staggerType, int j) const {
     switch (staggerType) {
         case CENTER:
-            return sinLatFull(i);
+            return sinLatFull(j);
         case EDGE: case VERTEX:
-            return sinLatHalf(i);
+            return sinLatHalf(j);
     }
 }
 
-double RLLMesh::getSinLat2(StaggerType staggerType, int i) const {
+double RLLMesh::getSinLat2(StaggerType staggerType, int j) const {
     switch (staggerType) {
         case CENTER:
-            return sinLatFull2(i);
+            return sinLatFull2(j);
         case EDGE: case VERTEX:
-            return sinLatHalf2(i);
+            return sinLatHalf2(j);
+    }
+}
+
+double RLLMesh::getTanLat(StaggerType staggerType, int j) const {
+    switch (staggerType) {
+        case CENTER:
+            return tanLatFull(j);
+        case EDGE: case VERTEX:
+            return tanLatHalf(j);
     }
 }
 

@@ -15,6 +15,7 @@ protected:
     vec cosLonHalf, sinLonHalf;
     vec cosLatFull, sinLatFull, sinLatFull2;
     vec cosLatHalf, sinLatHalf, sinLatHalf2;
+    vec tanLatFull, tanLatHalf;
     double poleRadius; // virtual effective radius of pole
 public:
     RLLMesh(Domain &domain);
@@ -30,6 +31,7 @@ public:
     double getCosLat(StaggerType staggerType, int j) const;
     double getSinLat(StaggerType staggerType, int j) const;
     double getSinLat2(StaggerType staggerType, int j) const;
+    double getTanLat(StaggerType staggerType, int j) const;
 
     void move(const SphereCoord &x0, double dt, const SphereVelocity &v,
               const RLLMeshIndex &idx, SphereCoord &x1) const;

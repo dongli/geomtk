@@ -82,6 +82,7 @@ public:
     double operator()(int timeLevel, int dim, int i, int j, int k = 0) const;
     double& operator()(int timeLevel, int dim, int i, int j, int k = 0);
 
+    virtual ArakawaGrid getGridType() const;
     virtual StaggerType getStaggerType(int comp, int dim) const;
 };
 
