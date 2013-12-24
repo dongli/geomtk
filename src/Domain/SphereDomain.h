@@ -109,6 +109,22 @@ public:
     virtual double calcDistance(const SpaceCoord &x, double lon,
                                 double sinLat, double cosLat) const;
 
+    /**
+     *  Transform the given space coordinate 'xo' into a rotated spherical
+     *  coordinate system with North Pole coordinate in original one as 'xp'.
+     *  The output is put in 'xr'
+     *
+     *  @param xp the rotated North Pole coordinate.
+     *  @param xo the given space coordinate.
+     *  @param xr the transformed space coordinate.
+     *
+     *  @return None (in 'xr').
+     */
+    virtual void rotate(const SpaceCoord &xp, const SpaceCoord &xo,
+                        SpaceCoord &xr) const;
+    virtual void rotateBack(const SpaceCoord &xp, SpaceCoord &xo,
+                            const SpaceCoord &xr) const;
+
     virtual string getBrief() const;
 };
 

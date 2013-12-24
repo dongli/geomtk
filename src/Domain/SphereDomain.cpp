@@ -202,6 +202,73 @@ double SphereDomain::calcDistance(const SpaceCoord &x, double lon,
     return radius*acos(tmp3);
 }
 
+void SphereDomain::rotate(const SpaceCoord &xp, const SpaceCoord &xo,
+                          SpaceCoord &xr) const {
+    double dlon = xo(0)-xp(0);
+    double cosLatP = cos(xp(1));
+    double sinLatP = sin(xp(1));
+    double cosLatO = cos(xo(1));
+    double sinLatO = sin(xo(1));
+    double cosDlon = cos(dlon);
+    double sinDlon = sin(dlon);
+
+    double tmp1, tmp2, tmp3;
+
+    tmp1 = cosLatO*sinDlon;
+    tmp2 = cosLatO*sinLatP*cosDlon-cosLatP*sinLatO;
+    xr(0) = atan2(tmp1, tmp2);
+    if (xr(0) < 0.0) xr(0) += PI2;
+
+    tmp1 = sinLatO*sinLatP;
+    tmp2 = cosLatO*cosLatP*cosDlon;
+    tmp3 = tmp1+tmp2;
+#ifdef DEBUG
+    if (tmp3 < -1.0 || tmp3 > 1.0) {
+        if (fabs(tmp3)-1.0 < EPS) {
+            REPORT_WARNING("tmp3 is out of range [-1, 1]!");
+        } else
+            REPORT_ERROR("tmp3 is out of range [-1, 1]!");
+    }
+#endif
+    tmp3 = fmin(1.0, fmax(-1.0, tmp3));
+    xr(1) = asin(tmp3);
+}
+    
+void SphereDomain::rotateBack(const SpaceCoord &xp, SpaceCoord &xo,
+                              const SpaceCoord &xr) const {
+    double cosLatP = cos(xp(1));
+    double sinLatP = sin(xp(1));
+    double cosLonR = cos(xr(0));
+    double sinLonR = sin(xr(0));
+    double cosLatR = cos(xr(1));
+    double sinLatR = sin(xr(1));
+    
+    double tmp1, tmp2, tmp3;
+    
+    tmp1 = cosLatR*sinLonR;
+    tmp2 = sinLatR*cosLatP+cosLatR*cosLonR*sinLatP;
+#ifdef DEBUG
+    static const double eps = 1.0e-15;
+    if (fabs(tmp2) < eps) {
+        //REPORT_WARNING("tmp2 is near zero!")
+        tmp2 = 0.0;
+    }
+#endif
+    xo(0) = xp(0)+atan2(tmp1, tmp2);
+    if (xo(0) > PI2) xo(0) -= PI2;
+    if (xo(0) < 0.0) xo(0) += PI2;
+    
+    tmp1 = sinLatR*sinLatP;
+    tmp2 = cosLatR*cosLatP*cosLonR;
+    tmp3 = tmp1-tmp2;
+#ifdef DEBUG
+    if (tmp3 < -1.0 || tmp3 > 1.0)
+        REPORT_ERROR("tmp3 is out of range [-1,1]!");
+#endif
+    tmp3 = fmin(1.0, fmax(-1.0, tmp3));
+    xo(1) = asin(tmp3);
+}
+
 string SphereDomain::getBrief() const {
     string brief = "sphere domain";
     return brief;

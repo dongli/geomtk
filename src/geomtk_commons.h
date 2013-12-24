@@ -45,6 +45,20 @@ inline string getFunctionName(const string &str) {
     }
     return str.substr(i, j-i);
 }
+    
+inline string getClassName(const string &str) {
+    size_t j = str.rfind("::");
+    assert(j != string::npos);
+    size_t i = j-1;
+    while (i > 0) {
+        if (str.at(i) == ' ') {
+            i++;
+            break;
+        }
+        i--;
+    }
+    return str.substr(i, j-i);
+}
 
 #define REPORT_ERROR(MESSAGE) \
 { \
@@ -67,6 +81,20 @@ inline string getFunctionName(const string &str) {
     std::cout << "[Warning]: "; \
     std::cout << geomtk::getFunctionName(__PRETTY_FUNCTION__) << ": "; \
     std::cout << MESSAGE << std::endl; \
+}
+
+#define REPORT_ONLINE \
+{ \
+    std::cout << "[Notice]: "; \
+    std::cout << geomtk::getClassName(__PRETTY_FUNCTION__) << " is online."; \
+    std::cout << std::endl; \
+}
+    
+#define REPORT_OFFLINE \
+{ \
+    std::cout << "[Notice]: "; \
+    std::cout << geomtk::getClassName(__PRETTY_FUNCTION__) << " is offline."; \
+    std::cout << std::endl; \
 }
 
 #define CHECK_POINT \
