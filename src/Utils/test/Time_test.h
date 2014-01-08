@@ -112,8 +112,8 @@ TEST(Time, Operators) {
     ASSERT_EQ(a.month, c.month);
     ASSERT_EQ(a.day, c.day);
     ASSERT_EQ(a.hour, c.hour);
-    ASSERT_GT(1.0e-13, abs(a.minute+6-c.minute));
-    ASSERT_GT(1.0e-13, abs(a.second+40.0-c.second));
+    ASSERT_GT(1.0e-13, fabs(a.minute+6-c.minute));
+    ASSERT_GT(1.0e-13, fabs(a.second+40.0-c.second));
 
     c = a+86400*52;
     ASSERT_EQ(a.year, c.year);
@@ -121,7 +121,7 @@ TEST(Time, Operators) {
     ASSERT_EQ(3, c.day);
     ASSERT_EQ(0, c.hour);
     ASSERT_EQ(0, c.minute);
-    ASSERT_GT(1.0e-9, abs(a.second-c.second));
+    ASSERT_GT(1.0e-9, fabs(a.second-c.second));
 
     c = a+60*31+40;
     ASSERT_EQ(a.year, c.year);
@@ -129,7 +129,7 @@ TEST(Time, Operators) {
     ASSERT_EQ(a.day, c.day);
     ASSERT_EQ(a.hour, c.hour);
     ASSERT_EQ(a.minute+31, c.minute);
-    ASSERT_GT(1.0e-13, abs(a.second+40-c.second));
+    ASSERT_GT(1.0e-13, fabs(a.second+40-c.second));
 }
 
 #endif

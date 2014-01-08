@@ -111,7 +111,7 @@ TEST_F(RLLMeshTest, Move) {
 
     v(0) = PI2;
     mesh->move(x0, dt, v, idx, x1);
-    ASSERT_GT(1.0e-15, abs(x0(0)+v(0)*dt-x1(0)));
+    ASSERT_GT(1.0e-15, fabs(x0(0)+v(0)*dt-x1(0)));
     ASSERT_EQ(x0(1), x1(1));
 
     x0(1) = 89.5*RAD;
@@ -121,8 +121,8 @@ TEST_F(RLLMeshTest, Move) {
     idx.reset();
     idx.locate(*mesh, x0);
     mesh->move(x0, dt, v, idx, x1);
-    ASSERT_GT(1.0e-15, abs(x0(0)-x1(0)));
-    ASSERT_GT(1.0e-15, abs(x0(1)-x1(1)));
+    ASSERT_GT(1.0e-15, fabs(x0(0)-x1(0)));
+    ASSERT_GT(1.0e-15, fabs(x0(1)-x1(1)));
 
     v(0) = 1.0*RAD;
     v.transformToPS(x0);

@@ -201,6 +201,22 @@ double SphereDomain::calcDistance(const SpaceCoord &x, double lon,
     double tmp3 = min(1.0, max(-1.0, tmp1+tmp2));
     return radius*acos(tmp3);
 }
+    
+vec SphereDomain::diffCoord(const SpaceCoord &x,
+                            const SpaceCoord &y) const {
+    vec d(numDim);
+    for (int m = 0; m < numDim; ++m) {
+        d(m) = x(m)-y(m);
+    }
+    if (fabs(d(0)) > M_PI_2) {
+        if (d(0) > 0.0) {
+            d(0) -= PI2;
+        } else {
+            d(0) += PI2;
+        }
+    }
+    return d;
+}
 
 void SphereDomain::rotate(const SpaceCoord &xp, const SpaceCoord &xo,
                           SpaceCoord &xr) const {

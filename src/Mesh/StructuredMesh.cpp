@@ -1,4 +1,5 @@
 #include "StructuredMesh.h"
+#include "StructuredMeshIndex.h"
 
 namespace geomtk {
 
@@ -162,7 +163,7 @@ void StructuredMesh::setGridCoords(int dim, int size,
                 o - full grid
                 * - half grid
              
-                size = 6
+                size = 5
              
                      0         1         2         3         4
                 0         1         2         3         4         5
@@ -176,8 +177,8 @@ void StructuredMesh::setGridCoords(int dim, int size,
              */
             fullCoords[dim].resize(size);
             halfCoords[dim].resize(size+1);
-            fullIntervals[dim].resize(size);
-            halfIntervals[dim].resize(size+1);
+            fullIntervals[dim].resize(size+1);
+            halfIntervals[dim].resize(size);
             // =================================================================
             for (int i = 0; i < size; ++i) {
                 fullCoords[dim](i) = full[i];
@@ -187,7 +188,7 @@ void StructuredMesh::setGridCoords(int dim, int size,
             }
             // =================================================================
             for (int i = 1; i < size; ++i) {
-                fullIntervals[dim](i) = full[i+1]-full[i];
+                fullIntervals[dim](i) = full[i]-full[i-1];
             }
             fullIntervals[dim](0) = full[0]-domain->getAxisStart(dim);
             fullIntervals[dim](size) = domain->getAxisEnd(dim)-full[size-1];
@@ -332,7 +333,15 @@ double StructuredMesh::getGridCoord(int dim, StaggerType staggerType, int i) con
         }
     }
 }
-    
+
+void StructuredMesh::getGridCoord(StaggerType staggerType,
+                                  const StructuredMeshIndex &idx,
+                                  SpaceCoord &x) const {
+    for (int m = 0; m < domain->getNumDim(); ++m) {
+        x(m) = getGridCoord(m, staggerType, idx(m, staggerType));
+    }
+}
+
 double StructuredMesh::getGridInterval(int dim, StaggerType staggerType,
                                        int i) const {
     // sanity check

@@ -17,6 +17,10 @@ double& SpaceCoord::operator()(int i) {
     return coords(i);
 }
 
+const vec& SpaceCoord::operator()() const {
+    return coords;
+}
+    
 vec& SpaceCoord::operator()() {
     return coords;
 }
@@ -27,6 +31,14 @@ void SpaceCoord::print() const {
         cout << setw(20) << coords(i);
     }
     cout << endl;
+}
+
+// -----------------------------------------------------------------------------
+
+BodyCoord::BodyCoord(int numDim) : SpaceCoord(numDim) {
+}
+    
+BodyCoord::~BodyCoord() {
 }
 
 // -----------------------------------------------------------------------------
@@ -192,6 +204,10 @@ BndType Domain::getAxisEndBndType(int dim) const {
 
 double Domain::calcDistance(const SpaceCoord &x, const SpaceCoord &y) const {
     REPORT_ERROR("Domain does not implement this method!");
+}
+    
+vec Domain::diffCoord(const SpaceCoord &x, const SpaceCoord &y) const {
+    return x()-y();
 }
 
 string Domain::getBrief() const {

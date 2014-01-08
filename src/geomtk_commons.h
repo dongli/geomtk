@@ -26,7 +26,6 @@ using std::ostream;
 
 using std::string;
 using std::vector;
-using std::abs;
 using std::min;
 using std::max;
 

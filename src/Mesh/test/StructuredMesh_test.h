@@ -62,7 +62,7 @@ TEST_F(StructuredMeshTest, SetEquidistantGrids) {
     ASSERT_EQ(numLat-1, lat2.size());
     ASSERT_EQ(lat1(0)+dlat*0.5, lat2(0));
     // NOTE: The equality is not exact!
-    EXPECT_GT(1.0e-15, std::abs(lat1(numLat-1)-dlat*0.5-lat2(numLat-2)));
+    EXPECT_GT(1.0e-15, fabs(lat1(numLat-1)-dlat*0.5-lat2(numLat-2)));
     ASSERT_EQ(true, mesh->isEquidistant(0));
     ASSERT_EQ(false, mesh->isEquidistant(1));
 }
@@ -75,8 +75,8 @@ TEST_F(StructuredMeshTest, SetInequidistantGrids) {
     ASSERT_EQ(7, mesh->getNumGrid(0, CENTER, true));
     ASSERT_EQ(7, mesh->getNumGrid(0, EDGE, true));
     ASSERT_EQ(-230.0*RAD, mesh->getGridCoord(0, CENTER, -1));
-    ASSERT_GT(1.0e-15, abs(-210.0*RAD-mesh->getGridCoord(0, EDGE, -1)));
-//    ASSERT_GT(1.0e-15, abs(230.0*RAD-mesh->getGridInterval(0, EDGE, -1)));
+    ASSERT_GT(1.0e-15, fabs(-210.0*RAD-mesh->getGridCoord(0, EDGE, -1)));
+//    ASSERT_GT(1.0e-15, fabs(230.0*RAD-mesh->getGridInterval(0, EDGE, -1)));
 }
 
 #endif

@@ -10,10 +10,8 @@ enum BndType {
 };
 
 /**
- * SpaceCoord
- * This class describes the space coordinate of a point.
+ *  This class describes the space coordinate of a point.
  */
-
 class SpaceCoord {
 protected:
     vec coords;
@@ -21,11 +19,21 @@ public:
     SpaceCoord(int numDim);
     virtual ~SpaceCoord();
 
-    double operator()(int i) const;
-    double& operator()(int i);
-    vec& operator()();
+    virtual double operator()(int i) const;
+    virtual double& operator()(int i);
+    virtual const vec& operator()() const;
+    virtual vec& operator()();
 
     virtual void print() const;
+};
+
+/**
+ *  This class describes the body coordinate referenced to a point.
+ */
+class BodyCoord : public SpaceCoord {
+public:
+    BodyCoord(int numDim);
+    virtual ~BodyCoord();
 };
 
 // -----------------------------------------------------------------------------
@@ -79,7 +87,8 @@ public:
     virtual BndType getAxisEndBndType(int dim) const;
 
     virtual double calcDistance(const SpaceCoord &x, const SpaceCoord &y) const;
-
+    virtual vec diffCoord(const SpaceCoord &x, const SpaceCoord &y) const;
+    
     virtual string getBrief() const;
 };
 

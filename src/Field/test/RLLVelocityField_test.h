@@ -83,8 +83,8 @@ TEST_F(RLLVelocityFieldTest, CreateAndSet) {
             SphereVelocity u(2);
             u = v->rings[l].vr[i+1][0]->getLevel(0);
             u.transformFromPS(x);
-            ASSERT_GT(1.0e-15, abs(v->rings[l].getOriginalData(0, 0, i)-u(0)));
-            ASSERT_GT(1.0e-15, abs(v->rings[l].getOriginalData(0, 1, i)-u(1)));
+            ASSERT_GT(1.0e-15, fabs(v->rings[l].getOriginalData(0, 0, i)-u(0)));
+            ASSERT_GT(1.0e-15, fabs(v->rings[l].getOriginalData(0, 1, i)-u(1)));
         }
     }}
 

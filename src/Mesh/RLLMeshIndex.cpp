@@ -62,7 +62,7 @@ void RLLMeshIndex::locate(const Mesh &mesh_, const SpaceCoord &x) {
         pole = NOT_POLE;
         inPolarCap = false;
     }
-    double r = M_PI_2-abs(x(1));
+    double r = M_PI_2-fabs(x(1));
     if (r < mesh.getPoleRadius()) {
         onPole = true;
         pole = x(1) < 0.0 ? SOUTH_POLE : NORTH_POLE;

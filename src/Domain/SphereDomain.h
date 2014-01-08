@@ -109,6 +109,8 @@ public:
     virtual double calcDistance(const SpaceCoord &x, double lon,
                                 double sinLat, double cosLat) const;
 
+    virtual vec diffCoord(const SpaceCoord &x, const SpaceCoord &y) const;
+    
     /**
      *  Transform the given space coordinate 'xo' into a rotated spherical
      *  coordinate system with North Pole coordinate in original one as 'xp'.

@@ -49,16 +49,16 @@ void RLLTensorField::create() {
                    |   o---------x---------o---------x---------o
                        i-1,j-1   i-1,j-1   i,j-1     i,j-1     i+1,j-1
 
-                                    ---------------------
-                                            dlon
+                                 ---------------------
+                                          dlon
 
 
                   [    1   ∂u   w   v             1 ∂u          ∂u   ]
                   [  ----- -- + - + - tanφ        - --          --   ]
                   [  Rcosφ ∂λ   R   R             R ∂𝜑          ∂r   ]
-            ∇V =  [                                                  ]
+                  [                                                  ]
                   [      1   ∂v   u             1 ∂v   w        ∂v   ]
-                  [    ----- -- - - tanφ        - -- + -        --   ]
+            ∇V =  [    ----- -- - - tanφ        - -- + -        --   ]
                   [    Rcosφ ∂λ   R             R ∂φ   R        ∂r   ]
                   [                                                  ]
                   [        1  ∂w   u            1 ∂w   v        ∂w   ]
@@ -118,6 +118,29 @@ void RLLTensorField::calcFromVector(const RLLVectorField &vector,
                 (*this)(timeLevel, 0, 1, i, j, k) = dudlat+utanLat_R;
                 (*this)(timeLevel, 1, 0, i, j, k) = dvdlon;
                 (*this)(timeLevel, 1, 1, i, j, k) = dvdlat+vtanLat_R;
+            }
+        }
+        // ---------------------------------------------------------------------
+        // set all the tensor components on j = 1 and numLat-2 to j = 2 and
+        // numLat-3, because these two zonal grids are so close to Poles that
+        // the calculation on them is very inaccurate.
+        for (int k = 0; k < mesh.getNumGrid(2, CENTER); ++k) {
+            int j1, j2;
+            j1 = 1;
+            j2 = 2;
+            for (int i = 0; i < mesh.getNumGrid(0, CENTER); ++i) {
+                (*this)(timeLevel, 0, 0, i, j1, k) = (*this)(timeLevel, 0, 0, i, j2, k);
+                (*this)(timeLevel, 0, 1, i, j1, k) = (*this)(timeLevel, 0, 1, i, j2, k);
+                (*this)(timeLevel, 1, 0, i, j1, k) = (*this)(timeLevel, 1, 0, i, j2, k);
+                (*this)(timeLevel, 1, 1, i, j1, k) = (*this)(timeLevel, 1, 1, i, j2, k);
+            }
+            j1 = mesh.getNumGrid(1, CENTER)-2;
+            j2 = mesh.getNumGrid(1, CENTER)-3;
+            for (int i = 0; i < mesh.getNumGrid(0, CENTER); ++i) {
+                (*this)(timeLevel, 0, 0, i, j1, k) = (*this)(timeLevel, 0, 0, i, j2, k);
+                (*this)(timeLevel, 0, 1, i, j1, k) = (*this)(timeLevel, 0, 1, i, j2, k);
+                (*this)(timeLevel, 1, 0, i, j1, k) = (*this)(timeLevel, 1, 0, i, j2, k);
+                (*this)(timeLevel, 1, 1, i, j1, k) = (*this)(timeLevel, 1, 1, i, j2, k);
             }
         }
     }

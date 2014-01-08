@@ -4,6 +4,8 @@
 #include "Mesh.h"
 
 namespace geomtk {
+    
+class StructuredMeshIndex;
 
 class StructuredMesh : public Mesh {
 protected:
@@ -67,6 +69,16 @@ public:
      *  @return The grid coordinate.
      */
     double getGridCoord(int dim, StaggerType staggerType, int i) const;
+
+    /**
+     *  Return the coordinate of specific grid.
+     *
+     *  @param staggerType the grid stagger type.
+     *  @param idx         the mesh index.
+     *  @param x           the grid coordinate.
+     */
+    void getGridCoord(StaggerType staggerType, const StructuredMeshIndex &idx,
+                      SpaceCoord &x) const;
 
     /**
      *  Return the grid interval along an axis and with a given grid index.
