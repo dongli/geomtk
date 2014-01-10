@@ -85,9 +85,6 @@ protected:
     Time startTime, currTime, endTime;
     double stepSize;
     int numStep;
-    int oldLevel;
-    int halfLevel;
-    int newLevel;
 public:
     TimeManager();
     ~TimeManager();
@@ -100,9 +97,6 @@ public:
     double getStepSize() const;
     int getNumStep() const;
     double getSeconds() const;
-    int getOldLevel() const;
-    int getHalfLevel() const;
-    int getNewLevel() const;
 };
 
 }

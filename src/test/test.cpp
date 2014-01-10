@@ -1,6 +1,7 @@
 #define UNIT_TEST
 
 #include "gtest/gtest.h"
+#include "TimeLevels_test.h"
 #include "Time_test.h"
 #include "Domain_test.h"
 #include "SphereDomain_test.h"
@@ -9,8 +10,7 @@
 #include "StructuredMeshIndex_test.h"
 #include "RLLMesh_test.h"
 #include "RLLMeshIndex_test.h"
-#include "RLLScalarField_test.h"
-#include "RLLVectorField_test.h"
+#include "RLLField_test.h"
 #include "RLLVelocityField_test.h"
 #include "StructuredRegrid_test.h"
 #include "RLLRegrid_test.h"

@@ -7,11 +7,14 @@
 
 namespace geomtk {
 
+enum FieldType {
+    ScalarField, VectorField
+};
+
 #define UPDATE_HALF_LEVEL true
 
 /**
- * Field
- * This is the base class for describing field on a mesh.
+ *  This is the base class for describing field on a mesh.
  */
 
 class Field {
@@ -20,22 +23,16 @@ protected:
     string units;
     string longName;
     const Mesh *mesh;
+    bool hasHalfLevel;
 public:
     Field(const Mesh &mesh, bool hasHalfLevel = false);
     Field(const string &name, const string &units, const string &longName,
           const Mesh &mesh, bool hasHalfLevel = false);
     virtual ~Field();
 
-    /**
-     * Apply the boundary conditions.
-     * @param timeLevel the time level.
-     */
-    virtual void applyBndCond(int timeLevel, bool updateHalfLevel = false) = 0;
+    virtual void applyBndCond(const TimeLevelIndex<2> &timeIdx,
+                              bool updateHalfLevel = false) = 0;
 
-    /**
-     * Return the underlying mesh.
-     * @return The mesh object.
-     */
     const Mesh& getMesh() const;
 };
 

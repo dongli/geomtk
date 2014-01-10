@@ -239,8 +239,9 @@ void SphereDomain::rotate(const SpaceCoord &xp, const SpaceCoord &xo,
     tmp2 = cosLatO*cosLatP*cosDlon;
     tmp3 = tmp1+tmp2;
 #ifdef DEBUG
+    static const double eps = 1.0e-15;
     if (tmp3 < -1.0 || tmp3 > 1.0) {
-        if (fabs(tmp3)-1.0 < EPS) {
+        if (fabs(tmp3)-1.0 < eps) {
             REPORT_WARNING("tmp3 is out of range [-1, 1]!");
         } else
             REPORT_ERROR("tmp3 is out of range [-1, 1]!");

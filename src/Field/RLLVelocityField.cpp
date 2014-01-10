@@ -3,67 +3,64 @@
 namespace geomtk {
 
 PolarRing::PolarRing() {
-    vr = NULL;
 }
 
 PolarRing::~PolarRing() {
-    if (vr != NULL) {
-        for (int i = 0; i < mesh->getNumGrid(0, CENTER, true); ++i) {
-            for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-                delete vr[i][k];
+    if (vr.size() > 0) {
+        for (int k = 0; k < vr.n_cols; ++k) {
+            for (int i = 0; i < vr.n_rows; ++i) {
+                delete vr(i, k);
             }
-            delete [] vr[i];
         }
-        delete [] vr;
     }
 }
 
-void PolarRing::create(const Mesh &mesh, bool hasHalfLevel) {
+void PolarRing::create(const RLLMesh &mesh, bool hasHalfLevel) {
     assert(mesh.isSet());
-    this->mesh = static_cast<const RLLMesh*>(&mesh);
-    vr = new TimeLevels<SphereVelocity, 2>**[this->mesh->getNumGrid(0, CENTER, true)];
-    for (int i = 0; i < this->mesh->getNumGrid(0, CENTER, true); ++i) {
-        vr[i] = new TimeLevels<SphereVelocity, 2>*[this->mesh->getNumGrid(2, CENTER)];
-        for (int k = 0; k < this->mesh->getNumGrid(2, CENTER); ++k) {
-            vr[i][k] = new TimeLevels<SphereVelocity, 2>(hasHalfLevel);
-            for (int l = 0; l < vr[i][k]->getNumLevel(INCLUDE_HALF_LEVEL); ++l) {
-                vr[i][k]->getLevel(l).setNumDim(mesh.getDomain().getNumDim());
+    this->mesh = &mesh;
+    vr.set_size(mesh.getNumGrid(0, CENTER, true), mesh.getNumGrid(2, CENTER));
+    for (int k = 0; k < vr.n_cols; ++k) {
+        for (int i = 0; i < vr.n_rows; ++i) {
+            vr(i, k) = new TimeLevels<SphereVelocity, 2>(hasHalfLevel);
+            for (int l = 0; l < vr(i, k)->getNumLevel(INCLUDE_HALF_LEVEL); ++l) {
+                vr(i, k)->getLevel(l).setNumDim(mesh.getDomain().getNumDim());
             }
         }
     }
 }
 
-void PolarRing::update(int timeLevel, Pole pole, TimeLevels<cube, 2> **data,
+void PolarRing::update(const TimeLevelIndex<2> &timeIdx, Pole pole,
+                       const field<TimeLevels<field<double>, 2>*> &data,
                        bool updateHalfLevel) {
     // ring variable is at A-grids
     int nx = mesh->getNumGrid(0, CENTER, true);
     int j = pole == SOUTH_POLE ? 1 : mesh->getNumGrid(1, CENTER)-2; // off the Pole
-    for (int i = 1; i < mesh->getNumGrid(0, CENTER, true)-1; ++i) {
-        for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-            vr[i][k]->getLevel(timeLevel)(0) =
-                (data[0]->getLevel(timeLevel)(i-1, j, k)+
-                 data[0]->getLevel(timeLevel)(  i, j, k))*0.5;
+    for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
+        for (int i = 1; i < mesh->getNumGrid(0, CENTER, true)-1; ++i) {
+            vr(i, k)->getLevel(timeIdx)(0) =
+                (data(0)->getLevel(timeIdx)(i-1, j, k)+
+                 data(0)->getLevel(timeIdx)(  i, j, k))*0.5;
         }
     }
     // periodic boundary condition
     for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-        vr[0][k]->getLevel(timeLevel)(0) = vr[nx-2][k]->getLevel(timeLevel)(0);
-        vr[nx-1][k]->getLevel(timeLevel)(0) = vr[1][k]->getLevel(timeLevel)(0);
+        vr(0, k)->getLevel(timeIdx)(0) = vr(nx-2, k)->getLevel(timeIdx)(0);
+        vr(nx-1, k)->getLevel(timeIdx)(0) = vr(1, k)->getLevel(timeIdx)(0);
     }
     j = pole == SOUTH_POLE ? 0 : mesh->getNumGrid(1, EDGE)-2;
-    for (int i = 0; i < mesh->getNumGrid(0, CENTER, true); ++i) {
-        for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-            vr[i][k]->getLevel(timeLevel)(1) =
-                (data[1]->getLevel(timeLevel)(i, j,   k)+
-                 data[1]->getLevel(timeLevel)(i, j+1, k))*0.5;
+    for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
+        for (int i = 0; i < mesh->getNumGrid(0, CENTER, true); ++i) {
+            vr(i, k)->getLevel(timeIdx)(1) =
+                (data(1)->getLevel(timeIdx)(i, j,   k)+
+                 data(1)->getLevel(timeIdx)(i, j+1, k))*0.5;
         }
     }
     if (mesh->getDomain().getNumDim() == 3) {
-        for (int i = 0; i < mesh->getNumGrid(0, CENTER, true); ++i) {
-            for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-                vr[i][k]->getLevel(timeLevel)(2) =
-                    (data[2]->getLevel(timeLevel)(i, j, k)+
-                     data[2]->getLevel(timeLevel)(i, j, k+1))*0.5;
+        for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
+            for (int i = 0; i < mesh->getNumGrid(0, CENTER, true); ++i) {
+                vr(i, k)->getLevel(timeIdx)(2) =
+                    (data(2)->getLevel(timeIdx)(i, j, k)+
+                     data(2)->getLevel(timeIdx)(i, j, k+1))*0.5;
             }
         }
     }
@@ -73,43 +70,49 @@ void PolarRing::update(int timeLevel, Pole pole, TimeLevels<cube, 2> **data,
     j = pole == SOUTH_POLE ? 1 : mesh->getNumGrid(1, CENTER)-2;
     sinLat = mesh->getSinLat(CENTER, j);
     sinLat2 = mesh->getSinLat2(CENTER, j);
-    for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
-        cosLon = mesh->getCosLon(CENTER, i);
-        sinLon = mesh->getSinLon(CENTER, i);
-        for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-            vr[i+1][k]->getLevel(timeLevel)
+    for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
+        for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
+            cosLon = mesh->getCosLon(CENTER, i);
+            sinLon = mesh->getSinLon(CENTER, i);
+            vr(i+1, k)->getLevel(timeIdx)
                 .transformToPS(sinLat, sinLat2, sinLon, cosLon);
         }
     }
     // periodic boundary condition
     for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
         for (int m = 0; m < mesh->getDomain().getNumDim(); ++m) {
-            vr[0][k]->getLevel(timeLevel)[m] = vr[nx-2][k]->getLevel(timeLevel)[m];
-            vr[nx-1][k]->getLevel(timeLevel)[m] = vr[1][k]->getLevel(timeLevel)[m];
+            vr(0, k)->getLevel(timeIdx)[m] = vr(nx-2, k)->getLevel(timeIdx)[m];
+            vr(nx-1, k)->getLevel(timeIdx)[m] = vr(1, k)->getLevel(timeIdx)[m];
         }
     }
     // -------------------------------------------------------------------------
     // update half level
-    if (updateHalfLevel && vr[0][0]->hasHalfLevel()) {
-        for (int i = -1; i < mesh->getNumGrid(0, CENTER)+1; ++i) {
-            for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-                vr[i+1][k]->updateHalfLevel();
+    if (updateHalfLevel && vr(0, 0)->hasHalfLevel()) {
+        TimeLevelIndex<2> halfTimeIdx = timeIdx-0.5;
+        TimeLevelIndex<2> oldTimeIdx = timeIdx-1;
+        for (int k = 0; k < vr.n_cols; ++k) {
+            for (int i = 0; i < vr.n_rows; ++i) {
+                vr(i, k)->getLevel(halfTimeIdx) =
+                    (vr(i, k)->getLevel(oldTimeIdx)+
+                     vr(i, k)->getLevel(timeIdx))*0.5;
             }
         }
     }
 }
 
-double PolarRing::getOriginalData(int timeLevel, int dim, int i, int k) const {
-    return vr[i+1][k]->getLevel(timeLevel)(dim);
+double PolarRing::getOriginalData(int dim, const TimeLevelIndex<2> &timeIdx,
+                                  int i, int k) const {
+    return vr(i+1, k)->getLevel(timeIdx)(dim);
 }
 
-double PolarRing::getTransformedData(int timeLevel, int dim, int i, int k) const {
-    return vr[i+1][k]->getLevel(timeLevel)[dim];
+double PolarRing::getTransformedData(int dim, const TimeLevelIndex<2> &timeIdx,
+                                     int i, int k) const {
+    return vr(i+1, k)->getLevel(timeIdx)[dim];
 }
 
 void PolarRing::print() const {
-    int l = 0;
-    cout << "---------------------------------------------------------------" << endl;
+    TimeLevelIndex<2> timeIdx;
+    cout << "---------------------------------------------------------" << endl;
     cout << "Reorganized original velocity:" << endl;
     cout << "dim";
     for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
@@ -120,12 +123,13 @@ void PolarRing::print() const {
         cout << setw(2) << m << ":";
         for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
             for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-                cout << setw(10) << setprecision(2) << getOriginalData(l, m, i, k);
+                cout << setw(10) << setprecision(2);
+                cout << getOriginalData(m, timeIdx, i, k);
             }
         }
         cout << endl;
     }
-    cout << "---------------------------------------------------------------" << endl;
+    cout << "---------------------------------------------------------" << endl;
     cout << "Transformed velocity:" << endl;
     cout << "dim";
     for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
@@ -136,7 +140,8 @@ void PolarRing::print() const {
         cout << setw(2) << m << ":";
         for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
             for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-                cout << setw(10) << setprecision(2) << getTransformedData(l, m, i, k);
+                cout << setw(10) << setprecision(2);
+                cout << getTransformedData(m, timeIdx, i, k);
             }
         }
         cout << endl;
@@ -146,56 +151,32 @@ void PolarRing::print() const {
 // -----------------------------------------------------------------------------
 
 RLLVelocityField::RLLVelocityField(const Mesh &mesh, bool hasHalfLevel)
-    : RLLVectorField(mesh, hasHalfLevel) {
+: RLLField<double>(mesh, hasHalfLevel) {
     this->hasHalfLevel = hasHalfLevel;
 }
     
 RLLVelocityField::RLLVelocityField(const string &name, const string &units,
                                    const string &longName, const Mesh &mesh,
                                    bool hasHalfLevel)
-    : RLLVectorField(name, units, longName, mesh, hasHalfLevel) {
+: RLLField<double>(name, units, longName, mesh, hasHalfLevel) {
     this->hasHalfLevel = hasHalfLevel;
 }
 
 RLLVelocityField::~RLLVelocityField() {
 }
 
-void RLLVelocityField::applyBndCond(int timeLevel, bool updateHalfLevel) {
-    RLLVectorField::applyBndCond(timeLevel, updateHalfLevel);
-    rings[0].update(timeLevel, SOUTH_POLE, data, updateHalfLevel);
-    rings[1].update(timeLevel, NORTH_POLE, data, updateHalfLevel);
+void RLLVelocityField::applyBndCond(const TimeLevelIndex<2> &timeIdx,
+                                    bool updateHalfLevel) {
+    RLLField<double>::applyBndCond(timeIdx, updateHalfLevel);
+    rings[0].update(timeIdx, SOUTH_POLE, data, updateHalfLevel);
+    rings[1].update(timeIdx, NORTH_POLE, data, updateHalfLevel);
 }
     
-void RLLVelocityField::create(ArakawaGrid gridType) {
-    RLLVectorField::create(gridType);
-    rings[0].create(*mesh, hasHalfLevel);
-    rings[1].create(*mesh, hasHalfLevel);
-}
-
-void RLLVelocityField::create(StaggerType uLonStaggerType,
-                              StaggerType uLatStaggerType,
-                              StaggerType vLonStaggerType,
-                              StaggerType vLatStaggerType) {
-    RLLVectorField::create(uLonStaggerType, uLatStaggerType,
-                           vLonStaggerType, vLatStaggerType);
-    rings[0].create(*mesh, hasHalfLevel);
-    rings[1].create(*mesh, hasHalfLevel);
-}
-
-void RLLVelocityField::create(StaggerType uLonStaggerType,
-                              StaggerType uLatStaggerType,
-                              StaggerType uLevStaggerType,
-                              StaggerType vLonStaggerType,
-                              StaggerType vLatStaggerType,
-                              StaggerType vLevStaggerType,
-                              StaggerType wLonStaggerType,
-                              StaggerType wLatStaggerType,
-                              StaggerType wLevStaggerType) {
-    RLLVectorField::create(uLonStaggerType, uLatStaggerType, uLevStaggerType,
-                           vLonStaggerType, vLatStaggerType, vLevStaggerType,
-                           wLonStaggerType, wLatStaggerType, wLevStaggerType);
-    rings[0].create(*mesh, hasHalfLevel);
-    rings[1].create(*mesh, hasHalfLevel);
+void RLLVelocityField::create(int numDim, ArakawaGrid gridType) {
+    RLLField<double>::create(VectorField, numDim, gridType);
+    const RLLMesh &mesh = static_cast<const RLLMesh&>(*this->mesh);
+    rings[0].create(mesh, hasHalfLevel);
+    rings[1].create(mesh, hasHalfLevel);
 }
 
 const PolarRing& RLLVelocityField::getPolarRing(Pole pole) const {

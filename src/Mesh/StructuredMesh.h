@@ -1,5 +1,5 @@
-#ifndef __StructuredMesh__
-#define __StructuredMesh__
+#ifndef __Geomtk_StructuredMesh__
+#define __Geomtk_StructuredMesh__
 
 #include "Mesh.h"
 

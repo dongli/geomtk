@@ -16,6 +16,7 @@ using arma::vec;
 using arma::mat;
 using arma::cube;
 using arma::span;
+using arma::field;
 
 using std::cout;
 using std::endl;

@@ -1,5 +1,5 @@
-#ifndef __StructuredMeshIndex__
-#define __StructuredMeshIndex__
+#ifndef __Geomtk_StructuredMeshIndex__
+#define __Geomtk_StructuredMeshIndex__
 
 #include "MeshIndex.h"
 #include "StructuredMesh.h"

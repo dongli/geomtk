@@ -1,5 +1,5 @@
-#ifndef __Domain__
-#define __Domain__
+#ifndef __Geomtk_Domain__
+#define __Geomtk_Domain__
 
 #include "geomtk_commons.h"
 

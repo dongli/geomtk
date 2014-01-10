@@ -1,5 +1,5 @@
-#ifndef __MeshIndex__
-#define __MeshIndex__
+#ifndef __Geomtk_MeshIndex__
+#define __Geomtk_MeshIndex__
 
 #include "geomtk_commons.h"
 #include "Mesh.h"

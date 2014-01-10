@@ -1,5 +1,5 @@
-#ifndef __Regrid__
-#define __Regrid__
+#ifndef __Geomtk_Regrid__
+#define __Geomtk_Regrid__
 
 #include "geomtk_commons.h"
 #include "Mesh.h"
@@ -22,13 +22,8 @@ class Regrid {
 protected:
     const Mesh *mesh;
 public:
-    Regrid(const Mesh &mesh);
-    virtual ~Regrid();
-
-    virtual void run(RegridMethod method, int timeLevel, const Field &f,
-                     const SpaceCoord &x, double &y, MeshIndex *idx = NULL) = 0;
-    virtual void run(RegridMethod method, int timeLevel, const Field &f,
-                     const SpaceCoord &x, vec &y, MeshIndex *idx = NULL) = 0;
+    Regrid(const Mesh &mesh) { this->mesh = &mesh; }
+    virtual ~Regrid() {}
 };
 
 }

@@ -7,6 +7,7 @@ Field::Field(const Mesh &mesh, bool hasHalfLevel) {
     this->units = "N/A";
     this->longName = "N/A";
     this->mesh = &mesh;
+    this->hasHalfLevel = hasHalfLevel;
 }
 
 Field::Field(const string &name, const string &units, const string &longName,
@@ -15,6 +16,7 @@ Field::Field(const string &name, const string &units, const string &longName,
     this->units = units;
     this->longName = longName;
     this->mesh = &mesh;
+    this->hasHalfLevel = hasHalfLevel;
 }
     
 Field::~Field() {

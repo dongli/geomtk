@@ -379,9 +379,6 @@ TimeManager::TimeManager() {
     currTime.useLeap = useLeap;
     endTime.useLeap = useLeap;
     numStep = 0;
-    oldLevel = 0;
-    newLevel = 1;
-    halfLevel = 2;
 }
 
 TimeManager::~TimeManager() {
@@ -400,9 +397,6 @@ void TimeManager::init(Time startTime, Time endTime, double stepSize) {
 
 void TimeManager::advance() {
     numStep++;
-    int tmp = oldLevel;
-    oldLevel = newLevel;
-    newLevel = tmp;
     currTime += stepSize;
     REPORT_NOTICE(currTime);
 }
@@ -429,18 +423,6 @@ double TimeManager::getStepSize() const {
 
 int TimeManager::getNumStep() const {
     return numStep;
-}
-
-int TimeManager::getOldLevel() const {
-    return oldLevel;
-}
-
-int TimeManager::getHalfLevel() const {
-    return halfLevel;
-}
-
-int TimeManager::getNewLevel() const {
-    return newLevel;
 }
 
 }

@@ -27,11 +27,8 @@
 #include "RLLMeshIndex.h"
 // Field class hierarchy
 #include "Field.h"
-#include "StructuredScalarField.h"
-#include "StructuredVectorField.h"
-#include "StructuredTensorField.h"
-#include "RLLScalarField.h"
-#include "RLLVectorField.h"
+#include "StructuredField.h"
+#include "RLLField.h"
 #include "RLLVelocityField.h"
 // Regrid class hierarchy
 #include "Regrid.h"

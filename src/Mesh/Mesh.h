@@ -1,5 +1,5 @@
-#ifndef __Mesh__
-#define __Mesh__
+#ifndef __Geomtk_Mesh__
+#define __Geomtk_Mesh__
 
 #include "geomtk_commons.h"
 #include "Domain.h"
