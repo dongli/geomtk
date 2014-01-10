@@ -77,8 +77,7 @@ public:
     virtual ~Domain();
 
     virtual int getNumDim() const;
-    virtual void setAxis(int dim,
-                         double start, BndType bndTypeStart,
+    virtual void setAxis(int dim, double start, BndType bndTypeStart,
                          double end, BndType bndTypeEnd);
     virtual double getAxisStart(int dim) const;
     virtual double getAxisEnd(int dim) const;
@@ -86,9 +85,39 @@ public:
     virtual BndType getAxisStartBndType(int dim) const;
     virtual BndType getAxisEndBndType(int dim) const;
 
+    /**
+     *  Check the given space coordinate, especially when the boundary condition
+     *  is periodic. The out-of-range coordinate should be put back.
+     *
+     *  @param x the space coordinate.
+     */
+    virtual void check(SpaceCoord &x) const;
+
+    /**
+     *  Calculate distance between two space coordinates.
+     *
+     *  @param x the first space coordinate.
+     *  @param y the second space coordinate.
+     *
+     *  @return The distance.
+     */
     virtual double calcDistance(const SpaceCoord &x, const SpaceCoord &y) const;
-    virtual vec diffCoord(const SpaceCoord &x, const SpaceCoord &y) const;
     
+    /**
+     *  Difference two space coordinates.
+     *
+     *  @param x the first space coordinate.
+     *  @param y the second space coordinate.
+     *
+     *  @return The distance.
+     */
+    virtual vec diffCoord(const SpaceCoord &x, const SpaceCoord &y) const;
+
+    /**
+     *  Get a brief about the domain.
+     *
+     *  @return The brief.
+     */
     virtual string getBrief() const;
 };
 

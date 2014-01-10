@@ -117,13 +117,20 @@ public:
      *  The output is put in 'xr'
      *
      *  @param xp the rotated North Pole coordinate.
-     *  @param xo the given space coordinate.
+     *  @param xo the original space coordinate.
      *  @param xr the transformed space coordinate.
-     *
-     *  @return None (in 'xr').
      */
     virtual void rotate(const SpaceCoord &xp, const SpaceCoord &xo,
                         SpaceCoord &xr) const;
+
+    /**
+     *  Transform the rotated coordinate back to original spherical coordinate
+     *  system.
+     *
+     *  @param xp the rotated North Pole coordinate.
+     *  @param xo the original space coordinate.
+     *  @param xr the transformed space coordinate.
+     */
     virtual void rotateBack(const SpaceCoord &xp, SpaceCoord &xo,
                             const SpaceCoord &xr) const;
 

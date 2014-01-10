@@ -202,6 +202,26 @@ BndType Domain::getAxisEndBndType(int dim) const {
     return bndTypeEnds[dim];
 }
 
+void Domain::check(geomtk::SpaceCoord &x) const {
+    for (int m = 0; m < numDim; ++m) {
+        if (x(m) < getAxisStart(m)) {
+            if (getAxisStartBndType(m) == PERIODIC) {
+                x(m) += getAxisSpan(m);
+            } else {
+                x.print();
+                REPORT_ERROR("Space coordinate is out of range!");
+            }
+        } else if (x(m) > getAxisEnd(m)) {
+            if (getAxisStartBndType(m) == PERIODIC) {
+                x(m) -= getAxisSpan(m);
+            } else {
+                x.print();
+                REPORT_ERROR("Space coordinate is out of range!");
+            }
+        }
+    }
+}
+    
 double Domain::calcDistance(const SpaceCoord &x, const SpaceCoord &y) const {
     REPORT_ERROR("Domain does not implement this method!");
 }
