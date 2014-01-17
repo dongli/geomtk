@@ -93,8 +93,46 @@ public:
      *  @param timeIdx       the time level index.
      *  @param updateHalfLevel the flag for updating half level.
      */
-    virtual void applyBndCond(const TimeLevelIndex<2> &timeIdx,
-                              bool updateHalfLevel = false);
+    template <typename = typename enable_if<has_operator_plus<T>::value ||
+                                            is_arithmetic<T>::value>::type>
+    void applyBndCond(const TimeLevelIndex<2> &timeIdx,
+                      bool updateHalfLevel = false) {
+        for (int m = 0; m < data.size(); ++m) {
+            int nx = data(m)->getLevel(0).n_rows;
+            int ny = data(m)->getLevel(0).n_cols;
+            int nz = data(m)->getLevel(0).n_slices;
+            if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
+                for (int k = 0; k < nz; ++k) {
+                    for (int j = 0; j < ny; ++j) {
+                        data(m)->getLevel(timeIdx)(0, j, k) =
+                        data(m)->getLevel(timeIdx)(nx-2, j, k);
+                        data(m)->getLevel(timeIdx)(nx-1, j, k) =
+                        data(m)->getLevel(timeIdx)(1, j, k);
+                    }
+                }
+            } else {
+                REPORT_ERROR("Under construction!");
+            }
+            if (updateHalfLevel && data(m)->hasHalfLevel()) {
+                TimeLevelIndex<2> halfTimeIdx = timeIdx-0.5;
+                TimeLevelIndex<2> oldTimeIdx = timeIdx-1;
+                for (int m = 0; m < data.size(); ++m) {
+                    int nx = data(m)->getLevel(0).n_rows;
+                    int ny = data(m)->getLevel(0).n_cols;
+                    int nz = data(m)->getLevel(0).n_slices;
+                    for (int k = 0; k < nz; ++k) {
+                        for (int j = 0; j < ny; ++j) {
+                            for (int i = 0; i < nx; ++i) {
+                                data(m)->getLevel(halfTimeIdx)(i, j, k) =
+                                (data(m)->getLevel(oldTimeIdx)(i, j, k)+
+                                 data(m)->getLevel(timeIdx)(i, j, k))*0.5;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     /**
      *  Subscript operator of the scalar field.
@@ -110,6 +148,10 @@ public:
     T& operator()(const TimeLevelIndex<2> &timeIdx, int i, int j);
     T operator()(const TimeLevelIndex<2> &timeIdx, int i, int j, int k) const;
     T& operator()(const TimeLevelIndex<2> &timeIdx, int i, int j, int k);
+    T operator()(int l, int i, int j) const;
+    T& operator()(int l, int i, int j);
+    T operator()(int l, int i, int j, int k) const;
+    T& operator()(int l, int i, int j, int k);
     
     /**
      *  Subscript operator of the vector field.
@@ -304,19 +346,26 @@ void StructuredField<T>::create(FieldType fieldType, StaggerType xStaggerType0,
 template <typename T>
 void StructuredField<T>::create(FieldType fieldType, int numDim,
                                 ArakawaGrid gridType) {
-    if (fieldType != VectorField) {
-        REPORT_ERROR("Field should be a vector!");
+    if (fieldType == ScalarField && gridType != A_GRID) {
+        REPORT_ERROR("Scalar field should be on A grids!");
     }
     this->gridType = gridType;
     switch (gridType) {
         case A_GRID:
             if (numDim == 2) {
-                create(fieldType, CENTER, CENTER,
-                                  CENTER, CENTER);
+                if (fieldType == ScalarField) {
+                    create(fieldType, CENTER, CENTER);
+                } else if (fieldType == VectorField) {
+                    create(fieldType, CENTER, CENTER, CENTER, CENTER);
+                }
             } else if (numDim == 3) {
-                create(fieldType, CENTER, CENTER, CENTER,
-                                  CENTER, CENTER, CENTER,
-                                  CENTER, CENTER, CENTER);
+                if (fieldType == ScalarField) {
+                    create(fieldType, CENTER, CENTER, CENTER);
+                } else if (fieldType == VectorField) {
+                    create(fieldType, CENTER, CENTER, CENTER,
+                                      CENTER, CENTER, CENTER,
+                                      CENTER, CENTER, CENTER);
+                }
             }
             break;
         case B_GRID:
@@ -342,50 +391,10 @@ void StructuredField<T>::create(FieldType fieldType, int numDim,
 }
 
 template <typename T>
-void StructuredField<T>::applyBndCond(const TimeLevelIndex<2> &timeIdx,
-                                      bool updateHalfLevel) {
-    for (int m = 0; m < data.size(); ++m) { // include scalar, vector and tensor
-        int nx = data(m)->getLevel(0).n_rows;
-        int ny = data(m)->getLevel(0).n_cols;
-        int nz = data(m)->getLevel(0).n_slices;
-        if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
-            for (int k = 0; k < nz; ++k) {
-                for (int j = 0; j < ny; ++j) {
-                    data(m)->getLevel(timeIdx)(0, j, k) =
-                    data(m)->getLevel(timeIdx)(nx-2, j, k);
-                    data(m)->getLevel(timeIdx)(nx-1, j, k) =
-                    data(m)->getLevel(timeIdx)(1, j, k);
-                }
-            }
-        } else {
-            REPORT_ERROR("Under construction!");
-        }
-        if (updateHalfLevel && data(m)->hasHalfLevel()) {
-            TimeLevelIndex<2> halfTimeIdx = timeIdx-0.5;
-            TimeLevelIndex<2> oldTimeIdx = timeIdx-1;
-            for (int m = 0; m < data.size(); ++m) {
-                int nx = data(m)->getLevel(0).n_rows;
-                int ny = data(m)->getLevel(0).n_cols;
-                int nz = data(m)->getLevel(0).n_slices;
-                for (int k = 0; k < nz; ++k) {
-                    for (int j = 0; j < ny; ++j) {
-                        for (int i = 0; i < nx; ++i) {
-                            data(m)->getLevel(halfTimeIdx)(i, j, k) =
-                                (data(m)->getLevel(oldTimeIdx)(i, j, k)+
-                                 data(m)->getLevel(timeIdx)(i, j, k))*0.5;
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-template <typename T>
 T StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx,
                                  int i, int j) const {
-    // The virtual boundary grids at the periodic boundary conditions are
-    // hiden from user.
+    // The virtual boundary grids at the periodic boundary conditions are hiden
+    // from user.
     int I, J;
     if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
         I = i+1;
@@ -403,8 +412,8 @@ T StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx,
 template <typename T>
 T& StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx,
                                   int i, int j) {
-    // The virtual boundary grids at the periodic boundary conditions are
-    // hiden from user.
+    // The virtual boundary grids at the periodic boundary conditions are hiden
+    // from user.
     int I, J;
     if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
         I = i+1;
@@ -422,8 +431,8 @@ T& StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx,
 template <typename T>
 T StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx,
                                  int i, int j, int k) const {
-    // The virtual boundary grids at the periodic boundary conditions are
-    // hiden from user.
+    // The virtual boundary grids at the periodic boundary conditions are hiden
+    // from user.
     int I, J;
     if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
         I = i+1;
@@ -441,8 +450,8 @@ T StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx,
 template <typename T>
 T& StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx,
                                   int i, int j, int k) {
-    // The virtual boundary grids at the periodic boundary conditions are
-    // hiden from user.
+    // The virtual boundary grids at the periodic boundary conditions are hiden
+    // from user.
     int I, J;
     if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
         I = i+1;
@@ -456,6 +465,78 @@ T& StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx,
     }
     return data(0)->getLevel(timeIdx)(I, J, k);
 }
+
+template <typename T>
+T StructuredField<T>::operator()(int l, int i, int j) const {
+    // The virtual boundary grids at the periodic boundary conditions are hiden
+    // from user.
+    int I, J;
+    if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
+        I = i+1;
+    } else {
+        I = i;
+    }
+    if (mesh->getDomain().getAxisStartBndType(1) == PERIODIC) {
+        J = j+1;
+    } else {
+        J = j;
+    }
+    return data(0)->getLevel(l)(I, J);
+}
+
+template <typename T>
+T& StructuredField<T>::operator()(int l, int i, int j) {
+    // The virtual boundary grids at the periodic boundary conditions are hiden
+    // from user.
+    int I, J;
+    if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
+        I = i+1;
+    } else {
+        I = i;
+    }
+    if (mesh->getDomain().getAxisStartBndType(1) == PERIODIC) {
+        J = j+1;
+    } else {
+        J = j;
+    }
+    return data(0)->getLevel(l)(I, J);
+}
+
+template <typename T>
+T StructuredField<T>::operator()(int l, int i, int j, int k) const {
+    // The virtual boundary grids at the periodic boundary conditions are hiden
+    // from user.
+    int I, J;
+    if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
+        I = i+1;
+    } else {
+        I = i;
+    }
+    if (mesh->getDomain().getAxisStartBndType(1) == PERIODIC) {
+        J = j+1;
+    } else {
+        J = j;
+    }
+    return data(0)->getLevel(l)(I, J, k);
+}
+
+template <typename T>
+T& StructuredField<T>::operator()(int l, int i, int j, int k) {
+    // The virtual boundary grids at the periodic boundary conditions are hiden
+    // from user.
+    int I, J;
+    if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
+        I = i+1;
+    } else {
+        I = i;
+    }
+    if (mesh->getDomain().getAxisStartBndType(1) == PERIODIC) {
+        J = j+1;
+    } else {
+        J = j;
+    }
+    return data(0)->getLevel(l)(I, J, k);
+}
     
 template <typename T>
 T StructuredField<T>::operator()(int comp, const TimeLevelIndex<2> &timeIdx,
@@ -465,8 +546,8 @@ T StructuredField<T>::operator()(int comp, const TimeLevelIndex<2> &timeIdx,
         REPORT_ERROR("Field should be a vector!");
     }
 #endif
-    // The virtual boundary grids at the periodic boundary conditions are
-    // hiden from user.
+    // The virtual boundary grids at the periodic boundary conditions are hiden
+    // from user.
     int I, J;
     if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
         I = i+1;

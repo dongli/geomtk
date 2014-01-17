@@ -10,7 +10,6 @@ enum StaggerType {
     CENTER, EDGE, VERTEX
 };
 
-// TODO: Use ArakawaGrid to set field conveniently.
 enum ArakawaGrid {
     A_GRID, B_GRID, C_GRID, D_GRID, E_GRID
 };
@@ -23,7 +22,18 @@ public:
     Mesh(Domain &domain);
     virtual ~Mesh();
 
+    /**
+     *  Get the spatial domain.
+     *
+     *  @return The domain.
+     */
     const Domain& getDomain() const;
+
+    /**
+     *  Check if the mesh is set or not.
+     *
+     *  @return The boolean flag.
+     */
     bool isSet() const;
 };
 

@@ -2,7 +2,6 @@
 #define __Domain_test__
 
 #include "Domain.h"
-#include "gtest/gtest.h"
 
 using namespace geomtk;
 

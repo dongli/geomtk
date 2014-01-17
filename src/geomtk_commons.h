@@ -9,6 +9,7 @@
 #include <cmath>
 #include <string>
 #include <vector>
+#include <type_traits>
 
 namespace geomtk {
 
@@ -29,6 +30,38 @@ using std::string;
 using std::vector;
 using std::min;
 using std::max;
+    
+// -----------------------------------------------------------------------------
+// meta-programming
+using std::enable_if;
+using std::is_arithmetic;
+using std::is_pointer;
+    
+template <typename T, typename NameGetter>
+struct has_member_impl {
+    typedef char yes;
+    typedef long no;
+
+    template <typename C>
+    static yes test(typename NameGetter::template get<C>*);
+
+    template <typename C>
+    static no  test(...);
+
+    static const bool value = (sizeof(test<T>(0)) == sizeof(yes));
+};
+
+template <typename T, typename NameGetter>
+struct has_member
+    : std::integral_constant<bool, has_member_impl<T, NameGetter>::value> {};
+
+struct check_has_operator_plus {
+    template <typename T, T& (T::*)(const T&) = &T::operator+>
+    struct get {};
+};
+
+template <typename T>
+struct has_operator_plus : has_member<T, check_has_operator_plus> {};
 
 // -----------------------------------------------------------------------------
 // report macros

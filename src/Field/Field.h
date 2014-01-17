@@ -30,9 +30,6 @@ public:
           const Mesh &mesh, bool hasHalfLevel = false);
     virtual ~Field();
 
-    virtual void applyBndCond(const TimeLevelIndex<2> &timeIdx,
-                              bool updateHalfLevel = false) = 0;
-
     const Mesh& getMesh() const;
 };
 
