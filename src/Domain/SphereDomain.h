@@ -21,6 +21,7 @@ protected:
     double xt[2]; // horizontal coordinate on polar stereographic plane
 public:
     SphereCoord(int numDim);
+    SphereCoord(const SphereCoord &other);
     virtual ~SphereCoord();
 
     double operator[](int i) const;

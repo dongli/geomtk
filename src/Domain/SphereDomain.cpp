@@ -5,6 +5,10 @@ namespace geomtk {
 SphereCoord::SphereCoord(int numDim) : SpaceCoord(numDim) {
 }
 
+SphereCoord::SphereCoord(const SphereCoord &other) : SpaceCoord(other) {
+    *this = other;
+}
+
 SphereCoord::~SphereCoord() {
 }
 
@@ -19,8 +23,8 @@ double& SphereCoord::operator[](int i) {
 SphereCoord& SphereCoord::operator=(const SphereCoord &other) {
     if (this != &other) {
         SpaceCoord::operator=(other);
-        this->xt[0] = other.xt[0];
-        this->xt[1] = other.xt[1];
+        xt[0] = other.xt[0];
+        xt[1] = other.xt[1];
     }
     return *this;
 }

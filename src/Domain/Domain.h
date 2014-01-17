@@ -17,7 +17,10 @@ protected:
     vec coords;
 public:
     SpaceCoord(int numDim);
+    SpaceCoord(const SpaceCoord &other);
     virtual ~SpaceCoord();
+
+    virtual SpaceCoord& operator=(const SpaceCoord &other);
 
     virtual double operator()(int i) const;
     virtual double& operator()(int i);

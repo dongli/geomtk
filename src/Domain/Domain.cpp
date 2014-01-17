@@ -6,7 +6,19 @@ SpaceCoord::SpaceCoord(int numDim) {
     coords.resize(numDim);
 }
 
+SpaceCoord::SpaceCoord(const SpaceCoord &other) {
+    coords.resize(other.coords.size());
+    *this = other;
+}
+
 SpaceCoord::~SpaceCoord() {
+}
+
+SpaceCoord& SpaceCoord::operator=(const geomtk::SpaceCoord &other) {
+    if (this != &other) {
+        coords = other.coords;
+    }
+    return *this;
 }
 
 double SpaceCoord::operator()(int i) const {
