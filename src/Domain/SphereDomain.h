@@ -18,7 +18,10 @@ class SphereDomain;
 
 class SphereCoord : public SpaceCoord {
 protected:
-    double xt[2]; // horizontal coordinate on polar stereographic plane
+    double xt[2];  //>! horizontal coordinate on polar stereographic plane
+    // TODOL How to calculate Cartesian coordinate, since the vertical
+    //       coordinate may not be height?
+    vec::fixed<3> cartCoord; //>! Cartesian coordinate representation
 public:
     SphereCoord(int numDim);
     SphereCoord(const SphereCoord &other);
@@ -32,6 +35,10 @@ public:
     void transformToPS(const SphereDomain &domain);
 
     void transformFromPS(const SphereDomain &domain);
+    
+    void transformToCart(const SphereDomain &domain);
+    
+    const vec& getCartCoord() const;
 
     virtual void print() const;
 };

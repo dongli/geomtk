@@ -25,32 +25,44 @@ SphereCoord& SphereCoord::operator=(const SphereCoord &other) {
         SpaceCoord::operator=(other);
         xt[0] = other.xt[0];
         xt[1] = other.xt[1];
+        cartCoord = other.cartCoord;
     }
     return *this;
 }
 
 void SphereCoord::transformToPS(const SphereDomain &domain) {
-    double sign = coords(1) < 0.0 ? -1.0 : 1.0;
-    double tanLat = tan(coords(1));
-    xt[0] = sign*domain.getRadius()*cos(coords(0))/tanLat;
-    xt[1] = sign*domain.getRadius()*sin(coords(0))/tanLat;
+    double sign = coord(1) < 0.0 ? -1.0 : 1.0;
+    double tanLat = tan(coord(1));
+    xt[0] = sign*domain.getRadius()*cos(coord(0))/tanLat;
+    xt[1] = sign*domain.getRadius()*sin(coord(0))/tanLat;
 }
 
 void SphereCoord::transformFromPS(const SphereDomain &domain) {
-    double sign = coords(1) < 0.0 ? -1.0 : 1.0;
-    coords(0) = atan2(xt[1], xt[0]);
-    if (coords(0) < 0.0) {
-        coords(0) += PI2;
+    double sign = coord(1) < 0.0 ? -1.0 : 1.0;
+    coord(0) = atan2(xt[1], xt[0]);
+    if (coord(0) < 0.0) {
+        coord(0) += PI2;
     }
-    coords(1) = sign*atan(domain.getRadius()/sqrt(xt[0]*xt[0]+xt[1]*xt[1]));
+    coord(1) = sign*atan(domain.getRadius()/sqrt(xt[0]*xt[0]+xt[1]*xt[1]));
+}
+    
+void SphereCoord::transformToCart(const SphereDomain &domain) {
+    double cosLat = cos(coord(1));
+    cartCoord(0) = domain.getRadius()*cosLat*cos(coord(0));
+    cartCoord(1) = domain.getRadius()*cosLat*sin(coord(0));
+    cartCoord(2) = domain.getRadius()*sin(coord(1));
+}
+    
+const vec& SphereCoord::getCartCoord() const {
+    return cartCoord;
 }
 
 void SphereCoord::print() const {
     cout << "Coordinate:";
-    cout << setw(20) << coords(0)/RAD;
-    cout << setw(20) << coords(1)/RAD;
-    if (coords.size() == 3) {
-        cout << setw(20) << coords(2);
+    cout << setw(20) << coord(0)/RAD;
+    cout << setw(20) << coord(1)/RAD;
+    if (coord.size() == 3) {
+        cout << setw(20) << coord(2);
     }
     cout << endl;
 }

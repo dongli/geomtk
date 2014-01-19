@@ -32,7 +32,7 @@ void RLLRegrid::run(RegridMethod method, const TimeLevelIndex<2> &timeIdx,
         bool match = false;
         double ws = 0.0;
         for (int i = 0; i < mesh.getNumGrid(0, CENTER); ++i) {
-            double d = domain.calcDistance(x, mesh.getGridCoord(0, CENTER, i),
+            double d = domain.calcDistance(x, mesh.getGridCoordComp(0, CENTER, i),
                                            sinLat, cosLat);
             if (d < eps) {
                 y[0] = ring.getTransformedData(0, timeIdx, i, k);
@@ -55,8 +55,8 @@ void RLLRegrid::run(RegridMethod method, const TimeLevelIndex<2> &timeIdx,
             REPORT_ERROR("Under construction!");
             // linear interpolation
             int i = (*idx)(0, CENTER);
-            double z1 = mesh.getGridCoord(2, EDGE, k);
-            double z2 = mesh.getGridCoord(2, EDGE, k+1);
+            double z1 = mesh.getGridCoordComp(2, EDGE, k);
+            double z2 = mesh.getGridCoordComp(2, EDGE, k+1);
             double c = (z2-x(2))/(z2-z1);
             y(2) = c*f(2, timeIdx, i, j, k)+(1.0-c)*f(2, timeIdx, i, j, k+1);
         }
@@ -71,11 +71,11 @@ void RLLRegrid::run(RegridMethod method, const TimeLevelIndex<2> &timeIdx,
                 i2 = i1+1; i3 = i1; i4 = i2;
                 j1 = (*idx)(1, f.getStaggerType(m, 1));
                 j2 = j1; j3 = j1+1; j4 = j3;
-                double x1 = mesh.getGridCoord(0, f.getStaggerType(m, 0), i1);
-                double x2 = mesh.getGridCoord(0, f.getStaggerType(m, 0), i2);
+                double x1 = mesh.getGridCoordComp(0, f.getStaggerType(m, 0), i1);
+                double x2 = mesh.getGridCoordComp(0, f.getStaggerType(m, 0), i2);
                 double X = (x(0)-x1)/(x2-x1);
-                double y1 = mesh.getGridCoord(1, f.getStaggerType(m, 1), j1);
-                double y2 = mesh.getGridCoord(1, f.getStaggerType(m, 1), j3);
+                double y1 = mesh.getGridCoordComp(1, f.getStaggerType(m, 1), j1);
+                double y2 = mesh.getGridCoordComp(1, f.getStaggerType(m, 1), j3);
                 double Y = (x(1)-y1)/(y2-y1);
                 double f1 = f(m, timeIdx, i1, j1, 0);
                 double f2 = f(m, timeIdx, i2, j2, 0);

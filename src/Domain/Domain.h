@@ -14,7 +14,7 @@ enum BndType {
  */
 class SpaceCoord {
 protected:
-    vec coords;
+    vec coord;
 public:
     SpaceCoord(int numDim);
     SpaceCoord(const SpaceCoord &other);

@@ -8,6 +8,7 @@ TEST(SpaceCoord, CopyConstructor) {
     x(0) = 1.0;
     x(1) = 2.0;
     SpaceCoord y(x);
+    ASSERT_EQ(x().size(), y().size());
     ASSERT_EQ(x(0), y(0));
     ASSERT_EQ(x(1), y(1));
 }

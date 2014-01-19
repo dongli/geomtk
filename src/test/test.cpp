@@ -7,7 +7,6 @@
 #include "Domain_test.h"
 #include "SphereCoord_test.h"
 #include "SphereDomain_test.h"
-#include "Mesh_test.h"
 #include "StructuredMesh_test.h"
 #include "StructuredMeshIndex_test.h"
 #include "RLLMesh_test.h"

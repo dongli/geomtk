@@ -293,8 +293,6 @@ vec StructuredMesh::getGridCoords(int dim, StaggerType staggerType,
                 return fullCoords[dim](span(1, fullCoords[dim].size()-2));
             case EDGE: case VERTEX:
                 return halfCoords[dim](span(1, halfCoords[dim].size()-2));
-            default:
-                REPORT_ERROR("Unknown stagger type!");
         }
     } else {
         switch (staggerType) {
@@ -302,13 +300,12 @@ vec StructuredMesh::getGridCoords(int dim, StaggerType staggerType,
                 return fullCoords[dim];
             case EDGE: case VERTEX:
                 return halfCoords[dim];
-            default:
-                REPORT_ERROR("Unknown stagger type!");
         }
     }
 }
 
-double StructuredMesh::getGridCoord(int dim, StaggerType staggerType, int i) const {
+double StructuredMesh::getGridCoordComp(int dim, StaggerType staggerType,
+                                        int i) const {
     // sanity check
     if (dim >= domain->getNumDim()) {
         REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension (" << domain->getNumDim() << ")!");
@@ -319,8 +316,6 @@ double StructuredMesh::getGridCoord(int dim, StaggerType staggerType, int i) con
                 return fullCoords[dim](i+1);
             case EDGE: case VERTEX:
                 return halfCoords[dim](i+1);
-            default:
-                REPORT_ERROR("Unknown stagger type!");
         }
     } else {
         switch (staggerType) {
@@ -328,17 +323,54 @@ double StructuredMesh::getGridCoord(int dim, StaggerType staggerType, int i) con
                 return fullCoords[dim](i);
             case EDGE: case VERTEX:
                 return halfCoords[dim](i);
-            default:
-                REPORT_ERROR("Unknown stagger type!");
         }
     }
 }
 
-void StructuredMesh::getGridCoord(StaggerType staggerType,
-                                  const StructuredMeshIndex &idx,
-                                  SpaceCoord &x) const {
-    for (int m = 0; m < domain->getNumDim(); ++m) {
-        x(m) = getGridCoord(m, staggerType, idx(m, staggerType));
+void StructuredMesh::getGridCoord(const MeshIndex &idx_, SpaceCoord &x,
+                                  ArakawaGrid gridType, int dim) const {
+    const StructuredMeshIndex &idx = static_cast<const StructuredMeshIndex&>(idx_);
+    switch (gridType) {
+        case A_GRID:
+            for (int m = 0; m < domain->getNumDim(); ++m) {
+                x(m) = getGridCoordComp(m, CENTER, idx(m, CENTER));
+            }
+            break;
+        case C_GRID:
+            for (int m = 0; m < domain->getNumDim(); ++m) {
+                if (m != dim) {
+                    x(m) = getGridCoordComp(m, CENTER, idx(m, CENTER));
+                } else {
+                    x(m) = getGridCoordComp(m, EDGE, idx(m, EDGE));
+                }
+            }
+            break;
+        case B_GRID: case D_GRID: case E_GRID:
+            REPORT_ERROR("Under construction!");
+    }
+}
+
+void StructuredMesh::getGridCoord(int idx, SpaceCoord &x, ArakawaGrid gridType,
+                                  int dim) const {
+    int i[3];
+    unwrapIndex(idx, i, gridType, dim);
+    switch (gridType) {
+        case A_GRID:
+            for (int m = 0; m < domain->getNumDim(); ++m) {
+                x(m) = getGridCoordComp(m, CENTER, i[m]);
+            }
+            break;
+        case C_GRID:
+            for (int m = 0; m < domain->getNumDim(); ++m) {
+                if (m != dim) {
+                    x(m) = getGridCoordComp(m, CENTER, i[m]);
+                } else {
+                    x(m) = getGridCoordComp(m, EDGE, i[m]);
+                }
+            }
+            break;
+        case B_GRID: case D_GRID: case E_GRID:
+            REPORT_ERROR("Under construction!");
     }
 }
 
@@ -367,6 +399,25 @@ double StructuredMesh::getGridInterval(int dim, StaggerType staggerType,
             default:
                 REPORT_ERROR("Unknown stagger type!");
         }
+    }
+}
+    
+int StructuredMesh::getTotalNumGrid(ArakawaGrid gridType, int dim) const {
+    switch (gridType) {
+        case A_GRID:
+            return getNumGrid(0, CENTER)*getNumGrid(1, CENTER)*getNumGrid(2, CENTER);
+        case C_GRID:
+            if (dim == 0) {
+                return getNumGrid(0, EDGE)*getNumGrid(1, CENTER)*getNumGrid(2, CENTER);
+            } else if (dim == 1) {
+                return getNumGrid(0, CENTER)*getNumGrid(1, EDGE)*getNumGrid(2, CENTER);
+            } else if (dim == 3) {
+                return getNumGrid(0, CENTER)*getNumGrid(1, CENTER)*getNumGrid(2, EDGE);
+            } else {
+                REPORT_ERROR("Invalid argument dim (" << dim << ")!");
+            }
+        case B_GRID: case D_GRID: case E_GRID:
+            REPORT_ERROR("Under construction!")
     }
 }
 
@@ -399,6 +450,34 @@ int StructuredMesh::getNumGrid(int dim, StaggerType staggerType,
 
 bool StructuredMesh::isEquidistant(int dim) const {
     return equidistant[dim];
+}
+
+void StructuredMesh::unwrapIndex(int idx, int i[3], ArakawaGrid gridType,
+                                 int dim) const {
+    int nx, ny;
+    switch (gridType) {
+        case A_GRID:
+            nx = getNumGrid(0, CENTER);
+            ny = getNumGrid(1, CENTER);
+            break;
+        case C_GRID:
+            if (dim == 0) {
+                nx = getNumGrid(0, EDGE);
+                ny = getNumGrid(1, CENTER);
+            } else if (dim == 1) {
+                nx = getNumGrid(0, CENTER);
+                ny = getNumGrid(1, EDGE);
+            } else if (dim == 2) {
+                nx = getNumGrid(0, CENTER);
+                ny = getNumGrid(1, CENTER);
+            }
+        case B_GRID: case D_GRID: case E_GRID:
+            REPORT_ERROR("Under construction!");
+    }
+    i[2] = idx/(nx*ny);
+    idx = idx-i[2]*nx*ny;
+    i[1] = idx/nx;
+    i[0] = idx%nx;
 }
 
 }

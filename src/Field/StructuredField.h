@@ -148,10 +148,26 @@ public:
     T& operator()(const TimeLevelIndex<2> &timeIdx, int i, int j);
     T operator()(const TimeLevelIndex<2> &timeIdx, int i, int j, int k) const;
     T& operator()(const TimeLevelIndex<2> &timeIdx, int i, int j, int k);
+
     T operator()(int l, int i, int j) const;
     T& operator()(int l, int i, int j);
     T operator()(int l, int i, int j, int k) const;
     T& operator()(int l, int i, int j, int k);
+
+    /**
+     *  Subscript operator of the scalar field by using one single index. The
+     *  order is column-major. Note no virtual boundary grids will be accessed
+     *  in this method.
+     *
+     *  @param timeIdx  the time level index.
+     *  @param cellIdx  the index of all dimensions.
+     *
+     *  @return The scalar on the given index.
+     */
+    T operator()(const TimeLevelIndex<2> &timeIdx, int cellIdx) const;
+    T& operator()(const TimeLevelIndex<2> &timeIdx, int cellIdx);
+    T operator()(int l, int cellIdx) const;
+    T& operator()(int l, int cellIdx);
     
     /**
      *  Subscript operator of the vector field.
@@ -168,6 +184,20 @@ public:
     T& operator()(int comp, const TimeLevelIndex<2> &timeIdx, int i, int j);
     T operator()(int comp, const TimeLevelIndex<2> &timeIdx, int i, int j, int k) const;
     T& operator()(int comp, const TimeLevelIndex<2> &timeIdx, int i, int j, int k);
+
+    /**
+     *  Subscript operator of the vector field by using one single index. The
+     *  order is column-major. Note no virtual boundary grids will be accessed
+     *  in this method.
+     *
+     *  @param comp     the component index.
+     *  @param timeIdx  the time level index.
+     *  @param cellIdx  the index of all dimensions.
+     *
+     *  @return The vector component on the given index.
+     */
+    T operator()(int comp, const TimeLevelIndex<2> &timeIdx, int cellIdx) const;
+    T& operator()(int comp, const TimeLevelIndex<2> &timeIdx, int cellIdx);
 
     /**
      *  Get the stagger type on the given dimension of the scalar field.
@@ -536,6 +566,58 @@ T& StructuredField<T>::operator()(int l, int i, int j, int k) {
         J = j;
     }
     return data(0)->getLevel(l)(I, J, k);
+}
+
+template <typename T>
+T StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx, int cellIdx) const {
+    const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
+    int i[3];
+    mesh.unwrapIndex(cellIdx, i, gridType);
+    for (int m = 0; m < mesh.getDomain().getNumDim(); ++m) {
+        if (mesh.getDomain().getAxisStartBndType(m) == PERIODIC) {
+            i[m] += 1;
+        }
+    }
+    return data(0)->getLevel(timeIdx)(i[0], i[1], i[2]);
+}
+
+template <typename T>
+T& StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx, int cellIdx) {
+    const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
+    int i[3];
+    mesh.unwrapIndex(cellIdx, i, gridType);
+    for (int m = 0; m < mesh.getDomain().getNumDim(); ++m) {
+        if (mesh.getDomain().getAxisStartBndType(m) == PERIODIC) {
+            i[m] += 1;
+        }
+    }
+    return data(0)->getLevel(timeIdx)(i[0], i[1], i[2]);
+}
+
+template <typename T>
+T StructuredField<T>::operator()(int l, int cellIdx) const {
+    const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
+    int i[3];
+    mesh.unwrapIndex(cellIdx, i, gridType);
+    for (int m = 0; m < mesh.getDomain().getNumDim(); ++m) {
+        if (mesh.getDomain().getAxisStartBndType(m) == PERIODIC) {
+            i[m] += 1;
+        }
+    }
+    return data(0)->getLevel(l)(i[0], i[1], i[2]);
+}
+
+template <typename T>
+T& StructuredField<T>::operator()(int l, int cellIdx) {
+    const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
+    int i[3];
+    mesh.unwrapIndex(cellIdx, i, gridType);
+    for (int m = 0; m < mesh.getDomain().getNumDim(); ++m) {
+        if (mesh.getDomain().getAxisStartBndType(m) == PERIODIC) {
+            i[m] += 1;
+        }
+    }
+    return data(0)->getLevel(l)(i[0], i[1], i[2]);
 }
     
 template <typename T>

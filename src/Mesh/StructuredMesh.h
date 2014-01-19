@@ -68,17 +68,29 @@ public:
      *
      *  @return The grid coordinate.
      */
-    double getGridCoord(int dim, StaggerType staggerType, int i) const;
+    double getGridCoordComp(int dim, StaggerType staggerType, int i) const;
 
     /**
-     *  Return the coordinate of specific grid.
+     *  Get the grid coordinate of a given mesh index and of a given grid type.
      *
-     *  @param staggerType the grid stagger type.
-     *  @param idx         the mesh index.
-     *  @param x           the grid coordinate.
+     *  @param idx      the mesh index.
+     *  @param x        the outputted grid coordinate.
+     *  @param gridType the Arakawa grid stagger type.
+     *  @param dim      the dimension for non-A-grid.
      */
-    void getGridCoord(StaggerType staggerType, const StructuredMeshIndex &idx,
-                      SpaceCoord &x) const;
+    virtual void getGridCoord(const MeshIndex &idx, SpaceCoord &x,
+                              ArakawaGrid gridType, int dim = 0) const;
+
+    /**
+     *  Get the grid coordinate of a given mesh index and of a given grid type.
+     *
+     *  @param idx      the mesh index.
+     *  @param x        the outputted grid coordinate.
+     *  @param gridType the Arakawa grid stagger type.
+     *  @param dim      the dimension for non-A-grid.
+     */
+    virtual void getGridCoord(int idx, SpaceCoord &x,
+                              ArakawaGrid gridType, int dim = 0) const;
 
     /**
      *  Return the grid interval along an axis and with a given grid index.
@@ -90,6 +102,17 @@ public:
      *  @return The grid interval.
      */
     double getGridInterval(int dim, StaggerType staggerType, int i) const;
+
+    /**
+     *  Get the total number of grids of a given grid type no matter the
+     *  underlying mesh type.
+     *
+     *  @param gridType the Arakawa grid stagger type.
+     *  @param dim      the optional dimension index for non-A_GRID grids.
+     *
+     *  @return The total number of grids.
+     */
+    virtual int getTotalNumGrid(ArakawaGrid gridType, int dim = 0) const;
 
     /**
      *  Return the grid number.
@@ -115,6 +138,18 @@ public:
      *  @return A boolean.
      */
     bool isEquidistant(int dim) const;
+
+    /**
+     *  Unwrap the single index into three indices along each dimension. Note
+     *  the order is column-major.
+     *
+     *  @param idx      the single index
+     *  @param i        the outputted index array.
+     *  @param gridType the Arakawa grid stagger type.
+     *  @param dim      the dimension for non-A-grid.
+     */
+    void unwrapIndex(int idx, int i[3], ArakawaGrid gridType,
+                     int dim = 0) const;
 };
 
 }

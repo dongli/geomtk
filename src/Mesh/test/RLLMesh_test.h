@@ -65,8 +65,8 @@ TEST_F(RLLMeshTest, CheckGridCoords) {
     ASSERT_EQ(5, mesh->getNumGrid(2, CENTER, true));
     ASSERT_EQ(6, mesh->getNumGrid(2, EDGE));
     ASSERT_EQ(6, mesh->getNumGrid(2, EDGE, true));
-    ASSERT_EQ(-M_PI_2, mesh->getGridCoord(1, CENTER, 0));
-    ASSERT_EQ(M_PI_2, mesh->getGridCoord(1, CENTER, mesh->getNumGrid(1, CENTER)-1));
+    ASSERT_EQ(-M_PI_2, mesh->getGridCoordComp(1, CENTER, 0));
+    ASSERT_EQ(M_PI_2, mesh->getGridCoordComp(1, CENTER, mesh->getNumGrid(1, CENTER)-1));
     // check cosine and sine
     vec lonFull = mesh->getGridCoords(0, CENTER, true);
     for (int i = -1; i < mesh->getNumGrid(0, CENTER)+1; ++i) {

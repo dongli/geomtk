@@ -5,7 +5,7 @@
 
 using namespace geomtk;
 
-TEST(TimeLevels, Constructors) {
+TEST(TimeLevelIndex, Constructors) {
     TimeLevelIndex<3> m;
     
     ASSERT_EQ(0, m.get());
@@ -13,7 +13,7 @@ TEST(TimeLevels, Constructors) {
     ASSERT_EQ(3, TimeLevelIndex<3>::currHalfIdx);
 }
 
-TEST(TimeLevels, Operators) {
+TEST(TimeLevelIndex, Operators) {
     TimeLevelIndex<3> n;
 
     ASSERT_EQ(0, n.get());
@@ -31,7 +31,7 @@ TEST(TimeLevels, Operators) {
     ASSERT_EQ(1, (n+2-1).get());
 }
 
-TEST(TimeLevels, Shift) {
+TEST(TimeLevelIndex, Shift) {
     TimeLevelIndex<2> n;
     
     n.shift();
@@ -47,7 +47,7 @@ TEST(TimeLevels, Shift) {
     n.reset();
 }
 
-TEST(TimeLevels, Reset) {
+TEST(TimeLevelIndex, Reset) {
     TimeLevelIndex<3> n;
     
     n.reset();
@@ -57,6 +57,29 @@ TEST(TimeLevels, Reset) {
     ASSERT_EQ(2, (n+2).get());
     ASSERT_EQ(3, (n+0.5).get());
     ASSERT_EQ(4, (n+1.5).get());
+}
+
+TEST(TimeLevels, OperatorEqual) {
+    TimeLevels<double, 2> a, b;
+    a.getLevel(0) = 1;
+    a.getLevel(1) = 2;
+    b = a;
+    ASSERT_EQ(a.getLevel(0), b.getLevel(0));
+    ASSERT_EQ(a.getLevel(1), b.getLevel(1));
+    
+    TimeLevels<vector<int>, 2> c, d;
+    c.getLevel(0).push_back(1);
+    c.getLevel(0).push_back(2);
+    c.getLevel(1).push_back(3);
+    d = c;
+    ASSERT_EQ(c.getLevel(0).size(), d.getLevel(0).size());
+    ASSERT_EQ(c.getLevel(1).size(), d.getLevel(1).size());
+    for (int i = 0; i < c.getLevel(0).size(); ++i) {
+        ASSERT_EQ(c.getLevel(0)[i], d.getLevel(0)[i]);
+    }
+    for (int i = 0; i < c.getLevel(1).size(); ++i) {
+        ASSERT_EQ(c.getLevel(1)[i], d.getLevel(1)[i]);
+    }
 }
 
 #endif

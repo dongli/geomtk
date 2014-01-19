@@ -245,7 +245,7 @@ public:
      *
      *  @return The variable.
      */
-    inline T getLevel(const TimeLevelIndex<N> &timeIdx) const;
+    inline const T& getLevel(const TimeLevelIndex<N> &timeIdx) const;
 
     /**
      *  Get the variable on the given time level (relative index).
@@ -263,7 +263,7 @@ public:
      *
      *  @return The variable.
      */
-    inline T getLevel(int i) const;
+    inline const T& getLevel(int i) const;
 
     /**
      *  Get the variable on the given time level (absolute index).
@@ -280,6 +280,8 @@ public:
      *  @return The boolean flag.
      */
     inline bool hasHalfLevel() const;
+    
+    inline TimeLevels<T, N>& operator=(const TimeLevels<T, N> &other);
 };
 
 // =============================================================================
@@ -339,7 +341,7 @@ int TimeLevels<T, N>::getNumLevel(bool includeHalfLevel) {
 }
 
 template <typename T, int N>
-T TimeLevels<T, N>::getLevel(const TimeLevelIndex<N> &timeIdx) const {
+const T& TimeLevels<T, N>::getLevel(const TimeLevelIndex<N> &timeIdx) const {
     return data[timeIdx.get()];
 }
 
@@ -349,7 +351,7 @@ T& TimeLevels<T, N>::getLevel(const TimeLevelIndex<N> &timeIdx) {
 }
     
 template <typename T, int N>
-T TimeLevels<T, N>::getLevel(int i) const {
+const T& TimeLevels<T, N>::getLevel(int i) const {
     return data[i];
 }
 
@@ -361,6 +363,22 @@ T& TimeLevels<T, N>::getLevel(int i) {
 template <typename T, int N>
 bool TimeLevels<T, N>::hasHalfLevel() const {
     return halfLevel;
+}
+    
+template <typename T, int N>
+TimeLevels<T, N>& TimeLevels<T, N>::operator=(const TimeLevels<T, N> &other) {
+    if (this != &other) {
+        if (halfLevel) {
+            for (int i = 0; i < 2*N-1; ++i) {
+                data[i] = other.data[i];
+            }
+        } else {
+            for (int i = 0; i < N; ++i) {
+                data[i] = other.data[i];
+            }
+        }
+    }
+    return *this;
 }
 
 }

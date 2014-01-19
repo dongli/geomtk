@@ -97,8 +97,8 @@ TEST_F(RLLVelocityFieldTest, CreateAndSet) {
         int j = l == 0 ? 1 : mesh->getNumGrid(1, CENTER)-2;
         for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
             SphereCoord x(2);
-            x(0) = mesh->getGridCoord(0, CENTER, i);
-            x(1) = mesh->getGridCoord(1, CENTER, j);
+            x(0) = mesh->getGridCoordComp(0, CENTER, i);
+            x(1) = mesh->getGridCoordComp(1, CENTER, j);
             SphereVelocity u(2);
             u = v->rings[l].vr(i+1, 0)->getLevel(timeIdx);
             u.transformFromPS(x);

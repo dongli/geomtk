@@ -72,6 +72,18 @@ TEST_F(RLLFieldTest, TestScalarField) {
         ASSERT_EQ((*f_scalar)(timeIdx, -1, j), (*f_scalar)(timeIdx, n-1, j));
         ASSERT_EQ((*f_scalar)(timeIdx,  n, j), (*f_scalar)(timeIdx,   0, j));
     }
+    // -------------------------------------------------------------------------
+    // check data indexing
+    ASSERT_EQ(0, (*f_scalar)(timeIdx, 0));
+    ASSERT_EQ(9, (*f_scalar)(timeIdx, 9));
+    for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
+            int cellIdx = i+j*mesh->getNumGrid(0, CENTER);
+            ASSERT_EQ(i+j*mesh->getNumGrid(0, CENTER),
+                      (*f_scalar)(timeIdx, cellIdx));
+        }
+    }
+
 }
 
 TEST_F(RLLFieldTest, TestVectorFieldHalfLevel) {

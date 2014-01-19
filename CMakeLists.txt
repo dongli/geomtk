@@ -19,6 +19,8 @@ endif ()
 # ------------------------------------------------------------------------------
 project (geomtk CXX)
 
+set (CMAKE_CXX_FLAGS "-std=c++11")
+
 # ------------------------------------------------------------------------------
 # source directory structure
 set (source_directories
@@ -52,7 +54,7 @@ endforeach ()
 find_package (Armadillo)
 if (NOT ARMADILLO_FOUND)
     if (DEFINED ENV{ARMADILLO_ROOT})
-        message ("@@ Use user provided library Armadillo!")
+        message ("@@ Use user provided library Armadillo.")
         message ("@@ ARMADILLO_ROOT = $ENV{ARMADILLO_ROOT}")
         find_package (Armadillo HINTS $ENV{ARMADILLO_ROOT})
     else ()

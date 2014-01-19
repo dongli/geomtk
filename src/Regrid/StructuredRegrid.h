@@ -58,11 +58,11 @@ void StructuredRegrid::run(RegridMethod method, const TimeLevelIndex<2> &timeIdx
                     REPORT_ERROR("Vector field component 1 is one CENTER-EDGE mesh, "
                                  "and the point is located outside its region!");
                 }
-                double x1 = mesh.getGridCoord(0, f.getStaggerType(m, 0), i1);
-                double x2 = mesh.getGridCoord(0, f.getStaggerType(m, 0), i2);
+                double x1 = mesh.getGridCoordComp(0, f.getStaggerType(m, 0), i1);
+                double x2 = mesh.getGridCoordComp(0, f.getStaggerType(m, 0), i2);
                 double X = (x(0)-x1)/(x2-x1);
-                double y1 = mesh.getGridCoord(1, f.getStaggerType(m, 1), j1);
-                double y2 = mesh.getGridCoord(1, f.getStaggerType(m, 1), j3);
+                double y1 = mesh.getGridCoordComp(1, f.getStaggerType(m, 1), j1);
+                double y2 = mesh.getGridCoordComp(1, f.getStaggerType(m, 1), j3);
                 double Y = (x(1)-y1)/(y2-y1);
                 assert(X >= 0.0 && X <= 1.0 && Y >= 0.0 && Y <= 1.0);
                 double f1 = f(m, timeIdx, i1, j1);

@@ -3,11 +3,11 @@
 namespace geomtk {
 
 SpaceCoord::SpaceCoord(int numDim) {
-    coords.resize(numDim);
+    coord.resize(numDim);
 }
 
 SpaceCoord::SpaceCoord(const SpaceCoord &other) {
-    coords.resize(other.coords.size());
+    coord.resize(other.coord.size());
     *this = other;
 }
 
@@ -16,31 +16,31 @@ SpaceCoord::~SpaceCoord() {
 
 SpaceCoord& SpaceCoord::operator=(const geomtk::SpaceCoord &other) {
     if (this != &other) {
-        coords = other.coords;
+        coord = other.coord;
     }
     return *this;
 }
 
 double SpaceCoord::operator()(int i) const {
-    return coords(i);
+    return coord(i);
 }
 
 double& SpaceCoord::operator()(int i) {
-    return coords(i);
+    return coord(i);
 }
 
 const vec& SpaceCoord::operator()() const {
-    return coords;
+    return coord;
 }
     
 vec& SpaceCoord::operator()() {
-    return coords;
+    return coord;
 }
 
 void SpaceCoord::print() const {
     cout << "Coordinate:";
-    for (int i = 0; i < coords.size(); ++i) {
-        cout << setw(20) << coords(i);
+    for (int i = 0; i < coord.size(); ++i) {
+        cout << setw(20) << coord(i);
     }
     cout << endl;
 }

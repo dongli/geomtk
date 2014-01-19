@@ -10,6 +10,7 @@ TEST(SphereDomain, CopyConstructor) {
     x(1) = 60.0/RAD;
     x.transformToPS(domain);
     SphereCoord y(x);
+    ASSERT_EQ(x().size(), y().size());
     ASSERT_EQ(x(0), y(0));
     ASSERT_EQ(x(1), y(1));
     ASSERT_EQ(x[0], y[0]);
