@@ -288,6 +288,12 @@ void StructuredField<T>::create(FieldType fieldType, StaggerType xStaggerType,
         data(0)->getLevel(i).set_size(mesh.getNumGrid(0, xStaggerType, true),
                                       mesh.getNumGrid(1, yStaggerType));
     }
+    // set Arakawa grid stagger type for latter use
+    if (xStaggerType == CENTER && yStaggerType == CENTER) {
+        gridType = A_GRID;
+    } else {
+        REPORT_ERROR("Under construction!");
+    }
 }
 
 template <typename T>
@@ -309,6 +315,13 @@ void StructuredField<T>::create(FieldType fieldType, StaggerType xStaggerType,
         data(0)->getLevel(i).set_size(mesh.getNumGrid(0, xStaggerType, true),
                                       mesh.getNumGrid(1, yStaggerType),
                                       mesh.getNumGrid(2, zStaggerType));
+    }
+    // set Arakawa grid stagger type for latter use
+    if (xStaggerType == CENTER && yStaggerType == CENTER &&
+        zStaggerType == CENTER) {
+        gridType = A_GRID;
+    } else {
+        REPORT_ERROR("Under construction!");
     }
 }
 
@@ -335,6 +348,16 @@ void StructuredField<T>::create(FieldType fieldType, StaggerType xStaggerType0,
             data(m)->getLevel(i).set_size(mesh.getNumGrid(0, staggerTypes[m][0], true),
                                           mesh.getNumGrid(1, staggerTypes[m][1]));
         }
+    }
+    // set Arakawa grid stagger type for latter use
+    if (xStaggerType0 == CENTER && yStaggerType0 == CENTER &&
+        xStaggerType1 == CENTER && yStaggerType1 == CENTER) {
+        gridType = A_GRID;
+    } else if (xStaggerType0 == EDGE   && yStaggerType0 == CENTER &&
+               xStaggerType1 == CENTER && yStaggerType1 == EDGE) {
+        gridType = C_GRID;
+    } else {
+        REPORT_ERROR("Under construction!");
     }
 }
 
@@ -370,6 +393,18 @@ void StructuredField<T>::create(FieldType fieldType, StaggerType xStaggerType0,
                                           mesh.getNumGrid(1, staggerTypes[m][1]),
                                           mesh.getNumGrid(2, staggerTypes[m][2]));
         }
+    }
+    // set Arakawa grid stagger type for latter use
+    if (xStaggerType0 == CENTER && yStaggerType0 == CENTER && zStaggerType0 == CENTER &&
+        xStaggerType1 == CENTER && yStaggerType1 == CENTER && zStaggerType1 == CENTER &&
+        xStaggerType2 == CENTER && yStaggerType2 == CENTER && zStaggerType2 == CENTER) {
+        gridType = A_GRID;
+    } else if (xStaggerType0 == EDGE   && yStaggerType0 == CENTER && zStaggerType0 == CENTER &&
+               xStaggerType1 == CENTER && yStaggerType1 == EDGE   && zStaggerType1 == CENTER &&
+               xStaggerType2 == CENTER && yStaggerType2 == CENTER && zStaggerType2 == EDGE) {
+        gridType = C_GRID;
+    } else {
+        REPORT_ERROR("Under construction!");
     }
 }
 

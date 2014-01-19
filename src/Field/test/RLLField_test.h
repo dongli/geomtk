@@ -52,7 +52,28 @@ protected:
     }
 };
 
-TEST_F(RLLFieldTest, TestScalarField) {
+TEST_F(RLLFieldTest, CheckGridType) {
+    RLLField<double> f1(*mesh);
+    f1.create(ScalarField, CENTER, CENTER);
+    ASSERT_EQ(A_GRID, f1.gridType);
+    RLLField<double> f2(*mesh);
+    f2.create(VectorField, CENTER, CENTER, CENTER, CENTER);
+    ASSERT_EQ(A_GRID, f2.gridType);
+    RLLField<double> f3(*mesh);
+    f3.create(VectorField, EDGE, CENTER, CENTER, EDGE);
+    ASSERT_EQ(C_GRID, f3.gridType);
+    RLLField<double> f4(*mesh);
+    f4.create(VectorField, CENTER, CENTER, CENTER, CENTER, CENTER, CENTER,
+              CENTER, CENTER, CENTER);
+    ASSERT_EQ(A_GRID, f4.gridType);
+    RLLField<double> f5(*mesh);
+    f5.create(VectorField, EDGE, CENTER, CENTER, CENTER, EDGE, CENTER,
+              CENTER, CENTER, EDGE);
+    ASSERT_EQ(C_GRID, f5.gridType);
+
+}
+
+TEST_F(RLLFieldTest, CheckScalarField) {
     f_scalar->create(ScalarField, CENTER, CENTER);
     // -------------------------------------------------------------------------
     // check data dimensionality
