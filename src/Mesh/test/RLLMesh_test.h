@@ -130,4 +130,9 @@ TEST_F(RLLMeshTest, Move) {
     // TODO: How to test?
 }
 
+TEST_F(RLLMeshTest, CheckCellVolume) {
+    double volume;
+    mesh->getCellVolume(0, volume);
+}
+
 #endif

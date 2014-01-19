@@ -65,6 +65,19 @@ public:
                               ArakawaGrid gridType, int dim = 0) const = 0;
 
     /**
+     *  Set the center grid cell volumes.
+     */
+    virtual void setCellVolumes() = 0;
+
+    /**
+     *  Get the center grid cell volume.
+     *
+     *  @param idx      the mesh index.
+     *  @param volume   the outputted cell volume.
+     */
+    virtual void getCellVolume(int idx, double &area) const = 0;
+
+    /**
      *  Check if the mesh is set or not.
      *
      *  @return The boolean flag.

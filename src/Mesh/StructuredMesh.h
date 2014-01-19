@@ -14,6 +14,8 @@ protected:
     vec *fullIntervals;
     vec *halfIntervals;
     bool *equidistant;
+    field<double> volumes;
+    bool isVolumeSet;
 public:
     StructuredMesh(Domain &domain);
     virtual ~StructuredMesh();
@@ -89,9 +91,12 @@ public:
      *  @param gridType the Arakawa grid stagger type.
      *  @param dim      the dimension for non-A-grid.
      */
-    virtual void getGridCoord(int idx, SpaceCoord &x,
-                              ArakawaGrid gridType, int dim = 0) const;
+    virtual void getGridCoord(int idx, SpaceCoord &x, ArakawaGrid gridType,
+                              int dim = 0) const;
 
+    virtual void setCellVolumes();
+
+    virtual void getCellVolume(int idx, double &volume) const;
     /**
      *  Return the grid interval along an axis and with a given grid index.
      *

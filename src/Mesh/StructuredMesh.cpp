@@ -13,6 +13,7 @@ StructuredMesh::StructuredMesh(Domain &domain) : Mesh(domain) {
         fullCoords[m].resize(0);
         equidistant[m] = true;
     }
+    isVolumeSet = false;
 }
 
 StructuredMesh::~StructuredMesh() {
@@ -285,7 +286,9 @@ vec StructuredMesh::getGridCoords(int dim, StaggerType staggerType,
                                   bool hasVirtualGrids) const {
     // sanity check
     if (dim >= domain->getNumDim()) {
-        REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension (" << domain->getNumDim() << ")!");
+        REPORT_ERROR("Argument dim (" << dim <<
+                     ") exceeds domain dimension (" <<
+                     domain->getNumDim() << ")!");
     }
     if (domain->getAxisStartBndType(dim) == PERIODIC && !hasVirtualGrids) {
         switch (staggerType) {
@@ -308,7 +311,9 @@ double StructuredMesh::getGridCoordComp(int dim, StaggerType staggerType,
                                         int i) const {
     // sanity check
     if (dim >= domain->getNumDim()) {
-        REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension (" << domain->getNumDim() << ")!");
+        REPORT_ERROR("Argument dim (" <<
+                     dim << ") exceeds domain dimension (" <<
+                     domain->getNumDim() << ")!");
     }
     if (domain->getAxisStartBndType(dim) == PERIODIC) {
         switch (staggerType) {
@@ -372,6 +377,19 @@ void StructuredMesh::getGridCoord(int idx, SpaceCoord &x, ArakawaGrid gridType,
         case B_GRID: case D_GRID: case E_GRID:
             REPORT_ERROR("Under construction!");
     }
+}
+
+void StructuredMesh::setCellVolumes() {
+    REPORT_ERROR("Under construction!");
+}
+
+void StructuredMesh::getCellVolume(int idx, double &volume) const {
+    if (!isVolumeSet) {
+        REPORT_ERROR("Cell volumes are not set yet!");
+    }
+    int i[3];
+    unwrapIndex(idx, i, A_GRID);
+    volume = volumes(i[0], i[1], i[2]);
 }
 
 double StructuredMesh::getGridInterval(int dim, StaggerType staggerType,

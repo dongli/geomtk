@@ -61,6 +61,38 @@ void RLLMesh::setGridCoords(int dim, int size, double *full, double *half) {
     }
 }
 
+void RLLMesh::setCellVolumes() {
+    const SphereDomain &domain = static_cast<const SphereDomain&>(*(this->domain));
+    volumes.set_size(getNumGrid(0, CENTER), getNumGrid(1, CENTER),
+                     getNumGrid(2, CENTER));
+    double R2 = domain.getRadius()*domain.getRadius();
+    //        assert(volumes.n_slices == 1);
+    for (int k = 0; k < volumes.n_slices; ++k) {
+        for (int j = 1; j < volumes.n_cols-1; ++j) {
+            double dsinLat = sinLatHalf(j)-sinLatHalf(j-1);
+            for (int i = 0; i < volumes.n_rows; ++i) {
+                volumes(i, j, k) = R2*fullIntervals[0](i)*dsinLat;
+            }
+        }
+        for (int i = 0; i < volumes.n_rows; ++i) {
+            volumes(i, 0, k) = R2*fullIntervals[0](i)*
+            (sinLatHalf(0)+1.0);
+            volumes(i, volumes.n_cols-1, k) = R2*fullIntervals[0](i)*
+            (1.0-sinLatHalf(volumes.n_cols-2));
+        }
+    }
+#ifdef DEBUG
+    double totalArea = 0.0;
+    for (int j = 0; j < volumes.n_cols; ++j) {
+        for (int i = 0; i < volumes.n_rows; ++i) {
+            totalArea += volumes(i, j, 0);
+        }
+    }
+    assert(fabs(totalArea-4*M_PI*R2) < 1.0e-10);
+#endif
+    isVolumeSet = true;
+}
+
 double RLLMesh::getCosLon(StaggerType staggerType, int i) const {
     switch (staggerType) {
         case CENTER:
