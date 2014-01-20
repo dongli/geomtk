@@ -18,8 +18,8 @@ class SphereDomain;
 
 class SphereCoord : public SpaceCoord {
 protected:
-    double xt[2];  //>! horizontal coordinate on polar stereographic plane
-    // TODOL How to calculate Cartesian coordinate, since the vertical
+    vec xt; //>! horizontal coordinate on polar stereographic plane
+    // TODO: How to calculate Cartesian coordinate, since the vertical
     //       coordinate may not be height?
     vec::fixed<3> cartCoord; //>! Cartesian coordinate representation
 public:
@@ -27,14 +27,31 @@ public:
     SphereCoord(const SphereCoord &other);
     virtual ~SphereCoord();
 
+    /**
+     *  Subscript operator for polar stereographic projected coorinate.
+     *
+     *  @param i the coordinate component index.
+     *
+     *  @return The coordinate componnet.
+     */
     double operator[](int i) const;
     double& operator[](int i);
+
+    /**
+     *  Get the polar stereographic projected coorinate with the vertical
+     *  coordinate component unchanged.
+     *
+     *  @return The polar stereographic projected coorinate.
+     */
+    const vec& getPSCoord() const;
+    vec& getPSCoord();
 
     SphereCoord& operator=(const SphereCoord& other);
 
     void transformToPS(const SphereDomain &domain);
 
     void transformFromPS(const SphereDomain &domain);
+    void transformFromPS(const SphereDomain &domain, Pole pole);
     
     void transformToCart(const SphereDomain &domain);
     

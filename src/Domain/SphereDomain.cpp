@@ -3,6 +3,7 @@
 namespace geomtk {
 
 SphereCoord::SphereCoord(int numDim) : SpaceCoord(numDim) {
+    xt.set_size(numDim);
 }
 
 SphereCoord::SphereCoord(const SphereCoord &other) : SpaceCoord(other) {
@@ -13,18 +14,25 @@ SphereCoord::~SphereCoord() {
 }
 
 double SphereCoord::operator[](int i) const {
-    return xt[i];
+    return xt(i);
 }
 
 double& SphereCoord::operator[](int i) {
-    return xt[i];
+    return xt(i);
+}
+
+const vec& SphereCoord::getPSCoord() const {
+    return xt;
+}
+
+vec& SphereCoord::getPSCoord() {
+    return xt;
 }
 
 SphereCoord& SphereCoord::operator=(const SphereCoord &other) {
     if (this != &other) {
         SpaceCoord::operator=(other);
-        xt[0] = other.xt[0];
-        xt[1] = other.xt[1];
+        xt = other.xt;
         cartCoord = other.cartCoord;
     }
     return *this;
@@ -33,19 +41,37 @@ SphereCoord& SphereCoord::operator=(const SphereCoord &other) {
 void SphereCoord::transformToPS(const SphereDomain &domain) {
     double sign = coord(1) < 0.0 ? -1.0 : 1.0;
     double tanLat = tan(coord(1));
-    xt[0] = sign*domain.getRadius()*cos(coord(0))/tanLat;
-    xt[1] = sign*domain.getRadius()*sin(coord(0))/tanLat;
+    xt(0) = sign*domain.getRadius()*cos(coord(0))/tanLat;
+    xt(1) = sign*domain.getRadius()*sin(coord(0))/tanLat;
+    if (domain.getNumDim() == 3) {
+        xt(2) = coord(2);
+    }
 }
 
 void SphereCoord::transformFromPS(const SphereDomain &domain) {
     double sign = coord(1) < 0.0 ? -1.0 : 1.0;
-    coord(0) = atan2(xt[1], xt[0]);
+    coord(0) = atan2(xt(1), xt(0));
     if (coord(0) < 0.0) {
         coord(0) += PI2;
     }
-    coord(1) = sign*atan(domain.getRadius()/sqrt(xt[0]*xt[0]+xt[1]*xt[1]));
+    coord(1) = sign*atan(domain.getRadius()/sqrt(xt(0)*xt(0)+xt(1)*xt(1)));
+    if (domain.getNumDim() == 3) {
+        coord(2) = xt(2);
+    }
 }
-    
+
+void SphereCoord::transformFromPS(const SphereDomain &domain, Pole pole) {
+    double sign = pole == SOUTH_POLE ? -1.0 : 1.0;
+    coord(0) = atan2(xt(1), xt(0));
+    if (coord(0) < 0.0) {
+        coord(0) += PI2;
+    }
+    coord(1) = sign*atan(domain.getRadius()/sqrt(xt(0)*xt(0)+xt(1)*xt(1)));
+    if (domain.getNumDim() == 3) {
+        coord(2) = xt(2);
+    }
+}
+
 void SphereCoord::transformToCart(const SphereDomain &domain) {
     double cosLat = cos(coord(1));
     cartCoord(0) = domain.getRadius()*cosLat*cos(coord(0));
