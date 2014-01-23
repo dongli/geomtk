@@ -48,7 +48,7 @@ protected:
 };
 
 TEST_F(StructuredRegridTest, Run) {
-    f_vector->create(VectorField, 2, C_GRID);
+    f_vector->create(VectorField, _2D, C_GRID);
     for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
         for (int i = 0; i < mesh->getNumGrid(0, EDGE); ++i) {
             (*f_vector)(0, timeIdx, i, j) = 5.0;

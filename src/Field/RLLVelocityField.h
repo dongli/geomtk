@@ -14,7 +14,6 @@ namespace geomtk {
  *  interpolating a point enclosed by the ring, the transformed velocity is
  *  interpolated onto the point by using the inverse distance weighting.
  */
-
 class PolarRing {
 protected:
     field<TimeLevels<SphereVelocity, 2>*> vr;

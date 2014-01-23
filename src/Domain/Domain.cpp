@@ -116,21 +116,14 @@ void Velocity::print() const {
 
 // -----------------------------------------------------------------------------
 
-Domain::Domain() {
-    numDim = 2;
-    axisStarts.resize(numDim);
-    axisEnds.resize(numDim);
-    axisSpans.resize(numDim);
-    bndTypeStarts = new BndType[numDim];
-    bndTypeEnds = new BndType[numDim];
-    for (int i = 0; i < numDim; ++i) {
-        bndTypeStarts[i] = INVALID;
-        bndTypeEnds[i] = INVALID;
-    }
+Domain::Domain() : Domain(2) {
 }
 
 Domain::Domain(int numDim) {
     this->numDim = numDim;
+    axisName.resize(numDim);
+    axisLongName.resize(numDim);
+    axisUnits.resize(numDim);
     axisStarts.resize(numDim);
     axisEnds.resize(numDim);
     axisSpans.resize(numDim);
@@ -151,8 +144,8 @@ int Domain::getNumDim() const {
     return numDim;
 }
 
-void Domain::setAxis(int dim,
-                     double start, BndType bndTypeStart,
+void Domain::setAxis(int dim, const string &name, const string &longName,
+                     const string &units, double start, BndType bndTypeStart,
                      double end, BndType bndTypeEnd) {
     // sanity check
     if (dim >= numDim) {
@@ -166,14 +159,28 @@ void Domain::setAxis(int dim,
     if (start >= end) {
         REPORT_WARNING("Axis start is smaller than end!")
     }
-
+    axisName[dim] = name;
+    axisLongName[dim] = longName;
+    axisUnits[dim] = units;
     axisStarts(dim) = start;
     bndTypeStarts[dim] = bndTypeStart;
     axisEnds(dim) = end;
     bndTypeEnds[dim] = bndTypeEnd;
     axisSpans(dim) = end-start;
 }
+    
+const string& Domain::getAxisName(int dim) const {
+    return axisName[dim];
+}
+    
+const string& Domain::getAxisLongName(int dim) const {
+    return axisLongName[dim];
+}
 
+const string& Domain::getAxisUnits(int dim) const {
+    return axisUnits[dim];
+}
+    
 double Domain::getAxisStart(int dim) const {
     // sanity check
     if (dim >= numDim) {

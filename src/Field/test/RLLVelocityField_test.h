@@ -45,7 +45,7 @@ protected:
 };
 
 TEST_F(RLLVelocityFieldTest, CreateAndSet) {
-    v->create(2, C_GRID);
+    v->create(_2D, C_GRID);
     for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
         for (int i = 0; i < mesh->getNumGrid(0, EDGE); ++i) {
             (*v)(0, timeIdx, i, j) = 5.0;

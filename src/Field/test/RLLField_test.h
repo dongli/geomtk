@@ -110,7 +110,7 @@ TEST_F(RLLFieldTest, CheckScalarField) {
 TEST_F(RLLFieldTest, TestVectorFieldHalfLevel) {
     TimeLevelIndex<2> newTimeIdx = timeIdx+1;
     TimeLevelIndex<2> halfTimeIdx = timeIdx+0.5;
-    f_vector->create(VectorField, 2, C_GRID);
+    f_vector->create(VectorField, _2D, C_GRID);
     for (int m = 0; m < 2; ++m) {
         for (int j = 0; j < mesh->getNumGrid(1, f_vector->getStaggerType(m, 1)); ++j) {
             for (int i = 0; i < mesh->getNumGrid(0, f_vector->getStaggerType(m, 0)); ++i) {
@@ -137,7 +137,7 @@ TEST_F(RLLFieldTest, TestVectorFieldHalfLevel) {
 }
 
 TEST_F(RLLFieldTest, TestVectorField) {
-    f_vector->create(VectorField, 2, C_GRID);
+    f_vector->create(VectorField, _2D, C_GRID);
     // -------------------------------------------------------------------------
     // check data dimensionality
     ASSERT_EQ(2, f_vector->data.size());

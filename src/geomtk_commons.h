@@ -25,6 +25,7 @@ using std::setw;
 using std::setprecision;
 using std::setfill;
 using std::ostream;
+using std::ifstream;
 
 using std::string;
 using std::vector;
@@ -36,6 +37,7 @@ using std::max;
 using std::enable_if;
 using std::is_arithmetic;
 using std::is_pointer;
+using std::is_floating_point;
     
 template <typename T, typename NameGetter>
 struct has_member_impl {

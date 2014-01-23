@@ -1,5 +1,4 @@
 #include "RLLMesh.h"
-#include "SphereDomain.h"
 #include "RLLMeshIndex.h"
 
 namespace geomtk {

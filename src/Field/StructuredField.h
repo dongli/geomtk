@@ -417,13 +417,13 @@ void StructuredField<T>::create(FieldType fieldType, int numDim,
     this->gridType = gridType;
     switch (gridType) {
         case A_GRID:
-            if (numDim == 2) {
+            if (numDim == _2D) {
                 if (fieldType == ScalarField) {
                     create(fieldType, CENTER, CENTER);
                 } else if (fieldType == VectorField) {
                     create(fieldType, CENTER, CENTER, CENTER, CENTER);
                 }
-            } else if (numDim == 3) {
+            } else if (numDim == _3D) {
                 if (fieldType == ScalarField) {
                     create(fieldType, CENTER, CENTER, CENTER);
                 } else if (fieldType == VectorField) {
@@ -437,10 +437,10 @@ void StructuredField<T>::create(FieldType fieldType, int numDim,
             REPORT_ERROR("Under construction!");
             break;
         case C_GRID:
-            if (numDim == 2) {
+            if (numDim == _2D) {
                 create(fieldType,   EDGE, CENTER,
                                   CENTER,   EDGE);
-            } else if (numDim == 3) {
+            } else if (numDim == _3D) {
                 create(fieldType,   EDGE, CENTER, CENTER,
                                   CENTER,   EDGE, CENTER,
                                   CENTER, CENTER,   EDGE);

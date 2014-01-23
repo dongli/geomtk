@@ -21,7 +21,30 @@ Field::Field(const string &name, const string &units, const string &longName,
     
 Field::~Field() {
 }
+void Field::setName(const string &name) {
+    this->name = name;
+}
 
+void Field::setLongName(const string &longName) {
+    this->longName = longName;
+}
+
+void Field::setUnits(const string &units) {
+    this->units = units;
+}
+    
+const string& Field::getName() const {
+    return name;
+}
+
+const string& Field::getLongName() const {
+    return longName;
+}
+
+const string& Field::getUnits() const {
+    return units;
+}
+    
 const Mesh& Field::getMesh() const {
     return *mesh;
 }

@@ -68,20 +68,27 @@ public:
 class Domain {
 protected:
     int numDim;
+    vector<string> axisName;
+    vector<string> axisLongName;
+    vector<string> axisUnits;
     vec axisStarts;
     vec axisEnds;
     vec axisSpans;
     BndType *bndTypeStarts;
     BndType *bndTypeEnds;
-
 public:
     Domain();
     Domain(int numDim);
     virtual ~Domain();
 
     virtual int getNumDim() const;
-    virtual void setAxis(int dim, double start, BndType bndTypeStart,
+    virtual void setAxis(int dim, const string &axisName,
+                         const string &axisLongName, const string &axisUnits,
+                         double start, BndType bndTypeStart,
                          double end, BndType bndTypeEnd);
+    virtual const string& getAxisName(int dim) const;
+    virtual const string& getAxisLongName(int dim) const;
+    virtual const string& getAxisUnits(int dim) const;
     virtual double getAxisStart(int dim) const;
     virtual double getAxisEnd(int dim) const;
     virtual double getAxisSpan(int dim) const;
@@ -105,7 +112,7 @@ public:
      *  @return The distance.
      */
     virtual double calcDistance(const SpaceCoord &x, const SpaceCoord &y) const;
-    
+
     /**
      *  Difference two space coordinates.
      *

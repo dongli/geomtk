@@ -11,17 +11,21 @@ enum FieldType {
     ScalarField, VectorField
 };
 
+#define _1D 1
+#define _2D 2
+#define _3D 3
+
 #define UPDATE_HALF_LEVEL true
 
 /**
- *  This is the base class for describing field on a mesh.
+ *  This is the base class for specifying field on a mesh.
  */
 
 class Field {
 protected:
     string name;
-    string units;
     string longName;
+    string units;
     const Mesh *mesh;
     bool hasHalfLevel;
 public:
@@ -30,6 +34,12 @@ public:
           const Mesh &mesh, bool hasHalfLevel = false);
     virtual ~Field();
 
+    void setName(const string &name);
+    void setLongName(const string &longName);
+    void setUnits(const string &units);
+    const string& getName() const;
+    const string& getLongName() const;
+    const string& getUnits() const;
     const Mesh& getMesh() const;
 };
 

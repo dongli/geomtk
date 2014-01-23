@@ -41,7 +41,8 @@ protected:
         for (int k = 0; k < numLev+1; ++k) {
             halfLev[k] = k*dlev;
         }
-        domain->setAxis(2, 0.0, RIGID, 1.0, RIGID);
+        domain->setAxis(2, "z", "vertical coordinate", "m",
+                        0.0, RIGID, 1.0, RIGID);
         mesh->setGridCoords(2, numLev, fullLev, halfLev);
     }
 
@@ -132,6 +133,7 @@ TEST_F(RLLMeshTest, Move) {
 
 TEST_F(RLLMeshTest, CheckCellVolume) {
     double volume;
+    mesh->setCellVolumes();
     mesh->getCellVolume(0, volume);
 }
 
