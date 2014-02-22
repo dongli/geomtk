@@ -121,6 +121,10 @@ public:
 class SphereDomain : public Domain {
     double radius;
 public:
+    enum ProjectionType {
+        STEREOGRAPHIC
+    };
+    
     SphereDomain();
     SphereDomain(int numDim);
     virtual ~SphereDomain();
@@ -158,6 +162,12 @@ public:
      */
     virtual void rotateBack(const SpaceCoord &xp, SpaceCoord &xo,
                             const SpaceCoord &xr) const;
+
+    void project(ProjectionType projType, const SphereCoord &xp,
+                 const SphereCoord &xo, vec &xs) const;
+    
+    void projectBack(ProjectionType projType, const SphereCoord &xp,
+                     SphereCoord &xo, const vec &xs) const;
 
     virtual string getBrief() const;
 };

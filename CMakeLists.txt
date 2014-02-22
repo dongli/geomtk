@@ -9,6 +9,8 @@
 
 cmake_minimum_required (VERSION 2.8)
 
+set (CMAKE_CXX_FLAGS "-std=c++11")
+
 # ------------------------------------------------------------------------------
 # check if there is upper project
 if (DEFINED PROJECT_NAME)
@@ -19,7 +21,27 @@ endif ()
 # ------------------------------------------------------------------------------
 project (geomtk CXX)
 
-set (CMAKE_CXX_FLAGS "-std=c++11")
+# ------------------------------------------------------------------------------
+# external libraries
+# Armadillo
+if (DEFINED ENV{ARMADILLO_ROOT})
+    message ("@@ Use user provided library Armadillo.")
+    message ("@@ ARMADILLO_ROOT = $ENV{ARMADILLO_ROOT}")
+    find_package (Armadillo HINTS $ENV{ARMADILLO_ROOT})
+else ()
+    find_package (Armadillo)
+    if (NOT ARMADILLO_FOUND)
+        message (FATAL_ERROR
+            "CMake couldn't find library Armadillo! "
+            "If it have been installed and you know where it is, "
+            "set ARMADILLO_ROOT (e.g. in .bashrc) to it."
+        )
+    endif ()
+endif ()
+
+# NetCDF
+set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
+find_package (NETCDF COMPONENTS C)
 
 # ------------------------------------------------------------------------------
 # source directory structure
@@ -33,7 +55,11 @@ set (source_directories
 )
 # record the source directories for upper project
 if (use_as_submodule)
-    set (GEOMTK_INCLUDE_DIRS ${source_directories} PARENT_SCOPE)
+    set (GEOMTK_INCLUDE_DIRS
+        ${source_directories}
+        ${ARMADILLO_INCLUDE_DIRS}
+        PARENT_SCOPE
+    )
     set (GEOMTK_LIBRARY_DIRS ${PROJECT_BINARY_DIR} PARENT_SCOPE)
 endif ()
 
@@ -48,26 +74,6 @@ foreach (dir ${source_directories})
     aux_source_directory ("${dir}" tmp2)
     list (APPEND sources ${tmp2})
 endforeach ()
-
-# ------------------------------------------------------------------------------
-# external libraries
-find_package (Armadillo)
-if (NOT ARMADILLO_FOUND)
-    if (DEFINED ENV{ARMADILLO_ROOT})
-        message ("@@ Use user provided library Armadillo.")
-        message ("@@ ARMADILLO_ROOT = $ENV{ARMADILLO_ROOT}")
-        find_package (Armadillo HINTS $ENV{ARMADILLO_ROOT})
-    else ()
-        message (FATAL_ERROR
-            "CMake couldn't find library Armadillo! "
-            "If it have been installed and you know where it is, "
-            "set ARMADILLO_ROOT (e.g. in .bashrc) to it."
-        )
-    endif ()
-endif ()
-
-set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
-find_package (NETCDF COMPONENTS C)
 
 # ------------------------------------------------------------------------------
 # library targets

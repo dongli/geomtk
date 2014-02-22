@@ -351,6 +351,32 @@ void SphereDomain::rotateBack(const SpaceCoord &xp, SpaceCoord &xo,
     xo(1) = asin(tmp3);
 }
 
+void SphereDomain::project(ProjectionType projType, const SphereCoord &xp,
+                           const SphereCoord &xo, vec &xs) const {
+    switch (projType) {
+        case STEREOGRAPHIC:
+            SphereCoord xr(numDim);
+            rotate(xp, xo, xr);
+            xr.transformToPS(*this);
+            xs(0) = xr[0];
+            xs(1) = xr[1];
+            break;
+    }
+}
+ 
+void SphereDomain::projectBack(ProjectionType projType, const SphereCoord &xp,
+                               SphereCoord &xo, const vec &xs) const {
+    switch (projType) {
+        case STEREOGRAPHIC:
+            SphereCoord xr(numDim);
+            xr[0] = xs(0);
+            xr[1] = xs(1);
+            xr.transformFromPS(*this, NORTH_POLE);
+            rotateBack(xp, xo, xr);
+            break;
+    }
+}
+
 string SphereDomain::getBrief() const {
     string brief = "sphere domain";
     return brief;

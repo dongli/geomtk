@@ -17,17 +17,3 @@
 doc/html
 doc/latex
 
-# CMake files
-CMakeFiles
-CMakeScripts
-CMakeCache.txt
-cmake_install.cmake
-install_manifest.txt
-Testing
-DartConfiguration.tcl
-CTestTestfile.cmake
-Makefile
-cmake_uninstall.cmake
-*.build
-*.xcodeproj
-Debug
