@@ -111,7 +111,7 @@ public:
      *
      *  @return The distance.
      */
-    virtual double calcDistance(const SpaceCoord &x, const SpaceCoord &y) const;
+    double calcDistance(const SpaceCoord &x, const SpaceCoord &y) const;
 
     /**
      *  Difference two space coordinates.
@@ -121,7 +121,7 @@ public:
      *
      *  @return The distance.
      */
-    virtual vec diffCoord(const SpaceCoord &x, const SpaceCoord &y) const;
+    vec diffCoord(const SpaceCoord &x, const SpaceCoord &y) const;
 
     /**
      *  Get a brief about the domain.

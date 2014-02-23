@@ -92,6 +92,18 @@ void RLLMesh::setCellVolumes() {
     isVolumeSet = true;
 }
 
+void RLLMesh::getGridCoord(const MeshIndex &idx, SpaceCoord &x,
+                           ArakawaGrid gridType, int dim) const {
+    StructuredMesh::getGridCoord(idx, x, gridType, dim);
+    static_cast<SphereCoord*>(&x)->updateTrigonometricFunctions();
+}
+
+void RLLMesh::getGridCoord(int idx, SpaceCoord &x, ArakawaGrid gridType,
+                           int dim) const {
+    StructuredMesh::getGridCoord(idx, x, gridType, dim);
+    static_cast<SphereCoord*>(&x)->updateTrigonometricFunctions();
+}
+
 double RLLMesh::getCosLon(StaggerType staggerType, int i) const {
     switch (staggerType) {
         case CENTER:
@@ -152,27 +164,25 @@ void RLLMesh::move(const SphereCoord &x0, double dt, const SphereVelocity &v,
     if (!idx.isOnPole()) {
         double dlon = dt*v(0)/domain.getRadius()/cos(x0(1));
         double dlat = dt*v(1)/domain.getRadius();
-        x1(0) = x0(0)+dlon;
-        x1(1) = x0(1)+dlat;
-        if (x1(1) > M_PI_2) {
-            x1(0) = M_PI+x0(0)-dlon;
-            x1(1) = M_PI-x0(1)-dlat;
+        double lon = x0(0)+dlon;
+        double lat = x0(1)+dlat;
+        if (lat > M_PI_2) {
+            lon = M_PI+x0(0)-dlon;
+            lat = M_PI-x0(1)-dlat;
         }
-        if (x1(1) < -M_PI_2) {
-            x1(0) =  M_PI+x0(0)-dlon;
-            x1(1) = -M_PI-x0(1)-dlat;
+        if (lat < -M_PI_2) {
+            lon =  M_PI+x0(0)-dlon;
+            lat = -M_PI-x0(1)-dlat;
         }
-        if (x1(0) < 0.0) {
-            x1(0) = PI2+fmod(x1(0), PI2);
-        } else if (x1(0) > PI2) {
-            x1(0) = fmod(x1(0), PI2);
+        if (lon < 0.0) {
+            lon = PI2+fmod(lon, PI2);
+        } else if (lon > PI2) {
+            lon = fmod(lon, PI2);
         }
+        x1.setCoord(lon, lat);
     } else {
-        x1(0) = x0(0);
-        x1(1) = x0(1);
-        x1.transformToPS(domain);
-        x1[0] += dt*v[0];
-        x1[1] += dt*v[1];
+        x1[0] = x0[0]+dt*v[0];
+        x1[1] = x0[1]+dt*v[1];
         x1.transformFromPS(domain);
     }
     if (domain.getNumDim() == 3) {

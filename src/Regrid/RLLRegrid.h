@@ -17,11 +17,11 @@ public:
 
     template <typename T>
     void run(RegridMethod method, const TimeLevelIndex<2> &timeIdx,
-             const RLLField<T> &f, const SpaceCoord &x, T &y,
+             const RLLField<T> &f, const SphereCoord &x, T &y,
              RLLMeshIndex *idx = NULL);
 
     void run(RegridMethod method, const TimeLevelIndex<2> &timeIdx,
-             const RLLVelocityField &f, const SpaceCoord &x, SphereVelocity &y,
+             const RLLVelocityField &f, const SphereCoord &x, SphereVelocity &y,
              RLLMeshIndex *idx = NULL);
 };
 
@@ -29,7 +29,7 @@ public:
 
 template <typename T>
 void RLLRegrid::run(RegridMethod method, const TimeLevelIndex<2> &timeIdx,
-                    const RLLField<T> &f, const SpaceCoord &x, T &y,
+                    const RLLField<T> &f, const SphereCoord &x, T &y,
                     RLLMeshIndex *idx_) {
     const RLLMesh &mesh = static_cast<const RLLMesh&>(*(this->mesh));
     RLLMeshIndex *idx;

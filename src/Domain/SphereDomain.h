@@ -22,10 +22,19 @@ protected:
     // TODO: How to calculate Cartesian coordinate, since the vertical
     //       coordinate may not be height?
     vec::fixed<3> cartCoord; //>! Cartesian coordinate representation
+    double cosLon, sinLon, cosLat, sinLat;
 public:
     SphereCoord(int numDim);
     SphereCoord(const SphereCoord &other);
     virtual ~SphereCoord();
+
+    void setCoord(double lon, double lat);
+    void updateTrigonometricFunctions();
+
+    double getCosLon() const { return cosLon; }
+    double getSinLon() const { return sinLon; }
+    double getCosLat() const { return cosLat; }
+    double getSinLat() const { return sinLat; }
 
     /**
      *  Subscript operator for polar stereographic projected coorinate.
@@ -93,7 +102,7 @@ public:
      * Transform velocity onto polar stereographic plane.
      * @param x the space coordinate.
      */
-    void transformToPS(const SpaceCoord &x);
+    void transformToPS(const SphereCoord &x);
 
     /**
      * Transform velocity onto polar stereographic plane.
@@ -111,7 +120,7 @@ public:
      * Transform velocity from polar stereographic plane.
      * @param x the space coordinate.
      */
-     void transformFromPS(const SpaceCoord &x);
+     void transformFromPS(const SphereCoord &x);
 
     virtual void print() const;
 };
@@ -132,13 +141,12 @@ public:
     double getRadius() const;
     void setRadius(double radius);
 
-    virtual double calcDistance(const SpaceCoord &x, const SpaceCoord &y) const;
-    virtual double calcDistance(const SpaceCoord &x, double lon,
-                                double lat) const;
-    virtual double calcDistance(const SpaceCoord &x, double lon,
-                                double sinLat, double cosLat) const;
+    double calcDistance(const SphereCoord &x, const SphereCoord &y) const;
+    double calcDistance(const SphereCoord &x, double lon, double lat) const;
+    double calcDistance(const SphereCoord &x, double lon, double sinLat,
+                        double cosLat) const;
 
-    virtual vec diffCoord(const SpaceCoord &x, const SpaceCoord &y) const;
+    virtual vec diffCoord(const SphereCoord &x, const SphereCoord &y) const;
     
     /**
      *  Transform the given space coordinate 'xo' into a rotated spherical
@@ -149,8 +157,8 @@ public:
      *  @param xo the original space coordinate.
      *  @param xr the transformed space coordinate.
      */
-    virtual void rotate(const SpaceCoord &xp, const SpaceCoord &xo,
-                        SpaceCoord &xr) const;
+    void rotate(const SphereCoord &xp, const SphereCoord &xo,
+                SphereCoord &xr) const;
 
     /**
      *  Transform the rotated coordinate back to original spherical coordinate
@@ -160,8 +168,8 @@ public:
      *  @param xo the original space coordinate.
      *  @param xr the transformed space coordinate.
      */
-    virtual void rotateBack(const SpaceCoord &xp, SpaceCoord &xo,
-                            const SpaceCoord &xr) const;
+    void rotateBack(const SphereCoord &xp, SphereCoord &xo,
+                    const SphereCoord &xr) const;
 
     void project(ProjectionType projType, const SphereCoord &xp,
                  const SphereCoord &xo, vec &xs) const;

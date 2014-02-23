@@ -28,6 +28,11 @@ public:
 
     virtual void setCellVolumes();
 
+    virtual void getGridCoord(const MeshIndex &idx, SpaceCoord &x,
+                              ArakawaGrid gridType, int dim = 0) const;
+    virtual void getGridCoord(int idx, SpaceCoord &x, ArakawaGrid gridType,
+                              int dim = 0) const;
+
     double getCosLon(StaggerType staggerType, int i) const;
     double getSinLon(StaggerType staggerType, int i) const;
     double getCosLat(StaggerType staggerType, int j) const;

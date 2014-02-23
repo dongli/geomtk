@@ -9,7 +9,7 @@ RLLRegrid::~RLLRegrid() {
 }
 
 void RLLRegrid::run(RegridMethod method, const TimeLevelIndex<2> &timeIdx,
-                    const RLLVelocityField &f, const SpaceCoord &x,
+                    const RLLVelocityField &f, const SphereCoord &x,
                     SphereVelocity &y, RLLMeshIndex *idx_) {
     const RLLMesh &mesh = static_cast<const RLLMesh&>(*(this->mesh));
     RLLMeshIndex *idx;

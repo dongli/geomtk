@@ -13,6 +13,19 @@ SphereCoord::SphereCoord(const SphereCoord &other) : SpaceCoord(other) {
 SphereCoord::~SphereCoord() {
 }
 
+void SphereCoord::setCoord(double lon, double lat) {
+    coord[0] = lon;
+    coord[1] = lat;
+    updateTrigonometricFunctions();
+}
+
+void SphereCoord::updateTrigonometricFunctions() {
+    cosLon = cos(coord(0));
+    sinLon = sin(coord(0));
+    cosLat = cos(coord(1));
+    sinLat = sin(coord(1));
+}
+
 double SphereCoord::operator[](int i) const {
     return xt(i);
 }
@@ -34,6 +47,10 @@ SphereCoord& SphereCoord::operator=(const SphereCoord &other) {
         SpaceCoord::operator=(other);
         xt = other.xt;
         cartCoord = other.cartCoord;
+        cosLon = other.cosLon;
+        sinLon = other.sinLon;
+        cosLat = other.cosLat;
+        sinLat = other.sinLat;
     }
     return *this;
 }
@@ -41,11 +58,11 @@ SphereCoord& SphereCoord::operator=(const SphereCoord &other) {
 void SphereCoord::transformToPS(const SphereDomain &domain) {
     double tanLat = tan(coord(1));
     if (coord(1) < 0.0) { // South Pole
-        xt(0) = -domain.getRadius()*sin(coord(0))/tanLat;
-        xt(1) = -domain.getRadius()*cos(coord(0))/tanLat;
+        xt(0) = -domain.getRadius()*sinLon/tanLat;
+        xt(1) = -domain.getRadius()*cosLon/tanLat;
     } else { // North Pole
-        xt(0) =  domain.getRadius()*cos(coord(0))/tanLat;
-        xt(1) =  domain.getRadius()*sin(coord(0))/tanLat;
+        xt(0) =  domain.getRadius()*cosLon/tanLat;
+        xt(1) =  domain.getRadius()*sinLon/tanLat;
     }
     if (domain.getNumDim() == 3) {
         xt(2) = coord(2);
@@ -66,6 +83,7 @@ void SphereCoord::transformFromPS(const SphereDomain &domain) {
     if (domain.getNumDim() == 3) {
         coord(2) = xt(2);
     }
+    updateTrigonometricFunctions();
 }
 
 void SphereCoord::transformFromPS(const SphereDomain &domain, Pole pole) {
@@ -82,13 +100,13 @@ void SphereCoord::transformFromPS(const SphereDomain &domain, Pole pole) {
     if (domain.getNumDim() == 3) {
         coord(2) = xt(2);
     }
+    updateTrigonometricFunctions();
 }
 
 void SphereCoord::transformToCart(const SphereDomain &domain) {
-    double cosLat = cos(coord(1));
-    cartCoord(0) = domain.getRadius()*cosLat*cos(coord(0));
-    cartCoord(1) = domain.getRadius()*cosLat*sin(coord(0));
-    cartCoord(2) = domain.getRadius()*sin(coord(1));
+    cartCoord(0) = domain.getRadius()*cosLat*cosLon;
+    cartCoord(1) = domain.getRadius()*cosLat*sinLon;
+    cartCoord(2) = domain.getRadius()*sinLat;
 }
     
 const vec& SphereCoord::getCartCoord() const {
@@ -175,12 +193,9 @@ const SphereVelocity SphereVelocity::operator/(double scale) const {
     return res;
 }
 
-void SphereVelocity::transformToPS(const SpaceCoord &x) {
-    double sinLat = sin(x(1));
-    double sinLat2 = sinLat*sinLat;
-    double sinLon = sin(x(0));
-    double cosLon = cos(x(0));
-    transformToPS(sinLat, sinLat2, sinLon, cosLon);
+void SphereVelocity::transformToPS(const SphereCoord &x) {
+    transformToPS(x.getSinLat(), x.getSinLat()*x.getSinLat(),
+                  x.getSinLon(), x.getCosLon());
 }
 
 void SphereVelocity::transformToPS(double sinLat, double sinLat2,
@@ -194,17 +209,13 @@ void SphereVelocity::transformToPS(double sinLat, double sinLat2,
     }
 }
 
-void SphereVelocity::transformFromPS(const SpaceCoord &x) {
-    double sinLat = sin(x(1));
-    double sinLat2 = sinLat*sinLat;
-    double sinLon = sin(x(0));
-    double cosLon = cos(x(0));
+void SphereVelocity::transformFromPS(const SphereCoord &x) {
     if (x(1) < 0.0) { // South Pole
-        v(0) = (cosLon*vt[0]+sinLon*vt[1])*sinLat2;
-        v(1) = (sinLon*vt[0]-cosLon*vt[1])*sinLat;
+        v(0) = (x.getCosLon()*vt[0]+x.getSinLon()*vt[1])*x.getSinLat()*x.getSinLat();
+        v(1) = (x.getSinLon()*vt[0]-x.getCosLon()*vt[1])*x.getSinLat();
     } else { // North Pole
-        v(0) = (-sinLon*vt[0]+cosLon*vt[1])*sinLat;
-        v(1) = (-cosLon*vt[0]-sinLon*vt[1])*sinLat2;
+        v(0) = (-x.getSinLon()*vt[0]+x.getCosLon()*vt[1])*x.getSinLat()*x.getSinLat();
+        v(1) = (-x.getCosLon()*vt[0]-x.getSinLon()*vt[1])*x.getSinLat();
     }
 }
 
@@ -240,35 +251,35 @@ void SphereDomain::setRadius(double radius) {
     this->radius = radius;
 }
 
-double SphereDomain::calcDistance(const SpaceCoord &x,
-                                  const SpaceCoord &y) const {
+double SphereDomain::calcDistance(const SphereCoord &x,
+                                  const SphereCoord &y) const {
     double dlon = x(0)-y(0);
-    double tmp1 = sin(x(1))*sin(y(1));
-    double tmp2 = cos(x(1))*cos(y(1))*cos(dlon);
+    double tmp1 = x.getSinLat()*y.getSinLat();
+    double tmp2 = x.getCosLat()*y.getCosLat()*cos(dlon);
     double tmp3 = min(1.0, max(-1.0, tmp1+tmp2));
     return radius*acos(tmp3);
 }
 
-double SphereDomain::calcDistance(const SpaceCoord &x, double lon,
+double SphereDomain::calcDistance(const SphereCoord &x, double lon,
                                   double lat) const {
     double dlon = x(0)-lon;
-    double tmp1 = sin(x(1))*sin(lat);
-    double tmp2 = cos(x(1))*cos(lat)*cos(dlon);
+    double tmp1 = x.getSinLat()*sin(lat);
+    double tmp2 = x.getCosLat()*cos(lat)*cos(dlon);
     double tmp3 = min(1.0, max(-1.0, tmp1+tmp2));
     return radius*acos(tmp3);
 }
 
-double SphereDomain::calcDistance(const SpaceCoord &x, double lon,
+double SphereDomain::calcDistance(const SphereCoord &x, double lon,
                                   double sinLat, double cosLat) const {
     double dlon = x(0)-lon;
-    double tmp1 = sin(x(1))*sinLat;
-    double tmp2 = cos(x(1))*cosLat*cos(dlon);
+    double tmp1 = x.getSinLat()*sinLat;
+    double tmp2 = x.getCosLat()*cosLat*cos(dlon);
     double tmp3 = min(1.0, max(-1.0, tmp1+tmp2));
     return radius*acos(tmp3);
 }
     
-vec SphereDomain::diffCoord(const SpaceCoord &x,
-                            const SpaceCoord &y) const {
+vec SphereDomain::diffCoord(const SphereCoord &x,
+                            const SphereCoord &y) const {
     vec d(numDim);
     for (int m = 0; m < numDim; ++m) {
         d(m) = x(m)-y(m);
@@ -283,25 +294,21 @@ vec SphereDomain::diffCoord(const SpaceCoord &x,
     return d;
 }
 
-void SphereDomain::rotate(const SpaceCoord &xp, const SpaceCoord &xo,
-                          SpaceCoord &xr) const {
+void SphereDomain::rotate(const SphereCoord &xp, const SphereCoord &xo,
+                          SphereCoord &xr) const {
     double dlon = xo(0)-xp(0);
-    double cosLatP = cos(xp(1));
-    double sinLatP = sin(xp(1));
-    double cosLatO = cos(xo(1));
-    double sinLatO = sin(xo(1));
     double cosDlon = cos(dlon);
     double sinDlon = sin(dlon);
 
-    double tmp1, tmp2, tmp3;
+    double tmp1, tmp2, tmp3, lon, lat;
 
-    tmp1 = cosLatO*sinDlon;
-    tmp2 = cosLatO*sinLatP*cosDlon-cosLatP*sinLatO;
-    xr(0) = atan2(tmp1, tmp2);
-    if (xr(0) < 0.0) xr(0) += PI2;
+    tmp1 = xo.getCosLat()*sinDlon;
+    tmp2 = xo.getCosLat()*xp.getSinLat()*cosDlon-xp.getCosLat()*xo.getSinLat();
+    lon = atan2(tmp1, tmp2);
+    if (lon < 0.0) lon += PI2;
 
-    tmp1 = sinLatO*sinLatP;
-    tmp2 = cosLatO*cosLatP*cosDlon;
+    tmp1 = xo.getSinLat()*xp.getSinLat();
+    tmp2 = xo.getCosLat()*xp.getCosLat()*cosDlon;
     tmp3 = tmp1+tmp2;
 #ifdef DEBUG
     static const double eps = 1.0e-15;
@@ -313,22 +320,16 @@ void SphereDomain::rotate(const SpaceCoord &xp, const SpaceCoord &xo,
     }
 #endif
     tmp3 = fmin(1.0, fmax(-1.0, tmp3));
-    xr(1) = asin(tmp3);
+    lat = asin(tmp3);
+    xr.setCoord(lon, lat);
 }
     
-void SphereDomain::rotateBack(const SpaceCoord &xp, SpaceCoord &xo,
-                              const SpaceCoord &xr) const {
-    double cosLatP = cos(xp(1));
-    double sinLatP = sin(xp(1));
-    double cosLonR = cos(xr(0));
-    double sinLonR = sin(xr(0));
-    double cosLatR = cos(xr(1));
-    double sinLatR = sin(xr(1));
+void SphereDomain::rotateBack(const SphereCoord &xp, SphereCoord &xo,
+                              const SphereCoord &xr) const {
+    double tmp1, tmp2, tmp3, lon, lat;
     
-    double tmp1, tmp2, tmp3;
-    
-    tmp1 = cosLatR*sinLonR;
-    tmp2 = sinLatR*cosLatP+cosLatR*cosLonR*sinLatP;
+    tmp1 = xr.getCosLat()*xr.getSinLon();
+    tmp2 = xr.getSinLat()*xp.getCosLat()+xr.getCosLat()*xr.getCosLon()*xp.getSinLat();
 #ifdef DEBUG
     static const double eps = 1.0e-15;
     if (fabs(tmp2) < eps) {
@@ -336,19 +337,20 @@ void SphereDomain::rotateBack(const SpaceCoord &xp, SpaceCoord &xo,
         tmp2 = 0.0;
     }
 #endif
-    xo(0) = xp(0)+atan2(tmp1, tmp2);
-    if (xo(0) > PI2) xo(0) -= PI2;
-    if (xo(0) < 0.0) xo(0) += PI2;
+    lon = xp(0)+atan2(tmp1, tmp2);
+    if (lon > PI2) lon -= PI2;
+    if (lon < 0.0) lon += PI2;
     
-    tmp1 = sinLatR*sinLatP;
-    tmp2 = cosLatR*cosLatP*cosLonR;
+    tmp1 = xr.getSinLat()*xp.getSinLat();
+    tmp2 = xr.getCosLat()*xp.getCosLat()*xr.getCosLon();
     tmp3 = tmp1-tmp2;
 #ifdef DEBUG
     if (tmp3 < -1.0 || tmp3 > 1.0)
         REPORT_ERROR("tmp3 is out of range [-1,1]!");
 #endif
     tmp3 = fmin(1.0, fmax(-1.0, tmp3));
-    xo(1) = asin(tmp3);
+    lat = asin(tmp3);
+    xo.setCoord(lon, lat);
 }
 
 void SphereDomain::project(ProjectionType projType, const SphereCoord &xp,
