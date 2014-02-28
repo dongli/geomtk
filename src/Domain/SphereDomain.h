@@ -29,6 +29,8 @@ public:
     virtual ~SphereCoord();
 
     void setCoord(double lon, double lat);
+    void setCoordComp(int dim, double comp);
+    void setCartCoord(double x, double y, double z);
     void updateTrigonometricFunctions();
 
     double getCosLon() const { return cosLon; }
@@ -147,7 +149,7 @@ public:
                         double cosLat) const;
 
     virtual vec diffCoord(const SphereCoord &x, const SphereCoord &y) const;
-    
+
     /**
      *  Transform the given space coordinate 'xo' into a rotated spherical
      *  coordinate system with North Pole coordinate in original one as 'xp'.

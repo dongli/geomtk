@@ -18,6 +18,22 @@ void SphereCoord::setCoord(double lon, double lat) {
     coord[1] = lat;
     updateTrigonometricFunctions();
 }
+    
+void SphereCoord::setCoordComp(int dim, double comp) {
+    coord(dim) = comp;
+    updateTrigonometricFunctions();
+}
+    
+void SphereCoord::setCartCoord(double x, double y, double z) {
+    cartCoord[0] = x;
+    cartCoord[1] = y;
+    cartCoord[2] = z;
+    coord[0] = atan2(y, x);
+    coord[1] = asin(z);
+    if (coord[0] < 0.0) coord[0] += PI2;
+    if (coord[0] > PI2) coord[0] -= PI2;
+    updateTrigonometricFunctions();
+}
 
 void SphereCoord::updateTrigonometricFunctions() {
     cosLon = cos(coord(0));

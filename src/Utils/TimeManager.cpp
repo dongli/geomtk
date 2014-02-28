@@ -89,7 +89,7 @@ double Time::getSeconds(const Time &other) const {
         res += big->minute*60;
     } else {
         if (small->minute < big->minute) {
-            res += (big->minute-small->minute-1)*3600;
+            res += (big->minute-small->minute-1)*60;
         }
     }
     // =========================================================================
