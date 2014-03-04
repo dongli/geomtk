@@ -9,8 +9,6 @@
 
 cmake_minimum_required (VERSION 2.8)
 
-set (CMAKE_CXX_FLAGS "-std=c++11")
-
 # ------------------------------------------------------------------------------
 # check if there is upper project
 if (DEFINED PROJECT_NAME)
@@ -20,6 +18,8 @@ endif ()
 
 # ------------------------------------------------------------------------------
 project (geomtk CXX)
+
+set (CMAKE_CXX_FLAGS "-std=c++11")
 
 # ------------------------------------------------------------------------------
 # external libraries

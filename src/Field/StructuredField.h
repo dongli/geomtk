@@ -89,13 +89,16 @@ public:
 
     /**
      *  Apply boundary conditions after the scalar field is updated.
+     *  This function is only valid when T can be added and carried on
+     *  arithmetic operations.
      *
      *  @param timeIdx       the time level index.
      *  @param updateHalfLevel the flag for updating half level.
      */
-    template <typename = typename enable_if<has_operator_plus<T>::value ||
-                                            is_arithmetic<T>::value>::type>
-    void applyBndCond(const TimeLevelIndex<2> &timeIdx,
+    template <typename Q = T>
+    typename enable_if<has_operator_plus<Q>::value ||
+                       is_arithmetic<Q>::value, void>::type
+    applyBndCond(const TimeLevelIndex<2> &timeIdx,
                       bool updateHalfLevel = false) {
         for (int m = 0; m < data.size(); ++m) {
             int nx = data(m)->getLevel(0).n_rows;
@@ -132,6 +135,18 @@ public:
                 }
             }
         }
+    }
+    
+    template <typename Q = T>
+    typename enable_if<is_arithmetic<Q>::value, T>::type
+    max(const TimeLevelIndex<2> &timeIdx) {
+        T res = -999999;
+        for (int i = 0; i < mesh->getTotalNumGrid(gridType); ++i) {
+            if (res < (*this)(timeIdx, i)) {
+                res = (*this)(timeIdx, i);
+            }
+        }
+        return res;
     }
 
     /**
