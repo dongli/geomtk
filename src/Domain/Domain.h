@@ -20,12 +20,17 @@ public:
     SpaceCoord(const SpaceCoord &other);
     virtual ~SpaceCoord();
 
-    virtual SpaceCoord& operator=(const SpaceCoord &other);
+    virtual SpaceCoord& operator=(const SpaceCoord &other) {
+        if (this != &other) {
+            coord = other.coord;
+        }
+        return *this;
+    }
 
-    virtual double operator()(int i) const;
-    virtual double& operator()(int i);
-    virtual const vec& operator()() const;
-    virtual vec& operator()();
+    virtual double operator()(int i) const { return coord(i); }
+    virtual double& operator()(int i) { return coord(i); }
+    virtual const vec& operator()() const { return coord; }
+    virtual vec& operator()() { return coord; }
 
     virtual void print() const;
 };
@@ -51,14 +56,30 @@ public:
 
     virtual void setNumDim(int numDim);
 
-    double operator()(int i) const;
-    double& operator()(int i);
-    vec& operator()();
+    double operator()(int i) const { return v(i); }
+    double& operator()(int i) { return v(i); }
+    vec& operator()() { return v; }
 
-    const Velocity operator+(const Velocity &other) const;
-    const Velocity operator-(const Velocity &other) const;
-    const Velocity operator*(double scale) const;
-    const Velocity operator/(double scale) const;
+    const Velocity operator+(const Velocity &other) const {
+        Velocity res;
+        res.v = v+other.v;
+        return res;
+    }
+    const Velocity operator-(const Velocity &other) const {
+        Velocity res;
+        res.v = v-other.v;
+        return res;
+    }
+    const Velocity operator*(double scale) const {
+        Velocity res;
+        res.v = v*scale;
+        return res;
+    }
+    const Velocity operator/(double scale) const {
+        Velocity res;
+        res.v = v/scale;
+        return res;
+    }
 
     virtual void print() const;
 };
@@ -81,19 +102,19 @@ public:
     Domain(int numDim);
     virtual ~Domain();
 
-    virtual int getNumDim() const;
+    virtual int getNumDim() const { return numDim; }
     virtual void setAxis(int dim, const string &axisName,
                          const string &axisLongName, const string &axisUnits,
                          double start, BndType bndTypeStart,
                          double end, BndType bndTypeEnd);
-    virtual const string& getAxisName(int dim) const;
-    virtual const string& getAxisLongName(int dim) const;
-    virtual const string& getAxisUnits(int dim) const;
-    virtual double getAxisStart(int dim) const;
-    virtual double getAxisEnd(int dim) const;
-    virtual double getAxisSpan(int dim) const;
-    virtual BndType getAxisStartBndType(int dim) const;
-    virtual BndType getAxisEndBndType(int dim) const;
+    virtual const string& getAxisName(int i) const { return axisName[i]; }
+    virtual const string& getAxisLongName(int i) const { return axisLongName[i]; }
+    virtual const string& getAxisUnits(int i) const { return axisUnits[i]; }
+    virtual double getAxisStart(int i) const { return axisStarts(i); }
+    virtual double getAxisEnd(int i) const { return axisEnds(i); }
+    virtual double getAxisSpan(int i) const { return axisSpans(i); }
+    virtual BndType getAxisStartBndType(int i) const { return bndTypeStarts[i]; }
+    virtual BndType getAxisEndBndType(int i) const { return bndTypeEnds[i]; }
 
     /**
      *  Check the given space coordinate, especially when the boundary condition

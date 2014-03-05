@@ -45,8 +45,8 @@ public:
      *
      *  @return The coordinate componnet.
      */
-    double operator[](int i) const;
-    double& operator[](int i);
+    double operator[](int i) const { return xt(i); }
+    double& operator[](int i) { return xt(i); }
 
     /**
      *  Get the polar stereographic projected coorinate with the vertical
@@ -54,8 +54,8 @@ public:
      *
      *  @return The polar stereographic projected coorinate.
      */
-    const vec& getPSCoord() const;
-    vec& getPSCoord();
+    const vec& getPSCoord() const { return xt; }
+    vec& getPSCoord() { return xt; }
 
     SphereCoord& operator=(const SphereCoord& other);
 
@@ -66,7 +66,7 @@ public:
     
     void transformToCart(const SphereDomain &domain);
     
-    const vec& getCartCoord() const;
+    const vec& getCartCoord() const { return cartCoord; }
 
     virtual void print() const;
 };
@@ -75,7 +75,7 @@ public:
 
 class SphereVelocity : public Velocity {
 protected:
-    double vt[2];
+    vec::fixed<2> vt;
 public:
     SphereVelocity();
     SphereVelocity(int numDim);
@@ -85,13 +85,13 @@ public:
      * Subscript operator of transformed velocity.
      * @param dim which dimension of velocity that is needed.
      */
-    double operator[](int dim) const;
+    double operator[](int i) const { return vt(i); }
 
     /**
      * Subscript operator of transformed velocity.
      * @param dim which dimension of velocity that is needed.
      */
-    double& operator[](int dim);
+    double& operator[](int i) { return vt(i); }
 
     SphereVelocity& operator=(const SphereVelocity &other);
 
@@ -140,8 +140,8 @@ public:
     SphereDomain(int numDim);
     virtual ~SphereDomain();
 
-    double getRadius() const;
-    void setRadius(double radius);
+    double getRadius() const { return radius; }
+    void setRadius(double radius) { this->radius = radius; }
 
     double calcDistance(const SphereCoord &x, const SphereCoord &y) const;
     double calcDistance(const SphereCoord &x, double lon, double lat) const;

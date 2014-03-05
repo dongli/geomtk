@@ -42,22 +42,6 @@ void SphereCoord::updateTrigonometricFunctions() {
     sinLat = sin(coord(1));
 }
 
-double SphereCoord::operator[](int i) const {
-    return xt(i);
-}
-
-double& SphereCoord::operator[](int i) {
-    return xt(i);
-}
-
-const vec& SphereCoord::getPSCoord() const {
-    return xt;
-}
-
-vec& SphereCoord::getPSCoord() {
-    return xt;
-}
-
 SphereCoord& SphereCoord::operator=(const SphereCoord &other) {
     if (this != &other) {
         SpaceCoord::operator=(other);
@@ -124,17 +108,13 @@ void SphereCoord::transformToCart(const SphereDomain &domain) {
     cartCoord(1) = domain.getRadius()*cosLat*sinLon;
     cartCoord(2) = domain.getRadius()*sinLat;
 }
-    
-const vec& SphereCoord::getCartCoord() const {
-    return cartCoord;
-}
 
 void SphereCoord::print() const {
     cout << "Coordinate:";
-    cout << setw(20) << coord(0)/RAD;
-    cout << setw(20) << coord(1)/RAD;
+    cout << setw(20) << setprecision(10) << coord(0)/RAD;
+    cout << setw(20) << setprecision(10) << coord(1)/RAD;
     if (coord.size() == 3) {
-        cout << setw(20) << coord(2);
+        cout << setw(20) << setprecision(10) << coord(2);
     }
     cout << endl;
 }
@@ -150,20 +130,6 @@ SphereVelocity::SphereVelocity(int numDim) : Velocity(numDim) {
 SphereVelocity::~SphereVelocity() {
 }
 
-double SphereVelocity::operator[](int dim) const {
-    if (dim > 2) {
-        REPORT_ERROR("Transformed velocity is only 2D!");
-    }
-    return vt[dim];
-}
-
-double& SphereVelocity::operator[](int dim) {
-    if (dim > 2) {
-        REPORT_ERROR("Transformed velocity is only 2D!");
-    }
-    return vt[dim];
-}
-
 SphereVelocity& SphereVelocity::operator=(const SphereVelocity &other) {
     if (this != &other) {
         Velocity::operator=(other);
@@ -176,7 +142,7 @@ SphereVelocity& SphereVelocity::operator=(const SphereVelocity &other) {
 const SphereVelocity SphereVelocity::operator+(const SphereVelocity &other) const {
     SphereVelocity res;
     Velocity &tmp = res; tmp = Velocity::operator+(other);
-    // TODO: Clarify that we operator on vt directly is properly.
+    // TODO: Clarify that we operate on vt directly is properly.
     res.vt[0] = vt[0]+other.vt[0];
     res.vt[1] = vt[1]+other.vt[1];
     return res;
@@ -185,7 +151,7 @@ const SphereVelocity SphereVelocity::operator+(const SphereVelocity &other) cons
 const SphereVelocity SphereVelocity::operator-(const SphereVelocity &other) const {
     SphereVelocity res;
     Velocity &tmp = res; tmp = Velocity::operator-(other);
-    // TODO: Clarify that we operator on vt directly is properly.
+    // TODO: Clarify that we operate on vt directly is properly.
     res.vt[0] = vt[0]-other.vt[0];
     res.vt[1] = vt[1]-other.vt[1];
     return res;
@@ -194,7 +160,7 @@ const SphereVelocity SphereVelocity::operator-(const SphereVelocity &other) cons
 const SphereVelocity SphereVelocity::operator*(double scale) const {
     SphereVelocity res;
     Velocity &tmp = res; tmp = Velocity::operator*(scale);
-    // TODO: Clarify that we operator on vt directly is properly.
+    // TODO: Clarify that we operate on vt directly is properly.
     res.vt[0] = vt[0]*scale;
     res.vt[1] = vt[1]*scale;
     return res;
@@ -203,7 +169,7 @@ const SphereVelocity SphereVelocity::operator*(double scale) const {
 const SphereVelocity SphereVelocity::operator/(double scale) const {
     SphereVelocity res;
     Velocity &tmp = res; tmp = Velocity::operator/(scale);
-    // TODO: Clarify that we operator on vt directly is properly.
+    // TODO: Clarify that we operate on vt directly is properly.
     res.vt[0] = vt[0]/scale;
     res.vt[1] = vt[1]/scale;
     return res;
@@ -238,7 +204,8 @@ void SphereVelocity::transformFromPS(const SphereCoord &x) {
 void SphereVelocity::print() const {
     Velocity::print();
     cout << "Transformed velocity:";
-    cout << setw(20) << vt[0] << setw(20) << vt[1] << endl;
+    cout << setw(20) << setprecision(10) << vt[0];
+    cout << setw(20) << setprecision(10) << vt[1] << endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -257,14 +224,6 @@ SphereDomain::SphereDomain(int numDim) : Domain(numDim) {
 }
 
 SphereDomain::~SphereDomain() {
-}
-
-double SphereDomain::getRadius() const {
-    return radius;
-}
-
-void SphereDomain::setRadius(double radius) {
-    this->radius = radius;
 }
 
 double SphereDomain::calcDistance(const SphereCoord &x,
@@ -396,7 +355,7 @@ void SphereDomain::projectBack(ProjectionType projType, const SphereCoord &xp,
 }
 
 string SphereDomain::getBrief() const {
-    string brief = "sphere domain";
+    static string brief = "sphere domain";
     return brief;
 }
 
