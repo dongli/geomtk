@@ -94,7 +94,7 @@ void Domain::setAxis(int dim, const string &name, const string &longName,
         }
     }
     if (start >= end) {
-        REPORT_WARNING("Axis start is smaller than end!")
+        REPORT_WARNING("Axis start is bigger than end!")
     }
     axisName[dim] = name;
     axisLongName[dim] = longName;

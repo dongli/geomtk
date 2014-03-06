@@ -61,7 +61,6 @@ public:
 
     void transformToPS(const SphereDomain &domain);
 
-    void transformFromPS(const SphereDomain &domain);
     void transformFromPS(const SphereDomain &domain, Pole pole);
     
     void transformToCart(const SphereDomain &domain);

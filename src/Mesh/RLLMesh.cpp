@@ -183,7 +183,7 @@ void RLLMesh::move(const SphereCoord &x0, double dt, const SphereVelocity &v,
     } else {
         x1[0] = x0[0]+dt*v[0];
         x1[1] = x0[1]+dt*v[1];
-        x1.transformFromPS(domain);
+        x1.transformFromPS(domain, idx.getPole());
     }
     if (domain.getNumDim() == 3) {
         double dlev = dt*v(2);

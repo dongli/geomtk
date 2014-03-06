@@ -118,7 +118,8 @@ void StructuredMesh::setGridCoords(int dim, int size,
     }
     // -------------------------------------------------------------------------
     else if (domain->getAxisStartBndType(dim) == POLE ||
-             domain->getAxisStartBndType(dim) == RIGID) {
+             domain->getAxisStartBndType(dim) == RIGID ||
+             domain->getAxisStartBndType(dim) == OPEN) {
         if (full[0] == domain->getAxisStart(dim) &&
             full[size-1] == domain->getAxisEnd(dim)) {
             /*

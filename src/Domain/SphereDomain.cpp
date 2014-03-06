@@ -69,23 +69,6 @@ void SphereCoord::transformToPS(const SphereDomain &domain) {
     }
 }
 
-void SphereCoord::transformFromPS(const SphereDomain &domain) {
-    if (coord(1) < 0.0) { // South Pole
-        coord(0) = atan2(xt(0), xt(1));
-        coord(1) = -atan(domain.getRadius()/sqrt(xt(0)*xt(0)+xt(1)*xt(1)));
-    } else { // North Pole
-        coord(0) = atan2(xt(1), xt(0));
-        coord(1) = atan(domain.getRadius()/sqrt(xt(0)*xt(0)+xt(1)*xt(1)));
-    }
-    if (coord(0) < 0.0) {
-        coord(0) += PI2;
-    }
-    if (domain.getNumDim() == 3) {
-        coord(2) = xt(2);
-    }
-    updateTrigonometricFunctions();
-}
-
 void SphereCoord::transformFromPS(const SphereDomain &domain, Pole pole) {
     if (pole == SOUTH_POLE) { // South Pole
         coord(0) =  atan2(xt(0), xt(1));
