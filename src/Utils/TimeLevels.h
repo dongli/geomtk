@@ -245,7 +245,9 @@ public:
      *
      *  @return The variable.
      */
-    inline const T& getLevel(const TimeLevelIndex<N> &timeIdx) const;
+    const T& getLevel(const TimeLevelIndex<N> &timeIdx) const {
+        return data[timeIdx.get()];
+    }
 
     /**
      *  Get the variable on the given time level (relative index).
@@ -254,7 +256,9 @@ public:
      *
      *  @return The variable.
      */
-    inline T& getLevel(const TimeLevelIndex<N> &timeIdx);
+    T& getLevel(const TimeLevelIndex<N> &timeIdx) {
+        return data[timeIdx.get()];
+    }
 
     /**
      *  Get the variable on the given time level (absolute index).
@@ -263,7 +267,9 @@ public:
      *
      *  @return The variable.
      */
-    inline const T& getLevel(int i) const;
+    const T& getLevel(int i) const {
+        return data[i];
+    }
 
     /**
      *  Get the variable on the given time level (absolute index).
@@ -272,7 +278,9 @@ public:
      *
      *  @return The variable.
      */
-    inline T& getLevel(int i);
+    T& getLevel(int i) {
+        return data[i];
+    }
 
     /**
      *  Return whether half levels are included.
@@ -338,26 +346,6 @@ int TimeLevels<T, N>::getNumLevel(bool includeHalfLevel) {
     } else {
         return N;
     }
-}
-
-template <typename T, int N>
-const T& TimeLevels<T, N>::getLevel(const TimeLevelIndex<N> &timeIdx) const {
-    return data[timeIdx.get()];
-}
-
-template <typename T, int N>
-T& TimeLevels<T, N>::getLevel(const TimeLevelIndex<N> &timeIdx) {
-    return data[timeIdx.get()];
-}
-    
-template <typename T, int N>
-const T& TimeLevels<T, N>::getLevel(int i) const {
-    return data[i];
-}
-
-template <typename T, int N>
-T& TimeLevels<T, N>::getLevel(int i) {
-    return data[i];
 }
 
 template <typename T, int N>
