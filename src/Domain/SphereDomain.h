@@ -62,9 +62,9 @@ public:
     void transformToPS(const SphereDomain &domain);
 
     void transformFromPS(const SphereDomain &domain, Pole pole);
-    
+
     void transformToCart(const SphereDomain &domain);
-    
+
     const vec& getCartCoord() const { return cartCoord; }
 
     virtual void print() const;
@@ -160,6 +160,9 @@ public:
      */
     void rotate(const SphereCoord &xp, const SphereCoord &xo,
                 SphereCoord &xr) const;
+    
+    void rotate(const SphereCoord &xp, const SphereCoord &xo,
+                double &lonR, double &latR) const;
 
     /**
      *  Transform the rotated coordinate back to original spherical coordinate
@@ -171,6 +174,9 @@ public:
      */
     void rotateBack(const SphereCoord &xp, SphereCoord &xo,
                     const SphereCoord &xr) const;
+    
+    void rotateBack(const SphereCoord &xp, SphereCoord &xo,
+                    double lonR, double latR) const;
 
     void project(ProjectionType projType, const SphereCoord &xp,
                  const SphereCoord &xo, vec &xs) const;

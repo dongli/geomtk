@@ -281,7 +281,36 @@ void SphereDomain::rotate(const SphereCoord &xp, const SphereCoord &xo,
     lat = asin(tmp3);
     xr.setCoord(lon, lat);
 }
+
+void SphereDomain::rotate(const SphereCoord &xp, const SphereCoord &xo,
+                          double &lonR, double &latR) const {
+    double dlon = xo(0)-xp(0);
+    double cosDlon = cos(dlon);
+    double sinDlon = sin(dlon);
     
+    double tmp1, tmp2, tmp3;
+    
+    tmp1 = xo.getCosLat()*sinDlon;
+    tmp2 = xo.getCosLat()*xp.getSinLat()*cosDlon-xp.getCosLat()*xo.getSinLat();
+    lonR = atan2(tmp1, tmp2);
+    if (lonR < 0.0) lonR += PI2;
+    
+    tmp1 = xo.getSinLat()*xp.getSinLat();
+    tmp2 = xo.getCosLat()*xp.getCosLat()*cosDlon;
+    tmp3 = tmp1+tmp2;
+#ifdef DEBUG
+    static const double eps = 1.0e-15;
+    if (tmp3 < -1.0 || tmp3 > 1.0) {
+        if (fabs(tmp3)-1.0 < eps) {
+            REPORT_WARNING("tmp3 is out of range [-1, 1]!");
+        } else
+            REPORT_ERROR("tmp3 is out of range [-1, 1]!");
+    }
+#endif
+    tmp3 = fmin(1.0, fmax(-1.0, tmp3));
+    latR = asin(tmp3);
+}
+
 void SphereDomain::rotateBack(const SphereCoord &xp, SphereCoord &xo,
                               const SphereCoord &xr) const {
     double tmp1, tmp2, tmp3, lon, lat;
@@ -310,16 +339,55 @@ void SphereDomain::rotateBack(const SphereCoord &xp, SphereCoord &xo,
     lat = asin(tmp3);
     xo.setCoord(lon, lat);
 }
+    
+void SphereDomain::rotateBack(const SphereCoord &xp, SphereCoord &xo,
+                              double lonR, double latR) const {
+    double tmp1, tmp2, tmp3, lon, lat;
+    
+    double sinLonR = sin(lonR);
+    double cosLonR = cos(lonR);
+    double sinLatR = sin(latR);
+    double cosLatR = cos(latR);
+    
+    tmp1 = cosLatR*sinLonR;
+    tmp2 = sinLatR*xp.getCosLat()+cosLatR*cosLonR*xp.getSinLat();
+#ifdef DEBUG
+    static const double eps = 1.0e-15;
+    if (fabs(tmp2) < eps) {
+        //REPORT_WARNING("tmp2 is near zero!")
+        tmp2 = 0.0;
+    }
+#endif
+    lon = xp(0)+atan2(tmp1, tmp2);
+    if (lon > PI2) lon -= PI2;
+    if (lon < 0.0) lon += PI2;
+    
+    tmp1 = sinLatR*xp.getSinLat();
+    tmp2 = cosLatR*xp.getCosLat()*cosLonR;
+    tmp3 = tmp1-tmp2;
+#ifdef DEBUG
+    if (tmp3 < -1.0 || tmp3 > 1.0)
+        REPORT_ERROR("tmp3 is out of range [-1,1]!");
+#endif
+    tmp3 = fmin(1.0, fmax(-1.0, tmp3));
+    lat = asin(tmp3);
+    xo.setCoord(lon, lat);
+}
 
 void SphereDomain::project(ProjectionType projType, const SphereCoord &xp,
                            const SphereCoord &xo, vec &xs) const {
     switch (projType) {
         case STEREOGRAPHIC:
-            SphereCoord xr(numDim);
-            rotate(xp, xo, xr);
-            xr.transformToPS(*this);
-            xs(0) = xr[0];
-            xs(1) = xr[1];
+            double lon, lat;
+            rotate(xp, xo, lon, lat);
+            double sinLon = sin(lon);
+            double cosLon = cos(lon);
+            double tanLat = tan(lat);
+#ifdef DEBUG
+            assert(lat > 0.0);
+#endif
+            xs[0] =  radius*cosLon/tanLat;
+            xs[1] =  radius*sinLon/tanLat;
             break;
     }
 }
@@ -328,11 +396,13 @@ void SphereDomain::projectBack(ProjectionType projType, const SphereCoord &xp,
                                SphereCoord &xo, const vec &xs) const {
     switch (projType) {
         case STEREOGRAPHIC:
-            SphereCoord xr(numDim);
-            xr[0] = xs(0);
-            xr[1] = xs(1);
-            xr.transformFromPS(*this, NORTH_POLE);
-            rotateBack(xp, xo, xr);
+            double lon, lat;
+            lon =  atan2(xs[1], xs[0]);
+            lat =  atan(radius/norm(xs, 2));
+            if (lon < 0.0) {
+               lon += PI2;
+            }
+            rotateBack(xp, xo, lon, lat);
             break;
     }
 }
