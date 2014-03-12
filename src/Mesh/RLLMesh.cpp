@@ -188,7 +188,9 @@ void RLLMesh::move(const SphereCoord &x0, double dt, const SphereVelocity &v,
     if (domain.getNumDim() == 3) {
         double dlev = dt*v(2);
         x1(2) = x0(2)+dlev;
+#ifdef DEBUG
         assert(x1(2) >= domain.getAxisStart(2) && x1(2) <= domain.getAxisEnd(2));
+#endif
     }
 }
 

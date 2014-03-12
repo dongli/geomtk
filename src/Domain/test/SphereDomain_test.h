@@ -49,26 +49,19 @@ TEST_F(SphereDomainTest, Constructor) {
 
 TEST_F(SphereDomainTest, CalcDistance) {
     SphereCoord x(2), y(2);
-
-    x(0) = 1.0/3.0*M_PI;
-    x(1) = 1.0/3.0*M_PI;
-
-    y(0) = 1.0/3.0*M_PI;
-    y(1) = -1.0/3.0*M_PI;
-
+    x.setCoord(1.0/3.0*M_PI, 1.0/3.0*M_PI);
+    y.setCoord(1.0/3.0*M_PI, -1.0/3.0*M_PI);
     double d = domain->calcDistance(x, y);
     ASSERT_EQ(x(1)-y(1), d);
 }
 
 TEST_F(SphereDomainTest, TransformPS) {
     SphereCoord x(2);
-
     double lon = 0.34*M_PI;
     double lat = -0.4*M_PI_2;
-    x(0) = lon;
-    x(1) = lat;
+    x.setCoord(lon, lat);
     x.transformToPS(*domain);
-    x.transformFromPS(*domain);
+    x.transformFromPS(*domain, SOUTH_POLE);
     ASSERT_EQ(lon, x(0));
     ASSERT_EQ(lat, x(1));
 }

@@ -10,10 +10,10 @@ namespace geomtk {
  *  This class specifies the scalar field on structured mesh. The data type is
  *  templated, so any proper basic type (e.g. double) and classes can be used.
  */
-template <typename T>
+template <typename T, int N = 2>
 class StructuredField : public Field {
 protected:
-    field<TimeLevels<field<T>, 2>*> data;
+    field<TimeLevels<field<T>, N>*> data;
     field<vector<StaggerType> > staggerTypes;
     FieldType fieldType;
     ArakawaGrid gridType;
@@ -98,7 +98,7 @@ public:
     template <typename Q = T>
     typename enable_if<has_operator_plus<Q>::value ||
                        is_arithmetic<Q>::value, void>::type
-    applyBndCond(const TimeLevelIndex<2> &timeIdx,
+    applyBndCond(const TimeLevelIndex<N> &timeIdx,
                       bool updateHalfLevel = false) {
         for (int m = 0; m < data.size(); ++m) {
             int nx = data(m)->getLevel(0).n_rows;
@@ -136,6 +136,34 @@ public:
             }
         }
     }
+    
+    /**
+     *  Apply boundary conditions after the scalar field is updated.
+     *  This function is only valid when T can be added and carried on
+     *  arithmetic operations.
+     */
+    template <typename Q = T>
+    typename enable_if<has_operator_plus<Q>::value ||
+                       is_arithmetic<Q>::value, void>::type
+    applyBndCond() {
+        for (int m = 0; m < data.size(); ++m) {
+            int nx = data(m)->getLevel(0).n_rows;
+            int ny = data(m)->getLevel(0).n_cols;
+            int nz = data(m)->getLevel(0).n_slices;
+            if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
+                for (int k = 0; k < nz; ++k) {
+                    for (int j = 0; j < ny; ++j) {
+                        data(m)->getLevel(0)(0, j, k) =
+                        data(m)->getLevel(0)(nx-2, j, k);
+                        data(m)->getLevel(0)(nx-1, j, k) =
+                        data(m)->getLevel(0)(1, j, k);
+                    }
+                }
+            } else {
+                REPORT_ERROR("Under construction!");
+            }
+        }
+    }
 
     /**
      *  Get the maximum value of the field (only for arithmetic field).
@@ -146,7 +174,7 @@ public:
      */
     template <typename Q = T>
     typename enable_if<is_arithmetic<Q>::value, T>::type
-    max(const TimeLevelIndex<2> &timeIdx) {
+    max(const TimeLevelIndex<N> &timeIdx) {
         T res = -999999;
         for (int i = 0; i < mesh->getTotalNumGrid(gridType); ++i) {
             if (res < (*this)(timeIdx, i)) {
@@ -157,6 +185,23 @@ public:
     }
 
     /**
+     *  Get the maximum value of the field (only for arithmetic field).
+     *
+     *  @return The maximum value.
+     */
+    template <typename Q = T>
+    typename enable_if<is_arithmetic<Q>::value, T>::type
+    max() {
+        T res = -999999;
+        for (int i = 0; i < mesh->getTotalNumGrid(gridType); ++i) {
+            if (res < (*this)(0, i)) {
+                res = (*this)(0, i);
+            }
+        }
+        return res;
+    }
+    
+    /**
      *  Subscript operator of the scalar field.
      *
      *  @param timeIdx the time level index.
@@ -166,15 +211,15 @@ public:
      *
      *  @return The scalar on the given indices.
      */
-    T operator()(const TimeLevelIndex<2> &timeIdx, int i, int j) const;
-    T& operator()(const TimeLevelIndex<2> &timeIdx, int i, int j);
-    T operator()(const TimeLevelIndex<2> &timeIdx, int i, int j, int k) const;
-    T& operator()(const TimeLevelIndex<2> &timeIdx, int i, int j, int k);
+    T operator()(const TimeLevelIndex<N> &timeIdx, int i, int j) const;
+    T& operator()(const TimeLevelIndex<N> &timeIdx, int i, int j);
+    T operator()(const TimeLevelIndex<N> &timeIdx, int i, int j, int k) const;
+    T& operator()(const TimeLevelIndex<N> &timeIdx, int i, int j, int k);
 
-    T operator()(int l, int i, int j) const;
-    T& operator()(int l, int i, int j);
-    T operator()(int l, int i, int j, int k) const;
-    T& operator()(int l, int i, int j, int k);
+    T operator()(int i, int j) const;
+    T& operator()(int i, int j);
+    T operator()(int i, int j, int k) const;
+    T& operator()(int i, int j, int k);
 
     /**
      *  Subscript operator of the scalar field by using one single index. The
@@ -186,10 +231,11 @@ public:
      *
      *  @return The scalar on the given index.
      */
-    T operator()(const TimeLevelIndex<2> &timeIdx, int cellIdx) const;
-    T& operator()(const TimeLevelIndex<2> &timeIdx, int cellIdx);
-    T operator()(int l, int cellIdx) const;
-    T& operator()(int l, int cellIdx);
+    T operator()(const TimeLevelIndex<N> &timeIdx, int cellIdx) const;
+    T& operator()(const TimeLevelIndex<N> &timeIdx, int cellIdx);
+
+    T operator()(int cellIdx) const;
+    T& operator()(int cellIdx);
     
     /**
      *  Subscript operator of the vector field.
@@ -202,10 +248,10 @@ public:
      *
      *  @return The vector component on the given indices.
      */
-    T operator()(int comp, const TimeLevelIndex<2> &timeIdx, int i, int j) const;
-    T& operator()(int comp, const TimeLevelIndex<2> &timeIdx, int i, int j);
-    T operator()(int comp, const TimeLevelIndex<2> &timeIdx, int i, int j, int k) const;
-    T& operator()(int comp, const TimeLevelIndex<2> &timeIdx, int i, int j, int k);
+    T operator()(int comp, const TimeLevelIndex<N> &timeIdx, int i, int j) const;
+    T& operator()(int comp, const TimeLevelIndex<N> &timeIdx, int i, int j);
+    T operator()(int comp, const TimeLevelIndex<N> &timeIdx, int i, int j, int k) const;
+    T& operator()(int comp, const TimeLevelIndex<N> &timeIdx, int i, int j, int k);
 
     /**
      *  Subscript operator of the vector field by using one single index. The
@@ -218,8 +264,8 @@ public:
      *
      *  @return The vector component on the given index.
      */
-    T operator()(int comp, const TimeLevelIndex<2> &timeIdx, int cellIdx) const;
-    T& operator()(int comp, const TimeLevelIndex<2> &timeIdx, int cellIdx);
+    T operator()(int comp, const TimeLevelIndex<N> &timeIdx, int cellIdx) const;
+    T& operator()(int comp, const TimeLevelIndex<N> &timeIdx, int cellIdx);
 
     /**
      *  Get the stagger type on the given dimension of the scalar field.
@@ -267,16 +313,16 @@ public:
 
 // -----------------------------------------------------------------------------
 
-template <typename T>
-StructuredField<T>::StructuredField(const Mesh &mesh, bool hasHalfLevel)
+template <typename T, int N>
+StructuredField<T, N>::StructuredField(const Mesh &mesh, bool hasHalfLevel)
 : Field(mesh, hasHalfLevel) {
     if (dynamic_cast<const StructuredMesh*>(&mesh) == NULL) {
         REPORT_ERROR("Mesh should comply with StructuredMesh!");
     }
 }
 
-template <typename T>
-StructuredField<T>::StructuredField(const string &name, const string &units,
+template <typename T, int N>
+StructuredField<T, N>::StructuredField(const string &name, const string &units,
                                     const string &longName, const Mesh &mesh,
                                     bool hasHalfLevel)
 : Field(name, units, longName, mesh, hasHalfLevel) {
@@ -285,15 +331,15 @@ StructuredField<T>::StructuredField(const string &name, const string &units,
     }
 }
 
-template <typename T>
-StructuredField<T>::~StructuredField() {
+template <typename T, int N>
+StructuredField<T, N>::~StructuredField() {
     for (int i = 0; i < data.size(); ++i) {
         delete data(i);
     }
 }
 
-template <typename T>
-void StructuredField<T>::create(FieldType fieldType, StaggerType xStaggerType,
+template <typename T, int N>
+void StructuredField<T, N>::create(FieldType fieldType, StaggerType xStaggerType,
                                 StaggerType yStaggerType) {
     if (fieldType != ScalarField) {
         REPORT_ERROR("Field should be a scalar!");
@@ -318,8 +364,8 @@ void StructuredField<T>::create(FieldType fieldType, StaggerType xStaggerType,
     }
 }
 
-template <typename T>
-void StructuredField<T>::create(FieldType fieldType, StaggerType xStaggerType,
+template <typename T, int N>
+void StructuredField<T, N>::create(FieldType fieldType, StaggerType xStaggerType,
                                 StaggerType yStaggerType, StaggerType zStaggerType) {
     if (fieldType != ScalarField) {
         REPORT_ERROR("Field should be a scalar!")
@@ -347,8 +393,8 @@ void StructuredField<T>::create(FieldType fieldType, StaggerType xStaggerType,
     }
 }
 
-template <typename T>
-void StructuredField<T>::create(FieldType fieldType, StaggerType xStaggerType0,
+template <typename T, int N>
+void StructuredField<T, N>::create(FieldType fieldType, StaggerType xStaggerType0,
                                 StaggerType yStaggerType0, StaggerType xStaggerType1,
                                 StaggerType yStaggerType1) {
     if (fieldType != VectorField) {
@@ -383,8 +429,8 @@ void StructuredField<T>::create(FieldType fieldType, StaggerType xStaggerType0,
     }
 }
 
-template <typename T>
-void StructuredField<T>::create(FieldType fieldType, StaggerType xStaggerType0,
+template <typename T, int N>
+void StructuredField<T, N>::create(FieldType fieldType, StaggerType xStaggerType0,
                                 StaggerType yStaggerType0, StaggerType zStaggerType0,
                                 StaggerType xStaggerType1, StaggerType yStaggerType1,
                                 StaggerType zStaggerType1, StaggerType xStaggerType2,
@@ -430,8 +476,8 @@ void StructuredField<T>::create(FieldType fieldType, StaggerType xStaggerType0,
     }
 }
 
-template <typename T>
-void StructuredField<T>::create(FieldType fieldType, int numDim,
+template <typename T, int N>
+void StructuredField<T, N>::create(FieldType fieldType, int numDim,
                                 ArakawaGrid gridType) {
     if (fieldType == ScalarField && gridType != A_GRID) {
         REPORT_ERROR("Scalar field should be on A grids!");
@@ -477,8 +523,8 @@ void StructuredField<T>::create(FieldType fieldType, int numDim,
     }
 }
 
-template <typename T>
-T StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx,
+template <typename T, int N>
+T StructuredField<T, N>::operator()(const TimeLevelIndex<N> &timeIdx,
                                  int i, int j) const {
     // The virtual boundary grids at the periodic boundary conditions are hiden
     // from user.
@@ -496,8 +542,8 @@ T StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx,
     return data(0)->getLevel(timeIdx)(I, J);
 }
 
-template <typename T>
-T& StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx,
+template <typename T, int N>
+T& StructuredField<T, N>::operator()(const TimeLevelIndex<N> &timeIdx,
                                   int i, int j) {
     // The virtual boundary grids at the periodic boundary conditions are hiden
     // from user.
@@ -515,8 +561,8 @@ T& StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx,
     return data(0)->getLevel(timeIdx)(I, J);
 }
 
-template <typename T>
-T StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx,
+template <typename T, int N>
+T StructuredField<T, N>::operator()(const TimeLevelIndex<N> &timeIdx,
                                  int i, int j, int k) const {
     // The virtual boundary grids at the periodic boundary conditions are hiden
     // from user.
@@ -534,8 +580,8 @@ T StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx,
     return data(0)->getLevel(timeIdx)(I, J, k);
 }
 
-template <typename T>
-T& StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx,
+template <typename T, int N>
+T& StructuredField<T, N>::operator()(const TimeLevelIndex<N> &timeIdx,
                                   int i, int j, int k) {
     // The virtual boundary grids at the periodic boundary conditions are hiden
     // from user.
@@ -553,8 +599,8 @@ T& StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx,
     return data(0)->getLevel(timeIdx)(I, J, k);
 }
 
-template <typename T>
-T StructuredField<T>::operator()(int l, int i, int j) const {
+template <typename T, int N>
+T StructuredField<T, N>::operator()(int i, int j) const {
     // The virtual boundary grids at the periodic boundary conditions are hiden
     // from user.
     int I, J;
@@ -568,11 +614,11 @@ T StructuredField<T>::operator()(int l, int i, int j) const {
     } else {
         J = j;
     }
-    return data(0)->getLevel(l)(I, J);
+    return data(0)->getLevel(0)(I, J);
 }
 
-template <typename T>
-T& StructuredField<T>::operator()(int l, int i, int j) {
+template <typename T, int N>
+T& StructuredField<T, N>::operator()(int i, int j) {
     // The virtual boundary grids at the periodic boundary conditions are hiden
     // from user.
     int I, J;
@@ -586,11 +632,11 @@ T& StructuredField<T>::operator()(int l, int i, int j) {
     } else {
         J = j;
     }
-    return data(0)->getLevel(l)(I, J);
+    return data(0)->getLevel(0)(I, J);
 }
 
-template <typename T>
-T StructuredField<T>::operator()(int l, int i, int j, int k) const {
+template <typename T, int N>
+T StructuredField<T, N>::operator()(int i, int j, int k) const {
     // The virtual boundary grids at the periodic boundary conditions are hiden
     // from user.
     int I, J;
@@ -604,11 +650,11 @@ T StructuredField<T>::operator()(int l, int i, int j, int k) const {
     } else {
         J = j;
     }
-    return data(0)->getLevel(l)(I, J, k);
+    return data(0)->getLevel(0)(I, J, k);
 }
 
-template <typename T>
-T& StructuredField<T>::operator()(int l, int i, int j, int k) {
+template <typename T, int N>
+T& StructuredField<T, N>::operator()(int i, int j, int k) {
     // The virtual boundary grids at the periodic boundary conditions are hiden
     // from user.
     int I, J;
@@ -622,11 +668,11 @@ T& StructuredField<T>::operator()(int l, int i, int j, int k) {
     } else {
         J = j;
     }
-    return data(0)->getLevel(l)(I, J, k);
+    return data(0)->getLevel(0)(I, J, k);
 }
 
-template <typename T>
-T StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx, int cellIdx) const {
+template <typename T, int N>
+T StructuredField<T, N>::operator()(const TimeLevelIndex<N> &timeIdx, int cellIdx) const {
     const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
     int i[3];
     mesh.unwrapIndex(cellIdx, i, gridType);
@@ -638,8 +684,8 @@ T StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx, int cellIdx) 
     return data(0)->getLevel(timeIdx)(i[0], i[1], i[2]);
 }
 
-template <typename T>
-T& StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx, int cellIdx) {
+template <typename T, int N>
+T& StructuredField<T, N>::operator()(const TimeLevelIndex<N> &timeIdx, int cellIdx) {
     const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
     int i[3];
     mesh.unwrapIndex(cellIdx, i, gridType);
@@ -651,8 +697,8 @@ T& StructuredField<T>::operator()(const TimeLevelIndex<2> &timeIdx, int cellIdx)
     return data(0)->getLevel(timeIdx)(i[0], i[1], i[2]);
 }
 
-template <typename T>
-T StructuredField<T>::operator()(int l, int cellIdx) const {
+template <typename T, int N>
+T StructuredField<T, N>::operator()(int cellIdx) const {
     const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
     int i[3];
     mesh.unwrapIndex(cellIdx, i, gridType);
@@ -661,11 +707,11 @@ T StructuredField<T>::operator()(int l, int cellIdx) const {
             i[m] += 1;
         }
     }
-    return data(0)->getLevel(l)(i[0], i[1], i[2]);
+    return data(0)->getLevel(0)(i[0], i[1], i[2]);
 }
 
-template <typename T>
-T& StructuredField<T>::operator()(int l, int cellIdx) {
+template <typename T, int N>
+T& StructuredField<T, N>::operator()(int cellIdx) {
     const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
     int i[3];
     mesh.unwrapIndex(cellIdx, i, gridType);
@@ -674,11 +720,11 @@ T& StructuredField<T>::operator()(int l, int cellIdx) {
             i[m] += 1;
         }
     }
-    return data(0)->getLevel(l)(i[0], i[1], i[2]);
+    return data(0)->getLevel(0)(i[0], i[1], i[2]);
 }
     
-template <typename T>
-T StructuredField<T>::operator()(int comp, const TimeLevelIndex<2> &timeIdx,
+template <typename T, int N>
+T StructuredField<T, N>::operator()(int comp, const TimeLevelIndex<N> &timeIdx,
                                  int i, int j) const {
 #ifdef DEBUG
     if (fieldType != VectorField) {
@@ -701,8 +747,8 @@ T StructuredField<T>::operator()(int comp, const TimeLevelIndex<2> &timeIdx,
     return data(comp)->getLevel(timeIdx)(I, J);
 }
 
-template <typename T>
-T& StructuredField<T>::operator()(int comp, const TimeLevelIndex<2> &timeIdx,
+template <typename T, int N>
+T& StructuredField<T, N>::operator()(int comp, const TimeLevelIndex<N> &timeIdx,
                                   int i, int j) {
 #ifdef DEBUG
     if (fieldType != VectorField) {
@@ -725,8 +771,8 @@ T& StructuredField<T>::operator()(int comp, const TimeLevelIndex<2> &timeIdx,
     return data(comp)->getLevel(timeIdx)(I, J);
 }
 
-template <typename T>
-T StructuredField<T>::operator()(int comp, const TimeLevelIndex<2> &timeIdx,
+template <typename T, int N>
+T StructuredField<T, N>::operator()(int comp, const TimeLevelIndex<N> &timeIdx,
                                  int i, int j, int k) const {
 #ifdef DEBUG
     if (fieldType != VectorField) {
@@ -749,8 +795,8 @@ T StructuredField<T>::operator()(int comp, const TimeLevelIndex<2> &timeIdx,
     return data(comp)->getLevel(timeIdx)(I, J, k);
 }
 
-template <typename T>
-T& StructuredField<T>::operator()(int comp, const TimeLevelIndex<2> &timeIdx,
+template <typename T, int N>
+T& StructuredField<T, N>::operator()(int comp, const TimeLevelIndex<N> &timeIdx,
                                   int i, int j, int k) {
 #ifdef DEBUG
     if (fieldType != VectorField) {
@@ -773,24 +819,24 @@ T& StructuredField<T>::operator()(int comp, const TimeLevelIndex<2> &timeIdx,
     return data(comp)->getLevel(timeIdx)(I, J, k);
 }
 
-template <typename T>
-StaggerType StructuredField<T>::getStaggerType(int dim) const {
+template <typename T, int N>
+StaggerType StructuredField<T, N>::getStaggerType(int dim) const {
     if (fieldType != ScalarField) {
         REPORT_ERROR("Field is not a scalar!");
     }
     return staggerTypes(0)[dim];
 }
 
-template <typename T>
-StaggerType StructuredField<T>::getStaggerType(int comp, int dim) const {
+template <typename T, int N>
+StaggerType StructuredField<T, N>::getStaggerType(int comp, int dim) const {
     if (fieldType != VectorField) {
         REPORT_ERROR("Field is not a vector!");
     }
     return staggerTypes(comp)[dim];
 }
 
-template <typename T>
-void StructuredField<T>::convert(ArakawaGrid gridType,
+template <typename T, int N>
+void StructuredField<T, N>::convert(ArakawaGrid gridType,
                                  const TimeLevelIndex<2> &timeIdx,
                                  mat &xc, mat &yc) {
     if (fieldType != VectorField) {
@@ -834,8 +880,8 @@ void StructuredField<T>::convert(ArakawaGrid gridType,
     }
 }
 
-template <typename T>
-void StructuredField<T>::convert(ArakawaGrid gridType,
+template <typename T, int N>
+void StructuredField<T, N>::convert(ArakawaGrid gridType,
                                  const TimeLevelIndex<2> &timeIdx,
                                  cube &xc, cube &yc, cube &zc) {
     const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
