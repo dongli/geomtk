@@ -32,6 +32,14 @@ public:
     virtual const vec& operator()() const { return coord; }
     virtual vec& operator()() { return coord; }
 
+    /**
+     *  This method return the Cartesian coordinate, in this case it is `coord`,
+     *  so this method is just for compatible with SphereCoord.
+     *
+     *  @return The Cartesian coordinate vector.
+     */
+    const vec& getCartCoord() const { return coord; }
+
     virtual void print() const;
 };
 

@@ -136,7 +136,14 @@ public:
             }
         }
     }
-    
+
+    /**
+     *  Get the maximum value of the field (only for arithmetic field).
+     *
+     *  @param timeIdx the time level index.
+     *
+     *  @return The maximum value.
+     */
     template <typename Q = T>
     typename enable_if<is_arithmetic<Q>::value, T>::type
     max(const TimeLevelIndex<2> &timeIdx) {
