@@ -10,16 +10,13 @@ protected:
     SphereDomain *domain;
     RLLMesh *mesh;
     RLLRegrid *regrid;
-    RLLField<double> *q;
-    RLLVelocityField *v;
+    RLLVelocityField v;
     TimeLevelIndex<2> timeIdx;
 
     virtual void SetUp() {
         domain = new SphereDomain(2);
         mesh = new RLLMesh(*domain);
         regrid = new RLLRegrid(*mesh);
-        q = new RLLField<double>(*mesh);
-        v = new RLLVelocityField(*mesh);
 
         domain->setRadius(1.0);
 
@@ -44,7 +41,6 @@ protected:
     }
 
     virtual void TearDown() {
-        delete q;
         delete regrid;
         delete mesh;
         delete domain;
@@ -59,25 +55,25 @@ protected:
 //      -0.375*PI     -0.125*PI      0.125*PI      0.375*PI
 
 TEST_F(RLLRegridTest, Run) {
-    v->create(_2D, C_GRID);
+    v.create("", "", "", *mesh, _2D, C_GRID);
     for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
         for (int i = 0; i < mesh->getNumGrid(0, EDGE); ++i) {
-            (*v)(0, timeIdx, i, j) = 5.0;
+            v(0, timeIdx, i, j) = 5.0;
         }
     }
     for (int j = 0; j < mesh->getNumGrid(1, EDGE); ++j) {
         for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
-            (*v)(1, timeIdx, i, j) = 5.0;
+            v(1, timeIdx, i, j) = 5.0;
         }
     }
-    v->applyBndCond(timeIdx);
+    v.applyBndCond(timeIdx);
 
     SphereCoord x(2);
 
     x.setCoord(1.9*M_PI, 0.2*M_PI);
 
     SphereVelocity z(2);
-    regrid->run(BILINEAR, timeIdx, *v, x, z);
+    regrid->run(BILINEAR, timeIdx, v, x, z);
     ASSERT_EQ(5.0, z(0));
     ASSERT_EQ(5.0, z(1));
 
@@ -89,7 +85,7 @@ TEST_F(RLLRegridTest, Run) {
     RLLMeshIndex idx(2);
     idx.locate(*mesh, x);
     idx.setMoveOnPole(true);
-    regrid->run(BILINEAR, timeIdx, *v, x, z, &idx);
+    regrid->run(BILINEAR, timeIdx, v, x, z, &idx);
     ASSERT_EQ(0.0, z(0));
     ASSERT_EQ(0.0, z(1));
 
@@ -100,7 +96,7 @@ TEST_F(RLLRegridTest, Run) {
     x.setCoord(0.1*M_PI, 0.26*M_PI);
     idx.reset();
     idx.locate(*mesh, x);
-    regrid->run(BILINEAR, timeIdx, *v, x, z, &idx);
+    regrid->run(BILINEAR, timeIdx, v, x, z, &idx);
     ASSERT_NE(0.0, z(0));
     ASSERT_NE(0.0, z(1));
 }

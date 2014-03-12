@@ -150,14 +150,7 @@ void PolarRing::print() const {
 
 // -----------------------------------------------------------------------------
 
-RLLVelocityField::RLLVelocityField(const Mesh &mesh, bool hasHalfLevel)
-: RLLField<double>(mesh, hasHalfLevel) {
-}
-    
-RLLVelocityField::RLLVelocityField(const string &name, const string &units,
-                                   const string &longName, const Mesh &mesh,
-                                   bool hasHalfLevel)
-: RLLField<double>(name, units, longName, mesh, hasHalfLevel) {
+RLLVelocityField::RLLVelocityField() : RLLField<double>() {
 }
 
 RLLVelocityField::~RLLVelocityField() {
@@ -170,9 +163,12 @@ void RLLVelocityField::applyBndCond(const TimeLevelIndex<2> &timeIdx,
     rings[1].update(timeIdx, NORTH_POLE, data, updateHalfLevel);
 }
     
-void RLLVelocityField::create(int numDim, ArakawaGrid gridType) {
-    RLLField<double>::create(VectorField, numDim, gridType);
-    const RLLMesh &mesh = static_cast<const RLLMesh&>(*this->mesh);
+void RLLVelocityField::create(const string &name, const string &units,
+                              const string &longName, const RLLMesh &mesh,
+                              int numDim, ArakawaGrid gridType,
+                              bool hasHalfLevel) {
+    RLLField<double>::create(name, units, longName, mesh, VectorField,
+                             numDim, gridType, hasHalfLevel);
     rings[0].create(mesh, hasHalfLevel);
     rings[1].create(mesh, hasHalfLevel);
 }

@@ -29,10 +29,11 @@ protected:
     const Mesh *mesh;
     bool hasHalfLevel;
 public:
-    Field(const Mesh &mesh, bool hasHalfLevel = false);
-    Field(const string &name, const string &units, const string &longName,
-          const Mesh &mesh, bool hasHalfLevel = false);
+    Field();
     virtual ~Field();
+
+    void common(const string &name, const string &units, const string &longName,
+                const Mesh &mesh, bool hasHalfLevel = false);
 
     void setName(const string &name);
     void setLongName(const string &longName);

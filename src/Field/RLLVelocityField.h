@@ -43,16 +43,16 @@ class RLLVelocityField : public RLLField<double> {
 protected:
     PolarRing rings[2];
 public:
-    RLLVelocityField(const Mesh &mesh, bool hasHalfLevel = false);
-    RLLVelocityField(const string &name, const string &units,
-                     const string &longName, const Mesh &mesh,
-                     bool hasHalfLevel = false);
+    RLLVelocityField();
     virtual ~RLLVelocityField();
 
     void applyBndCond(const TimeLevelIndex<2> &timeIdx,
                       bool updateHalfLevel = false);
 
-    virtual void create(int numDim, ArakawaGrid gridType);
+    virtual void create(const string &name, const string &units,
+                        const string &longName, const RLLMesh &mesh,
+                        int numDim, ArakawaGrid gridType,
+                        bool hasHalfLevel = false);
 
     const PolarRing& getPolarRing(Pole pole) const;
 };

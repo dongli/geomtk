@@ -18,10 +18,7 @@ protected:
     FieldType fieldType;
     ArakawaGrid gridType;
 public:
-    StructuredField(const Mesh &mesh, bool hasHalfLevel = false);
-    StructuredField(const string &name, const string &units,
-                    const string &longName, const Mesh &mesh,
-                    bool hasHalfLevel = false);
+    StructuredField();
     virtual ~StructuredField();
 
     /**
@@ -31,8 +28,10 @@ public:
      *  @param xStaggerType the stagger type of x grids.
      *  @param yStaggerType the stagger type of y grids.
      */
-    void create(FieldType fieldType, StaggerType xStaggerType,
-                StaggerType yStaggerType);
+    void create(const string &name, const string &units, const string &longName,
+                const StructuredMesh &mesh, FieldType fieldType,
+                StaggerType xStaggerType, StaggerType yStaggerType,
+                bool hasHalfLevel = false);
 
     /**
      *  Create the memory storage for the scalar field.
@@ -42,8 +41,10 @@ public:
      *  @param yStaggerType the stagger type of y grids.
      *  @param zStaggerType the stagger type of z grids.
      */
-    void create(FieldType fieldType, StaggerType xStaggerType,
-                StaggerType yStaggerType, StaggerType zStaggerType);
+    void create(const string &name, const string &units, const string &longName,
+                const StructuredMesh &mesh, FieldType fieldType,
+                StaggerType xStaggerType, StaggerType yStaggerType,
+                StaggerType zStaggerType, bool hasHalfLevel = false);
 
     /**
      *  Create the memory storage for the vector field.
@@ -54,9 +55,11 @@ public:
      *  @param xStaggerType1 the stagger type of x grids of the 2nd component.
      *  @param yStaggerType1 the stagger type of y grids of the 2nd component.
      */
-    void create(FieldType fieldType, StaggerType xStaggerType0,
-                StaggerType yStaggerType0, StaggerType xStaggerType1,
-                StaggerType yStaggerType1);
+    void create(const string &name, const string &units, const string &longName,
+                const StructuredMesh &mesh, FieldType fieldType,
+                StaggerType xStaggerType0, StaggerType yStaggerType0,
+                StaggerType xStaggerType1, StaggerType yStaggerType1,
+                bool hasHalfLevel = false);
 
     /**
      *  Create the memory storage for the vector field.
@@ -72,11 +75,13 @@ public:
      *  @param yStaggerType2 the stagger type of y grids of the 3rd component.
      *  @param zStaggerType0 the stagger type of z grids of the 3rd component.
      */
-    void create(FieldType fieldType, StaggerType xStaggerType0,
-                StaggerType yStaggerType0, StaggerType zStaggerType0,
-                StaggerType xStaggerType1, StaggerType yStaggerType1,
-                StaggerType zStaggerType1, StaggerType xStaggerType2,
-                StaggerType yStaggerType2, StaggerType zStaggerType2);
+    void create(const string &name, const string &units, const string &longName,
+                const StructuredMesh &mesh, FieldType fieldType,
+                StaggerType xStaggerType0, StaggerType yStaggerType0,
+                StaggerType zStaggerType0, StaggerType xStaggerType1,
+                StaggerType yStaggerType1, StaggerType zStaggerType1,
+                StaggerType xStaggerType2, StaggerType yStaggerType2,
+                StaggerType zStaggerType2, bool hasHalfLevel = false);
 
     /**
      *  Create the memory storage for the field.
@@ -85,7 +90,9 @@ public:
      *  @param numDim    the dimension number.
      *  @param gridType  the grid type (Arakawa grid type).
      */
-    void create(FieldType fieldType, int numDim, ArakawaGrid gridType);
+    void create(const string &name, const string &units, const string &longName,
+                const StructuredMesh &mesh, FieldType fieldType, int numDim,
+                ArakawaGrid gridType, bool hasHalfLevel = false);
 
     /**
      *  Apply boundary conditions after the scalar field is updated.
@@ -296,7 +303,7 @@ public:
      *  @param yc        the y component.
      */
     void convert(ArakawaGrid gridType, const TimeLevelIndex<2> &timeIdx,
-                 mat &xc, mat &yc);
+                 mat &xc, mat &yc) const;
 
     /**
      *  Convert the 3D vector field onto the given grid type.
@@ -308,27 +315,13 @@ public:
      *  @param zc       the z component.
      */
     void convert(ArakawaGrid gridType, const TimeLevelIndex<2> &timeIdx,
-                 cube &xc, cube &yc, cube &zc);
+                 cube &xc, cube &yc, cube &zc) const;
 };
 
 // -----------------------------------------------------------------------------
 
 template <typename T, int N>
-StructuredField<T, N>::StructuredField(const Mesh &mesh, bool hasHalfLevel)
-: Field(mesh, hasHalfLevel) {
-    if (dynamic_cast<const StructuredMesh*>(&mesh) == NULL) {
-        REPORT_ERROR("Mesh should comply with StructuredMesh!");
-    }
-}
-
-template <typename T, int N>
-StructuredField<T, N>::StructuredField(const string &name, const string &units,
-                                    const string &longName, const Mesh &mesh,
-                                    bool hasHalfLevel)
-: Field(name, units, longName, mesh, hasHalfLevel) {
-    if (dynamic_cast<const StructuredMesh*>(&mesh) == NULL) {
-        REPORT_ERROR("Mesh should comply with StructuredMesh!");
-    }
+StructuredField<T, N>::StructuredField() : Field() {
 }
 
 template <typename T, int N>
@@ -339,17 +332,22 @@ StructuredField<T, N>::~StructuredField() {
 }
 
 template <typename T, int N>
-void StructuredField<T, N>::create(FieldType fieldType, StaggerType xStaggerType,
-                                StaggerType yStaggerType) {
+void StructuredField<T, N>::create(const string &name, const string &units,
+                                   const string &longName,
+                                   const StructuredMesh &mesh,
+                                   FieldType fieldType,
+                                   StaggerType xStaggerType,
+                                   StaggerType yStaggerType,
+                                   bool hasHalfLevel) {
     if (fieldType != ScalarField) {
         REPORT_ERROR("Field should be a scalar!");
     }
+    Field::common(name, units, longName, mesh, hasHalfLevel);
     this->fieldType = fieldType;
     staggerTypes.set_size(1);
     staggerTypes(0).resize(2);
     staggerTypes(0)[0] = xStaggerType;
     staggerTypes(0)[1] = yStaggerType;
-    const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
     data.set_size(1);
     data(0) = new TimeLevels<field<T>, 2>(hasHalfLevel);
     for (int i = 0; i < data[0]->getNumLevel(INCLUDE_HALF_LEVEL); ++i) {
@@ -365,18 +363,24 @@ void StructuredField<T, N>::create(FieldType fieldType, StaggerType xStaggerType
 }
 
 template <typename T, int N>
-void StructuredField<T, N>::create(FieldType fieldType, StaggerType xStaggerType,
-                                StaggerType yStaggerType, StaggerType zStaggerType) {
+void StructuredField<T, N>::create(const string &name, const string &units,
+                                   const string &longName,
+                                   const StructuredMesh &mesh,
+                                   FieldType fieldType,
+                                   StaggerType xStaggerType,
+                                   StaggerType yStaggerType,
+                                   StaggerType zStaggerType,
+                                   bool hasHalfLevel) {
     if (fieldType != ScalarField) {
         REPORT_ERROR("Field should be a scalar!")
     }
+    Field::common(name, units, longName, mesh, hasHalfLevel);
     this->fieldType = fieldType;
     staggerTypes.set_size(1);
     staggerTypes(0).resize(3);
     staggerTypes(0)[0] = xStaggerType;
     staggerTypes(0)[1] = yStaggerType;
     staggerTypes(0)[2] = zStaggerType;
-    const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
     data.set_size(1);
     data(0) = new TimeLevels<field<T>, 2>(hasHalfLevel);
     for (int i = 0; i < data[0]->getNumLevel(INCLUDE_HALF_LEVEL); ++i) {
@@ -394,12 +398,19 @@ void StructuredField<T, N>::create(FieldType fieldType, StaggerType xStaggerType
 }
 
 template <typename T, int N>
-void StructuredField<T, N>::create(FieldType fieldType, StaggerType xStaggerType0,
-                                StaggerType yStaggerType0, StaggerType xStaggerType1,
-                                StaggerType yStaggerType1) {
+void StructuredField<T, N>::create(const string &name, const string &units,
+                                   const string &longName,
+                                   const StructuredMesh &mesh,
+                                   FieldType fieldType,
+                                   StaggerType xStaggerType0,
+                                   StaggerType yStaggerType0,
+                                   StaggerType xStaggerType1,
+                                   StaggerType yStaggerType1,
+                                   bool hasHalfLevel) {
     if (fieldType != VectorField) {
         REPORT_ERROR("Field should be a vector!");
     }
+    Field::common(name, units, longName, mesh, hasHalfLevel);
     this->fieldType = fieldType;
     staggerTypes.set_size(2);
     staggerTypes(0).resize(2);
@@ -408,7 +419,6 @@ void StructuredField<T, N>::create(FieldType fieldType, StaggerType xStaggerType
     staggerTypes(0)[1] = yStaggerType0;
     staggerTypes(1)[0] = xStaggerType1;
     staggerTypes(1)[1] = yStaggerType1;
-    const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
     data.set_size(2);
     for (int m = 0; m < data.size(); ++m) {
         data(m) = new TimeLevels<field<T>, 2>(hasHalfLevel);
@@ -430,14 +440,24 @@ void StructuredField<T, N>::create(FieldType fieldType, StaggerType xStaggerType
 }
 
 template <typename T, int N>
-void StructuredField<T, N>::create(FieldType fieldType, StaggerType xStaggerType0,
-                                StaggerType yStaggerType0, StaggerType zStaggerType0,
-                                StaggerType xStaggerType1, StaggerType yStaggerType1,
-                                StaggerType zStaggerType1, StaggerType xStaggerType2,
-                                StaggerType yStaggerType2, StaggerType zStaggerType2) {
+void StructuredField<T, N>::create(const string &name, const string &units,
+                                   const string &longName,
+                                   const StructuredMesh &mesh,
+                                   FieldType fieldType,
+                                   StaggerType xStaggerType0,
+                                   StaggerType yStaggerType0,
+                                   StaggerType zStaggerType0,
+                                   StaggerType xStaggerType1,
+                                   StaggerType yStaggerType1,
+                                   StaggerType zStaggerType1,
+                                   StaggerType xStaggerType2,
+                                   StaggerType yStaggerType2,
+                                   StaggerType zStaggerType2,
+                                   bool hasHalfLevel) {
     if (fieldType != VectorField) {
         REPORT_ERROR("Field should be a vector!");
     }
+    Field::common(name, units, longName, mesh, hasHalfLevel);
     this->fieldType = fieldType;
     staggerTypes.set_size(3);
     staggerTypes(0).resize(3);
@@ -452,7 +472,6 @@ void StructuredField<T, N>::create(FieldType fieldType, StaggerType xStaggerType
     staggerTypes(2)[0] = xStaggerType2;
     staggerTypes(2)[1] = yStaggerType2;
     staggerTypes(2)[2] = zStaggerType2;
-    const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
     data.set_size(3);
     for (int m = 0; m < data.size(); ++m) {
         data(m) = new TimeLevels<field<T>, 2>(hasHalfLevel);
@@ -477,27 +496,34 @@ void StructuredField<T, N>::create(FieldType fieldType, StaggerType xStaggerType
 }
 
 template <typename T, int N>
-void StructuredField<T, N>::create(FieldType fieldType, int numDim,
-                                ArakawaGrid gridType) {
+void StructuredField<T, N>::create(const string &name, const string &units,
+                                   const string &longName,
+                                   const StructuredMesh &mesh,
+                                   FieldType fieldType, int numDim,
+                                   ArakawaGrid gridType, bool hasHalfLevel) {
     if (fieldType == ScalarField && gridType != A_GRID) {
         REPORT_ERROR("Scalar field should be on A grids!");
     }
+    Field::common(name, units, longName, mesh, hasHalfLevel);
     this->gridType = gridType;
     switch (gridType) {
         case A_GRID:
             if (numDim == _2D) {
                 if (fieldType == ScalarField) {
-                    create(fieldType, CENTER, CENTER);
+                    create(name, units, longName, mesh, fieldType,
+                           CENTER, CENTER, hasHalfLevel);
                 } else if (fieldType == VectorField) {
-                    create(fieldType, CENTER, CENTER, CENTER, CENTER);
+                    create(name, units, longName, mesh, fieldType,
+                           CENTER, CENTER, CENTER, CENTER, hasHalfLevel);
                 }
             } else if (numDim == _3D) {
                 if (fieldType == ScalarField) {
-                    create(fieldType, CENTER, CENTER, CENTER);
+                    create(name, units, longName, mesh, fieldType,
+                           CENTER, CENTER, CENTER, hasHalfLevel);
                 } else if (fieldType == VectorField) {
-                    create(fieldType, CENTER, CENTER, CENTER,
-                                      CENTER, CENTER, CENTER,
-                                      CENTER, CENTER, CENTER);
+                    create(name, units, longName, mesh, fieldType,
+                           CENTER, CENTER, CENTER, CENTER, CENTER, CENTER,
+                           CENTER, CENTER, CENTER, hasHalfLevel);
                 }
             }
             break;
@@ -506,12 +532,12 @@ void StructuredField<T, N>::create(FieldType fieldType, int numDim,
             break;
         case C_GRID:
             if (numDim == _2D) {
-                create(fieldType,   EDGE, CENTER,
-                                  CENTER,   EDGE);
+                create(name, units, longName, mesh, fieldType, EDGE, CENTER,
+                       CENTER, EDGE, hasHalfLevel);
             } else if (numDim == _3D) {
-                create(fieldType,   EDGE, CENTER, CENTER,
-                                  CENTER,   EDGE, CENTER,
-                                  CENTER, CENTER,   EDGE);
+                create(name, units, longName, mesh, fieldType, EDGE, CENTER,
+                       CENTER, CENTER, EDGE, CENTER, CENTER, CENTER, EDGE,
+                       hasHalfLevel);
             }
             break;
         case D_GRID:
@@ -837,8 +863,8 @@ StaggerType StructuredField<T, N>::getStaggerType(int comp, int dim) const {
 
 template <typename T, int N>
 void StructuredField<T, N>::convert(ArakawaGrid gridType,
-                                 const TimeLevelIndex<2> &timeIdx,
-                                 mat &xc, mat &yc) {
+                                    const TimeLevelIndex<2> &timeIdx,
+                                    mat &xc, mat &yc) const {
     if (fieldType != VectorField) {
         REPORT_ERROR("Field is not a vector!");
     }
@@ -882,8 +908,8 @@ void StructuredField<T, N>::convert(ArakawaGrid gridType,
 
 template <typename T, int N>
 void StructuredField<T, N>::convert(ArakawaGrid gridType,
-                                 const TimeLevelIndex<2> &timeIdx,
-                                 cube &xc, cube &yc, cube &zc) {
+                                    const TimeLevelIndex<2> &timeIdx,
+                                    cube &xc, cube &yc, cube &zc) const {
     const StructuredMesh &mesh = static_cast<const StructuredMesh&>(*(this->mesh));
     if (fieldType != VectorField) {
         REPORT_ERROR("Field is not a vector!");

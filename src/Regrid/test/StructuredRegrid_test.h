@@ -10,14 +10,13 @@ protected:
     SphereDomain *domain;
     RLLMesh *mesh;
     StructuredRegrid *regrid;
-    StructuredField<double> *f_vector;
+    StructuredField<double> f_vector;
     TimeLevelIndex<2> timeIdx;
 
     virtual void SetUp() {
         domain = new SphereDomain(2);
         mesh = new RLLMesh(*domain);
         regrid = new StructuredRegrid(*mesh);
-        f_vector = new StructuredField<double>(*mesh);
 
         int numLon = 5;
         double fullLon[numLon], halfLon[numLon];
@@ -41,32 +40,31 @@ protected:
 
     virtual void TearDown() {
         delete regrid;
-        delete f_vector;
         delete mesh;
         delete domain;
     }
 };
 
 TEST_F(StructuredRegridTest, Run) {
-    f_vector->create(VectorField, _2D, C_GRID);
+    f_vector.create("", "", "", *mesh, VectorField, _2D, C_GRID);
     for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
         for (int i = 0; i < mesh->getNumGrid(0, EDGE); ++i) {
-            (*f_vector)(0, timeIdx, i, j) = 5.0;
+            f_vector(0, timeIdx, i, j) = 5.0;
         }
     }
     for (int j = 0; j < mesh->getNumGrid(1, EDGE); ++j) {
         for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
-            (*f_vector)(1, timeIdx, i, j) = 1.0;
+            f_vector(1, timeIdx, i, j) = 1.0;
         }
     }
-    f_vector->applyBndCond(timeIdx);
+    f_vector.applyBndCond(timeIdx);
 
     SpaceCoord x(2);
     vec y(2);
 
     x(0) = 0.1*M_PI;
     x(1) = -0.2*M_PI;
-    regrid->run(BILINEAR, timeIdx, *f_vector, x, y);
+    regrid->run(BILINEAR, timeIdx, f_vector, x, y);
     ASSERT_EQ(5.0, y(0));
     ASSERT_EQ(1.0, y(1));
 }
