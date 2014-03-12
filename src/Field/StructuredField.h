@@ -349,7 +349,7 @@ void StructuredField<T, N>::create(const string &name, const string &units,
     staggerTypes(0)[0] = xStaggerType;
     staggerTypes(0)[1] = yStaggerType;
     data.set_size(1);
-    data(0) = new TimeLevels<field<T>, 2>(hasHalfLevel);
+    data(0) = new TimeLevels<field<T>, N>(hasHalfLevel);
     for (int i = 0; i < data[0]->getNumLevel(INCLUDE_HALF_LEVEL); ++i) {
         data(0)->getLevel(i).set_size(mesh.getNumGrid(0, xStaggerType, true),
                                       mesh.getNumGrid(1, yStaggerType));
@@ -382,7 +382,7 @@ void StructuredField<T, N>::create(const string &name, const string &units,
     staggerTypes(0)[1] = yStaggerType;
     staggerTypes(0)[2] = zStaggerType;
     data.set_size(1);
-    data(0) = new TimeLevels<field<T>, 2>(hasHalfLevel);
+    data(0) = new TimeLevels<field<T>, N>(hasHalfLevel);
     for (int i = 0; i < data[0]->getNumLevel(INCLUDE_HALF_LEVEL); ++i) {
         data(0)->getLevel(i).set_size(mesh.getNumGrid(0, xStaggerType, true),
                                       mesh.getNumGrid(1, yStaggerType),
@@ -421,7 +421,7 @@ void StructuredField<T, N>::create(const string &name, const string &units,
     staggerTypes(1)[1] = yStaggerType1;
     data.set_size(2);
     for (int m = 0; m < data.size(); ++m) {
-        data(m) = new TimeLevels<field<T>, 2>(hasHalfLevel);
+        data(m) = new TimeLevels<field<T>, N>(hasHalfLevel);
         for (int i = 0; i < data[0]->getNumLevel(INCLUDE_HALF_LEVEL); ++i) {
             data(m)->getLevel(i).set_size(mesh.getNumGrid(0, staggerTypes[m][0], true),
                                           mesh.getNumGrid(1, staggerTypes[m][1]));
@@ -474,7 +474,7 @@ void StructuredField<T, N>::create(const string &name, const string &units,
     staggerTypes(2)[2] = zStaggerType2;
     data.set_size(3);
     for (int m = 0; m < data.size(); ++m) {
-        data(m) = new TimeLevels<field<T>, 2>(hasHalfLevel);
+        data(m) = new TimeLevels<field<T>, N>(hasHalfLevel);
         for (int i = 0; i < data[0]->getNumLevel(INCLUDE_HALF_LEVEL); ++i) {
             data(m)->getLevel(i).set_size(mesh.getNumGrid(0, staggerTypes[m][0], true),
                                           mesh.getNumGrid(1, staggerTypes[m][1]),
