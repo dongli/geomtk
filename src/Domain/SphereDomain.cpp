@@ -166,21 +166,21 @@ void SphereVelocity::transformToPS(const SphereCoord &x) {
 void SphereVelocity::transformToPS(double sinLat, double sinLat2,
                                    double sinLon, double cosLon) {
     if (sinLat < 0.0) { // South Pole
-        vt[0] = -cosLon/sinLat*v(0)+sinLon/sinLat2*v(1);
-        vt[1] =  sinLon/sinLat*v(0)+cosLon/sinLat2*v(1);
+        vt[0] = -cosLon/sinLat*v[0]+sinLon/sinLat2*v[1];
+        vt[1] =  sinLon/sinLat*v[0]+cosLon/sinLat2*v[1];
     } else { // North Pole
-        vt[0] = -sinLon/sinLat*v(0)-cosLon/sinLat2*v(1);
-        vt[1] =  cosLon/sinLat*v(0)-sinLon/sinLat2*v(1);
+        vt[0] = -sinLon/sinLat*v[0]-cosLon/sinLat2*v[1];
+        vt[1] =  cosLon/sinLat*v[0]-sinLon/sinLat2*v[1];
     }
 }
 
 void SphereVelocity::transformFromPS(const SphereCoord &x) {
     if (x(1) < 0.0) { // South Pole
-        v(0) = (x.getCosLon()*vt[0]+x.getSinLon()*vt[1])*x.getSinLat()*x.getSinLat();
-        v(1) = (x.getSinLon()*vt[0]-x.getCosLon()*vt[1])*x.getSinLat();
+        v[0] = (-x.getCosLon()*vt[0]+x.getSinLon()*vt[1])*x.getSinLat();
+        v[1] = ( x.getSinLon()*vt[0]+x.getCosLon()*vt[1])*x.getSinLat()*x.getSinLat();
     } else { // North Pole
-        v(0) = (-x.getSinLon()*vt[0]+x.getCosLon()*vt[1])*x.getSinLat()*x.getSinLat();
-        v(1) = (-x.getCosLon()*vt[0]-x.getSinLon()*vt[1])*x.getSinLat();
+        v[0] = (-x.getSinLon()*vt[0]+x.getCosLon()*vt[1])*x.getSinLat();
+        v[1] = (-x.getCosLon()*vt[0]-x.getSinLon()*vt[1])*x.getSinLat()*x.getSinLat();
     }
 }
 
