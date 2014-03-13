@@ -24,7 +24,8 @@ public:
     void setPoleRadius(double radius);
     double getPoleRadius() const;
 
-    virtual void setGridCoords(int dim, int size, double *full, double *half);
+    virtual void setGridCoords(int dim, int size, const vec &full,
+                               const vec &half);
 
     virtual void setCellVolumes();
 

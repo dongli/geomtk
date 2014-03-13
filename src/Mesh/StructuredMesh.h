@@ -32,7 +32,8 @@ public:
      *  @param full the full grid coordinates.
      *  @param half the half grid coordinates.
      */
-    virtual void setGridCoords(int dim, int size, double *full, double *half);
+    virtual void setGridCoords(int dim, int size, const vec &full,
+                               const vec &half);
 
     /**
      *  Set the grid coordinates along an axis.

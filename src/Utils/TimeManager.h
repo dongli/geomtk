@@ -17,6 +17,7 @@ public:
     double second;
 
     Time();
+    Time(double seconds);
     virtual ~Time();
 
     /**

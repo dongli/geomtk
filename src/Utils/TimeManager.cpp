@@ -12,6 +12,10 @@ Time::Time() {
     second = 0;
 }
 
+Time::Time(double seconds) : Time() {
+    *this += seconds;
+}
+
 Time::~Time() {
 }
 

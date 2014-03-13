@@ -24,8 +24,8 @@ StructuredMesh::~StructuredMesh() {
     delete [] equidistant;
 }
 
-void StructuredMesh::setGridCoords(int dim, int size,
-                                   double *full, double *half) {
+void StructuredMesh::setGridCoords(int dim, int size, const vec &full,
+                                   const vec &half) {
     // sanity check
     if (dim >= domain->getNumDim()) {
         REPORT_ERROR("Argument dim (" << dim << ") exceeds domain dimension ("
@@ -33,6 +33,10 @@ void StructuredMesh::setGridCoords(int dim, int size,
     }
     // -------------------------------------------------------------------------
     if (domain->getAxisStartBndType(dim) == PERIODIC) {
+        if (full.size() != half.size()) {
+            REPORT_ERROR("Full grid size (" << full.size() << ") should " <<
+                         "be equal with half grid (" << half.size() << ")!");
+        }
         fullCoords[dim].resize(size+2);
         halfCoords[dim].resize(size+2);
         fullIntervals[dim].resize(size+1);
@@ -240,7 +244,7 @@ void StructuredMesh::setGridCoords(int dim, const string &fileName,
     // read coordinates from netCDF file
     int ncId, fullDimId, halfDimId, fullVarId, halfVarId;
     size_t fullSize, halfSize;
-    double *full, *half;
+    vec full, half;
 
     if (nc_open(fileName.c_str(), NC_NOCLOBBER, &ncId) != NC_NOERR) {
         REPORT_ERROR("Failed to open " << fileName << "!");
@@ -253,7 +257,7 @@ void StructuredMesh::setGridCoords(int dim, const string &fileName,
         REPORT_ERROR("Failed to inquire dimension length of " << fullName <<
                      " in " << fileName << "!");
     }
-    full = new double[fullSize];
+    full.set_size(fullSize);
     if (nc_inq_dimid(ncId, halfName.c_str(), &halfDimId) != NC_NOERR) {
         REPORT_ERROR("Failed to inquire dimension " << halfName <<
                      " in " << fileName << "!");
@@ -262,12 +266,12 @@ void StructuredMesh::setGridCoords(int dim, const string &fileName,
         REPORT_ERROR("Failed to inquire dimension length of " << halfName <<
                      " in " << fileName << "!");
     }
-    half = new double[halfSize];
+    half.set_size(halfSize);
     if (nc_inq_varid(ncId, fullName.c_str(), &fullVarId) != NC_NOERR) {
         REPORT_ERROR("Failed to inquire variable " << fullName <<
                      " in " << fileName << "!");
     }
-    if (nc_get_var(ncId, fullVarId, full) != NC_NOERR) {
+    if (nc_get_var(ncId, fullVarId, full.memptr()) != NC_NOERR) {
         REPORT_ERROR("Failed to get variable " << fullName <<
                      " in " << fileName << "!");
     }
@@ -275,7 +279,7 @@ void StructuredMesh::setGridCoords(int dim, const string &fileName,
         REPORT_ERROR("Failed to inquire variable " << halfName <<
                      " in " << fileName << "!");
     }
-    if (nc_get_var(ncId, halfVarId, half) != NC_NOERR) {
+    if (nc_get_var(ncId, halfVarId, half.memptr()) != NC_NOERR) {
         REPORT_ERROR("Failed to get variable " << halfName <<
                      " in " << fileName << "!");
     }

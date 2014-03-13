@@ -21,21 +21,14 @@ double RLLMesh::getPoleRadius() const {
     return poleRadius;
 }
 
-void RLLMesh::setGridCoords(int dim, int size, double *full, double *half) {
+void RLLMesh::setGridCoords(int dim, int size, const vec &full,
+                            const vec &half) {
     StructuredMesh::setGridCoords(dim, size, full, half);
-    cosLonFull.resize(fullCoords[0].size());
-    sinLonFull.resize(fullCoords[0].size());
-    cosLonHalf.resize(halfCoords[0].size());
-    sinLonHalf.resize(halfCoords[0].size());
-    cosLatFull.resize(fullCoords[1].size());
-    sinLatFull.resize(fullCoords[1].size());
-    sinLatFull2.resize(fullCoords[1].size());
-    cosLatHalf.resize(halfCoords[1].size());
-    sinLatHalf.resize(halfCoords[1].size());
-    sinLatHalf2.resize(halfCoords[1].size());
-    tanLatFull.resize(fullCoords[1].size());
-    tanLatHalf.resize(halfCoords[1].size());
     if (dim == 0) {
+        cosLonFull.set_size(fullCoords[0].size());
+        sinLonFull.set_size(fullCoords[0].size());
+        cosLonHalf.set_size(halfCoords[0].size());
+        sinLonHalf.set_size(halfCoords[0].size());
         for (int i = 0; i < fullCoords[0].size(); ++i) {
             cosLonFull(i) = cos(fullCoords[0](i));
             sinLonFull(i) = sin(fullCoords[0](i));
@@ -45,6 +38,14 @@ void RLLMesh::setGridCoords(int dim, int size, double *full, double *half) {
             sinLonHalf(i) = sin(halfCoords[0](i));
         }
     } else if (dim == 1) {
+        cosLatFull.set_size(fullCoords[1].size());
+        sinLatFull.set_size(fullCoords[1].size());
+        sinLatFull2.set_size(fullCoords[1].size());
+        cosLatHalf.set_size(halfCoords[1].size());
+        sinLatHalf.set_size(halfCoords[1].size());
+        sinLatHalf2.set_size(halfCoords[1].size());
+        tanLatFull.set_size(fullCoords[1].size());
+        tanLatHalf.set_size(halfCoords[1].size());
         for (int j = 0; j < fullCoords[1].size(); ++j) {
             cosLatFull(j) = cos(fullCoords[1](j));
             sinLatFull(j) = sin(fullCoords[1](j));
