@@ -1,8 +1,7 @@
 #ifndef __RLLMesh_test__
 #define __RLLMesh_test__
 
-#include "RLLMesh.h"
-#include "RLLMeshIndex.h"
+#include "geomtk.h"
 
 using namespace geomtk;
 
@@ -15,7 +14,7 @@ protected:
         domain = new SphereDomain(3);
         mesh = new RLLMesh(*domain);
         int numLon = 10;
-        double fullLon[numLon], halfLon[numLon];
+        vec fullLon(numLon), halfLon(numLon);
         double dlon = 2.0*M_PI/numLon;
         for (int i = 0; i < numLon; ++i) {
             fullLon[i] = i*dlon;
@@ -23,7 +22,7 @@ protected:
         }
         mesh->setGridCoords(0, numLon, fullLon, halfLon);
         int numLat = 10;
-        double fullLat[numLat], halfLat[numLat-1];
+        vec fullLat(numLat), halfLat(numLat-1);
         double dlat = M_PI/(numLat-1);
         for (int j = 0; j < numLat; ++j) {
             fullLat[j] = j*dlat-M_PI_2;
@@ -33,7 +32,7 @@ protected:
         }
         mesh->setGridCoords(1, numLat, fullLat, halfLat);
         int numLev = 5;
-        double fullLev[numLev], halfLev[numLev+1];
+        vec fullLev(numLev), halfLev(numLev+1);
         double dlev = 1.0/numLev;
         for (int k = 0; k < numLev; ++k) {
             fullLev[k] = dlev*0.5+k*dlev;
@@ -54,42 +53,42 @@ protected:
 
 TEST_F(RLLMeshTest, CheckGridCoords) {
     // check dimension sizes
-    ASSERT_EQ(10, mesh->getNumGrid(0, CENTER));
-    ASSERT_EQ(12, mesh->getNumGrid(0, CENTER, true));
-    ASSERT_EQ(10, mesh->getNumGrid(0, EDGE));
-    ASSERT_EQ(12, mesh->getNumGrid(0, EDGE, true));
-    ASSERT_EQ(10, mesh->getNumGrid(1, CENTER));
-    ASSERT_EQ(10, mesh->getNumGrid(1, CENTER, true));
-    ASSERT_EQ(9, mesh->getNumGrid(1, EDGE));
-    ASSERT_EQ(9, mesh->getNumGrid(1, EDGE, true));
-    ASSERT_EQ(5, mesh->getNumGrid(2, CENTER));
-    ASSERT_EQ(5, mesh->getNumGrid(2, CENTER, true));
-    ASSERT_EQ(6, mesh->getNumGrid(2, EDGE));
-    ASSERT_EQ(6, mesh->getNumGrid(2, EDGE, true));
-    ASSERT_EQ(-M_PI_2, mesh->getGridCoordComp(1, CENTER, 0));
-    ASSERT_EQ(M_PI_2, mesh->getGridCoordComp(1, CENTER, mesh->getNumGrid(1, CENTER)-1));
+    ASSERT_EQ(10, mesh->getNumGrid(0, StructuredStagger::GridType::FULL));
+    ASSERT_EQ(12, mesh->getNumGrid(0, StructuredStagger::GridType::FULL, true));
+    ASSERT_EQ(10, mesh->getNumGrid(0, StructuredStagger::GridType::HALF));
+    ASSERT_EQ(12, mesh->getNumGrid(0, StructuredStagger::GridType::HALF, true));
+    ASSERT_EQ(10, mesh->getNumGrid(1, StructuredStagger::GridType::FULL));
+    ASSERT_EQ(10, mesh->getNumGrid(1, StructuredStagger::GridType::FULL, true));
+    ASSERT_EQ(9, mesh->getNumGrid(1, StructuredStagger::GridType::HALF));
+    ASSERT_EQ(9, mesh->getNumGrid(1, StructuredStagger::GridType::HALF, true));
+    ASSERT_EQ(5, mesh->getNumGrid(2, StructuredStagger::GridType::FULL));
+    ASSERT_EQ(5, mesh->getNumGrid(2, StructuredStagger::GridType::FULL, true));
+    ASSERT_EQ(6, mesh->getNumGrid(2, StructuredStagger::GridType::HALF));
+    ASSERT_EQ(6, mesh->getNumGrid(2, StructuredStagger::GridType::HALF, true));
+    ASSERT_EQ(-M_PI_2, mesh->getGridCoordComp(1, StructuredStagger::GridType::FULL, 0));
+    ASSERT_EQ(M_PI_2, mesh->getGridCoordComp(1, StructuredStagger::GridType::FULL, mesh->getNumGrid(1, StructuredStagger::GridType::FULL)-1));
     // check cosine and sine
-    vec lonFull = mesh->getGridCoords(0, CENTER, true);
-    for (int i = -1; i < mesh->getNumGrid(0, CENTER)+1; ++i) {
-        ASSERT_EQ(cos(lonFull(i+1)), mesh->getCosLon(CENTER, i));
-        ASSERT_EQ(sin(lonFull(i+1)), mesh->getSinLon(CENTER, i));
+    vec lonFull = mesh->getGridCoords(0, StructuredStagger::GridType::FULL, true);
+    for (int i = -1; i < mesh->getNumGrid(0, StructuredStagger::GridType::FULL)+1; ++i) {
+        ASSERT_EQ(cos(lonFull(i+1)), mesh->getCosLon(StructuredStagger::GridType::FULL, i));
+        ASSERT_EQ(sin(lonFull(i+1)), mesh->getSinLon(StructuredStagger::GridType::FULL, i));
     }
-    vec lonHalf = mesh->getGridCoords(0, EDGE, true);
-    for (int i = -1; i < mesh->getNumGrid(0, EDGE)+1; ++i) {
-        ASSERT_EQ(cos(lonHalf(i+1)), mesh->getCosLon(EDGE, i));
-        ASSERT_EQ(sin(lonHalf(i+1)), mesh->getSinLon(EDGE, i));
+    vec lonHalf = mesh->getGridCoords(0, StructuredStagger::GridType::HALF, true);
+    for (int i = -1; i < mesh->getNumGrid(0, StructuredStagger::GridType::HALF)+1; ++i) {
+        ASSERT_EQ(cos(lonHalf(i+1)), mesh->getCosLon(StructuredStagger::GridType::HALF, i));
+        ASSERT_EQ(sin(lonHalf(i+1)), mesh->getSinLon(StructuredStagger::GridType::HALF, i));
     }
-    vec latFull = mesh->getGridCoords(1, CENTER, true);
-    for (int j = 0; j < mesh->getNumGrid(1, CENTER, true); ++j) {
-        ASSERT_EQ(cos(latFull(j)), mesh->getCosLat(CENTER, j));
-        ASSERT_EQ(sin(latFull(j)), mesh->getSinLat(CENTER, j));
-        ASSERT_EQ(pow(sin(latFull(j)), 2), mesh->getSinLat2(CENTER, j));
+    vec latFull = mesh->getGridCoords(1, StructuredStagger::GridType::FULL, true);
+    for (int j = 0; j < mesh->getNumGrid(1, StructuredStagger::GridType::FULL, true); ++j) {
+        ASSERT_EQ(cos(latFull(j)), mesh->getCosLat(StructuredStagger::GridType::FULL, j));
+        ASSERT_EQ(sin(latFull(j)), mesh->getSinLat(StructuredStagger::GridType::FULL, j));
+        ASSERT_EQ(pow(sin(latFull(j)), 2), mesh->getSinLat2(StructuredStagger::GridType::FULL, j));
     }
-    vec latHalf = mesh->getGridCoords(1, EDGE, true);
-    for (int j = 0; j < mesh->getNumGrid(1, EDGE, true); ++j) {
-        ASSERT_EQ(cos(latHalf(j)), mesh->getCosLat(EDGE, j));
-        ASSERT_EQ(sin(latHalf(j)), mesh->getSinLat(EDGE, j));
-        ASSERT_EQ(pow(sin(latHalf(j)), 2), mesh->getSinLat2(EDGE, j));
+    vec latHalf = mesh->getGridCoords(1, StructuredStagger::GridType::HALF, true);
+    for (int j = 0; j < mesh->getNumGrid(1, StructuredStagger::GridType::HALF, true); ++j) {
+        ASSERT_EQ(cos(latHalf(j)), mesh->getCosLat(StructuredStagger::GridType::HALF, j));
+        ASSERT_EQ(sin(latHalf(j)), mesh->getSinLat(StructuredStagger::GridType::HALF, j));
+        ASSERT_EQ(pow(sin(latHalf(j)), 2), mesh->getSinLat2(StructuredStagger::GridType::HALF, j));
     }
 }
 
@@ -134,7 +133,7 @@ TEST_F(RLLMeshTest, Move) {
 TEST_F(RLLMeshTest, CheckCellVolume) {
     double volume;
     mesh->setCellVolumes();
-    mesh->getCellVolume(0, volume);
+    volume = mesh->getCellVolume(0);
 }
 
 #endif

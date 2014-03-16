@@ -33,6 +33,10 @@ TEST_F(SphereDomainTest, SphereCoordOperator) {
     ASSERT_EQ(a(1), b(1));
     ASSERT_EQ(a[0], b[0]);
     ASSERT_EQ(a[1], b[1]);
+    ASSERT_EQ(a.getCosLon(), b.getCosLon());
+    ASSERT_EQ(a.getSinLon(), b.getSinLon());
+    ASSERT_EQ(a.getCosLat(), b.getCosLat());
+    ASSERT_EQ(a.getSinLat(), b.getSinLat());
 }
 
 TEST_F(SphereDomainTest, Constructor) {

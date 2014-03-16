@@ -19,7 +19,7 @@ protected:
         mesh->setPoleRadius(0.1*M_PI);
 
         int numLon = 5;
-        double fullLon[numLon], halfLon[numLon];
+        vec fullLon(numLon), halfLon(numLon);
         double dlon = 2.0*M_PI/numLon;
         for (int i = 0; i < numLon; ++i) {
             fullLon[i] = i*dlon;
@@ -27,7 +27,7 @@ protected:
         }
         mesh->setGridCoords(0, numLon, fullLon, halfLon);
         int numLat = 5;
-        double fullLat[numLat], halfLat[numLat-1];
+        vec fullLat(numLat), halfLat(numLat-1);
         double dlat = M_PI/(numLat-1);
         for (int j = 0; j < numLat; ++j) {
             fullLat[j] = j*dlat-M_PI_2;
@@ -81,10 +81,10 @@ TEST_F(RLLMeshIndexTest, Locate) {
     x(0) =  0.9*M_PI;
     x(1) = -0.11*M_PI;
     index->locate(*mesh, x);
-    ASSERT_EQ(2, (*index)(0, CENTER));
-    ASSERT_EQ(1, (*index)(1, CENTER));
-    ASSERT_EQ(1, (*index)(0, EDGE));
-    ASSERT_EQ(1, (*index)(1, EDGE));
+    ASSERT_EQ(2, (*index)(0, StructuredStagger::GridType::FULL));
+    ASSERT_EQ(1, (*index)(1, StructuredStagger::GridType::FULL));
+    ASSERT_EQ(1, (*index)(0, StructuredStagger::GridType::HALF));
+    ASSERT_EQ(1, (*index)(1, StructuredStagger::GridType::HALF));
     ASSERT_EQ(NOT_POLE, (*index).getPole());
     ASSERT_EQ(false, (*index).isInPolarCap());
     ASSERT_EQ(false, (*index).isOnPole());
@@ -92,20 +92,20 @@ TEST_F(RLLMeshIndexTest, Locate) {
     x(0) = 0.14*M_PI;
     index->reset();
     index->locate(*mesh, x);
-    ASSERT_EQ(0, (*index)(0, CENTER));
-    ASSERT_EQ(-1, (*index)(0, EDGE));
+    ASSERT_EQ(0, (*index)(0, StructuredStagger::GridType::FULL));
+    ASSERT_EQ(-1, (*index)(0, StructuredStagger::GridType::HALF));
 
     x(0) = 1.9*M_PI;
     index->reset();
     index->locate(*mesh, x);
-    ASSERT_EQ(4, (*index)(0, CENTER));
-    ASSERT_EQ(4, (*index)(0, EDGE));
+    ASSERT_EQ(4, (*index)(0, StructuredStagger::GridType::FULL));
+    ASSERT_EQ(4, (*index)(0, StructuredStagger::GridType::HALF));
 
     x(1) = -0.2*M_PI;
     index->reset();
     index->locate(*mesh, x);
-    ASSERT_EQ(1, (*index)(1, CENTER));
-    ASSERT_EQ(0, (*index)(1, EDGE));
+    ASSERT_EQ(1, (*index)(1, StructuredStagger::GridType::FULL));
+    ASSERT_EQ(0, (*index)(1, StructuredStagger::GridType::HALF));
     ASSERT_EQ(NOT_POLE, (*index).getPole());
     ASSERT_EQ(false, (*index).isInPolarCap());
     ASSERT_EQ(false, (*index).isOnPole());
@@ -113,8 +113,8 @@ TEST_F(RLLMeshIndexTest, Locate) {
     x(1) = -0.39*M_PI;
     index->reset();
     index->locate(*mesh, x);
-    ASSERT_EQ(0, (*index)(1, CENTER));
-    ASSERT_EQ(-1, (*index)(1, EDGE));
+    ASSERT_EQ(0, (*index)(1, StructuredStagger::GridType::FULL));
+    ASSERT_EQ(-1, (*index)(1, StructuredStagger::GridType::HALF));
     ASSERT_EQ(SOUTH_POLE, (*index).getPole());
     ASSERT_EQ(true, (*index).isInPolarCap());
     ASSERT_EQ(false, (*index).isOnPole());
@@ -122,8 +122,8 @@ TEST_F(RLLMeshIndexTest, Locate) {
     x(1) = 0.41*M_PI;
     index->reset();
     index->locate(*mesh, x);
-    ASSERT_EQ(3, (*index)(1, CENTER));
-    ASSERT_EQ(3, (*index)(1, EDGE));
+    ASSERT_EQ(3, (*index)(1, StructuredStagger::GridType::FULL));
+    ASSERT_EQ(3, (*index)(1, StructuredStagger::GridType::HALF));
     ASSERT_EQ(NORTH_POLE, (*index).getPole());
     ASSERT_EQ(true, (*index).isInPolarCap());
     ASSERT_EQ(true, (*index).isOnPole());

@@ -18,7 +18,7 @@ protected:
         index = new StructuredMeshIndex(domain->getNumDim());
 
         int numLon = 5;
-        double fullLon[numLon], halfLon[numLon];
+        vec fullLon(numLon), halfLon(numLon);
         double dlon = 2.0*M_PI/numLon;
         for (int i = 0; i < numLon; ++i) {
             fullLon[i] = i*dlon;
@@ -26,7 +26,7 @@ protected:
         }
         mesh->setGridCoords(0, numLon, fullLon, halfLon);
         int numLat = 5;
-        double fullLat[numLat], halfLat[numLat-1];
+        vec fullLat(numLat), halfLat(numLat-1);
         double dlat = M_PI/(numLat-1);
         for (int j = 0; j < numLat; ++j) {
             fullLat[j] = j*dlat-M_PI_2;
@@ -57,60 +57,54 @@ TEST_F(StructuredMeshIndexTest, Locate) {
     x(0) =  0.9*M_PI;
     x(1) = -0.11*M_PI;
     index->locate(*mesh, x);
-    ASSERT_EQ(2, (*index)(0, CENTER));
-    ASSERT_EQ(1, (*index)(1, CENTER));
-    ASSERT_EQ(1, (*index)(0, EDGE));
-    ASSERT_EQ(1, (*index)(1, EDGE));
+    ASSERT_EQ(2, (*index)(0, StructuredStagger::GridType::FULL));
+    ASSERT_EQ(1, (*index)(1, StructuredStagger::GridType::FULL));
+    ASSERT_EQ(1, (*index)(0, StructuredStagger::GridType::HALF));
+    ASSERT_EQ(1, (*index)(1, StructuredStagger::GridType::HALF));
 
     x(0) = 0.14*M_PI;
     index->reset();
     index->locate(*mesh, x);
-    ASSERT_EQ(0, (*index)(0, CENTER));
-    ASSERT_EQ(-1, (*index)(0, EDGE));
+    ASSERT_EQ( 0, (*index)(0, StructuredStagger::GridType::FULL));
+    ASSERT_EQ(-1, (*index)(0, StructuredStagger::GridType::HALF));
 
     x(0) = 1.9*M_PI;
     index->reset();
     index->locate(*mesh, x);
-    ASSERT_EQ(4, (*index)(0, CENTER));
-    ASSERT_EQ(4, (*index)(0, EDGE));
+    ASSERT_EQ(4, (*index)(0, StructuredStagger::GridType::FULL));
+    ASSERT_EQ(4, (*index)(0, StructuredStagger::GridType::HALF));
 
     x(1) = -0.4*M_PI;
     index->reset();
     index->locate(*mesh, x);
-    ASSERT_EQ(0, (*index)(1, CENTER));
-    ASSERT_EQ(-1, (*index)(1, EDGE));
+    ASSERT_EQ( 0, (*index)(1, StructuredStagger::GridType::FULL));
+    ASSERT_EQ(-1, (*index)(1, StructuredStagger::GridType::HALF));
 
     x(1) = 0.41*M_PI;
     index->reset();
     index->locate(*mesh, x);
-    ASSERT_EQ(3, (*index)(1, CENTER));
-    ASSERT_EQ(3, (*index)(1, EDGE));
+    ASSERT_EQ(3, (*index)(1, StructuredStagger::GridType::FULL));
+    ASSERT_EQ(3, (*index)(1, StructuredStagger::GridType::HALF));
 }
 
 TEST_F(StructuredMeshIndexTest, AssignmentOperator) {
     StructuredMeshIndex a(3), b(3);
 
-    a.indices[0][CENTER] = 1;
-    a.indices[0][EDGE] = 2;
-    a.indices[0][VERTEX] = 3;
-    a.indices[1][CENTER] = 4;
-    a.indices[1][EDGE] = 5;
-    a.indices[1][VERTEX] = 6;
-    a.indices[2][CENTER] = 7;
-    a.indices[2][EDGE] = 8;
-    a.indices[2][VERTEX] = 9;
+    a.indices[0][StructuredStagger::GridType::FULL] = 1;
+    a.indices[0][StructuredStagger::GridType::HALF] = 2;
+    a.indices[1][StructuredStagger::GridType::FULL] = 4;
+    a.indices[1][StructuredStagger::GridType::HALF] = 5;
+    a.indices[2][StructuredStagger::GridType::FULL] = 7;
+    a.indices[2][StructuredStagger::GridType::HALF] = 8;
 
     b = a;
 
-    ASSERT_EQ(a.indices[0][CENTER], b.indices[0][CENTER]);
-    ASSERT_EQ(a.indices[0][EDGE],   b.indices[0][EDGE]);
-    ASSERT_EQ(a.indices[0][VERTEX], b.indices[0][VERTEX]);
-    ASSERT_EQ(a.indices[1][CENTER], b.indices[1][CENTER]);
-    ASSERT_EQ(a.indices[1][EDGE],   b.indices[1][EDGE]);
-    ASSERT_EQ(a.indices[1][VERTEX], b.indices[1][VERTEX]);
-    ASSERT_EQ(a.indices[2][CENTER], b.indices[2][CENTER]);
-    ASSERT_EQ(a.indices[2][EDGE],   b.indices[2][EDGE]);
-    ASSERT_EQ(a.indices[2][VERTEX], b.indices[2][VERTEX]);
+    ASSERT_EQ(a.indices[0][StructuredStagger::GridType::FULL], b.indices[0][StructuredStagger::GridType::FULL]);
+    ASSERT_EQ(a.indices[0][StructuredStagger::GridType::HALF], b.indices[0][StructuredStagger::GridType::HALF]);
+    ASSERT_EQ(a.indices[1][StructuredStagger::GridType::FULL], b.indices[1][StructuredStagger::GridType::FULL]);
+    ASSERT_EQ(a.indices[1][StructuredStagger::GridType::HALF], b.indices[1][StructuredStagger::GridType::HALF]);
+    ASSERT_EQ(a.indices[2][StructuredStagger::GridType::FULL], b.indices[2][StructuredStagger::GridType::FULL]);
+    ASSERT_EQ(a.indices[2][StructuredStagger::GridType::HALF], b.indices[2][StructuredStagger::GridType::HALF]);
 }
 
 #endif

@@ -106,6 +106,14 @@ double Time::getSeconds(const Time &other) const {
     }
     return res*sign;
 }
+    
+double Time::getHours(const Time &other) const {
+    return getSeconds(other)/3600;
+}
+
+double Time::getDays(const Time &other) const {
+    return getSeconds(other)/86400;
+}
 
 int Time::getDaysOfMonth(int month, int year) const {
     if (month == -1) {
@@ -413,20 +421,5 @@ bool TimeManager::isFinished() const {
     }
 }
 
-const Time& TimeManager::getCurrTime() const {
-    return currTime;
-}
-
-double TimeManager::getSeconds() const {
-    return currTime.getSeconds(startTime);
-}
-
-double TimeManager::getStepSize() const {
-    return stepSize;
-}
-
-int TimeManager::getNumStep() const {
-    return numStep;
-}
 
 }

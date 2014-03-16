@@ -199,9 +199,9 @@ SphereDomain::SphereDomain() {
 
 SphereDomain::SphereDomain(int numDim) : Domain(numDim) {
     radius = 1.0;
-    setAxis(0, "lon", "longitude", "degree_east",
+    setAxis(0, "lon", "longitude", "radian_east",
             0.0, PERIODIC, 2.0*M_PI, PERIODIC);
-    setAxis(1, "lat", "latitude", "degree_north",
+    setAxis(1, "lat", "latitude", "radian_north",
             -M_PI_2, POLE, M_PI_2, POLE);
     // TODO: Handle the vertical axis if has.
 }

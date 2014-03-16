@@ -24,5 +24,16 @@ string StampString::run(const string &format, int tag) {
     sprintf(buffer, format.c_str(), tag);
     return prefix+string(buffer)+suffix;
 }
+    
+bool StampString::operator==(const StampString &other) const {
+    if (this == &other) {
+        return true;
+    }
+    if (prefix == other.prefix && suffix == other.suffix) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 }

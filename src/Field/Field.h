@@ -7,14 +7,6 @@
 
 namespace geomtk {
 
-enum FieldType {
-    ScalarField, VectorField
-};
-
-#define _1D 1
-#define _2D 2
-#define _3D 3
-
 #define UPDATE_HALF_LEVEL true
 
 /**
@@ -42,6 +34,8 @@ public:
     const string& getLongName() const;
     const string& getUnits() const;
     const Mesh& getMesh() const;
+
+    virtual int getStaggerLocation() const = 0;
 };
 
 }

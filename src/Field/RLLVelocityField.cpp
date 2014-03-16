@@ -16,9 +16,9 @@ PolarRing::~PolarRing() {
 }
 
 void PolarRing::create(const RLLMesh &mesh, bool hasHalfLevel) {
-    assert(mesh.isSet());
     this->mesh = &mesh;
-    vr.set_size(mesh.getNumGrid(0, CENTER, true), mesh.getNumGrid(2, CENTER));
+    vr.set_size(mesh.getNumGrid(0, GridType::FULL, true),
+                mesh.getNumGrid(2, GridType::FULL));
     for (int k = 0; k < vr.n_cols; ++k) {
         for (int i = 0; i < vr.n_rows; ++i) {
             vr(i, k) = new TimeLevels<SphereVelocity, 2>(hasHalfLevel);
@@ -30,56 +30,76 @@ void PolarRing::create(const RLLMesh &mesh, bool hasHalfLevel) {
 }
 
 void PolarRing::update(const TimeLevelIndex<2> &timeIdx, Pole pole,
-                       const field<TimeLevels<field<double>, 2>*> &data,
+                       const vector<RLLField<double> > &v,
                        bool updateHalfLevel) {
     // ring variable is at A-grids
-    int nx = mesh->getNumGrid(0, CENTER, true);
-    int j = pole == SOUTH_POLE ? 1 : mesh->getNumGrid(1, CENTER)-2; // off the Pole
-    for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-        for (int i = 1; i < mesh->getNumGrid(0, CENTER, true)-1; ++i) {
-            vr(i, k)->getLevel(timeIdx)(0) =
-                (data(0)->getLevel(timeIdx)(i-1, j, k)+
-                 data(0)->getLevel(timeIdx)(  i, j, k))*0.5;
-        }
-    }
-    // periodic boundary condition
-    for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-        vr(0, k)->getLevel(timeIdx)(0) = vr(nx-2, k)->getLevel(timeIdx)(0);
-        vr(nx-1, k)->getLevel(timeIdx)(0) = vr(1, k)->getLevel(timeIdx)(0);
-    }
-    j = pole == SOUTH_POLE ? 0 : mesh->getNumGrid(1, EDGE)-2;
-    for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-        for (int i = 0; i < mesh->getNumGrid(0, CENTER, true); ++i) {
-            vr(i, k)->getLevel(timeIdx)(1) =
-                (data(1)->getLevel(timeIdx)(i, j,   k)+
-                 data(1)->getLevel(timeIdx)(i, j+1, k))*0.5;
-        }
-    }
-    if (mesh->getDomain().getNumDim() == 3) {
-        for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-            for (int i = 0; i < mesh->getNumGrid(0, CENTER, true); ++i) {
-                vr(i, k)->getLevel(timeIdx)(2) =
-                    (data(2)->getLevel(timeIdx)(i, j, k)+
-                     data(2)->getLevel(timeIdx)(i, j, k+1))*0.5;
+    int nx = mesh->getNumGrid(0, GridType::FULL, true);
+    // zonal wind speed
+    int j = pole == SOUTH_POLE ? 1 : mesh->getNumGrid(1, GridType::FULL)-2; // off the Pole
+    if (v[0].getStaggerLocation() == Location::X_FACE) { // C-grid
+        for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
+            for (int i = 1; i < mesh->getNumGrid(0, GridType::HALF)+1; ++i) {
+                vr(i, k)->getLevel(timeIdx)(0) =
+                    (v[0](timeIdx, i-1, j, k)+v[0](timeIdx, i, j, k))*0.5;
             }
+        }
+        // periodic boundary condition
+        for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
+            vr(0, k)->getLevel(timeIdx)(0) = vr(nx-2, k)->getLevel(timeIdx)(0);
+            vr(nx-1, k)->getLevel(timeIdx)(0) = vr(1, k)->getLevel(timeIdx)(0);
+        }
+    } else if (v[0].getStaggerLocation() == Location::CENTER) { // A-grid
+        for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
+            for (int i = -1; i < mesh->getNumGrid(0, GridType::FULL)+1; ++i) {
+                vr(i+1, k)->getLevel(timeIdx)(0) = v[0](timeIdx, i, j, k);
+            }
+        }
+    }
+    // meridional wind speed
+    j = pole == SOUTH_POLE ? 0 : mesh->getNumGrid(1, GridType::HALF)-2;
+    if (v[1].getStaggerLocation() == Location::Y_FACE) {
+        for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
+            for (int i = -1; i < mesh->getNumGrid(0, GridType::FULL)+1; ++i) {
+                vr(i+1, k)->getLevel(timeIdx)(1) =
+                    (v[1](timeIdx, i, j, k)+v[1](timeIdx, i, j+1, k))*0.5;
+            }
+        }
+    } else if (v[1].getStaggerLocation() == Location::CENTER) {
+        for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
+            for (int i = -1; i < mesh->getNumGrid(0, GridType::FULL)+1; ++i) {
+                vr(i+1, k)->getLevel(timeIdx)(1) = v[1](timeIdx, i, j, k);
+            }
+        }
+    }
+    // vertical wind speed
+    if (mesh->getDomain().getNumDim() == 3) {
+        if (v[2].getStaggerLocation() == Location::Z_FACE) {
+            for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
+                for (int i = 0; i < mesh->getNumGrid(0, GridType::FULL, true); ++i) {
+                    vr(i, k)->getLevel(timeIdx)(2) =
+                        (v[2](timeIdx, i, j, k)+v[2](timeIdx, i, j, k+1))*0.5;
+                }
+            }
+        } else if (v[2].getStaggerLocation() == Location::CENTER) {
+            
         }
     }
     // -------------------------------------------------------------------------
     // transform velocity
     double cosLon, sinLon, sinLat, sinLat2;
-    j = pole == SOUTH_POLE ? 1 : mesh->getNumGrid(1, CENTER)-2;
-    sinLat = mesh->getSinLat(CENTER, j);
-    sinLat2 = mesh->getSinLat2(CENTER, j);
-    for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
-        for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
-            cosLon = mesh->getCosLon(CENTER, i);
-            sinLon = mesh->getSinLon(CENTER, i);
+    j = pole == SOUTH_POLE ? 1 : mesh->getNumGrid(1, GridType::FULL)-2;
+    sinLat = mesh->getSinLat(GridType::FULL, j);
+    sinLat2 = mesh->getSinLat2(GridType::FULL, j);
+    for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
+        for (int i = 0; i < mesh->getNumGrid(0, GridType::FULL); ++i) {
+            cosLon = mesh->getCosLon(GridType::FULL, i);
+            sinLon = mesh->getSinLon(GridType::FULL, i);
             vr(i+1, k)->getLevel(timeIdx)
                 .transformToPS(sinLat, sinLat2, sinLon, cosLon);
         }
     }
     // periodic boundary condition
-    for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
+    for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
         for (int m = 0; m < mesh->getDomain().getNumDim(); ++m) {
             vr(0, k)->getLevel(timeIdx)[m] = vr(nx-2, k)->getLevel(timeIdx)[m];
             vr(nx-1, k)->getLevel(timeIdx)[m] = vr(1, k)->getLevel(timeIdx)[m];
@@ -115,14 +135,14 @@ void PolarRing::print() const {
     cout << "---------------------------------------------------------" << endl;
     cout << "Reorganized original velocity:" << endl;
     cout << "dim";
-    for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
+    for (int i = 0; i < mesh->getNumGrid(0, GridType::FULL); ++i) {
         cout << setw(10) << i;
     }
     cout << endl;
     for (int m = 0; m < mesh->getDomain().getNumDim(); ++m) {
         cout << setw(2) << m << ":";
-        for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
-            for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
+        for (int i = 0; i < mesh->getNumGrid(0, GridType::FULL); ++i) {
+            for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
                 cout << setw(10) << setprecision(2);
                 cout << getOriginalData(m, timeIdx, i, k);
             }
@@ -132,14 +152,14 @@ void PolarRing::print() const {
     cout << "---------------------------------------------------------" << endl;
     cout << "Transformed velocity:" << endl;
     cout << "dim";
-    for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
+    for (int i = 0; i < mesh->getNumGrid(0, GridType::FULL); ++i) {
         cout << setw(10) << i;
     }
     cout << endl;
     for (int m = 0; m < mesh->getDomain().getNumDim(); ++m) {
         cout << setw(2) << m << ":";
-        for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
-            for (int k = 0; k < mesh->getNumGrid(2, CENTER); ++k) {
+        for (int i = 0; i < mesh->getNumGrid(0, GridType::FULL); ++i) {
+            for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
                 cout << setw(10) << setprecision(2);
                 cout << getTransformedData(m, timeIdx, i, k);
             }
@@ -150,7 +170,7 @@ void PolarRing::print() const {
 
 // -----------------------------------------------------------------------------
 
-RLLVelocityField::RLLVelocityField() : RLLField<double>() {
+RLLVelocityField::RLLVelocityField() {
 }
 
 RLLVelocityField::~RLLVelocityField() {
@@ -158,17 +178,31 @@ RLLVelocityField::~RLLVelocityField() {
 
 void RLLVelocityField::applyBndCond(const TimeLevelIndex<2> &timeIdx,
                                     bool updateHalfLevel) {
-    RLLField<double>::applyBndCond(timeIdx, updateHalfLevel);
-    rings[0].update(timeIdx, SOUTH_POLE, data, updateHalfLevel);
-    rings[1].update(timeIdx, NORTH_POLE, data, updateHalfLevel);
+    for (int m = 0; m < v.size(); ++m) {
+        v[m].applyBndCond(timeIdx, updateHalfLevel);
+    }
+    rings[0].update(timeIdx, SOUTH_POLE, v, updateHalfLevel);
+    rings[1].update(timeIdx, NORTH_POLE, v, updateHalfLevel);
 }
     
-void RLLVelocityField::create(const string &name, const string &units,
-                              const string &longName, const RLLMesh &mesh,
-                              int numDim, ArakawaGrid gridType,
+void RLLVelocityField::create(const RLLMesh &mesh, bool useStagger,
                               bool hasHalfLevel) {
-    RLLField<double>::create(name, units, longName, mesh, VectorField,
-                             numDim, gridType, hasHalfLevel);
+    v.resize(mesh.getDomain().getNumDim());
+    if (useStagger) {
+        v[0].create("u", "m s-1", "zonal wind speed", mesh, Location::X_FACE);
+        v[1].create("v", "m s-1", "meridional wind speed", mesh, Location::Y_FACE);
+        if (mesh.getDomain().getNumDim() == 3) {
+            REPORT_ERROR("Under construction!");
+            v[2].create("w", "?", "vertical wind speed", mesh, Location::Z_FACE);
+        }
+    } else {
+        v[0].create("u", "m s-1", "zonal wind speed", mesh, Location::CENTER);
+        v[1].create("v", "m s-1", "meridional wind speed", mesh, Location::CENTER);
+        if (mesh.getDomain().getNumDim() == 3) {
+            REPORT_ERROR("Under construction!");
+            v[2].create("w", "?", "vertical wind speed", mesh, Location::CENTER);
+        }
+    }
     rings[0].create(mesh, hasHalfLevel);
     rings[1].create(mesh, hasHalfLevel);
 }

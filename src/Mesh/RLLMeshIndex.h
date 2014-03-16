@@ -8,6 +8,9 @@
 namespace geomtk {
 
 class RLLMeshIndex : public StructuredMeshIndex {
+public:
+    typedef RLLStagger::GridType GridType;
+    typedef RLLStagger::Location Location;
 protected:
     Pole pole;
     bool inPolarCap;
@@ -24,12 +27,12 @@ public:
     /**
      *  Toggle 'moveOnPole' boolean.
      */
-    void setMoveOnPole(bool moveOnPole);
+    void setMoveOnPole(bool moveOnPole) { this->moveOnPole = moveOnPole; }
 
-    Pole getPole() const;
-    bool isInPolarCap() const;
-    bool isOnPole() const;
-    bool isMoveOnPole() const;
+    Pole getPole() const { return pole; }
+    bool isInPolarCap() const { return inPolarCap; }
+    bool isOnPole() const { return onPole; }
+    bool isMoveOnPole() const { return moveOnPole; }
 
     /**
      *  Inherit StructuredMeshIndex::locate(SpaceCoord) and add Pole judgement.

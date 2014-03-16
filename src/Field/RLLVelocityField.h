@@ -15,6 +15,9 @@ namespace geomtk {
  *  interpolated onto the point by using the inverse distance weighting.
  */
 class PolarRing {
+public:
+    typedef RLLStagger::GridType GridType;
+    typedef RLLStagger::Location Location;
 protected:
     field<TimeLevels<SphereVelocity, 2>*> vr;
     const RLLMesh *mesh;
@@ -25,7 +28,7 @@ public:
     void create(const RLLMesh &mesh, bool hasHalfLevel = false);
 
     void update(const TimeLevelIndex<2> &timeIdx, Pole pole,
-                const field<TimeLevels<field<double>, 2>*> &data,
+                const vector<RLLField<double> > &v,
                 bool updateHalfLevel = false);
 
     double getOriginalData(int dim, const TimeLevelIndex<2> &timeIdx,
@@ -39,8 +42,13 @@ public:
 
 // -----------------------------------------------------------------------------
 
-class RLLVelocityField : public RLLField<double> {
+class RLLVelocityField {
+public:
+    typedef RLLField<double> FieldType;
+    typedef RLLStagger::GridType GridType;
+    typedef RLLStagger::Location Location;
 protected:
+    vector<FieldType> v;
     PolarRing rings[2];
 public:
     RLLVelocityField();
@@ -49,10 +57,12 @@ public:
     void applyBndCond(const TimeLevelIndex<2> &timeIdx,
                       bool updateHalfLevel = false);
 
-    virtual void create(const string &name, const string &units,
-                        const string &longName, const RLLMesh &mesh,
-                        int numDim, ArakawaGrid gridType,
+    virtual void create(const RLLMesh &mesh, bool useStagger,
                         bool hasHalfLevel = false);
+
+    FieldType& operator()(int compIdx) { return v[compIdx]; }
+    
+    const FieldType& operator()(int compIdx) const { return v[compIdx]; }
 
     const PolarRing& getPolarRing(Pole pole) const;
 };

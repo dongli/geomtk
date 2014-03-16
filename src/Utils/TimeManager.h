@@ -26,6 +26,10 @@ public:
      */
     double getSeconds(const Time &other) const;
     
+    double getHours(const Time &other) const;
+    
+    double getDays(const Time &other) const;
+
     /**
      * This method returns the days included in the given month and year. If the
      * month and year are not given, use the ones in this object.
@@ -93,11 +97,14 @@ public:
     void init(Time startTime, Time endTime, double stepSize);
     void advance();
     bool isFinished() const;
-
-    const Time& getCurrTime() const;
-    double getStepSize() const;
-    int getNumStep() const;
-    double getSeconds() const;
+    
+    const Time& getStartTime() const { return startTime; }
+    const Time& getCurrTime() const { return currTime; }
+    const Time& getEndTime() const { return endTime; }
+    double getStepSize() const { return stepSize; }
+    int getNumStep() const { return numStep; }
+    double getSeconds() const { return currTime.getSeconds(startTime); }
+    double getDays() const { return currTime.getDays(startTime); }
 };
 
 }

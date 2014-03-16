@@ -21,10 +21,10 @@ double RLLMesh::getPoleRadius() const {
     return poleRadius;
 }
 
-void RLLMesh::setGridCoords(int dim, int size, const vec &full,
+void RLLMesh::setGridCoords(int axisIdx, int size, const vec &full,
                             const vec &half) {
-    StructuredMesh::setGridCoords(dim, size, full, half);
-    if (dim == 0) {
+    StructuredMesh::setGridCoords(axisIdx, size, full, half);
+    if (axisIdx == 0) {
         cosLonFull.set_size(fullCoords[0].size());
         sinLonFull.set_size(fullCoords[0].size());
         cosLonHalf.set_size(halfCoords[0].size());
@@ -37,7 +37,7 @@ void RLLMesh::setGridCoords(int dim, int size, const vec &full,
             cosLonHalf(i) = cos(halfCoords[0](i));
             sinLonHalf(i) = sin(halfCoords[0](i));
         }
-    } else if (dim == 1) {
+    } else if (axisIdx == 1) {
         cosLatFull.set_size(fullCoords[1].size());
         sinLatFull.set_size(fullCoords[1].size());
         sinLatFull2.set_size(fullCoords[1].size());
@@ -63,8 +63,9 @@ void RLLMesh::setGridCoords(int dim, int size, const vec &full,
 
 void RLLMesh::setCellVolumes() {
     const SphereDomain &domain = static_cast<const SphereDomain&>(*(this->domain));
-    volumes.set_size(getNumGrid(0, CENTER), getNumGrid(1, CENTER),
-                     getNumGrid(2, CENTER));
+    volumes.set_size(getNumGrid(0, GridType::FULL),
+                     getNumGrid(1, GridType::FULL),
+                     getNumGrid(2, GridType::FULL));
     double R2 = domain.getRadius()*domain.getRadius();
     //        assert(volumes.n_slices == 1);
     for (int k = 0; k < volumes.n_slices; ++k) {
@@ -90,72 +91,71 @@ void RLLMesh::setCellVolumes() {
     }
     assert(fabs(totalArea-4*M_PI*R2) < 1.0e-10);
 #endif
-    isVolumeSet = true;
 }
 
-void RLLMesh::getGridCoord(const MeshIndex &idx, SpaceCoord &x,
-                           ArakawaGrid gridType, int dim) const {
-    StructuredMesh::getGridCoord(idx, x, gridType, dim);
-    static_cast<SphereCoord*>(&x)->updateTrigonometricFunctions();
-}
-
-void RLLMesh::getGridCoord(int idx, SpaceCoord &x, ArakawaGrid gridType,
-                           int dim) const {
-    StructuredMesh::getGridCoord(idx, x, gridType, dim);
-    static_cast<SphereCoord*>(&x)->updateTrigonometricFunctions();
-}
-
-double RLLMesh::getCosLon(StaggerType staggerType, int i) const {
-    switch (staggerType) {
-        case CENTER:
+double RLLMesh::getCosLon(int gridType, int i) const {
+    switch (gridType) {
+        case GridType::FULL:
             return cosLonFull(i+1);
-        case EDGE: case VERTEX:
+        case GridType::HALF:
             return cosLonHalf(i+1);
+        default:
+            REPORT_ERROR("Unknown grid type!");
     }
 }
 
-double RLLMesh::getSinLon(StaggerType staggerType, int i) const {
-    switch (staggerType) {
-        case CENTER:
+double RLLMesh::getSinLon(int gridType, int i) const {
+    switch (gridType) {
+        case GridType::FULL:
             return sinLonFull(i+1);
-        case EDGE: case VERTEX:
+        case GridType::HALF:
             return sinLonHalf(i+1);
+        default:
+            REPORT_ERROR("Unknown grid type!");
     }
 }
 
-double RLLMesh::getCosLat(StaggerType staggerType, int j) const {
-    switch (staggerType) {
-        case CENTER:
+double RLLMesh::getCosLat(int gridType, int j) const {
+    switch (gridType) {
+        case GridType::FULL:
             return cosLatFull(j);
-        case EDGE: case VERTEX:
+        case GridType::HALF:
             return cosLatHalf(j);
+        default:
+            REPORT_ERROR("Unknown grid type!");
     }
 }
 
-double RLLMesh::getSinLat(StaggerType staggerType, int j) const {
-    switch (staggerType) {
-        case CENTER:
+double RLLMesh::getSinLat(int gridType, int j) const {
+    switch (gridType) {
+        case GridType::FULL:
             return sinLatFull(j);
-        case EDGE: case VERTEX:
+        case GridType::HALF:
             return sinLatHalf(j);
+        default:
+            REPORT_ERROR("Unknown grid type!");
     }
 }
 
-double RLLMesh::getSinLat2(StaggerType staggerType, int j) const {
-    switch (staggerType) {
-        case CENTER:
+double RLLMesh::getSinLat2(int gridType, int j) const {
+    switch (gridType) {
+        case GridType::FULL:
             return sinLatFull2(j);
-        case EDGE: case VERTEX:
+        case GridType::HALF:
             return sinLatHalf2(j);
+        default:
+            REPORT_ERROR("Unknown grid type!");
     }
 }
 
-double RLLMesh::getTanLat(StaggerType staggerType, int j) const {
-    switch (staggerType) {
-        case CENTER:
+double RLLMesh::getTanLat(int gridType, int j) const {
+    switch (gridType) {
+        case GridType::FULL:
             return tanLatFull(j);
-        case EDGE: case VERTEX:
+        case GridType::HALF:
             return tanLatHalf(j);
+        default:
+            REPORT_ERROR("Unknown grid type!");
     }
 }
 

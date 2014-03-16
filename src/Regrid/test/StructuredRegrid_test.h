@@ -10,7 +10,7 @@ protected:
     SphereDomain *domain;
     RLLMesh *mesh;
     StructuredRegrid *regrid;
-    StructuredField<double> f_vector;
+    StructuredField<double> f;
     TimeLevelIndex<2> timeIdx;
 
     virtual void SetUp() {
@@ -19,7 +19,7 @@ protected:
         regrid = new StructuredRegrid(*mesh);
 
         int numLon = 5;
-        double fullLon[numLon], halfLon[numLon];
+        vec fullLon(numLon), halfLon(numLon);
         double dlon = 2.0*M_PI/numLon;
         for (int i = 0; i < numLon; ++i) {
             fullLon[i] = i*dlon;
@@ -27,7 +27,7 @@ protected:
         }
         mesh->setGridCoords(0, numLon, fullLon, halfLon);
         int numLat = 5;
-        double fullLat[numLat], halfLat[numLat-1];
+        vec fullLat(numLat), halfLat(numLat-1);
         double dlat = M_PI/(numLat-1);
         for (int j = 0; j < numLat; ++j) {
             fullLat[j] = j*dlat-M_PI_2;
@@ -46,27 +46,21 @@ protected:
 };
 
 TEST_F(StructuredRegridTest, Run) {
-    f_vector.create("", "", "", *mesh, VectorField, _2D, C_GRID);
-    for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
-        for (int i = 0; i < mesh->getNumGrid(0, EDGE); ++i) {
-            f_vector(0, timeIdx, i, j) = 5.0;
+    f.create("", "", "", *mesh, StructuredStagger::Location::X_FACE);
+    for (int j = 0; j < mesh->getNumGrid(1, StructuredStagger::GridType::FULL); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, StructuredStagger::GridType::HALF); ++i) {
+            f(timeIdx, i, j) = 5.0;
         }
     }
-    for (int j = 0; j < mesh->getNumGrid(1, EDGE); ++j) {
-        for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
-            f_vector(1, timeIdx, i, j) = 1.0;
-        }
-    }
-    f_vector.applyBndCond(timeIdx);
+    f.applyBndCond(timeIdx);
 
     SpaceCoord x(2);
-    vec y(2);
+    double y;
 
     x(0) = 0.1*M_PI;
     x(1) = -0.2*M_PI;
-    regrid->run(BILINEAR, timeIdx, f_vector, x, y);
-    ASSERT_EQ(5.0, y(0));
-    ASSERT_EQ(1.0, y(1));
+    regrid->run(BILINEAR, timeIdx, f, x, y);
+    ASSERT_EQ(5.0, y);
 }
 
 #endif

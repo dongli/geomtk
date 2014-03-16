@@ -7,6 +7,9 @@
 namespace geomtk {
 
 class StructuredMeshIndex : public MeshIndex {
+public:
+    typedef StructuredStagger::GridType GridType;
+    typedef StructuredStagger::Location Location;
 protected:
     int **indices;
     int numDim;
@@ -19,8 +22,8 @@ public:
      */
     virtual void reset();
 
-    virtual int operator()(int dim, StaggerType staggerType) const;
-    virtual int& operator()(int dim, StaggerType staggerType);
+    virtual int operator()(int axisIdx, int gridType) const;
+    virtual int& operator()(int axisIdx, int gridType);
 
     virtual StructuredMeshIndex& operator=(const StructuredMeshIndex &other);
 

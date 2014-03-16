@@ -15,6 +15,7 @@
 #include "RLLVelocityField_test.h"
 #include "StructuredRegrid_test.h"
 #include "RLLRegrid_test.h"
+#include "IOManager_test.h"
 
 int main(int argc, char *argv[])
 {

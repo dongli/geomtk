@@ -5,11 +5,17 @@
 
 namespace geomtk {
 
+struct RLLStagger : public StructuredStagger {
+};
+
 class SphereCoord;
 class SphereVelocity;
 class RLLMeshIndex;
 
 class RLLMesh : public StructuredMesh {
+public:
+    typedef RLLStagger::GridType GridType;
+    typedef RLLStagger::Location Location;
 protected:
     vec cosLonFull, sinLonFull;
     vec cosLonHalf, sinLonHalf;
@@ -24,22 +30,17 @@ public:
     void setPoleRadius(double radius);
     double getPoleRadius() const;
 
-    virtual void setGridCoords(int dim, int size, const vec &full,
+    virtual void setGridCoords(int axisIdx, int size, const vec &full,
                                const vec &half);
 
     virtual void setCellVolumes();
 
-    virtual void getGridCoord(const MeshIndex &idx, SpaceCoord &x,
-                              ArakawaGrid gridType, int dim = 0) const;
-    virtual void getGridCoord(int idx, SpaceCoord &x, ArakawaGrid gridType,
-                              int dim = 0) const;
-
-    double getCosLon(StaggerType staggerType, int i) const;
-    double getSinLon(StaggerType staggerType, int i) const;
-    double getCosLat(StaggerType staggerType, int j) const;
-    double getSinLat(StaggerType staggerType, int j) const;
-    double getSinLat2(StaggerType staggerType, int j) const;
-    double getTanLat(StaggerType staggerType, int j) const;
+    double getCosLon(int gridType, int i) const;
+    double getSinLon(int gridType, int i) const;
+    double getCosLat(int gridType, int j) const;
+    double getSinLat(int gridType, int j) const;
+    double getSinLat2(int gridType, int j) const;
+    double getTanLat(int gridType, int j) const;
 
     void move(const SphereCoord &x0, double dt, const SphereVelocity &v,
               const RLLMeshIndex &idx, SphereCoord &x1) const;

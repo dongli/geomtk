@@ -17,7 +17,7 @@ protected:
         mesh = new RLLMesh(*domain);
 
         int numLon = 5;
-        double fullLon[numLon], halfLon[numLon];
+        vec fullLon(numLon), halfLon(numLon);
         double dlon = 2.0*M_PI/numLon;
         for (int i = 0; i < numLon; ++i) {
             fullLon[i] = i*dlon;
@@ -25,7 +25,7 @@ protected:
         }
         mesh->setGridCoords(0, numLon, fullLon, halfLon);
         int numLat = 5;
-        double fullLat[numLat], halfLat[numLat-1];
+        vec fullLat(numLat), halfLat(numLat-1);
         double dlat = M_PI/(numLat-1);
         for (int j = 0; j < numLat; ++j) {
             fullLat[j] = j*dlat-M_PI_2;
@@ -43,28 +43,28 @@ protected:
 };
 
 TEST_F(RLLVelocityFieldTest, CreateAndSet) {
-    v.create("", "", "", *mesh, _2D, C_GRID);
-    for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
-        for (int i = 0; i < mesh->getNumGrid(0, EDGE); ++i) {
-            v(0, timeIdx, i, j) = 5.0;
+    v.create(*mesh, true);
+    for (int j = 0; j < mesh->getNumGrid(1, RLLStagger::GridType::FULL); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, RLLStagger::GridType::HALF); ++i) {
+            v(0)(timeIdx, i, j) = 5.0;
         }
     }
-    for (int j = 0; j < mesh->getNumGrid(1, EDGE); ++j) {
-        for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
-            v(1, timeIdx, i, j) = 5.0;
+    for (int j = 0; j < mesh->getNumGrid(1, RLLStagger::GridType::HALF); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, RLLStagger::GridType::FULL); ++i) {
+            v(1)(timeIdx, i, j) = 5.0;
         }
     }
     v.applyBndCond(timeIdx);
     // -------------------------------------------------------------------------
     // check boundary condition
-    int n = mesh->getNumGrid(0, CENTER);
-    for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
-        ASSERT_EQ(5.0, v(0, timeIdx, -1, j));
-        ASSERT_EQ(5.0, v(0, timeIdx,  n, j));
+    int n = mesh->getNumGrid(0, RLLStagger::GridType::FULL);
+    for (int j = 0; j < mesh->getNumGrid(1, RLLStagger::GridType::FULL); ++j) {
+        ASSERT_EQ(5.0, v(0)(timeIdx, -1, j));
+        ASSERT_EQ(5.0, v(0)(timeIdx,  n, j));
     }
-    for (int j = 0; j < mesh->getNumGrid(1, EDGE); ++j) {
-        ASSERT_EQ(5.0, v(1, timeIdx, -1, j));
-        ASSERT_EQ(5.0, v(1, timeIdx,  n, j));
+    for (int j = 0; j < mesh->getNumGrid(1, RLLStagger::GridType::HALF); ++j) {
+        ASSERT_EQ(5.0, v(1)(timeIdx, -1, j));
+        ASSERT_EQ(5.0, v(1)(timeIdx,  n, j));
     }
     for (int m = 0; m < domain->getNumDim(); ++m) {
         for (int l = 0; l < 2; ++l) {
@@ -81,22 +81,22 @@ TEST_F(RLLVelocityFieldTest, CreateAndSet) {
     // -------------------------------------------------------------------------
     // check original velocity on the rings
     for (int l = 0; l < 2; ++l) {
-        int j = l == 0 ? 1 : mesh->getNumGrid(1, CENTER)-2;
-        for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
+        int j = l == 0 ? 1 : mesh->getNumGrid(1, RLLStagger::GridType::FULL)-2;
+        for (int i = 0; i < mesh->getNumGrid(0, RLLStagger::GridType::FULL); ++i) {
             ASSERT_EQ(v.rings[l].getOriginalData(0, timeIdx, i),
-                      (v(0, timeIdx, i, j)+v(0, timeIdx, i-1, j))*0.5);
+                      (v(0)(timeIdx, i, j)+v(0)(timeIdx, i-1, j))*0.5);
             ASSERT_EQ(v.rings[l].getOriginalData(1, timeIdx, i),
-                      (v(1, timeIdx, i, j)+v(1, timeIdx, j+1, j))*0.5);
+                      (v(1)(timeIdx, i, j)+v(1)(timeIdx, j+1, j))*0.5);
         }
     }
     // -------------------------------------------------------------------------
     // check transformed velocity on the rings
     for (int l = 0; l < 2; ++l) {
-        int j = l == 0 ? 1 : mesh->getNumGrid(1, CENTER)-2;
-        for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
+        int j = l == 0 ? 1 : mesh->getNumGrid(1, RLLStagger::GridType::FULL)-2;
+        for (int i = 0; i < mesh->getNumGrid(0, RLLStagger::GridType::FULL); ++i) {
             SphereCoord x(2);
-            x.setCoord(mesh->getGridCoordComp(0, CENTER, i),
-                       mesh->getGridCoordComp(1, CENTER, j));
+            x.setCoord(mesh->getGridCoordComp(0, RLLStagger::GridType::FULL, i),
+                       mesh->getGridCoordComp(1, RLLStagger::GridType::FULL, j));
             SphereVelocity u(2);
             u = v.rings[l].vr(i+1, 0)->getLevel(timeIdx);
             u.transformFromPS(x);

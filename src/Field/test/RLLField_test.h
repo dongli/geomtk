@@ -19,7 +19,7 @@ protected:
         // ---------------------------------------------------------------------
         // setup mesh
         int numLon = 10;
-        double fullLon[numLon], halfLon[numLon];
+        vec fullLon(numLon), halfLon(numLon);
         double dlon = 2.0*M_PI/numLon;
         for (int i = 0; i < numLon; ++i) {
             fullLon[i] = i*dlon;
@@ -27,7 +27,7 @@ protected:
         }
         mesh->setGridCoords(0, numLon, fullLon, halfLon);
         int numLat = 10;
-        double fullLat[numLat], halfLat[numLat-1];
+        vec fullLat(numLat), halfLat(numLat-1);
         double dlat = M_PI/(numLat-1);
         for (int j = 0; j < numLat; ++j) {
             fullLat[j] = j*dlat-M_PI_2;
@@ -46,41 +46,23 @@ protected:
     }
 };
 
-TEST_F(RLLFieldTest, CheckGridType) {
-    RLLField<double> f1, f2, f3, f4, f5;
-    f1.create("", "", "", *mesh, ScalarField, CENTER, CENTER);
-    ASSERT_EQ(A_GRID, f1.gridType);
-    f2.create("", "", "", *mesh, VectorField, CENTER, CENTER, CENTER, CENTER);
-    ASSERT_EQ(A_GRID, f2.gridType);
-    f3.create("", "", "", *mesh, VectorField, EDGE, CENTER, CENTER, EDGE);
-    ASSERT_EQ(C_GRID, f3.gridType);
-    f4.create("", "", "", *mesh, VectorField, CENTER, CENTER, CENTER,
-              CENTER, CENTER, CENTER, CENTER, CENTER, CENTER);
-    ASSERT_EQ(A_GRID, f4.gridType);
-    f5.create("", "", "", *mesh, VectorField, EDGE, CENTER, CENTER,
-              CENTER, EDGE, CENTER, CENTER, CENTER, EDGE);
-    ASSERT_EQ(C_GRID, f5.gridType);
-
-}
-
 TEST_F(RLLFieldTest, CheckScalarField) {
     RLLField<double> f;
-    f.create("", "", "", *mesh, ScalarField, CENTER, CENTER);
+    f.create("", "", "", *mesh, RLLStagger::Location::CENTER);
     // -------------------------------------------------------------------------
     // check data dimensionality
-    ASSERT_EQ(1, f.data.size());
-    ASSERT_EQ(12, f.data(0)->getLevel(timeIdx).n_rows);
-    ASSERT_EQ(10, f.data(0)->getLevel(timeIdx).n_cols);
+    ASSERT_EQ(12, f.data->getLevel(timeIdx).n_rows);
+    ASSERT_EQ(10, f.data->getLevel(timeIdx).n_cols);
     // -------------------------------------------------------------------------
     // check boundary condition
-    for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
-        for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
-            f(timeIdx, i, j) = i+j*mesh->getNumGrid(0, CENTER);
+    for (int j = 0; j < mesh->getNumGrid(1, RLLStagger::GridType::FULL); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, RLLStagger::GridType::FULL); ++i) {
+            f(timeIdx, i, j) = i+j*mesh->getNumGrid(0, RLLStagger::GridType::FULL);
         }
     }
     f.applyBndCond(timeIdx);
-    int n = mesh->getNumGrid(0, CENTER);
-    for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
+    int n = mesh->getNumGrid(0, RLLStagger::GridType::FULL);
+    for (int j = 0; j < mesh->getNumGrid(1, RLLStagger::GridType::FULL); ++j) {
         ASSERT_EQ(f(timeIdx, -1, j), f(timeIdx, n-1, j));
         ASSERT_EQ(f(timeIdx,  n, j), f(timeIdx,   0, j));
     }
@@ -88,10 +70,10 @@ TEST_F(RLLFieldTest, CheckScalarField) {
     // check data indexing
     ASSERT_EQ(0, f(timeIdx, 0));
     ASSERT_EQ(9, f(timeIdx, 9));
-    for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
-        for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
-            int cellIdx = i+j*mesh->getNumGrid(0, CENTER);
-            ASSERT_EQ(i+j*mesh->getNumGrid(0, CENTER), f(timeIdx, cellIdx));
+    for (int j = 0; j < mesh->getNumGrid(1, RLLStagger::GridType::FULL); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, RLLStagger::GridType::FULL); ++i) {
+            int cellIdx = i+j*mesh->getNumGrid(0, RLLStagger::GridType::FULL);
+            ASSERT_EQ(i+j*mesh->getNumGrid(0, RLLStagger::GridType::FULL), f(timeIdx, cellIdx));
         }
     }
 
@@ -100,55 +82,59 @@ TEST_F(RLLFieldTest, CheckScalarField) {
 TEST_F(RLLFieldTest, TestVectorFieldHalfLevel) {
     TimeLevelIndex<2> newTimeIdx = timeIdx+1;
     TimeLevelIndex<2> halfTimeIdx = timeIdx+0.5;
-    RLLField<double> f;
-    f.create("", "", "", *mesh, VectorField, _2D, C_GRID, true);
-    for (int m = 0; m < 2; ++m) {
-        for (int j = 0; j < mesh->getNumGrid(1, f.getStaggerType(m, 1)); ++j) {
-            for (int i = 0; i < mesh->getNumGrid(0, f.getStaggerType(m, 0)); ++i) {
-                f(m, timeIdx, i, j) = 10;
-            }
-        }
-    }
-    f.applyBndCond(timeIdx);
-    for (int m = 0; m < 2; ++m) {
-        for (int j = 0; j < mesh->getNumGrid(1, f.getStaggerType(m, 1)); ++j) {
-            for (int i = 0; i < mesh->getNumGrid(0, f.getStaggerType(m, 0)); ++i) {
-                f(m, newTimeIdx, i, j) = 20;
-            }
-        }
-    }
-    f.applyBndCond(newTimeIdx, UPDATE_HALF_LEVEL);
-    for (int m = 0; m < 2; ++m) {
-        for (int j = 0; j < mesh->getNumGrid(1, f.getStaggerType(m, 1)); ++j) {
-            for (int i = 0; i < mesh->getNumGrid(0, f.getStaggerType(m, 0)); ++i) {
-                ASSERT_EQ(f(m, halfTimeIdx, i, j), 15);
-            }
-        }
-    }
-}
+    RLLField<double> u, v;
 
-TEST_F(RLLFieldTest, TestVectorField) {
-    RLLField<double> f;
-    f.create("", "", "", *mesh, VectorField, _2D, C_GRID);
-    // -------------------------------------------------------------------------
-    // check data dimensionality
-    ASSERT_EQ(2, f.data.size());
-    ASSERT_EQ(12, f.data(0)->getLevel(timeIdx).n_rows);
-    ASSERT_EQ(10, f.data(0)->getLevel(timeIdx).n_cols);
-    ASSERT_EQ(12, f.data(1)->getLevel(timeIdx).n_rows);
-    ASSERT_EQ(9, f.data(1)->getLevel(timeIdx).n_cols);
-    // -------------------------------------------------------------------------
-    // check boundary condition
-    for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
-        for (int i = 0; i < mesh->getNumGrid(0, EDGE); ++i) {
-            f(0, timeIdx, i, j) = i+j*mesh->getNumGrid(0, EDGE);
+    u.create("u", "", "", *mesh, RLLStagger::Location::X_FACE, true);
+    v.create("v", "", "", *mesh, RLLStagger::Location::Y_FACE, true);
+
+    ASSERT_EQ(12, u.data->getLevel(timeIdx).n_rows);
+    ASSERT_EQ(10, u.data->getLevel(timeIdx).n_cols);
+    ASSERT_EQ(12, v.data->getLevel(timeIdx).n_rows);
+    ASSERT_EQ(9, v.data->getLevel(timeIdx).n_cols);
+
+    for (int j = 0; j < mesh->getNumGrid(1, u.getGridType(1)); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, u.getGridType(0)); ++i) {
+            u(timeIdx, i, j) = 10;
         }
     }
-    f.applyBndCond(timeIdx);
-    int n = mesh->getNumGrid(0, CENTER);
-    for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
-        ASSERT_EQ(f(0, timeIdx, -1, j), f(0, timeIdx, n-1, j));
-        ASSERT_EQ(f(0, timeIdx,  n, j), f(0, timeIdx,   0, j));
+    u.applyBndCond(timeIdx);
+    
+    for (int j = 0; j < mesh->getNumGrid(1, v.getGridType(1)); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, v.getGridType(0)); ++i) {
+            v(timeIdx, i, j) = 10;
+        }
+    }
+    v.applyBndCond(timeIdx);
+
+    int n = mesh->getNumGrid(0, u.getGridType(0));
+    for (int j = 0; j < mesh->getNumGrid(1, u.getGridType(1)); ++j) {
+        ASSERT_EQ(u(timeIdx, -1, j), u(timeIdx, n-1, j));
+        ASSERT_EQ(u(timeIdx,  n, j), u(timeIdx,   0, j));
+    }
+
+    for (int j = 0; j < mesh->getNumGrid(1, u.getGridType(1)); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, u.getGridType(0)); ++i) {
+            u(newTimeIdx, i, j) = 20;
+        }
+    }
+    u.applyBndCond(newTimeIdx, UPDATE_HALF_LEVEL);
+    
+    for (int j = 0; j < mesh->getNumGrid(1, v.getGridType(1)); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, v.getGridType(0)); ++i) {
+            v(newTimeIdx, i, j) = 20;
+        }
+    }
+    v.applyBndCond(newTimeIdx, UPDATE_HALF_LEVEL);
+
+    for (int j = 0; j < mesh->getNumGrid(1, u.getGridType(1)); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, u.getGridType(0)); ++i) {
+            ASSERT_EQ(u(halfTimeIdx, i, j), 15);
+        }
+    }
+    for (int j = 0; j < mesh->getNumGrid(1, v.getGridType(1)); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, v.getGridType(0)); ++i) {
+            ASSERT_EQ(v(halfTimeIdx, i, j), 15);
+        }
     }
 }
 

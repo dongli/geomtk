@@ -21,7 +21,7 @@ protected:
         domain->setRadius(1.0);
 
         int numLon = 5;
-        double fullLon[numLon], halfLon[numLon];
+        vec fullLon(numLon), halfLon(numLon);
         double dlon = 2.0*M_PI/numLon;
         for (int i = 0; i < numLon; ++i) {
             fullLon[i] = i*dlon;
@@ -29,7 +29,7 @@ protected:
         }
         mesh->setGridCoords(0, numLon, fullLon, halfLon);
         int numLat = 5;
-        double fullLat[numLat], halfLat[numLat-1];
+        vec fullLat(numLat), halfLat(numLat-1);
         double dlat = M_PI/(numLat-1);
         for (int j = 0; j < numLat; ++j) {
             fullLat[j] = j*dlat-M_PI_2;
@@ -55,15 +55,15 @@ protected:
 //      -0.375*PI     -0.125*PI      0.125*PI      0.375*PI
 
 TEST_F(RLLRegridTest, Run) {
-    v.create("", "", "", *mesh, _2D, C_GRID);
-    for (int j = 0; j < mesh->getNumGrid(1, CENTER); ++j) {
-        for (int i = 0; i < mesh->getNumGrid(0, EDGE); ++i) {
-            v(0, timeIdx, i, j) = 5.0;
+    v.create(*mesh, true);
+    for (int j = 0; j < mesh->getNumGrid(1, RLLStagger::GridType::FULL); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, RLLStagger::GridType::HALF); ++i) {
+            v(0)(timeIdx, i, j) = 5.0;
         }
     }
-    for (int j = 0; j < mesh->getNumGrid(1, EDGE); ++j) {
-        for (int i = 0; i < mesh->getNumGrid(0, CENTER); ++i) {
-            v(1, timeIdx, i, j) = 5.0;
+    for (int j = 0; j < mesh->getNumGrid(1, RLLStagger::GridType::HALF); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, RLLStagger::GridType::FULL); ++i) {
+            v(1)(timeIdx, i, j) = 5.0;
         }
     }
     v.applyBndCond(timeIdx);

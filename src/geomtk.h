@@ -15,6 +15,7 @@
 #include "TimeManager.h"
 #include "StampString.h"
 #include "SystemTools.h"
+#include "IOManager.h"
 // Domain class hierarchy
 #include "Domain.h"
 #include "SphereDomain.h"

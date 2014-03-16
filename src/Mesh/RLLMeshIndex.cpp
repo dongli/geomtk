@@ -17,10 +17,6 @@ void RLLMeshIndex::reset() {
     moveOnPole = false;
 }
 
-void RLLMeshIndex::setMoveOnPole(bool moveOnPole) {
-    this->moveOnPole = moveOnPole;
-}
-
 RLLMeshIndex& RLLMeshIndex::operator=(const RLLMeshIndex &other) {
     StructuredMeshIndex::operator=(other);
     if (this != &other) {
@@ -32,30 +28,14 @@ RLLMeshIndex& RLLMeshIndex::operator=(const RLLMeshIndex &other) {
     return *this;
 }
 
-Pole RLLMeshIndex::getPole() const {
-    return pole;
-}
-
-bool RLLMeshIndex::isInPolarCap() const {
-    return inPolarCap;
-}
-
-bool RLLMeshIndex::isOnPole() const {
-    return onPole;
-}
-
-bool RLLMeshIndex::isMoveOnPole() const {
-    return moveOnPole;
-}
-
 void RLLMeshIndex::locate(const Mesh &mesh_, const SpaceCoord &x) {
     StructuredMeshIndex::locate(mesh_, x);
     const RLLMesh &mesh = static_cast<const RLLMesh&>(mesh_);
-    if (indices[1][CENTER] == 0) {
+    if (indices[1][GridType::FULL] == 0) {
         pole = SOUTH_POLE;
         inPolarCap = true;
-    } else if (indices[1][CENTER] == mesh.getNumGrid(1, CENTER)-2) {
-        
+    } else if (indices[1][GridType::FULL] ==
+               mesh.getNumGrid(1, GridType::FULL)-2) {
         pole = NORTH_POLE;
         inPolarCap = true;
     } else {

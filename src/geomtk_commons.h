@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <cmath>
 #include <string>
+#include <list>
 #include <vector>
 #include <type_traits>
 
@@ -29,8 +30,10 @@ using std::ifstream;
 
 using std::string;
 using std::vector;
+using std::list;
 using std::min;
 using std::max;
+using std::initializer_list;
     
 // -----------------------------------------------------------------------------
 // meta-programming
@@ -38,6 +41,7 @@ using std::enable_if;
 using std::is_arithmetic;
 using std::is_pointer;
 using std::is_floating_point;
+using std::is_same;
     
 template <typename T, typename NameGetter>
 struct has_member_impl {
@@ -82,9 +86,17 @@ inline string getFunctionName(const string &str) {
 }
     
 inline string getClassName(const string &str) {
-    size_t j = str.rfind("::");
-    assert(j != string::npos);
-    size_t i = j-1;
+    size_t k = str.rfind("[");
+    size_t i, j;
+    if (k != string::npos) {
+        j = str.substr(0, k).rfind("::");
+    } else {
+        j = str.rfind("::");
+#ifdef DEBUG
+        assert(j != string::npos);
+#endif
+    }
+    i = j-1;
     while (i > 0) {
         if (str.at(i) == ' ') {
             i++;
@@ -95,6 +107,16 @@ inline string getClassName(const string &str) {
     return str.substr(i, j-i);
 }
 
+// -----------------------------------------------------------------------------
+// access specifier modifying macros
+#ifdef UNIT_TEST
+#define private public
+#define protected public
+#define MUTE
+#endif
+
+// -----------------------------------------------------------------------------
+// print macros
 #define REPORT_ERROR(MESSAGE) \
 { \
     std::cout << "[Error]: "; \
@@ -104,44 +126,57 @@ inline string getClassName(const string &str) {
     exit(-1); \
 }
 
+#ifndef MUTE
 #define REPORT_NOTICE(MESSAGE) \
 { \
     std::cout << "[Notice]: "; \
     std::cout << geomtk::getFunctionName(__PRETTY_FUNCTION__) << ": "; \
     std::cout << MESSAGE << std::endl; \
 }
+#else
+#define REPORT_NOTICE(MESSAGE)
+#endif
 
+#ifndef MUTE
 #define REPORT_WARNING(MESSAGE) \
 { \
     std::cout << "[Warning]: "; \
     std::cout << geomtk::getFunctionName(__PRETTY_FUNCTION__) << ": "; \
     std::cout << MESSAGE << std::endl; \
 }
+#else
+#define REPORT_WARNING(MESSAGE)
+#endif
 
+#ifndef MUTE
 #define REPORT_ONLINE \
 { \
     std::cout << "[Notice]: "; \
     std::cout << geomtk::getClassName(__PRETTY_FUNCTION__) << " is online."; \
     std::cout << std::endl; \
 }
-    
+#else
+#define REPORT_ONLINE
+#endif
+
+#ifndef MUTE
 #define REPORT_OFFLINE \
 { \
     std::cout << "[Notice]: "; \
     std::cout << geomtk::getClassName(__PRETTY_FUNCTION__) << " is offline."; \
     std::cout << std::endl; \
 }
+#else
+#define REPORT_OFFLINE
+#endif
 
+#ifndef MUTE
 #define CHECK_POINT \
 { \
     std::cout << "[Check point]: " << __FILE__ << ": " << __LINE__ << std::endl; \
 }
-
-// -----------------------------------------------------------------------------
-// access specifier modifying macros
-#ifdef UNIT_TEST
-#define private public
-#define protected public
+#else
+#define CHECK_POINT
 #endif
 
 // ------------------------------------------------------------------------------

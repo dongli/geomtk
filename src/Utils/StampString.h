@@ -20,6 +20,13 @@ public:
 
     string run(const Time &time);
     string run(const string &format, int tag);
+
+    bool operator==(const StampString &other) const;
+    
+    friend ostream& operator<<(ostream &os, const StampString &stampString) {
+        os << stampString.prefix << "<...>" << stampString.suffix;
+        return os;
+    }
 };
 
 }
