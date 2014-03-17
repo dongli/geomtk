@@ -28,8 +28,9 @@ public:
     SphereCoord(const SphereCoord &other);
     virtual ~SphereCoord();
 
-    void setCoord(double lon, double lat);
-    void setCoordComp(int dim, double comp);
+    virtual void setCoord(double lon, double lat);
+    virtual void setCoord(double lon, double lat, double lev);
+    virtual void setCoordComp(int dim, double comp);
     void setCartCoord(double x, double y, double z);
     void updateTrigonometricFunctions();
 

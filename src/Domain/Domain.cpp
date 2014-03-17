@@ -14,6 +14,21 @@ SpaceCoord::SpaceCoord(const SpaceCoord &other) {
 SpaceCoord::~SpaceCoord() {
 }
 
+void SpaceCoord::setCoord(double x, double y) {
+    coord[0] = x;
+    coord[1] = y;
+}
+
+void SpaceCoord::setCoord(double x, double y, double z) {
+    coord[0] = x;
+    coord[1] = y;
+    coord[2] = z;
+}
+
+void SpaceCoord::setCoordComp(int dim, double comp) {
+    coord(dim) = comp;
+}
+
 void SpaceCoord::print() const {
     cout << "Coordinate:";
     for (int i = 0; i < coord.size(); ++i) {

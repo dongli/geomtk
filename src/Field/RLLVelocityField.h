@@ -44,6 +44,7 @@ public:
 
 class RLLVelocityField {
 public:
+    typedef RLLMesh MeshType;
     typedef RLLField<double> FieldType;
     typedef RLLStagger::GridType GridType;
     typedef RLLStagger::Location Location;
@@ -59,6 +60,8 @@ public:
 
     virtual void create(const RLLMesh &mesh, bool useStagger,
                         bool hasHalfLevel = false);
+
+    const Mesh& getMesh() const { return v[0].getMesh(); }
 
     FieldType& operator()(int compIdx) { return v[compIdx]; }
     

@@ -189,18 +189,18 @@ void RLLVelocityField::create(const RLLMesh &mesh, bool useStagger,
                               bool hasHalfLevel) {
     v.resize(mesh.getDomain().getNumDim());
     if (useStagger) {
-        v[0].create("u", "m s-1", "zonal wind speed", mesh, Location::X_FACE);
-        v[1].create("v", "m s-1", "meridional wind speed", mesh, Location::Y_FACE);
+        v[0].create("u", "m s-1", "zonal wind speed", mesh, Location::X_FACE, hasHalfLevel);
+        v[1].create("v", "m s-1", "meridional wind speed", mesh, Location::Y_FACE, hasHalfLevel);
         if (mesh.getDomain().getNumDim() == 3) {
             REPORT_ERROR("Under construction!");
-            v[2].create("w", "?", "vertical wind speed", mesh, Location::Z_FACE);
+            v[2].create("w", "?", "vertical wind speed", mesh, Location::Z_FACE, hasHalfLevel);
         }
     } else {
-        v[0].create("u", "m s-1", "zonal wind speed", mesh, Location::CENTER);
-        v[1].create("v", "m s-1", "meridional wind speed", mesh, Location::CENTER);
+        v[0].create("u", "m s-1", "zonal wind speed", mesh, Location::CENTER, hasHalfLevel);
+        v[1].create("v", "m s-1", "meridional wind speed", mesh, Location::CENTER, hasHalfLevel);
         if (mesh.getDomain().getNumDim() == 3) {
             REPORT_ERROR("Under construction!");
-            v[2].create("w", "?", "vertical wind speed", mesh, Location::CENTER);
+            v[2].create("w", "?", "vertical wind speed", mesh, Location::CENTER, hasHalfLevel);
         }
     }
     rings[0].create(mesh, hasHalfLevel);

@@ -20,6 +20,10 @@ public:
     SpaceCoord(const SpaceCoord &other);
     virtual ~SpaceCoord();
 
+    virtual void setCoord(double x, double y);
+    virtual void setCoord(double x, double y, double z);
+    virtual void setCoordComp(int dim, double comp);
+
     virtual SpaceCoord& operator=(const SpaceCoord &other) {
         if (this != &other) {
             coord = other.coord;

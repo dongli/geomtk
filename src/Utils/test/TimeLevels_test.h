@@ -43,6 +43,7 @@ TEST(TimeLevelIndex, Shift) {
     TimeLevelIndex<2> m = n+1;
     
     ASSERT_EQ(1, (m-1).get());
+    ASSERT_EQ(2, (m-0.5).get());
     
     n.reset();
 }

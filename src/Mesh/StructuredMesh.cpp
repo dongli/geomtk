@@ -294,6 +294,56 @@ double StructuredMesh::getGridCoordComp(int axisIdx, int gridType,
     }
 }
 
+void StructuredMesh::getGridCoord(int cellIdx, int loc, SpaceCoord &x) const {
+    int i[3];
+    unwrapIndex(cellIdx, i, loc);
+    switch (loc) {
+        case Location::CENTER:
+            for (int m = 0; m < domain->getNumDim(); ++m) {
+                x.setCoordComp(m, getGridCoordComp(m, GridType::FULL, i[m]));
+            }
+            break;
+        case Location::X_FACE:
+            for (int m = 0; m < domain->getNumDim(); ++m) {
+                if (m == 0) {
+                    x.setCoordComp(m, getGridCoordComp(m, GridType::HALF, i[m]));
+                } else {
+                    x.setCoordComp(m, getGridCoordComp(m, GridType::FULL, i[m]));
+                }
+            }
+            break;
+        case Location::Y_FACE:
+            for (int m = 0; m < domain->getNumDim(); ++m) {
+                if (m == 1) {
+                    x.setCoordComp(m, getGridCoordComp(m, GridType::HALF, i[m]));
+                } else {
+                    x.setCoordComp(m, getGridCoordComp(m, GridType::FULL, i[m]));
+                }
+            }
+            break;
+        case Location::Z_FACE:
+            for (int m = 0; m < domain->getNumDim(); ++m) {
+                if (m == 2) {
+                    x.setCoordComp(m, getGridCoordComp(m, GridType::HALF, i[m]));
+                } else {
+                    x.setCoordComp(m, getGridCoordComp(m, GridType::FULL, i[m]));
+                }
+            }
+            break;
+        case Location::XY_VERTEX:
+            for (int m = 0; m < domain->getNumDim(); ++m) {
+                if (m == 0 || m == 1) {
+                    x.setCoordComp(m, getGridCoordComp(m, GridType::HALF, i[m]));
+                } else {
+                    x.setCoordComp(m, getGridCoordComp(m, GridType::FULL, i[m]));
+                }
+            }
+            break;
+        default:
+            REPORT_ERROR("Unknown stagger location!");
+    }
+}
+
 void StructuredMesh::setCellVolumes() {
     REPORT_ERROR("Under construction!");
 }

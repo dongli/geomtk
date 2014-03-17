@@ -52,6 +52,8 @@ public:
 
     double getGridCoordComp(int axisIdx, int gridType, int gridIdx) const;
 
+    virtual void getGridCoord(int cellIdx, int loc, SpaceCoord &x) const;
+
     virtual void setCellVolumes();
 
     virtual double getCellVolume(int cellIdx) const;

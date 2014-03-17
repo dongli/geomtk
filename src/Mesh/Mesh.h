@@ -27,6 +27,8 @@ public:
      */
     const Domain& getDomain() const;
 
+    virtual void getGridCoord(int cellIdx, int loc, SpaceCoord &x) const = 0;
+
     /**
      *  Set the center grid cell volumes.
      */

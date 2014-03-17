@@ -18,10 +18,23 @@ void SphereCoord::setCoord(double lon, double lat) {
     coord[1] = lat;
     updateTrigonometricFunctions();
 }
+
+void SphereCoord::setCoord(double lon, double lat, double lev) {
+    coord[0] = lon;
+    coord[1] = lat;
+    coord[2] = lev;
+    updateTrigonometricFunctions();
+}
     
 void SphereCoord::setCoordComp(int dim, double comp) {
     coord(dim) = comp;
-    updateTrigonometricFunctions();
+    if (dim == 0) {
+        cosLon = cos(comp);
+        sinLon = sin(comp);
+    } else if (dim == 1) {
+        cosLat = cos(comp);
+        sinLat = sin(comp);
+    }
 }
     
 void SphereCoord::setCartCoord(double x, double y, double z) {
