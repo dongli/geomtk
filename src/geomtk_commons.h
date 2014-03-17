@@ -75,8 +75,14 @@ inline string getFunctionName(const string &str) {
     size_t j = str.find("(");
     assert(j != string::npos);
     size_t i = j-1;
+    bool isTemplateArguments = false;
     while (i > 0) {
-        if (str.at(i) == ' ') {
+        if (str.at(i) == '>') {
+            isTemplateArguments = true;
+        } else if (str.at(i) == '<') {
+            isTemplateArguments = false;
+        }
+        if (str.at(i) == ' ' && !isTemplateArguments) {
             i++;
             break;
         }
