@@ -414,7 +414,7 @@ void TimeManager::advance() {
 }
 
 bool TimeManager::isFinished() const {
-    if (currTime == endTime) {
+    if (currTime > endTime) {
         return true;
     } else {
         return false;

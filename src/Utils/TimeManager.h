@@ -5,6 +5,13 @@
 
 namespace geomtk {
 
+struct TimeUnit {
+    constexpr static const double SECONDS = 1;
+    constexpr static const double MINUTES = 60;
+    constexpr static const double HOURS = 3600;
+    constexpr static const double DAYS = 86400;
+};
+
 /**
  * Time
  * This class describes the time point.
