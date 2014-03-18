@@ -20,6 +20,10 @@ enum IOType {
     INPUT, OUTPUT
 };
 
+enum IOFrequencyUnit {
+    STEPS, SECONDS, MINUTES, HOURS, DAYS, MONTHS, YEARS
+};
+
 // -----------------------------------------------------------------------------
 
 class DataFile {
@@ -30,6 +34,10 @@ public:
     int timeDimID, timeVarID;
     list<FieldInfo> fieldInfos;
     IOType ioType;
+    IOFrequencyUnit freqUnit;
+    double freq;
+    double lastTime;
+    bool isActive;
 public:
     DataFile() {}
     virtual ~DataFile() {}
@@ -144,6 +152,7 @@ public:
 
 template <class DataFileType>
 class IOManager {
+private:
     const TimeManager *timeManager;
     vector<DataFileType> files;
 public:
@@ -153,17 +162,20 @@ public:
     void init(const TimeManager &timeManager);
 
     int registerOutputFile(const typename DataFileType::MeshType &mesh,
-                           const string &prefix);
+                           const string &prefix, IOFrequencyUnit freqUnit,
+                           double freq);
 
     DataFileType& file(int fileIdx) { return files[fileIdx]; }
 
-    DataFileType create(int fileIdx);
+    void create(int fileIdx);
 
     template <class FieldElementType, int numLevel>
     void output(int fileIdx, const TimeLevelIndex<numLevel> &timeIdx,
                 initializer_list<Field*> fields);
 
     void close(int fileIdx);
+private:
+    void checkFileActive(DataFileType &dataFile) const;
 };
     
 template <class DataFileType>
@@ -183,7 +195,9 @@ void IOManager<DataFileType>::init(const TimeManager &timeManager) {
 
 template <class DataFileType>
 int IOManager<DataFileType>::registerOutputFile(const typename DataFileType::MeshType &mesh,
-                                                const string &prefix) {
+                                                const string &prefix,
+                                                IOFrequencyUnit freqUnit,
+                                                double freq) {
     StampString filePattern(prefix+".", ".nc");
     for (const auto &file : files) {
         if (file.filePattern == filePattern) {
@@ -194,27 +208,64 @@ int IOManager<DataFileType>::registerOutputFile(const typename DataFileType::Mes
     DataFileType file(mesh);
     file.filePattern = filePattern;
     file.ioType = OUTPUT;
+    file.freqUnit = freqUnit;
+    file.freq = freq;
+    file.isActive = false;
+    file.lastTime = -1;
     files.push_back(file);
     REPORT_NOTICE("Register output file with pattern " << filePattern << ".");
     return files.size()-1;
 }
+    
+template <class DataFileType>
+void IOManager<DataFileType>::checkFileActive(DataFileType &dataFile) const {
+    double time;
+    switch (dataFile.freqUnit) {
+        case IOFrequencyUnit::STEPS:
+            time = timeManager->getNumStep();
+            break;
+        case IOFrequencyUnit::SECONDS:
+            time = timeManager->getSeconds();
+            break;
+        case IOFrequencyUnit::MINUTES:
+            time = timeManager->getMinutes();
+            break;
+        case IOFrequencyUnit::HOURS:
+            time = timeManager->getHours();
+            break;
+        case IOFrequencyUnit::DAYS:
+            time = timeManager->getDays();
+            break;
+        case IOFrequencyUnit::MONTHS:
+            REPORT_ERROR("Under construction!");
+            break;
+        case IOFrequencyUnit::YEARS:
+            REPORT_ERROR("Under construction!");
+            break;
+    }
+    if (dataFile.lastTime == -1 || time-dataFile.lastTime >= dataFile.freq) {
+        dataFile.lastTime = time;
+        dataFile.isActive = true;
+    }
+}
 
 template <class DataFileType>
-DataFileType IOManager<DataFileType>::create(int fileIdx) {
+void IOManager<DataFileType>::create(int fileIdx) {
     DataFileType &dataFile = files[fileIdx];
-    int ret;
+
+    // check if it is time to output
+    checkFileActive(dataFile);
+    if (!dataFile.isActive) return;
 
     dataFile.fileName = dataFile.filePattern.run("%5.5d", timeManager->getNumStep());
-    ret = nc_create(dataFile.fileName.c_str(), NC_CLOBBER, &dataFile.fileID);
+    int ret = nc_create(dataFile.fileName.c_str(), NC_CLOBBER, &dataFile.fileID);
     if (ret != NC_NOERR) {
         REPORT_ERROR("Unable to create file \"" << dataFile.fileName <<
                      "\" with error message \"" << nc_strerror(ret) << "\"!");
     }
-
+    // let concrete data file class create the rest data file
     dataFile.create(*timeManager);
     dataFile.outputGrids();
-
-    return dataFile;
 }
 
 template <class DataFileType>
@@ -223,11 +274,11 @@ void IOManager<DataFileType>::output(int fileIdx,
                                      const TimeLevelIndex<numLevel> &timeIdx,
                                      initializer_list<Field*> fields) {
     DataFileType &dataFile = files[fileIdx];
-    int ret;
+    if (!dataFile.isActive) return;
     // write time
     double time = timeManager->getDays();
     size_t index[1] = {0};
-    ret = nc_put_var1(dataFile.fileID, dataFile.timeVarID, index, &time);
+    int ret = nc_put_var1(dataFile.fileID, dataFile.timeVarID, index, &time);
     if (ret != NC_NOERR) {
         REPORT_ERROR("Failed to put variable time with error message \"" <<
                      nc_strerror(ret) << "\"!");
@@ -238,10 +289,13 @@ void IOManager<DataFileType>::output(int fileIdx,
 
 template <class DataFileType>
 void IOManager<DataFileType>::close(int fileIdx) {
-    if (nc_close(files[fileIdx].fileID) != NC_NOERR) {
+    DataFileType &dataFile = files[fileIdx];
+    if (!dataFile.isActive) return;
+    if (nc_close(dataFile.fileID) != NC_NOERR) {
         REPORT_ERROR("Failed to close output file \"" <<
                      files[fileIdx].fileName << "\"!");
     }
+    dataFile.isActive = false;
 }
 
 } // geomtk

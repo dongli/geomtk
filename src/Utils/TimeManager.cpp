@@ -106,7 +106,11 @@ double Time::getSeconds(const Time &other) const {
     }
     return res*sign;
 }
-    
+
+double Time::getMinutes(const Time &other) const {
+    return getSeconds(other)/60;
+}
+
 double Time::getHours(const Time &other) const {
     return getSeconds(other)/3600;
 }

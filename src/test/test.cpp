@@ -1,5 +1,3 @@
-#define UNIT_TEST
-
 #include "gtest/gtest.h"
 #include "TimeLevels_test.h"
 #include "Time_test.h"

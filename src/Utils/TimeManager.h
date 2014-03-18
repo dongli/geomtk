@@ -32,6 +32,8 @@ public:
      * sign is included to represent the time direction.
      */
     double getSeconds(const Time &other) const;
+
+    double getMinutes(const Time &other) const;
     
     double getHours(const Time &other) const;
     
@@ -111,6 +113,8 @@ public:
     double getStepSize() const { return stepSize; }
     int getNumStep() const { return numStep; }
     double getSeconds() const { return currTime.getSeconds(startTime); }
+    double getMinutes() const { return currTime.getMinutes(startTime); }
+    double getHours() const { return currTime.getHours(startTime); }
     double getDays() const { return currTime.getDays(startTime); }
 };
 

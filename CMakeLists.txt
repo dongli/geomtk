@@ -124,7 +124,13 @@ foreach (dir ${source_directories})
 endforeach ()
 include_directories (${gtest_SOURCE_DIR} ${gtest_SOURCE_DIR}/include)
 
-add_executable (test_geomtk ${test_headers} "${PROJECT_SOURCE_DIR}/src/test/test.cpp")
+add_executable (test_geomtk
+    ${test_headers}
+    "${PROJECT_SOURCE_DIR}/src/test/test.cpp"
+)
+set_target_properties (test_geomtk
+    PROPERTIES COMPILE_FLAGS "-DUNIT_TEST"
+)
 target_link_libraries (test_geomtk
     ${NETCDF_LIBRARIES}
     gtest gtest_main

@@ -14,9 +14,9 @@ protected:
     TimeLevelIndex<2> timeIdx;
     
     void SetUp() {
-        Time startTime(0), endTime(86400);
+        Time startTime(0), endTime(1*TimeUnit::DAYS);
         
-        timeManager.init(startTime, endTime, 360);
+        timeManager.init(startTime, endTime, 1*TimeUnit::MINUTES);
         ioManager.init(timeManager);
         domain = new SphereDomain(2);
         mesh = new RLLMesh(*domain);
@@ -28,6 +28,20 @@ protected:
         delete domain;
     }
 };
+
+TEST_F(IOManagerTest, OutputFrequency) {
+    int fileIdx = ioManager.registerOutputFile(*mesh, "test-output", IOFrequencyUnit::MINUTES, 5);
+    RLLDataFile &dataFile = ioManager.files[fileIdx];
+    ASSERT_FALSE(dataFile.isActive);
+    while (!timeManager.isFinished()) {
+        ioManager.checkFileActive(dataFile);
+        double seconds = timeManager.getSeconds();
+        if (fmod(seconds, 300) == 0) {
+            ASSERT_TRUE(dataFile.isActive);
+        }
+        timeManager.advance();
+    }
+}
 
 TEST_F(IOManagerTest, OutputField) {
     RLLField<double, 2> f1, f2, f3;
@@ -45,7 +59,7 @@ TEST_F(IOManagerTest, OutputField) {
         f3(timeIdx, i) = 3;
     }
 
-    int fileIdx = ioManager.registerOutputFile(*mesh, "test-output");
+    int fileIdx = ioManager.registerOutputFile(*mesh, "test-output", IOFrequencyUnit::STEPS, 1);
     ioManager.file(fileIdx).registerOutputField<double, 2, RLLSpaceDimensions::FULL_DIMENSION>({&f1, &f2, &f3});
     ioManager.create(fileIdx);
     ioManager.output<double, 2>(fileIdx, timeIdx, {&f1, &f2});
@@ -60,7 +74,7 @@ TEST_F(IOManagerTest, OutputField) {
     size_t attLen;
     char *att;
 
-    ret = nc_open("test-output.000.nc", NC_NOWRITE, &fileID);
+    ret = nc_open("test-output.00000.nc", NC_NOWRITE, &fileID);
     ASSERT_EQ(NC_NOERR, ret);
 
     ret = nc_inq_unlimdim(fileID, &unlimDimID);
@@ -225,7 +239,7 @@ TEST_F(IOManagerTest, OutputField) {
     ASSERT_STREQ(f3.getUnits().c_str(), att);
     delete [] att;
 
-    ret = std::remove("test-output.000.nc");
+    ret = std::remove("test-output.00000.nc");
     ASSERT_EQ(0, ret);
 }
 
