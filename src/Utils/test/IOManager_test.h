@@ -46,7 +46,7 @@ TEST_F(IOManagerTest, OutputField) {
     }
 
     int fileIdx = ioManager.registerOutputFile(*mesh, "test-output");
-    ioManager(fileIdx).registerOutputField<double, 2, RLLSpaceDimensions::FULL_DIMENSION>({&f1, &f2, &f3});
+    ioManager.file(fileIdx).registerOutputField<double, 2, RLLSpaceDimensions::FULL_DIMENSION>({&f1, &f2, &f3});
     ioManager.create(fileIdx);
     ioManager.output<double, 2>(fileIdx, timeIdx, {&f1, &f2});
     ioManager.output<double, 2>(fileIdx, timeIdx, {&f3});
