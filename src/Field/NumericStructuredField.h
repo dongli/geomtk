@@ -83,8 +83,12 @@ void NumericStructuredField<T, N>::applyBndCond(const TimeLevelIndex<N> &timeIdx
         REPORT_ERROR("Under construction!");
     }
     if (updateHalfLevel && data->hasHalfLevel()) {
-        TimeLevelIndex<2> halfTimeIdx = timeIdx-0.5;
-        TimeLevelIndex<2> oldTimeIdx = timeIdx-1;
+        if (N < 2) {
+            REPORT_ERROR("Time level (" << N << ") is less than 2, " <<
+                         "so there is no half time level!");
+        }
+        TimeLevelIndex<N> halfTimeIdx = timeIdx-0.5;
+        TimeLevelIndex<N> oldTimeIdx = timeIdx-1;
         int nx = data->getLevel(0).n_rows;
         int ny = data->getLevel(0).n_cols;
         int nz = data->getLevel(0).n_slices;

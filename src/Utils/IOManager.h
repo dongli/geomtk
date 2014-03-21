@@ -20,8 +20,14 @@ enum IOType {
     INPUT, OUTPUT
 };
 
-enum IOFrequencyUnit {
-    STEPS, SECONDS, MINUTES, HOURS, DAYS, MONTHS, YEARS
+struct IOFrequencyUnit {
+    static const int STEPS = 0;
+    static const int SECONDS = 1;
+    static const int MINUTES = 2;
+    static const int HOURS = 3;
+    static const int DAYS = 4;
+    static const int MONTHS = 5;
+    static const int YEARS = 6;
 };
 
 // -----------------------------------------------------------------------------
@@ -34,7 +40,7 @@ public:
     int timeDimID, timeVarID;
     vector<FieldInfo> fieldInfos;
     IOType ioType;
-    IOFrequencyUnit freqUnit;
+    int freqUnit;
     double freq;
     double lastTime;
     bool isActive;
@@ -173,8 +179,7 @@ public:
     void init(const TimeManager &timeManager);
 
     int registerOutputFile(const typename DataFileType::MeshType &mesh,
-                           const string &prefix, IOFrequencyUnit freqUnit,
-                           double freq);
+                           const string &prefix, int freqUnit, double freq);
 
     DataFileType& file(int fileIdx) { return files[fileIdx]; }
 
@@ -206,9 +211,7 @@ void IOManager<DataFileType>::init(const TimeManager &timeManager) {
 
 template <class DataFileType>
 int IOManager<DataFileType>::registerOutputFile(const typename DataFileType::MeshType &mesh,
-                                                const string &prefix,
-                                                IOFrequencyUnit freqUnit,
-                                                double freq) {
+                                                const string &prefix, int freqUnit, double freq) {
     StampString filePattern(prefix+".", ".nc");
     for (int i = 0; i < files.size(); ++i) {
         if (files[i].filePattern == filePattern) {
@@ -232,27 +235,29 @@ template <class DataFileType>
 void IOManager<DataFileType>::checkFileActive(DataFileType &dataFile) const {
     double time;
     switch (dataFile.freqUnit) {
-        case STEPS:
+        case IOFrequencyUnit::STEPS:
             time = timeManager->getNumStep();
             break;
-        case SECONDS:
+        case IOFrequencyUnit::SECONDS:
             time = timeManager->getSeconds();
             break;
-        case MINUTES:
+        case IOFrequencyUnit::MINUTES:
             time = timeManager->getMinutes();
             break;
-        case HOURS:
+        case IOFrequencyUnit::HOURS:
             time = timeManager->getHours();
             break;
-        case DAYS:
+        case IOFrequencyUnit::DAYS:
             time = timeManager->getDays();
             break;
-        case MONTHS:
+        case IOFrequencyUnit::MONTHS:
             REPORT_ERROR("Under construction!");
             break;
-        case YEARS:
+        case IOFrequencyUnit::YEARS:
             REPORT_ERROR("Under construction!");
             break;
+        default:
+            REPORT_ERROR("Unknown IO frequency unit!");
     }
     if (dataFile.lastTime == -1 || time-dataFile.lastTime >= dataFile.freq) {
         dataFile.lastTime = time;

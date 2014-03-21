@@ -30,7 +30,7 @@ protected:
 };
 
 TEST_F(IOManagerTest, OutputFrequency) {
-    int fileIdx = ioManager.registerOutputFile(*mesh, "test-output", MINUTES, 5);
+    int fileIdx = ioManager.registerOutputFile(*mesh, "test-output", IOFrequencyUnit::MINUTES, 5);
     RLLDataFile &dataFile = ioManager.files[fileIdx];
     ASSERT_FALSE(dataFile.isActive);
     while (!timeManager.isFinished()) {
@@ -59,7 +59,7 @@ TEST_F(IOManagerTest, OutputField) {
         f3(timeIdx, i) = 3;
     }
 
-    int fileIdx = ioManager.registerOutputFile(*mesh, "test-output", STEPS, 1);
+    int fileIdx = ioManager.registerOutputFile(*mesh, "test-output", IOFrequencyUnit::STEPS, 1);
     ioManager.file(fileIdx).registerOutputField<double, 2, RLLSpaceDimensions::FULL_DIMENSION>(3, &f1, &f2, &f3);
     ioManager.create(fileIdx);
     ioManager.output<double, 2>(fileIdx, timeIdx, 2, &f1, &f2);
