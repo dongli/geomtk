@@ -24,14 +24,14 @@ public:
      *
      *  @return The absolute time level index.
      */
-    inline int get() const;
+    int get() const { return idx; }
 
     /**
      *  Check if the index points to the current time level.
      *
      *  @return The boolean flag.
      */
-    inline bool isCurrentIndex() const;
+    bool isCurrentIndex() const { return idx == currFullIdx; }
 
     /**
      *  Offset the relative index by full levels.
@@ -40,8 +40,8 @@ public:
      *
      *  @return The full relative time level index.
      */
-    inline TimeLevelIndex operator+(int offset) const;
-    inline TimeLevelIndex operator-(int offset) const;
+    TimeLevelIndex operator+(int offset) const;
+    TimeLevelIndex operator-(int offset) const;
 
     /**
      *  Offset the relative index by half levels.
@@ -50,18 +50,18 @@ public:
      *
      *  @return The half relative time level index.
      */
-    inline TimeLevelIndex operator+(double offset) const;
-    inline TimeLevelIndex operator-(double offset) const;
+    TimeLevelIndex operator+(double offset) const;
+    TimeLevelIndex operator-(double offset) const;
 
     /**
      *  Reset the indices.
      */
-    inline void reset();
+    void reset();
 
     /**
      *  Shift the indices cyclically.
      */
-    inline void shift();
+    void shift();
 };
 
 // =============================================================================
@@ -74,20 +74,6 @@ int TimeLevelIndex<N>::currHalfIdx = N;
 template <int N>
 TimeLevelIndex<N>::TimeLevelIndex() {
     idx = currFullIdx;
-}
-
-template <int N>
-int TimeLevelIndex<N>::get() const {
-    return idx;
-}
-    
-template <int N>
-bool TimeLevelIndex<N>::isCurrentIndex() const {
-    if (idx == currFullIdx) {
-        return true;
-    } else {
-        return false;
-    }
 }
 
 template <int N>

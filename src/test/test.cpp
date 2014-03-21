@@ -9,7 +9,7 @@
 #include "StructuredMeshIndex_test.h"
 #include "RLLMesh_test.h"
 #include "RLLMeshIndex_test.h"
-#include "RLLField_test.h"
+#include "NumericRLLField_test.h"
 #include "RLLVelocityField_test.h"
 #include "StructuredRegrid_test.h"
 #include "RLLRegrid_test.h"

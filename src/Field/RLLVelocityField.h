@@ -1,7 +1,7 @@
 #ifndef __Geomtk_RLLVelocityField__
 #define __Geomtk_RLLVelocityField__
 
-#include "RLLField.h"
+#include "NumericRLLField.h"
 #include "SphereDomain.h"
 
 namespace geomtk {
@@ -28,7 +28,7 @@ public:
     void create(const RLLMesh &mesh, bool hasHalfLevel = false);
 
     void update(const TimeLevelIndex<2> &timeIdx, Pole pole,
-                const vector<RLLField<double> > &v,
+                const vector<NumericRLLField<double, 2> > &v,
                 bool updateHalfLevel = false);
 
     double getOriginalData(int dim, const TimeLevelIndex<2> &timeIdx,
@@ -45,7 +45,7 @@ public:
 class RLLVelocityField {
 public:
     typedef RLLMesh MeshType;
-    typedef RLLField<double> FieldType;
+    typedef NumericRLLField<double, 2> FieldType;
     typedef RLLStagger::GridType GridType;
     typedef RLLStagger::Location Location;
 protected:

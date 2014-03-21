@@ -30,7 +30,7 @@ protected:
 };
 
 TEST_F(IOManagerTest, OutputFrequency) {
-    int fileIdx = ioManager.registerOutputFile(*mesh, "test-output", IOFrequencyUnit::MINUTES, 5);
+    int fileIdx = ioManager.registerOutputFile(*mesh, "test-output", MINUTES, 5);
     RLLDataFile &dataFile = ioManager.files[fileIdx];
     ASSERT_FALSE(dataFile.isActive);
     while (!timeManager.isFinished()) {
@@ -39,12 +39,12 @@ TEST_F(IOManagerTest, OutputFrequency) {
         if (fmod(seconds, 300) == 0) {
             ASSERT_TRUE(dataFile.isActive);
         }
-        timeManager.advance();
+        timeManager.advance(true);
     }
 }
 
 TEST_F(IOManagerTest, OutputField) {
-    RLLField<double, 2> f1, f2, f3;
+    NumericRLLField<double, 2> f1, f2, f3;
     f1.create("f1", "test units", "a field on CENTER location", *mesh, RLLStagger::Location::CENTER);
     f2.create("f2", "test units", "a field on X_FACE location", *mesh, RLLStagger::Location::X_FACE);
     f3.create("f3", "test units", "a field on Y_FACE location", *mesh, RLLStagger::Location::Y_FACE);
@@ -59,11 +59,11 @@ TEST_F(IOManagerTest, OutputField) {
         f3(timeIdx, i) = 3;
     }
 
-    int fileIdx = ioManager.registerOutputFile(*mesh, "test-output", IOFrequencyUnit::STEPS, 1);
-    ioManager.file(fileIdx).registerOutputField<double, 2, RLLSpaceDimensions::FULL_DIMENSION>({&f1, &f2, &f3});
+    int fileIdx = ioManager.registerOutputFile(*mesh, "test-output", STEPS, 1);
+    ioManager.file(fileIdx).registerOutputField<double, 2, RLLSpaceDimensions::FULL_DIMENSION>(3, &f1, &f2, &f3);
     ioManager.create(fileIdx);
-    ioManager.output<double, 2>(fileIdx, timeIdx, {&f1, &f2});
-    ioManager.output<double, 2>(fileIdx, timeIdx, {&f3});
+    ioManager.output<double, 2>(fileIdx, timeIdx, 2, &f1, &f2);
+    ioManager.output<double, 2>(fileIdx, timeIdx, 1, &f3);
     ioManager.close(fileIdx);
 
     int fileID, unlimDimID, timeDimID;
@@ -89,9 +89,10 @@ TEST_F(IOManagerTest, OutputField) {
     ASSERT_EQ(NC_NOERR, ret);
 
     x = new double[mesh->getNumGrid(0, RLLStagger::GridType::FULL)];
-    ret = nc_get_var(fileID, lonDimID, x);
+    ret = nc_get_var_double(fileID, lonDimID, x);
+    ASSERT_EQ(NC_NOERR, ret);
     for (int i = 0; i < mesh->getNumGrid(0, RLLStagger::GridType::FULL); ++i) {
-        ASSERT_EQ(mesh->getGridCoordComp(0, RLLStagger::GridType::FULL, i)/RAD, x[i]);
+        ASSERT_GE(1.0e-15, fabs(mesh->getGridCoordComp(0, RLLStagger::GridType::FULL, i)/RAD-x[i]));
     }
     delete [] x;
 
@@ -119,7 +120,8 @@ TEST_F(IOManagerTest, OutputField) {
     ASSERT_EQ(dimIDs[2], lonDimID);
 
     x = new double[mesh->getTotalNumGrid(f1.getStaggerLocation())];
-    ret = nc_get_var(fileID, varID, x);
+    ret = nc_get_var_double(fileID, varID, x);
+    ASSERT_EQ(NC_NOERR, ret);
     for (int i = 0; i < mesh->getTotalNumGrid(f1.getStaggerLocation()); ++i) {
         ASSERT_EQ(x[i], f1(timeIdx, i));
     }
@@ -164,7 +166,8 @@ TEST_F(IOManagerTest, OutputField) {
     ASSERT_EQ(dimIDs[2], lonBndsDimID);
 
     x = new double[mesh->getTotalNumGrid(f2.getStaggerLocation())];
-    ret = nc_get_var(fileID, varID, x);
+    ret = nc_get_var_double(fileID, varID, x);
+    ASSERT_EQ(NC_NOERR, ret);
     for (int i = 0; i < mesh->getTotalNumGrid(f2.getStaggerLocation()); ++i) {
         ASSERT_EQ(x[i], f2(timeIdx, i));
     }
@@ -209,7 +212,8 @@ TEST_F(IOManagerTest, OutputField) {
     ASSERT_EQ(dimIDs[2], lonDimID);
 
     x = new double[mesh->getTotalNumGrid(f3.getStaggerLocation())];
-    ret = nc_get_var(fileID, varID, x);
+    ret = nc_get_var_double(fileID, varID, x);
+    ASSERT_EQ(NC_NOERR, ret);
     for (int i = 0; i < mesh->getTotalNumGrid(f3.getStaggerLocation()); ++i) {
         ASSERT_EQ(x[i], f3(timeIdx, i));
     }
@@ -238,6 +242,8 @@ TEST_F(IOManagerTest, OutputField) {
     ASSERT_EQ(NC_NOERR, ret);
     ASSERT_STREQ(f3.getUnits().c_str(), att);
     delete [] att;
+
+    ret = nc_close(fileID);
 
     ret = std::remove("test-output.00000.nc");
     ASSERT_EQ(0, ret);

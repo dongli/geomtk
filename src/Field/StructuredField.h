@@ -10,7 +10,7 @@ namespace geomtk {
  *  This class specifies the scalar field on structured mesh. The data type is
  *  templated, so any proper basic type (e.g. double) and classes can be used.
  */
-template <typename T, int N = 2>
+template <typename T, int N>
 class StructuredField : public Field {
 public:
     typedef StructuredStagger::GridType GridType;
@@ -25,114 +25,6 @@ public:
     
     void create(const string &name, const string &units, const string &longName,
                 const StructuredMesh &mesh, int loc, bool hasHalfLevel = false);
-
-    /**
-     *  Apply boundary conditions after the scalar field is updated.
-     *  This function is only valid when T can be added and carried on
-     *  arithmetic operations.
-     *
-     *  @param timeIdx       the time level index.
-     *  @param updateHalfLevel the flag for updating half level.
-     */
-    template <typename Q = T>
-    typename enable_if<has_operator_plus<Q>::value ||
-                       is_arithmetic<Q>::value, void>::type
-    applyBndCond(const TimeLevelIndex<N> &timeIdx,
-                      bool updateHalfLevel = false) {
-        int nx = data->getLevel(0).n_rows;
-        int ny = data->getLevel(0).n_cols;
-        int nz = data->getLevel(0).n_slices;
-        if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
-            for (int k = 0; k < nz; ++k) {
-                for (int j = 0; j < ny; ++j) {
-                    data->getLevel(timeIdx)(0, j, k) =
-                    data->getLevel(timeIdx)(nx-2, j, k);
-                    data->getLevel(timeIdx)(nx-1, j, k) =
-                    data->getLevel(timeIdx)(1, j, k);
-                }
-            }
-        } else {
-            REPORT_ERROR("Under construction!");
-        }
-        if (updateHalfLevel && data->hasHalfLevel()) {
-            TimeLevelIndex<2> halfTimeIdx = timeIdx-0.5;
-            TimeLevelIndex<2> oldTimeIdx = timeIdx-1;
-            int nx = data->getLevel(0).n_rows;
-            int ny = data->getLevel(0).n_cols;
-            int nz = data->getLevel(0).n_slices;
-            for (int k = 0; k < nz; ++k) {
-                for (int j = 0; j < ny; ++j) {
-                    for (int i = 0; i < nx; ++i) {
-                        data->getLevel(halfTimeIdx)(i, j, k) =
-                            (data->getLevel(oldTimeIdx)(i, j, k)+
-                             data->getLevel(timeIdx   )(i, j, k))*0.5;
-                    }
-                }
-            }
-        }
-    }
-    
-    /**
-     *  Apply boundary conditions after the scalar field is updated.
-     *  This function is only valid when T can be added and carried on
-     *  arithmetic operations.
-     */
-    template <typename Q = T>
-    typename enable_if<has_operator_plus<Q>::value ||
-                       is_arithmetic<Q>::value, void>::type
-    applyBndCond() {
-        int nx = data->getLevel(0).n_rows;
-        int ny = data->getLevel(0).n_cols;
-        int nz = data->getLevel(0).n_slices;
-        if (mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
-            for (int k = 0; k < nz; ++k) {
-                for (int j = 0; j < ny; ++j) {
-                    data->getLevel(0)(0, j, k) =
-                    data->getLevel(0)(nx-2, j, k);
-                    data->getLevel(0)(nx-1, j, k) =
-                    data->getLevel(0)(1, j, k);
-                }
-            }
-        } else {
-            REPORT_ERROR("Under construction!");
-        }
-    }
-
-    /**
-     *  Get the maximum value of the field (only for arithmetic field).
-     *
-     *  @param timeIdx the time level index.
-     *
-     *  @return The maximum value.
-     */
-    template <typename Q = T>
-    typename enable_if<is_arithmetic<Q>::value, T>::type
-    max(const TimeLevelIndex<N> &timeIdx) {
-        T res = -999999;
-        for (int i = 0; i < mesh->getTotalNumGrid(staggerLocation); ++i) {
-            if (res < (*this)(timeIdx, i)) {
-                res = (*this)(timeIdx, i);
-            }
-        }
-        return res;
-    }
-
-    /**
-     *  Get the maximum value of the field (only for arithmetic field).
-     *
-     *  @return The maximum value.
-     */
-    template <typename Q = T>
-    typename enable_if<is_arithmetic<Q>::value, T>::type
-    max() {
-        T res = -999999;
-        for (int i = 0; i < mesh->getTotalNumGrid(staggerLocation); ++i) {
-            if (res < (*this)(0, i)) {
-                res = (*this)(0, i);
-            }
-        }
-        return res;
-    }
     
     /**
      *  Subscript operator of the scalar field.

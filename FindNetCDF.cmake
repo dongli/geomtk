@@ -39,12 +39,12 @@ set (NETCDF_FOUND TRUE)
 get_filename_component (
     NETCDF_ROOT
     ${NETCDF_NCCONFIG_COMMAND}
-    DIRECTORY
+    PATH
 )
 get_filename_component (
     NETCDF_ROOT
     ${NETCDF_ROOT}
-    DIRECTORY
+    PATH
 )
 # ------------------------------------------------------------------------------
 # get version

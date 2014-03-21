@@ -30,7 +30,7 @@ void PolarRing::create(const RLLMesh &mesh, bool hasHalfLevel) {
 }
 
 void PolarRing::update(const TimeLevelIndex<2> &timeIdx, Pole pole,
-                       const vector<RLLField<double> > &v,
+                       const vector<NumericRLLField<double, 2> > &v,
                        bool updateHalfLevel) {
     // ring variable is at A-grids
     int nx = mesh->getNumGrid(0, GridType::FULL, true);

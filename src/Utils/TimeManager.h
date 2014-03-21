@@ -6,10 +6,10 @@
 namespace geomtk {
 
 struct TimeUnit {
-    constexpr static const double SECONDS = 1;
-    constexpr static const double MINUTES = 60;
-    constexpr static const double HOURS = 3600;
-    constexpr static const double DAYS = 86400;
+    static const int SECONDS = 1;
+    static const int MINUTES = 60;
+    static const int HOURS = 3600;
+    static const int DAYS = 86400;
 };
 
 /**
@@ -26,6 +26,8 @@ public:
     Time();
     Time(double seconds);
     virtual ~Time();
+
+    virtual void reset();
 
     /**
      * This method returns the seconds between this time and other time. The
@@ -104,8 +106,8 @@ public:
     ~TimeManager();
 
     void init(Time startTime, Time endTime, double stepSize);
-    void advance();
-    bool isFinished() const;
+    void advance(bool mute = false);
+    bool isFinished() const { return currTime > endTime; }
     
     const Time& getStartTime() const { return startTime; }
     const Time& getCurrTime() const { return currTime; }

@@ -82,20 +82,20 @@ void StructuredDataFile::create(const TimeManager &timeManager) {
         REPORT_ERROR("Failed to put \"units\" attribute to variable \"time\"!");
     }
     // define fields
-    for (auto &info : fieldInfos) {
-        name = info.field->getName();
-        longName = info.field->getLongName();
-        units = info.field->getUnits();
+    for (int i = 0; i < fieldInfos.size(); ++i) {
+        name = fieldInfos[i].field->getName();
+        longName = fieldInfos[i].field->getLongName();
+        units = fieldInfos[i].field->getUnits();
         vector<int> dimIDs;
-        int i = 1;
-        switch (info.field->getStaggerLocation()) {
+        int l = 1;
+        switch (fieldInfos[i].field->getStaggerLocation()) {
             case Location::CENTER:
-                switch (info.spaceDims) {
+                switch (fieldInfos[i].spaceDims) {
                     case SpaceDimensions::FULL_DIMENSION:
                         dimIDs.resize(domain.getNumDim()+1);
                         dimIDs[0] = timeDimID;
                         for (int m = domain.getNumDim()-1; m >= 0; --m) {
-                            dimIDs[i++] = fullDimIDs[m];
+                            dimIDs[l++] = fullDimIDs[m];
                         }
                         break;
                     case SpaceDimensions::XY_DIMENSION:
@@ -112,15 +112,15 @@ void StructuredDataFile::create(const TimeManager &timeManager) {
                 }
                 break;
             case Location::X_FACE:
-                switch (info.spaceDims) {
+                switch (fieldInfos[i].spaceDims) {
                     case SpaceDimensions::FULL_DIMENSION:
                         dimIDs.resize(domain.getNumDim()+1);
                         dimIDs[0] = timeDimID;
                         for (int m = domain.getNumDim()-1; m >= 0; --m) {
                             if (m == 0) {
-                                dimIDs[i++] = halfDimIDs[m];
+                                dimIDs[l++] = halfDimIDs[m];
                             } else {
-                                dimIDs[i++] = fullDimIDs[m];
+                                dimIDs[l++] = fullDimIDs[m];
                             }
                         }
                         break;
@@ -138,15 +138,15 @@ void StructuredDataFile::create(const TimeManager &timeManager) {
                 }
                 break;
             case Location::Y_FACE:
-                switch (info.spaceDims) {
+                switch (fieldInfos[i].spaceDims) {
                     case SpaceDimensions::FULL_DIMENSION:
                         dimIDs.resize(domain.getNumDim()+1);
                         dimIDs[0] = timeDimID;
                         for (int m = domain.getNumDim()-1; m >= 0; --m) {
                             if (m == 1) {
-                                dimIDs[i++] = halfDimIDs[m];
+                                dimIDs[l++] = halfDimIDs[m];
                             } else {
-                                dimIDs[i++] = fullDimIDs[m];
+                                dimIDs[l++] = fullDimIDs[m];
                             }
                         }
                         break;
@@ -164,15 +164,15 @@ void StructuredDataFile::create(const TimeManager &timeManager) {
                 }
                 break;
             case Location::Z_FACE:
-                switch (info.spaceDims) {
+                switch (fieldInfos[i].spaceDims) {
                     case SpaceDimensions::FULL_DIMENSION:
                         dimIDs.resize(domain.getNumDim()+1);
                         dimIDs[0] = timeDimID;
                         for (int m = domain.getNumDim()-1; m >= 0; --m) {
                             if (m == 2) {
-                                dimIDs[i++] = halfDimIDs[m];
+                                dimIDs[l++] = halfDimIDs[m];
                             } else {
-                                dimIDs[i++] = fullDimIDs[m];
+                                dimIDs[l++] = fullDimIDs[m];
                             }
                         }
                         break;
@@ -190,15 +190,15 @@ void StructuredDataFile::create(const TimeManager &timeManager) {
                 }
                 break;
             case Location::XY_VERTEX:
-                switch (info.spaceDims) {
+                switch (fieldInfos[i].spaceDims) {
                     case SpaceDimensions::FULL_DIMENSION:
                         dimIDs.resize(domain.getNumDim()+1);
                         dimIDs[0] = timeDimID;
                         for (int m = domain.getNumDim()-1; m >= 0; --m) {
                             if (m == 0 || m == 1) {
-                                dimIDs[i++] = halfDimIDs[m];
+                                dimIDs[l++] = halfDimIDs[m];
                             } else {
-                                dimIDs[i++] = fullDimIDs[m];
+                                dimIDs[l++] = fullDimIDs[m];
                             }
                         }
                         break;
@@ -218,14 +218,14 @@ void StructuredDataFile::create(const TimeManager &timeManager) {
             default:
                 REPORT_ERROR("Unknown stagger location!");
         }
-        ret = nc_def_var(fileID, name.c_str(), info.xtype,
-                         dimIDs.size(), &dimIDs[0], &info.varID);
+        ret = nc_def_var(fileID, name.c_str(), fieldInfos[i].xtype,
+                         dimIDs.size(), &dimIDs[0], &fieldInfos[i].varID);
         if (ret != NC_NOERR) {
             REPORT_ERROR("Failed to define variable \"" << name <<
                          "\" with erro message \"" <<
                          nc_strerror(ret) << "\"!");
         }
-        ret = nc_put_att(fileID, info.varID, "long_name", NC_CHAR,
+        ret = nc_put_att(fileID, fieldInfos[i].varID, "long_name", NC_CHAR,
                          longName.length(), longName.c_str());
         if (ret != NC_NOERR) {
             REPORT_ERROR("Failed to put \"long_name\" attribute to " <<
@@ -233,7 +233,7 @@ void StructuredDataFile::create(const TimeManager &timeManager) {
                          "message \"" << nc_strerror(ret) << "\" " <<
                          "in file \"" << fileName << "\"!");
         }
-        ret = nc_put_att(fileID, info.varID, "units", NC_CHAR,
+        ret = nc_put_att(fileID, fieldInfos[i].varID, "units", NC_CHAR,
                          units.length(), units.c_str());
         if (ret != NC_NOERR) {
             REPORT_ERROR("Failed to put \"units\" attribute to " <<

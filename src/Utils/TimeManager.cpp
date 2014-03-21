@@ -3,6 +3,18 @@
 namespace geomtk {
 
 Time::Time() {
+    reset();
+}
+
+Time::Time(double seconds) {
+    reset();
+    *this += seconds;
+}
+
+Time::~Time() {
+}
+
+void Time::reset() {
     useLeap = false;
     year = 1;
     month = 1;
@@ -10,13 +22,6 @@ Time::Time() {
     hour = 0;
     minute = 0;
     second = 0;
-}
-
-Time::Time(double seconds) : Time() {
-    *this += seconds;
-}
-
-Time::~Time() {
 }
 
 double Time::getSeconds(const Time &other) const {
@@ -411,19 +416,10 @@ void TimeManager::init(Time startTime, Time endTime, double stepSize) {
     this->stepSize = stepSize;
 }
 
-void TimeManager::advance() {
+void TimeManager::advance(bool mute) {
     numStep++;
     currTime += stepSize;
-    REPORT_NOTICE(currTime);
+    if (!mute) REPORT_NOTICE(currTime);
 }
-
-bool TimeManager::isFinished() const {
-    if (currTime > endTime) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
 
 }

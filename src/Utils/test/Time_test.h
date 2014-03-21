@@ -8,7 +8,7 @@ using namespace geomtk;
 TEST(Time, Constructor) {
     Time a;
 
-    ASSERT_EQ(false, a.useLeap);
+    ASSERT_FALSE(a.useLeap);
     ASSERT_EQ(1, a.year);
     ASSERT_EQ(1, a.month);
     ASSERT_EQ(1, a.day);

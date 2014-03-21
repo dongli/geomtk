@@ -10,7 +10,9 @@
 #include <string>
 #include <list>
 #include <vector>
-#include <type_traits>
+#include <cstdarg>
+#include <typeinfo>
+#include <boost/type_traits/is_same.hpp>
 
 namespace geomtk {
 
@@ -19,6 +21,8 @@ using arma::mat;
 using arma::cube;
 using arma::span;
 using arma::field;
+
+using boost::is_same;
 
 using std::cout;
 using std::endl;
@@ -33,41 +37,6 @@ using std::vector;
 using std::list;
 using std::min;
 using std::max;
-using std::initializer_list;
-    
-// -----------------------------------------------------------------------------
-// meta-programming
-using std::enable_if;
-using std::is_arithmetic;
-using std::is_pointer;
-using std::is_floating_point;
-using std::is_same;
-    
-template <typename T, typename NameGetter>
-struct has_member_impl {
-    typedef char yes;
-    typedef long no;
-
-    template <typename C>
-    static yes test(typename NameGetter::template get<C>*);
-
-    template <typename C>
-    static no  test(...);
-
-    static const bool value = (sizeof(test<T>(0)) == sizeof(yes));
-};
-
-template <typename T, typename NameGetter>
-struct has_member
-    : std::integral_constant<bool, has_member_impl<T, NameGetter>::value> {};
-
-struct check_has_operator_plus {
-    template <typename T, T& (T::*)(const T&) = &T::operator+>
-    struct get {};
-};
-
-template <typename T>
-struct has_operator_plus : has_member<T, check_has_operator_plus> {};
 
 // -----------------------------------------------------------------------------
 // report macros

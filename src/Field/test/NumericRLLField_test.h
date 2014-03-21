@@ -1,11 +1,11 @@
 #ifndef __Geomtk_RLLField_test__
 #define __Geomtk_RLLField_test__
 
-#include "RLLField.h"
+#include "NumericRLLField.h"
 
 using namespace geomtk;
 
-class RLLFieldTest : public ::testing::Test {
+class NumericRLLFieldTest : public ::testing::Test {
 protected:
     SphereDomain *sphere;
     RLLMesh *mesh;
@@ -46,8 +46,8 @@ protected:
     }
 };
 
-TEST_F(RLLFieldTest, CheckScalarField) {
-    RLLField<double> f;
+TEST_F(NumericRLLFieldTest, CheckScalarField) {
+    NumericRLLField<double, 2> f;
     f.create("", "", "", *mesh, RLLStagger::Location::CENTER);
     // -------------------------------------------------------------------------
     // check data dimensionality
@@ -79,10 +79,10 @@ TEST_F(RLLFieldTest, CheckScalarField) {
 
 }
 
-TEST_F(RLLFieldTest, TestVectorFieldHalfLevel) {
+TEST_F(NumericRLLFieldTest, TestVectorFieldHalfLevel) {
     TimeLevelIndex<2> newTimeIdx = timeIdx+1;
     TimeLevelIndex<2> halfTimeIdx = timeIdx+0.5;
-    RLLField<double> u, v;
+    NumericRLLField<double, 2> u, v;
 
     u.create("u", "", "", *mesh, RLLStagger::Location::X_FACE, true);
     v.create("v", "", "", *mesh, RLLStagger::Location::Y_FACE, true);

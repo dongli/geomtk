@@ -22,8 +22,8 @@ TEST(TimeLevelIndex, Operators) {
     ASSERT_EQ(3, (n+0.5).get());
     ASSERT_EQ(4, (n+1.5).get());
     
-    ASSERT_EQ(true, n.isCurrentIndex());
-    ASSERT_EQ(false, (n+1).isCurrentIndex());
+    ASSERT_TRUE(n.isCurrentIndex());
+    ASSERT_FALSE((n+1).isCurrentIndex());
     
     ASSERT_EQ(3, (n+1-0.5).get());
     ASSERT_EQ(4, (n+2-0.5).get());

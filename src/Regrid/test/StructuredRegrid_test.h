@@ -10,7 +10,7 @@ protected:
     SphereDomain *domain;
     RLLMesh *mesh;
     StructuredRegrid *regrid;
-    StructuredField<double> f;
+    NumericStructuredField<double, 2> f;
     TimeLevelIndex<2> timeIdx;
 
     virtual void SetUp() {

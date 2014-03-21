@@ -32,7 +32,7 @@ public:
     string fileName;
     int fileID;
     int timeDimID, timeVarID;
-    list<FieldInfo> fieldInfos;
+    vector<FieldInfo> fieldInfos;
     IOType ioType;
     IOFrequencyUnit freqUnit;
     double freq;
@@ -68,23 +68,29 @@ public:
 
     virtual const StructuredMesh& getMesh() const { return *mesh; }
 
-    template <class FieldElementType, int numLevel, int spaceDims>
-    void registerOutputField(initializer_list<Field*> fields);
+    template <typename FieldElementType, int numLevel, int spaceDims>
+    void registerOutputField(int numField, ...);
 
     virtual void create(const TimeManager &timeManager);
 
     virtual void outputGrids();
 
-    template <class FieldElementType, int numLevel>
+    template <typename FieldElementType, int numLevel>
     void output(const TimeLevelIndex<numLevel> &timeIdx,
-                initializer_list<Field*> fields);
+                int numField, va_list fields);
 };
 
-template <class FieldElementType, int numLevel, int spaceDims>
-void StructuredDataFile::registerOutputField(initializer_list<Field*> fields) {
-    for (auto f : fields) {
+template <typename FieldElementType, int numLevel, int spaceDims>
+void StructuredDataFile::registerOutputField(int numField, ...) {
+    va_list fields;
+    va_start(fields, numField);
+    for (int i = 0; i < numField; ++i) {
+        Field *field = dynamic_cast<Field*>(va_arg(fields, Field*));
+        if (field == NULL) {
+            REPORT_ERROR("Argument " << i+2 << " is not a Field pointer!");
+        }
         FieldInfo info;
-        info.field = f;
+        info.field = field;
         if (is_same<FieldElementType, double>::value) {
             info.xtype = NC_DOUBLE;
         } else if (is_same<FieldElementType, int>::value) {
@@ -96,26 +102,31 @@ void StructuredDataFile::registerOutputField(initializer_list<Field*> fields) {
         info.spaceDims = spaceDims;
         fieldInfos.push_back(info);
     }
+    va_end(fields);
 }
 
-template <class FieldElementType, int numLevel>
+template <typename FieldElementType, int numLevel>
 void StructuredDataFile::output(const TimeLevelIndex<numLevel> &timeIdx,
-                                initializer_list<Field*> fields) {
+                                int numField, va_list fields) {
     typedef StructuredField<FieldElementType, numLevel> FieldType;
     int ret;
-    for (auto field : fields) {
-        for (const auto &info : fieldInfos) {
-            if (info.field == field) {
-                const FieldType *f = dynamic_cast<const FieldType*>(info.field);
+    for (int i = 0; i < numField; ++i) {
+        Field *field = dynamic_cast<Field*>(va_arg(fields, Field*));
+        if (field == NULL) {
+            REPORT_ERROR("Argument " << i+2 << " is not a Field pointer!");
+        }
+        for (int j = 0; j < fieldInfos.size(); ++j) {
+            if (fieldInfos[j].field == field) {
+                const FieldType *f = dynamic_cast<const FieldType*>(field);
                 if (f == NULL) {
                     REPORT_ERROR("Field type is not correct!");
                 }
                 int n = mesh->getTotalNumGrid(f->getStaggerLocation());
                 double *x = new double[n];
-                for (int i = 0; i < n; ++i) {
-                    x[i] = (*f)(timeIdx, i);
+                for (int k = 0; k < n; ++k) {
+                    x[k] = (*f)(timeIdx, k);
                 }
-                ret = nc_put_var(fileID, info.varID, x);
+                ret = nc_put_var(fileID, fieldInfos[j].varID, x);
                 if (ret != NC_NOERR) {
                     REPORT_ERROR("Failed to put variable \"" << f->getName() <<
                                  "\" with error message \"" << nc_strerror(ret) <<
@@ -169,9 +180,9 @@ public:
 
     void create(int fileIdx);
 
-    template <class FieldElementType, int numLevel>
+    template <typename FieldElementType, int numLevel>
     void output(int fileIdx, const TimeLevelIndex<numLevel> &timeIdx,
-                initializer_list<Field*> fields);
+                int numField, ...);
 
     void close(int fileIdx);
 private:
@@ -199,8 +210,8 @@ int IOManager<DataFileType>::registerOutputFile(const typename DataFileType::Mes
                                                 IOFrequencyUnit freqUnit,
                                                 double freq) {
     StampString filePattern(prefix+".", ".nc");
-    for (const auto &file : files) {
-        if (file.filePattern == filePattern) {
+    for (int i = 0; i < files.size(); ++i) {
+        if (files[i].filePattern == filePattern) {
             REPORT_ERROR("File with pattern " << filePattern <<
                          " has already been registered!");
         }
@@ -221,25 +232,25 @@ template <class DataFileType>
 void IOManager<DataFileType>::checkFileActive(DataFileType &dataFile) const {
     double time;
     switch (dataFile.freqUnit) {
-        case IOFrequencyUnit::STEPS:
+        case STEPS:
             time = timeManager->getNumStep();
             break;
-        case IOFrequencyUnit::SECONDS:
+        case SECONDS:
             time = timeManager->getSeconds();
             break;
-        case IOFrequencyUnit::MINUTES:
+        case MINUTES:
             time = timeManager->getMinutes();
             break;
-        case IOFrequencyUnit::HOURS:
+        case HOURS:
             time = timeManager->getHours();
             break;
-        case IOFrequencyUnit::DAYS:
+        case DAYS:
             time = timeManager->getDays();
             break;
-        case IOFrequencyUnit::MONTHS:
+        case MONTHS:
             REPORT_ERROR("Under construction!");
             break;
-        case IOFrequencyUnit::YEARS:
+        case YEARS:
             REPORT_ERROR("Under construction!");
             break;
     }
@@ -269,10 +280,10 @@ void IOManager<DataFileType>::create(int fileIdx) {
 }
 
 template <class DataFileType>
-template <class FieldElementType, int numLevel>
+template <typename FieldElementType, int numLevel>
 void IOManager<DataFileType>::output(int fileIdx,
                                      const TimeLevelIndex<numLevel> &timeIdx,
-                                     initializer_list<Field*> fields) {
+                                     int numField, ...) {
     DataFileType &dataFile = files[fileIdx];
     if (!dataFile.isActive) return;
     // write time
@@ -284,7 +295,10 @@ void IOManager<DataFileType>::output(int fileIdx,
                      nc_strerror(ret) << "\"!");
     }
     // write fields
-    dataFile.template output<FieldElementType, numLevel>(timeIdx, fields);
+    va_list fields;
+    va_start(fields, numField);
+    dataFile.template output<FieldElementType, numLevel>(timeIdx, numField, fields);
+    va_end(fields);
 }
 
 template <class DataFileType>

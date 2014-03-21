@@ -72,7 +72,20 @@ void Velocity::print() const {
 
 // -----------------------------------------------------------------------------
 
-Domain::Domain() : Domain(2) {
+Domain::Domain() {
+    numDim = 2;
+    axisName.resize(numDim);
+    axisLongName.resize(numDim);
+    axisUnits.resize(numDim);
+    axisStarts.resize(numDim);
+    axisEnds.resize(numDim);
+    axisSpans.resize(numDim);
+    bndTypeStarts = new BndType[numDim];
+    bndTypeEnds = new BndType[numDim];
+    for (int i = 0; i < numDim; ++i) {
+        bndTypeStarts[i] = INVALID;
+        bndTypeEnds[i] = INVALID;
+    }
 }
 
 Domain::Domain(int numDim) {
