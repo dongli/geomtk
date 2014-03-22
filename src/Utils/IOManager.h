@@ -76,6 +76,8 @@ public:
 
     template <typename FieldElementType, int numLevel, int spaceDims>
     void registerOutputField(int numField, ...);
+    
+    void removeOutputField(int numField, ...);
 
     virtual void create(const TimeManager &timeManager);
 
@@ -84,6 +86,9 @@ public:
     template <typename FieldElementType, int numLevel>
     void output(const TimeLevelIndex<numLevel> &timeIdx,
                 int numField, va_list fields);
+    
+    template <typename FieldElementType, int numLevel>
+    void output(int numField, va_list fields);
 };
 
 template <typename FieldElementType, int numLevel, int spaceDims>
@@ -144,6 +149,39 @@ void StructuredDataFile::output(const TimeLevelIndex<numLevel> &timeIdx,
         }
     }
 }
+    
+template <typename FieldElementType, int numLevel>
+void StructuredDataFile::output(int numField, va_list fields) {
+    typedef StructuredField<FieldElementType, numLevel> FieldType;
+    int ret;
+    for (int i = 0; i < numField; ++i) {
+        Field *field = dynamic_cast<Field*>(va_arg(fields, Field*));
+        if (field == NULL) {
+            REPORT_ERROR("Argument " << i+2 << " is not a Field pointer!");
+        }
+        for (int j = 0; j < fieldInfos.size(); ++j) {
+            if (fieldInfos[j].field == field) {
+                const FieldType *f = dynamic_cast<const FieldType*>(field);
+                if (f == NULL) {
+                    REPORT_ERROR("Field type is not correct!");
+                }
+                int n = mesh->getTotalNumGrid(f->getStaggerLocation());
+                double *x = new double[n];
+                for (int k = 0; k < n; ++k) {
+                    x[k] = (*f)(k);
+                }
+                ret = nc_put_var(fileID, fieldInfos[j].varID, x);
+                if (ret != NC_NOERR) {
+                    REPORT_ERROR("Failed to put variable \"" << f->getName() <<
+                                 "\" with error message \"" << nc_strerror(ret) <<
+                                 "\" in file \"" << fileName << "\"!");
+                }
+                delete [] x;
+                break;
+            }
+        }
+    }
+}
 
 // -----------------------------------------------------------------------------
 
@@ -188,6 +226,9 @@ public:
     template <typename FieldElementType, int numLevel>
     void output(int fileIdx, const TimeLevelIndex<numLevel> &timeIdx,
                 int numField, ...);
+    
+    template <typename FieldElementType, int numLevel>
+    void output(int fileIdx, int numField, ...);
 
     void close(int fileIdx);
 private:
@@ -303,6 +344,26 @@ void IOManager<DataFileType>::output(int fileIdx,
     va_list fields;
     va_start(fields, numField);
     dataFile.template output<FieldElementType, numLevel>(timeIdx, numField, fields);
+    va_end(fields);
+}
+    
+template <class DataFileType>
+template <typename FieldElementType, int numLevel>
+void IOManager<DataFileType>::output(int fileIdx, int numField, ...) {
+    DataFileType &dataFile = files[fileIdx];
+    if (!dataFile.isActive) return;
+        // write time
+    double time = timeManager->getDays();
+    size_t index[1] = {0};
+    int ret = nc_put_var1(dataFile.fileID, dataFile.timeVarID, index, &time);
+    if (ret != NC_NOERR) {
+        REPORT_ERROR("Failed to put variable time with error message \"" <<
+                     nc_strerror(ret) << "\"!");
+    }
+        // write fields
+    va_list fields;
+    va_start(fields, numField);
+    dataFile.template output<FieldElementType, numLevel>(numField, fields);
     va_end(fields);
 }
 

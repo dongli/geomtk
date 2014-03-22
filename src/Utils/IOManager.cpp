@@ -11,6 +11,29 @@ StructuredDataFile::StructuredDataFile(const StructuredMesh &mesh) : DataFile() 
         halfVarIDs.resize(mesh.getNumGrid(m, GridType::HALF));
     }
 }
+    
+void StructuredDataFile::removeOutputField(int numField, ...) {
+    va_list fields;
+    va_start(fields, numField);
+    for (int i = 0; i < numField; ++i) {
+        Field *field = dynamic_cast<Field*>(va_arg(fields, Field*));
+        if (field == NULL) {
+            REPORT_ERROR("Argument " << i+2 << " is not a Field pointer!");
+        }
+        bool found = false;
+        for (int j = 0; j < fieldInfos.size(); ++j) {
+            if (fieldInfos[j].field == field) {
+                fieldInfos.erase(fieldInfos.begin()+j);
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            REPORT_ERROR("Field is not in the output file!");
+        }
+    }
+    va_end(fields);
+}
 
 void StructuredDataFile::create(const TimeManager &timeManager) {
     const Domain &domain = mesh->getDomain();
