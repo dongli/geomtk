@@ -13,6 +13,7 @@
 #include <cstdarg>
 #include <typeinfo>
 #include <boost/type_traits/is_same.hpp>
+#include <random>
 
 namespace geomtk {
 
