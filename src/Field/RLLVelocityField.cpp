@@ -57,14 +57,14 @@ void PolarRing::update(const TimeLevelIndex<2> &timeIdx, Pole pole,
     }
     // meridional wind speed
     j = pole == SOUTH_POLE ? 0 : mesh->getNumGrid(1, GridType::HALF)-2;
-    if (v[1].getStaggerLocation() == Location::Y_FACE) {
+    if (v[1].getStaggerLocation() == Location::Y_FACE) { // C-grid
         for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
             for (int i = -1; i < mesh->getNumGrid(0, GridType::FULL)+1; ++i) {
                 vr(i+1, k)->getLevel(timeIdx)(1) =
                     (v[1](timeIdx, i, j, k)+v[1](timeIdx, i, j+1, k))*0.5;
             }
         }
-    } else if (v[1].getStaggerLocation() == Location::CENTER) {
+    } else if (v[1].getStaggerLocation() == Location::CENTER) { // A-grid
         for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
             for (int i = -1; i < mesh->getNumGrid(0, GridType::FULL)+1; ++i) {
                 vr(i+1, k)->getLevel(timeIdx)(1) = v[1](timeIdx, i, j, k);
@@ -73,15 +73,19 @@ void PolarRing::update(const TimeLevelIndex<2> &timeIdx, Pole pole,
     }
     // vertical wind speed
     if (mesh->getDomain().getNumDim() == 3) {
-        if (v[2].getStaggerLocation() == Location::Z_FACE) {
+        if (v[2].getStaggerLocation() == Location::Z_FACE) { // C-grid
             for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
                 for (int i = 0; i < mesh->getNumGrid(0, GridType::FULL, true); ++i) {
                     vr(i, k)->getLevel(timeIdx)(2) =
                         (v[2](timeIdx, i, j, k)+v[2](timeIdx, i, j, k+1))*0.5;
                 }
             }
-        } else if (v[2].getStaggerLocation() == Location::CENTER) {
-            
+        } else if (v[2].getStaggerLocation() == Location::CENTER) { // A-grid
+            for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
+                for (int i = 0; i < mesh->getNumGrid(0, GridType::FULL, true); ++i) {
+                    vr(i, k)->getLevel(timeIdx)(2) = v[2](timeIdx, i, j, k);
+                }
+            }
         }
     }
     // -------------------------------------------------------------------------
