@@ -61,6 +61,8 @@ public:
 
     T operator()(int cellIdx) const;
     T& operator()(int cellIdx);
+    
+    StructuredField<T, N>& operator=(const StructuredField<T, N> &other);
 
     virtual int getStaggerLocation() const { return staggerLocation; }
 
@@ -326,7 +328,36 @@ T& StructuredField<T, N>::operator()(int cellIdx) {
     }
     return data->getLevel(0)(i[0], i[1], i[2]);
 }
-    
+
+template <typename T, int N>
+StructuredField<T, N>& StructuredField<T, N>::operator=(const StructuredField<T, N> &other) {
+    if (this != &other) {
+        Field::operator=(other);
+        staggerLocation = other.staggerLocation;
+        gridTypes = other.gridTypes;
+        assert(other.data != NULL);
+        if (data == NULL) {
+            const StructuredMesh *mesh = static_cast<const StructuredMesh*>(this->mesh);
+            data = new TimeLevels<field<T>, N>(hasHalfLevel);
+            for (int i = 0; i < data->getNumLevel(INCLUDE_HALF_LEVEL); ++i) {
+                data->getLevel(i).set_size(mesh->getNumGrid(0, gridTypes[0], true),
+                                           mesh->getNumGrid(1, gridTypes[1], true),
+                                           mesh->getNumGrid(2, gridTypes[2], true));
+            }
+        }
+        for (int l = 0; l < other.data->getNumLevel(); ++l) {
+            for (int k = 0; k < other.data->getLevel(l).n_slices; ++k) {
+                for (int j = 0; j < other.data->getLevel(l).n_cols; ++j) {
+                    for (int i = 0; i < other.data->getLevel(l).n_rows; ++i) {
+                        data->getLevel(l)(i, j, k) = other.data->getLevel(l)(i, j, k);
+                    }
+                }
+            }
+        }
+    }
+    return *this;
+}
+
 }
 
 #endif

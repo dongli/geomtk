@@ -34,6 +34,8 @@ public:
     const string& getLongName() const;
     const string& getUnits() const;
     const Mesh& getMesh() const;
+    
+    Field& operator=(const Field &other);
 
     virtual int getStaggerLocation() const = 0;
 };

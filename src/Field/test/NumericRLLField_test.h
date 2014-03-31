@@ -46,6 +46,26 @@ protected:
     }
 };
 
+TEST_F(NumericRLLFieldTest, AssignmentOperator) {
+    NumericRLLField<double, 2> f, g;
+    f.create("1", "2", "3", *mesh, RLLStagger::Location::CENTER);
+    for (int i = 0; i < mesh->getTotalNumGrid(RLLStagger::Location::CENTER); ++i) {
+        f(timeIdx, i) = i;
+    }
+    ASSERT_EQ(NULL, &g.getMesh());
+    g = f;
+    ASSERT_EQ(mesh, &g.getMesh());
+    ASSERT_EQ(f.getName(), g.getName());
+    ASSERT_EQ(f.getLongName(), g.getLongName());
+    ASSERT_EQ(f.getUnits(), g.getUnits());
+    ASSERT_EQ(f.getStaggerLocation(), g.getStaggerLocation());
+    ASSERT_EQ(f.getGridType(0), g.getGridType(0));
+    ASSERT_EQ(f.getGridType(1), g.getGridType(1));
+    for (int i = 0; i < mesh->getTotalNumGrid(RLLStagger::Location::CENTER); ++i) {
+        ASSERT_EQ(i, g(timeIdx, i));
+    }
+}
+
 TEST_F(NumericRLLFieldTest, CheckScalarField) {
     NumericRLLField<double, 2> f;
     f.create("", "", "", *mesh, RLLStagger::Location::CENTER);

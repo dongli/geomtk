@@ -3,6 +3,7 @@
 namespace geomtk {
     
 Field::Field() {
+    mesh = NULL;
 }
     
 Field::~Field() {
@@ -44,6 +45,17 @@ const string& Field::getUnits() const {
     
 const Mesh& Field::getMesh() const {
     return *mesh;
+}
+    
+Field& Field::operator=(const Field &other) {
+    if (this != &other) {
+        name = other.name;
+        longName = other.longName;
+        units = other.units;
+        mesh = other.mesh;
+        hasHalfLevel = other.hasHalfLevel;
+    }
+    return *this;
 }
 
 }
