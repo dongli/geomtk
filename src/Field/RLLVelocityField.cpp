@@ -10,6 +10,7 @@ PolarRing::~PolarRing() {
         for (int k = 0; k < vr.n_cols; ++k) {
             for (int i = 0; i < vr.n_rows; ++i) {
                 delete vr(i, k);
+                delete divr(i, k);
             }
         }
     }
@@ -19,18 +20,22 @@ void PolarRing::create(const RLLMesh &mesh, bool hasHalfLevel) {
     this->mesh = &mesh;
     vr.set_size(mesh.getNumGrid(0, GridType::FULL, true),
                 mesh.getNumGrid(2, GridType::FULL));
+    divr.set_size(mesh.getNumGrid(0, GridType::FULL, true),
+                  mesh.getNumGrid(2, GridType::FULL));
     for (int k = 0; k < vr.n_cols; ++k) {
         for (int i = 0; i < vr.n_rows; ++i) {
             vr(i, k) = new TimeLevels<SphereVelocity, 2>(hasHalfLevel);
             for (int l = 0; l < vr(i, k)->getNumLevel(INCLUDE_HALF_LEVEL); ++l) {
                 vr(i, k)->getLevel(l).setNumDim(mesh.getDomain().getNumDim());
             }
+            divr(i, k) = new TimeLevels<double, 2>(hasHalfLevel);
         }
     }
 }
 
 void PolarRing::update(const TimeLevelIndex<2> &timeIdx, Pole pole,
                        const vector<NumericRLLField<double, 2> > &v,
+                       const NumericRLLField<double, 2> &div,
                        bool updateHalfLevel) {
     // ring variable is at A-grids
     int nx = mesh->getNumGrid(0, GridType::FULL, true);
@@ -38,15 +43,14 @@ void PolarRing::update(const TimeLevelIndex<2> &timeIdx, Pole pole,
     int j = pole == SOUTH_POLE ? 1 : mesh->getNumGrid(1, GridType::FULL)-2; // off the Pole
     if (v[0].getStaggerLocation() == Location::X_FACE) { // C-grid
         for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
-            for (int i = 1; i < mesh->getNumGrid(0, GridType::HALF)+1; ++i) {
-                vr(i, k)->getLevel(timeIdx)(0) =
+            for (int i = 0; i < mesh->getNumGrid(0, GridType::HALF)+1; ++i) {
+                vr(i+1, k)->getLevel(timeIdx)(0) =
                     (v[0](timeIdx, i-1, j, k)+v[0](timeIdx, i, j, k))*0.5;
             }
         }
         // periodic boundary condition
         for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
             vr(0, k)->getLevel(timeIdx)(0) = vr(nx-2, k)->getLevel(timeIdx)(0);
-            vr(nx-1, k)->getLevel(timeIdx)(0) = vr(1, k)->getLevel(timeIdx)(0);
         }
     } else if (v[0].getStaggerLocation() == Location::CENTER) { // A-grid
         for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
@@ -75,17 +79,24 @@ void PolarRing::update(const TimeLevelIndex<2> &timeIdx, Pole pole,
     if (mesh->getDomain().getNumDim() == 3) {
         if (v[2].getStaggerLocation() == Location::Z_FACE) { // C-grid
             for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
-                for (int i = 0; i < mesh->getNumGrid(0, GridType::FULL, true); ++i) {
-                    vr(i, k)->getLevel(timeIdx)(2) =
+                for (int i = -1; i < mesh->getNumGrid(0, GridType::FULL)+1; ++i) {
+                    vr(i+1, k)->getLevel(timeIdx)(2) =
                         (v[2](timeIdx, i, j, k)+v[2](timeIdx, i, j, k+1))*0.5;
                 }
             }
         } else if (v[2].getStaggerLocation() == Location::CENTER) { // A-grid
             for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
-                for (int i = 0; i < mesh->getNumGrid(0, GridType::FULL, true); ++i) {
-                    vr(i, k)->getLevel(timeIdx)(2) = v[2](timeIdx, i, j, k);
+                for (int i = -1; i < mesh->getNumGrid(0, GridType::FULL)+1; ++i) {
+                    vr(i+1, k)->getLevel(timeIdx)(2) = v[2](timeIdx, i, j, k);
                 }
             }
+        }
+    }
+    // divergence
+    j = pole == SOUTH_POLE ? 1 : mesh->getNumGrid(1, GridType::FULL)-2;
+    for (int k = 0; k < mesh->getNumGrid(2, GridType::FULL); ++k) {
+        for (int i = -1; i < mesh->getNumGrid(0, GridType::FULL)+1; ++i) {
+            divr(i+1, k)->getLevel(timeIdx) = div(timeIdx, i, j, k);
         }
     }
     // -------------------------------------------------------------------------
@@ -185,12 +196,16 @@ void RLLVelocityField::applyBndCond(const TimeLevelIndex<2> &timeIdx,
     for (int m = 0; m < v.size(); ++m) {
         v[m].applyBndCond(timeIdx, updateHalfLevel);
     }
-    rings[0].update(timeIdx, SOUTH_POLE, v, updateHalfLevel);
-    rings[1].update(timeIdx, NORTH_POLE, v, updateHalfLevel);
+    calcDivergence(timeIdx);
+    div.applyBndCond(timeIdx, updateHalfLevel);
+    rings[0].update(timeIdx, SOUTH_POLE, v, div, updateHalfLevel);
+    rings[1].update(timeIdx, NORTH_POLE, v, div, updateHalfLevel);
 }
     
 void RLLVelocityField::create(const RLLMesh &mesh, bool useStagger,
                               bool hasHalfLevel) {
+    this->mesh = &mesh;
+    this->domain = static_cast<const SphereDomain*>(&mesh.getDomain());
     v.resize(mesh.getDomain().getNumDim());
     if (useStagger) {
         v[0].create("u", "m s-1", "zonal wind speed", mesh, Location::X_FACE, hasHalfLevel);
@@ -207,12 +222,30 @@ void RLLVelocityField::create(const RLLMesh &mesh, bool useStagger,
             v[2].create("w", "?", "vertical wind speed", mesh, Location::CENTER, hasHalfLevel);
         }
     }
+    div.create("div", "s-1", "divergence", mesh, Location::CENTER);
     rings[0].create(mesh, hasHalfLevel);
     rings[1].create(mesh, hasHalfLevel);
 }
 
-const PolarRing& RLLVelocityField::getPolarRing(Pole pole) const {
-    return rings[pole];
+void RLLVelocityField::calcDivergence(const TimeLevelIndex<2> &timeIdx) {
+    if (v[0].getStaggerLocation() == Location::CENTER &&
+        v[1].getStaggerLocation() == Location::CENTER) {
+        REPORT_ERROR("Under construction!");
+    } else if (v[0].getStaggerLocation() == Location::X_FACE &&
+               v[1].getStaggerLocation() == Location::Y_FACE) {
+        for (int j = 1; j < mesh->getNumGrid(1, GridType::FULL)-1; ++j) {
+            double ReCosLat = domain->getRadius()*mesh->getCosLat(GridType::FULL, j);
+            for (int i = 0; i < mesh->getNumGrid(0, GridType::FULL); ++i) {
+                double u1 = v[0](timeIdx, i-1, j);
+                double u2 = v[0](timeIdx, i, j);
+                double dudlon = (u2-u1)/mesh->getGridInterval(0, GridType::HALF, 0);
+                double vCosLat1 = v[1](timeIdx, i, j-1)*mesh->getCosLat(GridType::HALF, j-1);
+                double vCosLat2 = v[1](timeIdx, i, j)*mesh->getCosLat(GridType::HALF, j);
+                double dvCosLatdlat = (vCosLat2-vCosLat1)/mesh->getGridInterval(1, GridType::HALF, j);
+                div(timeIdx, i, j) = (dudlon+dvCosLatdlat)/ReCosLat;
+            }
+        }
+    }
 }
 
 }

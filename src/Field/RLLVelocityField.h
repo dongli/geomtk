@@ -20,6 +20,7 @@ public:
     typedef RLLStagger::Location Location;
 protected:
     field<TimeLevels<SphereVelocity, 2>*> vr;
+    field<TimeLevels<double, 2>*> divr;
     const RLLMesh *mesh;
 public:
     PolarRing();
@@ -29,6 +30,7 @@ public:
 
     void update(const TimeLevelIndex<2> &timeIdx, Pole pole,
                 const vector<NumericRLLField<double, 2> > &v,
+                const NumericRLLField<double, 2> &div,
                 bool updateHalfLevel = false);
 
     double getOriginalData(int dim, const TimeLevelIndex<2> &timeIdx,
@@ -44,12 +46,16 @@ public:
 
 class RLLVelocityField {
 public:
+    typedef SphereDomain DomainType;
     typedef RLLMesh MeshType;
     typedef NumericRLLField<double, 2> FieldType;
     typedef RLLStagger::GridType GridType;
     typedef RLLStagger::Location Location;
 protected:
-    vector<FieldType> v;
+    const DomainType *domain;   //>! underlying domain
+    const MeshType *mesh;       //>! underlying mesh
+    vector<FieldType> v;        //>! velocity component fields
+    FieldType div;              //>! divergence field
     PolarRing rings[2];
 public:
     RLLVelocityField();
@@ -67,7 +73,9 @@ public:
     
     const FieldType& operator()(int compIdx) const { return v[compIdx]; }
 
-    const PolarRing& getPolarRing(Pole pole) const;
+    const PolarRing& getPolarRing(Pole pole) const { return rings[pole]; }
+
+    void calcDivergence(const TimeLevelIndex<2> &timeIdx);
 };
 
 }
