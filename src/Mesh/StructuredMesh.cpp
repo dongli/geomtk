@@ -463,4 +463,45 @@ void StructuredMesh::unwrapIndex(int cellIdx, int i[3], int loc) const {
     i[0] = cellIdx%nx;
 }
 
+int StructuredMesh::wrapIndex(const StructuredMeshIndex &meshIdx,
+                              int loc) const {
+    int nx, ny, res;
+    switch (loc) {
+        case Location::CENTER:
+            nx = getNumGrid(0, GridType::FULL);
+            ny = getNumGrid(1, GridType::FULL);
+            res = (nx*ny)*meshIdx(2, GridType::FULL);
+            res += nx*meshIdx(1, GridType::FULL);
+            res += meshIdx(0, GridType::FULL);
+            break;
+        case Location::X_FACE:
+            nx = getNumGrid(0, GridType::HALF);
+            ny = getNumGrid(1, GridType::FULL);
+            res = (nx*ny)*meshIdx(2, GridType::FULL);
+            res += nx*meshIdx(1, GridType::HALF);
+            res += meshIdx(0, GridType::FULL);
+            break;
+        case Location::Y_FACE:
+            nx = getNumGrid(0, GridType::FULL);
+            ny = getNumGrid(1, GridType::HALF);
+            res = (nx*ny)*meshIdx(2, GridType::FULL);
+            res += nx*meshIdx(1, GridType::FULL);
+            res += meshIdx(0, GridType::HALF);
+            break;
+        case Location::XY_VERTEX:
+            nx = getNumGrid(0, GridType::HALF);
+            ny = getNumGrid(1, GridType::HALF);
+            res = (nx*ny)*meshIdx(2, GridType::FULL);
+            res += nx*meshIdx(1, GridType::HALF);
+            res += meshIdx(0, GridType::HALF);
+            break;
+        case Location::Z_FACE:
+            REPORT_ERROR("Under construction!");
+            break;
+        default:
+            REPORT_ERROR("Unknown stagger location!");
+    }
+    return res;
+}
+
 }

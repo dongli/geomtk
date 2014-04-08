@@ -65,7 +65,9 @@ public:
     int getNumGrid(int axisIdx, int gridType,
                    bool hasVirtualGrids = false) const;
 
-    void unwrapIndex(int cellIdx, int i[3], int loc) const;
+    virtual void unwrapIndex(int cellIdx, int i[3], int loc) const;
+
+    virtual int wrapIndex(const StructuredMeshIndex &meshIdx, int loc) const;
 };
 
 }
