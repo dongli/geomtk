@@ -49,10 +49,10 @@ void SphereCoord::setCartCoord(double x, double y, double z) {
 }
 
 void SphereCoord::updateTrigonometricFunctions() {
-    cosLon = cos(coord(0));
-    sinLon = sin(coord(0));
-    cosLat = cos(coord(1));
-    sinLat = sin(coord(1));
+    cosLon = cos(coord[0]);
+    sinLon = sin(coord[0]);
+    cosLat = cos(coord[1]);
+    sinLat = sin(coord[1]);
 }
 
 SphereCoord& SphereCoord::operator=(const SphereCoord &other) {
@@ -69,46 +69,47 @@ SphereCoord& SphereCoord::operator=(const SphereCoord &other) {
 }
 
 void SphereCoord::transformToPS(const SphereDomain &domain) {
-    double tanLat = tan(coord(1));
-    if (coord(1) < 0.0) { // South Pole
-        xt(0) = -domain.getRadius()*sinLon/tanLat;
-        xt(1) = -domain.getRadius()*cosLon/tanLat;
+    double tanLat = tan(coord[1]);
+    if (coord[1] < 0.0) { // South Pole
+        xt[0] =  domain.getRadius()*cosLon/tanLat;
+        xt[1] = -domain.getRadius()*sinLon/tanLat;
     } else { // North Pole
-        xt(0) =  domain.getRadius()*cosLon/tanLat;
-        xt(1) =  domain.getRadius()*sinLon/tanLat;
+        xt[0] =  domain.getRadius()*cosLon/tanLat;
+        xt[1] =  domain.getRadius()*sinLon/tanLat;
     }
     if (domain.getNumDim() == 3) {
-        xt(2) = coord(2);
+        xt[2] = coord[2];
     }
 }
 
 void SphereCoord::transformFromPS(const SphereDomain &domain, Pole pole) {
     if (pole == SOUTH_POLE) { // South Pole
-        coord(0) =  atan2(xt(0), xt(1));
-        coord(1) = -atan(domain.getRadius()/sqrt(xt(0)*xt(0)+xt(1)*xt(1)));
+        coord[0] = atan2(xt[1], -xt[0]);
+        coord[1] = -atan(domain.getRadius()/sqrt(xt[0]*xt[0]+xt[1]*xt[1]));
+        assert(coord[1] < 0);
     } else { // North Pole
-        coord(0) =  atan2(xt(1), xt(0));
-        coord(1) =  atan(domain.getRadius()/sqrt(xt(0)*xt(0)+xt(1)*xt(1)));
+        coord[0] = atan2(xt[1], xt[0]);
+        coord[1] = atan(domain.getRadius()/sqrt(xt[0]*xt[0]+xt[1]*xt[1]));
+        assert(coord[1] > 0);
     }
-    if (coord(0) < 0.0) {
-        coord(0) += PI2;
-    }
+    if (coord[0] < 0.0) coord[0] += PI2;
+    if (coord[0] > PI2) coord[0] -= PI2;
     if (domain.getNumDim() == 3) {
-        coord(2) = xt(2);
+        coord[2] = xt[2];
     }
     updateTrigonometricFunctions();
 }
 
 void SphereCoord::transformToCart(const SphereDomain &domain) {
-    cartCoord(0) = domain.getRadius()*cosLat*cosLon;
-    cartCoord(1) = domain.getRadius()*cosLat*sinLon;
-    cartCoord(2) = domain.getRadius()*sinLat;
+    cartCoord[0] = domain.getRadius()*cosLat*cosLon;
+    cartCoord[1] = domain.getRadius()*cosLat*sinLon;
+    cartCoord[2] = domain.getRadius()*sinLat;
 }
 
 void SphereCoord::print() const {
     cout << "Coordinate:";
-    cout << setw(20) << setprecision(10) << coord(0)/RAD;
-    cout << setw(20) << setprecision(10) << coord(1)/RAD;
+    cout << setw(20) << setprecision(10) << coord[0]/RAD;
+    cout << setw(20) << setprecision(10) << coord[1]/RAD;
     if (coord.size() == 3) {
         cout << setw(20) << setprecision(10) << coord(2);
     }
@@ -179,8 +180,8 @@ void SphereVelocity::transformToPS(const SphereCoord &x) {
 void SphereVelocity::transformToPS(double sinLat, double sinLat2,
                                    double sinLon, double cosLon) {
     if (sinLat < 0.0) { // South Pole
-        vt[0] = -cosLon/sinLat*v[0]+sinLon/sinLat2*v[1];
-        vt[1] =  sinLon/sinLat*v[0]+cosLon/sinLat2*v[1];
+        vt[0] = -sinLon/sinLat*v[0]-cosLon/sinLat2*v[1];
+        vt[1] = -cosLon/sinLat*v[0]+sinLon/sinLat2*v[1];
     } else { // North Pole
         vt[0] = -sinLon/sinLat*v[0]-cosLon/sinLat2*v[1];
         vt[1] =  cosLon/sinLat*v[0]-sinLon/sinLat2*v[1];
@@ -189,8 +190,8 @@ void SphereVelocity::transformToPS(double sinLat, double sinLat2,
 
 void SphereVelocity::transformFromPS(const SphereCoord &x) {
     if (x(1) < 0.0) { // South Pole
-        v[0] = (-x.getCosLon()*vt[0]+x.getSinLon()*vt[1])*x.getSinLat();
-        v[1] = ( x.getSinLon()*vt[0]+x.getCosLon()*vt[1])*x.getSinLat()*x.getSinLat();
+        v[0] = (-x.getSinLon()*vt[0]-x.getCosLon()*vt[1])*x.getSinLat();
+        v[1] = (-x.getCosLon()*vt[0]+x.getSinLon()*vt[1])*x.getSinLat()*x.getSinLat();
     } else { // North Pole
         v[0] = (-x.getSinLon()*vt[0]+x.getCosLon()*vt[1])*x.getSinLat();
         v[1] = (-x.getCosLon()*vt[0]-x.getSinLon()*vt[1])*x.getSinLat()*x.getSinLat();
@@ -399,8 +400,8 @@ void SphereDomain::project(ProjectionType projType, const SphereCoord &xp,
 #ifdef DEBUG
             assert(lat > 0.0);
 #endif
-            xs[0] =  radius*cosLon/tanLat;
-            xs[1] =  radius*sinLon/tanLat;
+            xs[0] = radius*cosLon/tanLat;
+            xs[1] = radius*sinLon/tanLat;
             break;
     }
 }
@@ -410,11 +411,10 @@ void SphereDomain::projectBack(ProjectionType projType, const SphereCoord &xp,
     switch (projType) {
         case STEREOGRAPHIC:
             double lon, lat;
-            lon =  atan2(xs[1], xs[0]);
-            lat =  atan(radius/norm(xs, 2));
-            if (lon < 0.0) {
-               lon += PI2;
-            }
+            lon = atan2(xs[1], xs[0]);
+            if (lon < 0.0) lon += PI2;
+            lat = atan(radius/sqrt(xs[0]*xs[0]+xs[1]*xs[1]));
+            assert(lat > 0);
             rotateBack(xp, xo, lon, lat);
             break;
     }
