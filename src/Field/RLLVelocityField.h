@@ -73,6 +73,8 @@ public:
     
     const FieldType& operator()(int compIdx) const { return v[compIdx]; }
 
+    const FieldType& getDivergence() const { return div; }
+
     const PolarRing& getPolarRing(Pole pole) const { return rings[pole]; }
 
     void calcDivergence(const TimeLevelIndex<2> &timeIdx);
