@@ -397,9 +397,6 @@ void SphereDomain::project(ProjectionType projType, const SphereCoord &xp,
             double sinLon = sin(lon);
             double cosLon = cos(lon);
             double tanLat = tan(lat);
-#ifdef DEBUG
-            assert(lat > 0.0);
-#endif
             xs[0] = radius*cosLon/tanLat;
             xs[1] = radius*sinLon/tanLat;
             break;
