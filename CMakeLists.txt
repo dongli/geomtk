@@ -36,10 +36,12 @@ else ()
         )
     endif ()
 endif ()
+include_directories (${ARMADILLO_INCLUDE_DIRS})
 
 # NetCDF
 list (APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
 find_package (NETCDF COMPONENTS C)
+include_directories (${NETCDF_INCLUDE_DIRS})
 
 # ------------------------------------------------------------------------------
 # source directory structure
@@ -58,7 +60,6 @@ if (use_as_submodule)
         ${ARMADILLO_INCLUDE_DIRS}
         PARENT_SCOPE
     )
-    set (GEOMTK_LIBRARY_DIRS ${PROJECT_BINARY_DIR} PARENT_SCOPE)
 endif ()
 
 # ------------------------------------------------------------------------------
@@ -75,11 +76,7 @@ endforeach ()
 
 # ------------------------------------------------------------------------------
 # library targets
-add_library (geomtk STATIC ${headers} ${sources})
-include_directories (
-    ${ARMADILLO_INCLUDE_DIRS}
-    ${NETCDF_INCLUDE_DIRS}
-)
+add_library (geomtk SHARED ${headers} ${sources})
 target_link_libraries (geomtk
     ${ARMADILLO_LIBRARIES}
     ${NETCDF_C_LIBRARIES}
@@ -88,7 +85,11 @@ target_link_libraries (geomtk
 # ------------------------------------------------------------------------------
 # install rules
 if (${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
-    install (TARGETS geomtk ARCHIVE DESTINATION lib)
+    install (TARGETS geomtk
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        COMPONENT library
+    )
     foreach (header ${headers})
         install (FILES ${header}
             DESTINATION "include/geomtk"
