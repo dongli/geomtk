@@ -328,12 +328,12 @@ void RLLDataFile::outputGrids() {
     for (int m = 0; m < domain.getNumDim(); ++m) {
         string units = domain.getAxisUnits(m);
         if (m == 0) {
-#ifdef DEBUG
+#ifndef NDEBUG
             assert(units == "radian_east");
 #endif
             units = "degree_east";
         } else if (m == 1) {
-#ifdef DEBUG
+#ifndef NDEBUG
             assert(units == "radian_north");
 #endif
             units = "degree_north";

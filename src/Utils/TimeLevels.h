@@ -82,7 +82,7 @@ TimeLevelIndex<N> TimeLevelIndex<N>::operator+(int offset) const {
     if (level < 0) {
         level += N;
     }
-#ifdef DEBUG
+#ifndef NDEBUG
     if ((offset < 0 && -offset > level) ||
         (offset > 0 &&  offset > N-1-level)) {
         REPORT_ERROR("Argument 'offset' (" << offset << ") is out of range!");
@@ -104,7 +104,7 @@ TimeLevelIndex<N> TimeLevelIndex<N>::operator-(int offset) const {
     if (level < 0) {
         level += N;
     }
-#ifdef DEBUG
+#ifndef NDEBUG
     if ((offset < 0 && -offset > N-1-level) ||
         (offset > 0 &&  offset > level)) {
         REPORT_ERROR("Argument 'offset' (" << offset << ") is out of range!");
@@ -122,7 +122,7 @@ TimeLevelIndex<N> TimeLevelIndex<N>::operator-(int offset) const {
 
 template <int N>
 TimeLevelIndex<N> TimeLevelIndex<N>::operator+(double offset) const {
-#ifdef DEBUG
+#ifndef NDEBUG
     if (offset/0.5-int(offset/0.5) != 0.0) {
         REPORT_ERROR("Argument 'offset' (" << offset <<
                      ") should be a multiple of 0.5!");
@@ -133,7 +133,7 @@ TimeLevelIndex<N> TimeLevelIndex<N>::operator+(double offset) const {
         level += N;
     }
     int half_offset = int(offset-0.5);
-#ifdef DEBUG
+#ifndef NDEBUG
     if ((half_offset < 0 && -half_offset > level-1) ||
         (half_offset > 0 &&  half_offset > N-2-level)) {
         REPORT_ERROR("Argument 'offset' (" << offset << ") is out of range!");
@@ -149,7 +149,7 @@ TimeLevelIndex<N> TimeLevelIndex<N>::operator+(double offset) const {
 
 template <int N>
 TimeLevelIndex<N> TimeLevelIndex<N>::operator-(double offset) const {
-#ifdef DEBUG
+#ifndef NDEBUG
     if (offset/0.5-int(offset/0.5) != 0.0) {
         REPORT_ERROR("Argument 'offset' (" << offset <<
                      ") should be a multiple of 0.5!");
@@ -160,7 +160,7 @@ TimeLevelIndex<N> TimeLevelIndex<N>::operator-(double offset) const {
         level += N;
     }
     int half_offset = int(offset+0.5);
-#ifdef DEBUG
+#ifndef NDEBUG
     if ((half_offset < 0 && -half_offset > N-2-level) ||
         (half_offset > 0 &&  half_offset > level)) {
         REPORT_ERROR("Argument 'offset' (" << offset << ") is out of range!");

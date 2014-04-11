@@ -52,7 +52,9 @@ void StructuredRegrid::run(RegridMethod method, const TimeLevelIndex<N> &timeIdx
         double y1 = mesh.getGridCoordComp(1, f.getGridType(1), j1);
         double y2 = mesh.getGridCoordComp(1, f.getGridType(1), j3);
         double Y = (x(1)-y1)/(y2-y1);
+#ifndef NDEBUG
         assert(X >= 0.0 && X <= 1.0 && Y >= 0.0 && Y <= 1.0);
+#endif
         double f1 = f(timeIdx, i1, j1);
         double f2 = f(timeIdx, i2, j2);
         double f3 = f(timeIdx, i3, j3);

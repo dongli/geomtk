@@ -222,7 +222,7 @@ void RLLVelocityField::create(const RLLMesh &mesh, bool useStagger,
 void RLLVelocityField::calcDivergence(const TimeLevelIndex<2> &timeIdx) {
     if (v[0].getStaggerLocation() == Location::CENTER &&
         v[1].getStaggerLocation() == Location::CENTER) {
-//#ifdef DEBUG
+//#ifndef NDEBUG
 //        for (int i = 0; i < mesh->getNumGrid(0, GridType::FULL); ++i) {
 //            assert(v[0](timeIdx, i, 0) == 0);
 //            assert(v[0](timeIdx, i, mesh->getNumGrid(1, GridType::FULL)-1) == 0);

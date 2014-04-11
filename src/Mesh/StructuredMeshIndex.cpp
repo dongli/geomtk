@@ -194,8 +194,10 @@ void StructuredMeshIndex::locate(const Mesh &mesh_, const SpaceCoord &x) {
                 }
             }
         }
+#ifndef NDEBUG
         assert(indices[m][GridType::FULL] != UNDEFINED_MESH_INDEX);
         assert(indices[m][GridType::HALF] != UNDEFINED_MESH_INDEX);
+#endif
     }
 }
 

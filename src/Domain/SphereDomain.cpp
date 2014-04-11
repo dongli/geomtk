@@ -86,11 +86,15 @@ void SphereCoord::transformFromPS(const SphereDomain &domain, Pole pole) {
     if (pole == SOUTH_POLE) { // South Pole
         coord[0] = atan2(xt[1], -xt[0]);
         coord[1] = -atan(domain.getRadius()/sqrt(xt[0]*xt[0]+xt[1]*xt[1]));
+#ifndef NDEBUG
         assert(coord[1] < 0);
+#endif
     } else { // North Pole
         coord[0] = atan2(xt[1], xt[0]);
         coord[1] = atan(domain.getRadius()/sqrt(xt[0]*xt[0]+xt[1]*xt[1]));
+#ifndef NDEBUG
         assert(coord[1] > 0);
+#endif
     }
     if (coord[0] < 0.0) coord[0] += PI2;
     if (coord[0] > PI2) coord[0] -= PI2;
@@ -282,13 +286,12 @@ void SphereDomain::rotate(const SphereCoord &xp, const SphereCoord &xo,
     tmp1 = xo.getSinLat()*xp.getSinLat();
     tmp2 = xo.getCosLat()*xp.getCosLat()*cosDlon;
     tmp3 = tmp1+tmp2;
-#ifdef DEBUG
+#ifndef NDEBUG
     static const double eps = 1.0e-15;
     if (tmp3 < -1.0 || tmp3 > 1.0) {
-        if (fabs(tmp3)-1.0 < eps) {
-            REPORT_WARNING("tmp3 is out of range [-1, 1]!");
-        } else
-            REPORT_ERROR("tmp3 is out of range [-1, 1]!");
+        if (fabs(tmp3)-1.0 > eps) {
+            REPORT_ERROR("tmp3 (" << tmp3 << ") is out of range [-1, 1]!");
+        }
     }
 #endif
     tmp3 = fmin(1.0, fmax(-1.0, tmp3));
@@ -312,13 +315,12 @@ void SphereDomain::rotate(const SphereCoord &xp, const SphereCoord &xo,
     tmp1 = xo.getSinLat()*xp.getSinLat();
     tmp2 = xo.getCosLat()*xp.getCosLat()*cosDlon;
     tmp3 = tmp1+tmp2;
-#ifdef DEBUG
+#ifndef NDEBUG
     static const double eps = 1.0e-15;
     if (tmp3 < -1.0 || tmp3 > 1.0) {
-        if (fabs(tmp3)-1.0 < eps) {
-            REPORT_WARNING("tmp3 is out of range [-1, 1]!");
-        } else
-            REPORT_ERROR("tmp3 is out of range [-1, 1]!");
+        if (fabs(tmp3)-1.0 > eps) {
+            REPORT_ERROR("tmp3 (" << tmp3 << ") is out of range [-1, 1]!");
+        }
     }
 #endif
     tmp3 = fmin(1.0, fmax(-1.0, tmp3));
@@ -331,10 +333,10 @@ void SphereDomain::rotateBack(const SphereCoord &xp, SphereCoord &xo,
     
     tmp1 = xr.getCosLat()*xr.getSinLon();
     tmp2 = xr.getSinLat()*xp.getCosLat()+xr.getCosLat()*xr.getCosLon()*xp.getSinLat();
-#ifdef DEBUG
+#ifndef NDEBUG
     static const double eps = 1.0e-15;
     if (fabs(tmp2) < eps) {
-        //REPORT_WARNING("tmp2 is near zero!")
+        REPORT_WARNING("tmp2 is near zero!");
         tmp2 = 0.0;
     }
 #endif
@@ -345,9 +347,12 @@ void SphereDomain::rotateBack(const SphereCoord &xp, SphereCoord &xo,
     tmp1 = xr.getSinLat()*xp.getSinLat();
     tmp2 = xr.getCosLat()*xp.getCosLat()*xr.getCosLon();
     tmp3 = tmp1-tmp2;
-#ifdef DEBUG
-    if (tmp3 < -1.0 || tmp3 > 1.0)
-        REPORT_ERROR("tmp3 is out of range [-1,1]!");
+#ifndef NDEBUG
+    if (tmp3 < -1.0 || tmp3 > 1.0) {
+        if (fabs(tmp3)-1.0 > eps) {
+            REPORT_ERROR("tmp3 (" << tmp3 << ") is out of range [-1, 1]!");
+        }
+    }
 #endif
     tmp3 = fmin(1.0, fmax(-1.0, tmp3));
     lat = asin(tmp3);
@@ -365,10 +370,10 @@ void SphereDomain::rotateBack(const SphereCoord &xp, SphereCoord &xo,
     
     tmp1 = cosLatR*sinLonR;
     tmp2 = sinLatR*xp.getCosLat()+cosLatR*cosLonR*xp.getSinLat();
-#ifdef DEBUG
+#ifndef NDEBUG
     static const double eps = 1.0e-15;
     if (fabs(tmp2) < eps) {
-        //REPORT_WARNING("tmp2 is near zero!")
+        REPORT_WARNING("tmp2 is near zero!");
         tmp2 = 0.0;
     }
 #endif
@@ -379,9 +384,12 @@ void SphereDomain::rotateBack(const SphereCoord &xp, SphereCoord &xo,
     tmp1 = sinLatR*xp.getSinLat();
     tmp2 = cosLatR*xp.getCosLat()*cosLonR;
     tmp3 = tmp1-tmp2;
-#ifdef DEBUG
-    if (tmp3 < -1.0 || tmp3 > 1.0)
-        REPORT_ERROR("tmp3 is out of range [-1,1]!");
+#ifndef NDEBUG
+    if (tmp3 < -1.0 || tmp3 > 1.0) {
+        if (fabs(tmp3)-1.0 > eps) {
+            REPORT_ERROR("tmp3 (" << tmp3 << ") is out of range [-1, 1]!");
+        }
+    }
 #endif
     tmp3 = fmin(1.0, fmax(-1.0, tmp3));
     lat = asin(tmp3);
@@ -411,7 +419,9 @@ void SphereDomain::projectBack(ProjectionType projType, const SphereCoord &xp,
             lon = atan2(xs[1], xs[0]);
             if (lon < 0.0) lon += PI2;
             lat = atan(radius/sqrt(xs[0]*xs[0]+xs[1]*xs[1]));
+#ifndef NDEBUG
             assert(lat > 0);
+#endif
             rotateBack(xp, xo, lon, lat);
             break;
     }

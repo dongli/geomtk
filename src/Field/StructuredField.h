@@ -335,7 +335,9 @@ StructuredField<T, N>& StructuredField<T, N>::operator=(const StructuredField<T,
         Field::operator=(other);
         staggerLocation = other.staggerLocation;
         gridTypes = other.gridTypes;
+#ifndef NDEBUG
         assert(other.data != NULL);
+#endif
         if (data == NULL) {
             const StructuredMesh *mesh = static_cast<const StructuredMesh*>(this->mesh);
             data = new TimeLevels<field<T>, N>(hasHalfLevel);

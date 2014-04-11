@@ -81,7 +81,7 @@ void RLLMesh::setCellVolumes() {
                 (1.0-sinLatHalf(volumes.n_cols-2));
         }
     }
-#ifdef DEBUG
+#ifndef NDEBUG
     double totalArea = 0.0;
     for (int j = 0; j < volumes.n_cols; ++j) {
         for (int i = 0; i < volumes.n_rows; ++i) {
@@ -188,7 +188,7 @@ void RLLMesh::move(const SphereCoord &x0, double dt, const SphereVelocity &v,
     if (domain.getNumDim() == 3) {
         double dlev = dt*v(2);
         x1(2) = x0(2)+dlev;
-#ifdef DEBUG
+#ifndef NDEBUG
         assert(x1(2) >= domain.getAxisStart(2) && x1(2) <= domain.getAxisEnd(2));
 #endif
     }
