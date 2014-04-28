@@ -58,6 +58,7 @@ if (use_as_submodule)
     set (GEOMTK_INCLUDE_DIRS
         ${source_directories}
         ${ARMADILLO_INCLUDE_DIRS}
+        ${NETCDF_INCLUDE_DIRS}
         PARENT_SCOPE
     )
 endif ()
