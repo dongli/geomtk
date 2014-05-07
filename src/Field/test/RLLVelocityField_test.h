@@ -68,14 +68,14 @@ TEST_F(RLLVelocityFieldTest, CreateAndSet) {
     }
     for (int m = 0; m < domain->getNumDim(); ++m) {
         for (int l = 0; l < 2; ++l) {
-            ASSERT_EQ(v.rings[l].getOriginalData(m, timeIdx, -1),
-                      v.rings[l].getOriginalData(m, timeIdx, n-1));
-            ASSERT_EQ(v.rings[l].getOriginalData(m, timeIdx, n),
-                      v.rings[l].getOriginalData(m, timeIdx, 0));
-            ASSERT_EQ(v.rings[l].getTransformedData(m, timeIdx, -1),
-                      v.rings[l].getTransformedData(m, timeIdx, n-1));
-            ASSERT_EQ(v.rings[l].getTransformedData(m, timeIdx, n),
-                      v.rings[l].getTransformedData(m, timeIdx, 0));
+            ASSERT_LE(fabs(v.rings[l].getOriginalData(m, timeIdx, -1)-
+                           v.rings[l].getOriginalData(m, timeIdx, n-1)), 1.0e-14);
+            ASSERT_LE(fabs(v.rings[l].getOriginalData(m, timeIdx, n)-
+                           v.rings[l].getOriginalData(m, timeIdx, 0)), 1.0e-14);
+            ASSERT_LE(fabs(v.rings[l].getTransformedData(m, timeIdx, -1)-
+                           v.rings[l].getTransformedData(m, timeIdx, n-1)), 1.0e-14);
+            ASSERT_LE(fabs(v.rings[l].getTransformedData(m, timeIdx, n)-
+                           v.rings[l].getTransformedData(m, timeIdx, 0)), 1.0e-14);
         }
     }
     // -------------------------------------------------------------------------

@@ -38,6 +38,15 @@ else ()
 endif ()
 include_directories (${ARMADILLO_INCLUDE_DIRS})
 
+# Boost
+find_package (Boost 1.55.0 REQUIRED COMPONENTS regex)
+if (NOT Boost_FOUND)
+    message (FATAL_ERROR
+        "CMake couldn't find library Boost! "
+    )
+endif ()
+include_directories (${Boost_INCLUDE_DIRS})
+
 # NetCDF
 list (APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
 find_package (NETCDF COMPONENTS C)
@@ -59,6 +68,7 @@ if (use_as_submodule)
         ${source_directories}
         ${ARMADILLO_INCLUDE_DIRS}
         ${NETCDF_INCLUDE_DIRS}
+        ${Boost_INCLUDE_DIRS}
         PARENT_SCOPE
     )
 endif ()
@@ -77,10 +87,11 @@ endforeach ()
 
 # ------------------------------------------------------------------------------
 # library targets
-add_library (geomtk SHARED ${headers} ${sources})
+add_library (geomtk STATIC ${headers} ${sources})
 target_link_libraries (geomtk
     ${ARMADILLO_LIBRARIES}
     ${NETCDF_C_LIBRARIES}
+    ${Boost_LIBRARIES}
 )
 
 # ------------------------------------------------------------------------------

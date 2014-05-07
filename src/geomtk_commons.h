@@ -7,12 +7,16 @@
 #include <iomanip>
 #include <assert.h>
 #include <cmath>
+#include <cstdlib>
 #include <string>
 #include <list>
 #include <vector>
+#include <map>
 #include <cstdarg>
 #include <typeinfo>
 #include <boost/type_traits/is_same.hpp>
+#include <boost/variant.hpp>
+#include <boost/regex.hpp>
 //#include <random>
 
 namespace geomtk {
@@ -24,6 +28,11 @@ using arma::span;
 using arma::field;
 
 using boost::is_same;
+using boost::variant;
+using boost::regex;
+using boost::regex_search;
+using boost::match_results;
+using boost::regex_replace;
 
 using std::cout;
 using std::endl;
@@ -36,8 +45,10 @@ using std::ifstream;
 using std::string;
 using std::vector;
 using std::list;
+using std::map;
 using std::min;
 using std::max;
+using std::getline;
 
 // -----------------------------------------------------------------------------
 // report macros

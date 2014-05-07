@@ -14,6 +14,7 @@
 #include "StructuredRegrid_test.h"
 #include "RLLRegrid_test.h"
 #include "IOManager_test.h"
+#include "ConfigManager_test.h"
 
 int main(int argc, char *argv[])
 {
