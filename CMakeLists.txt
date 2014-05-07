@@ -1,24 +1,20 @@
 # ------------------------------------------------------------------------------
-# CMake build script for GeoMTK.
+# CMake build script for GEOMTK.
 #
-# Copyright 2013.
+# Copyright Li Dong 2013.
 #
 # Authors:
 #   - Li Dong <dongli@lasg.iap.ac.cn>
 # ------------------------------------------------------------------------------
-
 cmake_minimum_required (VERSION 2.8)
-
 # ------------------------------------------------------------------------------
 # check if there is upper project
 if (DEFINED PROJECT_NAME)
-    message ("@@ GeoMTK is used as a submodule.")
+    message ("@@ GEOMTK is used as a submodule.")
     set (use_as_submodule TRUE)
 endif ()
-
 # ------------------------------------------------------------------------------
 project (geomtk CXX)
-
 # ------------------------------------------------------------------------------
 # external libraries
 # Armadillo
@@ -37,7 +33,6 @@ else ()
     endif ()
 endif ()
 include_directories (${ARMADILLO_INCLUDE_DIRS})
-
 # Boost
 find_package (Boost 1.55.0 REQUIRED COMPONENTS regex)
 if (NOT Boost_FOUND)
@@ -46,12 +41,10 @@ if (NOT Boost_FOUND)
     )
 endif ()
 include_directories (${Boost_INCLUDE_DIRS})
-
 # NetCDF
 list (APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
 find_package (NETCDF COMPONENTS C)
 include_directories (${NETCDF_INCLUDE_DIRS})
-
 # ------------------------------------------------------------------------------
 # source directory structure
 set (source_directories
@@ -72,7 +65,6 @@ if (use_as_submodule)
         PARENT_SCOPE
     )
 endif ()
-
 # ------------------------------------------------------------------------------
 # collect sources and headers
 foreach (dir ${source_directories})
@@ -84,10 +76,9 @@ foreach (dir ${source_directories})
     aux_source_directory ("${dir}" tmp2)
     list (APPEND sources ${tmp2})
 endforeach ()
-
 # ------------------------------------------------------------------------------
 # library targets
-add_library (geomtk STATIC ${headers} ${sources})
+add_library (geomtk SHARED ${headers} ${sources})
 target_link_libraries (geomtk
     ${ARMADILLO_LIBRARIES}
     ${NETCDF_C_LIBRARIES}
@@ -108,7 +99,6 @@ if (${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
         )
     endforeach ()
 endif ()
-
 # ------------------------------------------------------------------------------
 # uninstall rules
 if (${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
@@ -121,7 +111,6 @@ if (${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
         COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
     )
 endif ()
-
 # ------------------------------------------------------------------------------
 # testing target
 add_subdirectory ("${PROJECT_SOURCE_DIR}/external/gtest-1.7.0")
