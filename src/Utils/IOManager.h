@@ -123,12 +123,13 @@ void StructuredDataFile::output(const TimeLevelIndex<numLevel> &timeIdx,
     int ret;
     for (int i = 0; i < numField; ++i) {
         Field *field = dynamic_cast<Field*>(va_arg(fields, Field*));
+        const FieldType *f = dynamic_cast<const FieldType*>(field);
         if (field == NULL) {
             REPORT_ERROR("Argument " << i+2 << " is not a Field pointer!");
         }
-        for (int j = 0; j < fieldInfos.size(); ++j) {
+        int j;
+        for (j = 0; j < fieldInfos.size(); ++j) {
             if (fieldInfos[j].field == field) {
-                const FieldType *f = dynamic_cast<const FieldType*>(field);
                 if (f == NULL) {
                     REPORT_ERROR("Field type is not correct!");
                 }
@@ -147,6 +148,9 @@ void StructuredDataFile::output(const TimeLevelIndex<numLevel> &timeIdx,
                 break;
             }
         }
+        if (j == fieldInfos.size()) {
+            REPORT_ERROR("Field \"" << f->getName() << "\" is not registered for output!");
+        }
     }
 }
     
@@ -156,12 +160,13 @@ void StructuredDataFile::output(int numField, va_list fields) {
     int ret;
     for (int i = 0; i < numField; ++i) {
         Field *field = dynamic_cast<Field*>(va_arg(fields, Field*));
+        const FieldType *f = dynamic_cast<const FieldType*>(field);
         if (field == NULL) {
             REPORT_ERROR("Argument " << i+2 << " is not a Field pointer!");
         }
-        for (int j = 0; j < fieldInfos.size(); ++j) {
+        int j;
+        for (j = 0; j < fieldInfos.size(); ++j) {
             if (fieldInfos[j].field == field) {
-                const FieldType *f = dynamic_cast<const FieldType*>(field);
                 if (f == NULL) {
                     REPORT_ERROR("Field type is not correct!");
                 }
@@ -179,6 +184,9 @@ void StructuredDataFile::output(int numField, va_list fields) {
                 delete [] x;
                 break;
             }
+        }
+        if (j == fieldInfos.size()) {
+            REPORT_ERROR("Field \"" << f->getName() << "\" is not registered for output!");
         }
     }
 }
