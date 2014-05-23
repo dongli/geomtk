@@ -20,12 +20,39 @@ public:
 
     void parse(const string &filePath);
 
-    void getValue(const string &packName, const string &key, string &value);
-    void getValue(const string &packName, const string &key, double &value);
+    /**
+     *  Get the value of a given key in the given pack.
+     *
+     *  @param packName the pack name.
+     *  @param key      the key.
+     *  @param value    the value.
+     */
+    void getValue(const string &packName, const string &key,
+                  string &value) const;
+
+    /**
+     *  Get the value of a given key in the given pack.
+     *
+     *  @param packName the pack name.
+     *  @param key      the key.
+     *  @param value    the value.
+     */
+    void getValue(const string &packName, const string &key,
+                  double &value) const;
+
+    /**
+     *  Get the value of a given key in the given pack.
+     *
+     *  @param packName the pack name.
+     *  @param key      the key.
+     *  @param value    the value.
+     */
+    void getValue(const string &packName, const string &key,
+                  int &value) const;
 
     void print() const;
 private:
-    ConfigPack& getPack(const string &packName);
+    const ConfigPack& getPack(const string &packName) const;
 };
 
 }

@@ -34,6 +34,7 @@ void ConfigManager::parse(const string &filePath) {
     if (!file.good()) {
         REPORT_ERROR("Fail to open \"" << filePath << "\"!");
     }
+    REPORT_NOTICE("Parse \"" << filePath << "\".");
 
     string line;
     while (!file.eof()) {
@@ -86,30 +87,43 @@ void ConfigManager::parse(const string &filePath) {
 }
 
 void ConfigManager::getValue(const string &packName, const string &key,
-                             string &value) {
-    ConfigPack &pack = getPack(packName);
+                             string &value) const {
+    const ConfigPack &pack = getPack(packName);
     if (pack.keyValues.count(key) == 0) {
         REPORT_ERROR("No key \"" << key << "\" of pack \"" << pack.name <<
                      "\" in \"" << pack.filePath << "\"!");
     }
-    if (pack.keyValues[key].which() != 0) {
+    if (pack.keyValues.at(key).which() != 0) {
         REPORT_ERROR("Key \"" << key << "\" of pack \"" << pack.name <<
                      "\" in \"" << pack.filePath << "\" is not a string!");
     }
-    value = boost::get<string>(pack.keyValues[key]);
+    value = boost::get<string>(pack.keyValues.at(key));
 }
 
 void ConfigManager::getValue(const string &packName, const string &key,
-                             double &value) {
-    ConfigPack &pack = getPack(packName);
+                             double &value) const {
+    const ConfigPack &pack = getPack(packName);
     if (pack.keyValues.count(key) == 0) {
         REPORT_ERROR("No key \"" << key << "\" in \"" << pack.filePath << "\"!");
     }
-    if (pack.keyValues[key].which() != 1) {
+    if (pack.keyValues.at(key).which() != 1) {
         REPORT_ERROR("Key \"" << key << "\" of pack \"" << pack.name <<
-                     "\" in \"" << pack.filePath << "\" is not a double!");
+                     "\" in \"" << pack.filePath << "\" is not a numeral!");
     }
-    value = boost::get<double>(pack.keyValues[key]);
+    value = boost::get<double>(pack.keyValues.at(key));
+}
+
+void ConfigManager::getValue(const string &packName, const string &key,
+                             int &value) const {
+    const ConfigPack &pack = getPack(packName);
+    if (pack.keyValues.count(key) == 0) {
+        REPORT_ERROR("No key \"" << key << "\" in \"" << pack.filePath << "\"!");
+    }
+    if (pack.keyValues.at(key).which() != 1) {
+        REPORT_ERROR("Key \"" << key << "\" of pack \"" << pack.name <<
+                     "\" in \"" << pack.filePath << "\" is not a numeral!");
+    }
+    value = boost::get<double>(pack.keyValues.at(key));
 }
 
 void ConfigManager::print() const {
@@ -124,8 +138,8 @@ void ConfigManager::print() const {
     }
 }
 
-ConfigPack& ConfigManager::getPack(const string &packName) {
-    list<ConfigPack>::iterator pack;
+const ConfigPack& ConfigManager::getPack(const string &packName) const {
+    list<ConfigPack>::const_iterator pack;
     for (pack = configPacks.begin(); pack != configPacks.end(); ++pack) {
         if (pack->name == packName) {
             return *pack;
