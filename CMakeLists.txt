@@ -78,7 +78,7 @@ foreach (dir ${source_directories})
 endforeach ()
 # ------------------------------------------------------------------------------
 # library targets
-add_library (geomtk SHARED ${headers} ${sources})
+add_library (geomtk STATIC ${headers} ${sources})
 target_link_libraries (geomtk
     ${ARMADILLO_LIBRARIES}
     ${NETCDF_C_LIBRARIES}

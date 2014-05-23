@@ -336,7 +336,7 @@ void SphereDomain::rotateBack(const SphereCoord &xp, SphereCoord &xo,
 #ifndef NDEBUG
     static const double eps = 1.0e-15;
     if (fabs(tmp2) < eps) {
-        REPORT_WARNING("tmp2 is near zero!");
+//        REPORT_WARNING("tmp2 is near zero!");
         tmp2 = 0.0;
     }
 #endif
@@ -373,7 +373,7 @@ void SphereDomain::rotateBack(const SphereCoord &xp, SphereCoord &xo,
 #ifndef NDEBUG
     static const double eps = 1.0e-15;
     if (fabs(tmp2) < eps) {
-        REPORT_WARNING("tmp2 is near zero!");
+//        REPORT_WARNING("tmp2 is near zero!");
         tmp2 = 0.0;
     }
 #endif
