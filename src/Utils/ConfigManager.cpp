@@ -22,7 +22,7 @@ void ConfigManager::parse(const string &filePath) {
     regex reContinueChar("\\\\\\s*$");
     regex reEmptyLine("^(\\s|\\\\)*$");
     regex rePackStart("^(\\w+): *$");
-    regex reKeyPart("^\\s*(\\w)\\s*=");
+    regex reKeyPart("^\\s*(\\w+)\\s*=");
     regex reValuePart("=\\s*(.*)$");
     regex reNumerics("(\\+|-)?\\d+(\\.\\d+(e(\\+|-)\\d+)?)?");
     regex reString("(\"(?:[^\"\\\\]|\\\\.)*\"\\s*\\\\?\\s*)+");
@@ -58,6 +58,9 @@ void ConfigManager::parse(const string &filePath) {
             pack.name = what[1];
             configPacks.push_back(pack);
             continue;
+        }
+        if (configPacks.size() == 0) {
+            REPORT_ERROR("No configuration pack is specified!");
         }
         ConfigPack &pack = configPacks.back();
         // organize the key value pair

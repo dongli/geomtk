@@ -114,18 +114,92 @@ public:
     Domain(int numDim);
     virtual ~Domain();
 
+    /**
+     *  Return the dimension number of the domain.
+     *
+     *  @return The dimension number.
+     */
     virtual int getNumDim() const { return numDim; }
+
+    /**
+     *  Set the axis along the specified dimension, including the meta info.
+     *
+     *  @param dim          the dimension index.
+     *  @param axisName     the short name of the axis, e.g. 'x'.
+     *  @param axisLongName the long name of the axis.
+     *  @param axisUnits    the coordinate units of the axis.
+     *  @param start        the start coordinate value.
+     *  @param bndTypeStart the boundary type of the axis start.
+     *  @param end          the end coordinate value.
+     *  @param bndTypeEnd   the boundary type of the axis end.
+     */
     virtual void setAxis(int dim, const string &axisName,
                          const string &axisLongName, const string &axisUnits,
                          double start, BndType bndTypeStart,
                          double end, BndType bndTypeEnd);
+
+    /**
+     *  Get the axis short name.
+     *
+     *  @param i the dimension index.
+     *  @return The axis short name.
+     */
     virtual const string& getAxisName(int i) const { return axisName[i]; }
+
+    /**
+     *  Get the axis long name.
+     *
+     *  @param i the dimension index.
+     *  @return The axis long name.
+     */
     virtual const string& getAxisLongName(int i) const { return axisLongName[i]; }
+
+    /**
+     *  Get the axis coordinate units.
+     *
+     *  @param i the dimension index.
+     *  @return The axis coordinate units.
+     */
     virtual const string& getAxisUnits(int i) const { return axisUnits[i]; }
+
+    /**
+     *  Get the axis start coordinate value.
+     *
+     *  @param i the dimension index.
+     *  @return The axis start coordinate value.
+     */
     virtual double getAxisStart(int i) const { return axisStarts(i); }
+
+    /**
+     *  Get the axis end coordinate value.
+     *
+     *  @param i the dimension index.
+     *  @return The axis end coordinate value.
+     */
     virtual double getAxisEnd(int i) const { return axisEnds(i); }
+
+    /**
+     *  Get the axis coordinate span.
+     *
+     *  @param i the dimension index.
+     *  @return The axis coordinate span.
+     */
     virtual double getAxisSpan(int i) const { return axisSpans(i); }
+
+    /**
+     *  Get the axis start boundary type.
+     *
+     *  @param i the dimension index.
+     *  @return The axis start boundary type.
+     */
     virtual BndType getAxisStartBndType(int i) const { return bndTypeStarts[i]; }
+
+    /**
+     *  Get the axis end boundary type.
+     *
+     *  @param i the dimension index.
+     *  @return The axis end boundary type.
+     */
     virtual BndType getAxisEndBndType(int i) const { return bndTypeEnds[i]; }
 
     /**
