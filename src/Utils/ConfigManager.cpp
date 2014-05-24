@@ -25,6 +25,8 @@ void ConfigManager::parse(const string &filePath) {
     regex reKeyPart("^\\s*(\\w+)\\s*=");
     regex reValuePart("=\\s*(.*)$");
     regex reNumerics("(\\+|-)?\\d+(\\.\\d+(e(\\+|-)\\d+)?)?");
+    regex reBoolTrue("true");
+    regex reBoolFalse("false");
     regex reString("(\"(?:[^\"\\\\]|\\\\.)*\"\\s*\\\\?\\s*)+");
     regex reStringJunk("(^\"|\"$|\"\\s*\\\\?\\s*\")");
     match_results<std::string::const_iterator> what;
@@ -77,6 +79,10 @@ void ConfigManager::parse(const string &filePath) {
             value = what[1];
             if (regex_match(value, reNumerics)) {
                 pack.keyValues[key] = atof(value.c_str());
+            } else if (regex_match(value, reBoolTrue)) {
+                pack.keyValues[key] = true;
+            } else if (regex_match(value, reBoolFalse)) {
+                pack.keyValues[key] = false;
             } else if (regex_match(value, reString)) {
                 pack.keyValues[key] = regex_replace(value, reStringJunk, "");
             }
@@ -84,6 +90,11 @@ void ConfigManager::parse(const string &filePath) {
     }
 
     file.close();
+}
+
+bool ConfigManager::hasKey(const string &packName, const string &key) const {
+    const ConfigPack &pack = getPack(packName);
+    return pack.keyValues.count(key) != 0;
 }
 
 void ConfigManager::getValue(const string &packName, const string &key,
@@ -126,11 +137,24 @@ void ConfigManager::getValue(const string &packName, const string &key,
     value = boost::get<double>(pack.keyValues.at(key));
 }
 
+void ConfigManager::getValue(const string &packName, const string &key,
+                             bool &value) const {
+    const ConfigPack &pack = getPack(packName);
+    if (pack.keyValues.count(key) == 0) {
+        REPORT_ERROR("No key \"" << key << "\" in \"" << pack.filePath << "\"!");
+    }
+    if (pack.keyValues.at(key).which() != 2) {
+        REPORT_ERROR("Key \"" << key << "\" of pack \"" << pack.name <<
+                     "\" in \"" << pack.filePath << "\" is not a boolean!");
+    }
+    value = boost::get<bool>(pack.keyValues.at(key));
+}
+
 void ConfigManager::print() const {
     list<ConfigPack>::const_iterator pack;
     for (pack = configPacks.begin(); pack != configPacks.end(); ++pack) {
         cout << "ConfigPack \"" << pack->name << "\":" << endl;
-        map<string, variant<string, double> >::const_iterator keyValue;
+        map<string, variant<string, double, bool> >::const_iterator keyValue;
         for (keyValue = pack->keyValues.begin();
              keyValue != (*pack).keyValues.end(); ++keyValue) {
             cout << "  " << keyValue->first << " = " << keyValue->second << endl;
