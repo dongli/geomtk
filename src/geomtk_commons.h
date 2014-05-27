@@ -17,6 +17,7 @@
 #include <boost/type_traits/is_same.hpp>
 #include <boost/variant.hpp>
 #include <boost/regex.hpp>
+#include <boost/lexical_cast.hpp>
 //#include <random>
 
 namespace geomtk {

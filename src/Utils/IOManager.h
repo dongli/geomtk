@@ -212,7 +212,9 @@ public:
 };
 
 // -----------------------------------------------------------------------------
-
+/**
+ *  This class manages the I/O for fields.
+ */
 template <class DataFileType>
 class IOManager {
 private:
@@ -227,7 +229,7 @@ public:
     int registerOutputFile(const typename DataFileType::MeshType &mesh,
                            const string &prefix, int freqUnit, double freq);
 
-    DataFileType& file(int fileIdx) { return files[fileIdx]; }
+    DataFileType& file(int fileIdx);
 
     void create(int fileIdx);
 
@@ -278,6 +280,14 @@ int IOManager<DataFileType>::registerOutputFile(const typename DataFileType::Mes
     files.push_back(file);
     REPORT_NOTICE("Register output file with pattern " << filePattern << ".");
     return files.size()-1;
+}
+    
+template <class DataFileType>
+DataFileType& IOManager<DataFileType>::file(int fileIdx) {
+    if (fileIdx < 0 || fileIdx >= files.size()) {
+        REPORT_ERROR("File index is out of range!");
+    }
+    return files[fileIdx];
 }
     
 template <class DataFileType>
@@ -368,7 +378,7 @@ void IOManager<DataFileType>::output(int fileIdx, int numField, ...) {
         REPORT_ERROR("Failed to put variable time with error message \"" <<
                      nc_strerror(ret) << "\"!");
     }
-        // write fields
+    // write fields
     va_list fields;
     va_start(fields, numField);
     dataFile.template output<FieldElementType, numLevel>(numField, fields);
