@@ -56,6 +56,7 @@ protected:
     const MeshType *mesh;       //>! underlying mesh
     vector<FieldType> v;        //>! velocity component fields
     FieldType div;              //>! divergence field
+    vector<FieldType> shr;      //>! shear rate field
     PolarRing rings[2];
 public:
     RLLVelocityField();
@@ -75,9 +76,13 @@ public:
 
     const FieldType& getDivergence() const { return div; }
 
+    const vector<FieldType>& getShearRate() const { return shr; }
+
     const PolarRing& getPolarRing(Pole pole) const { return rings[pole]; }
 
     void calcDivergence(const TimeLevelIndex<2> &timeIdx);
+
+    void calcShearRate(const TimeLevelIndex<2> &timeIdx);
 };
 
 }

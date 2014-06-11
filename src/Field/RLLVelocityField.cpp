@@ -190,6 +190,10 @@ void RLLVelocityField::applyBndCond(const TimeLevelIndex<2> &timeIdx,
     }
     calcDivergence(timeIdx);
     div.applyBndCond(timeIdx, updateHalfLevel);
+    calcShearRate(timeIdx);
+    for (int i = 0; i < shr.size(); ++i) {
+        shr[i].applyBndCond(timeIdx);
+    }
     rings[0].update(timeIdx, SOUTH_POLE, v, div, updateHalfLevel);
     rings[1].update(timeIdx, NORTH_POLE, v, div, updateHalfLevel);
 }
@@ -215,6 +219,12 @@ void RLLVelocityField::create(const RLLMesh &mesh, bool useStagger,
         }
     }
     div.create("div", "s-1", "divergence", mesh, Location::CENTER, hasHalfLevel);
+    if (domain->getNumDim() == 2) {
+        shr.resize(1);
+        shr[0].create("shr_xy", "s-1", "shear rate (x-y)", mesh, Location::CENTER, hasHalfLevel);
+    } else {
+        REPORT_ERROR("Under construction!");
+    }
     rings[0].create(mesh, hasHalfLevel);
     rings[1].create(mesh, hasHalfLevel);
 }
@@ -258,6 +268,33 @@ void RLLVelocityField::calcDivergence(const TimeLevelIndex<2> &timeIdx) {
                 div(timeIdx, i, j) = (dudlon+dvCosLatdlat)/ReCosLat;
             }
         }
+    }
+}
+    
+void RLLVelocityField::calcShearRate(const TimeLevelIndex<2> &timeIdx) {
+    if (v[0].getStaggerLocation() == Location::CENTER &&
+        v[1].getStaggerLocation() == Location::CENTER) {
+        if (domain->getNumDim() == 2) {
+            for (int j = 1; j < mesh->getNumGrid(1, GridType::FULL)-1; ++j) {
+                double ReCosLat = domain->getRadius()*mesh->getCosLat(GridType::FULL, j);
+                for (int i = 0; i < mesh->getNumGrid(0, GridType::FULL); ++i) {
+                    double v1 = v[1](timeIdx, i-1, j);
+                    double v2 = v[1](timeIdx, i, j);
+                    double dvdlon = (v2-v1)/(2*mesh->getGridInterval(0, GridType::HALF, 0));
+                    double uCosLat1 = v[0](timeIdx, i, j-1)*mesh->getCosLat(GridType::FULL, j-1);
+                    double uCosLat2 = v[0](timeIdx, i, j+1)*mesh->getCosLat(GridType::FULL, j+1);
+                    double dlat = (mesh->getGridInterval(1, GridType::FULL, j-1)+
+                                   mesh->getGridInterval(1, GridType::FULL, j));
+                    double duCosLatdlat = (uCosLat2-uCosLat1)/dlat;
+                    shr[0](timeIdx, i, j) = (dvdlon+duCosLatdlat)/ReCosLat;
+                }
+            }
+        } else {
+            REPORT_ERROR("Under construction!");
+        }
+    } else if (v[0].getStaggerLocation() == Location::X_FACE &&
+               v[1].getStaggerLocation() == Location::Y_FACE) {
+        
     }
 }
 
