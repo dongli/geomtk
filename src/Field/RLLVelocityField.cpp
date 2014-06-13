@@ -190,9 +190,9 @@ void RLLVelocityField::applyBndCond(const TimeLevelIndex<2> &timeIdx,
     }
     calcDivergence(timeIdx);
     div.applyBndCond(timeIdx, updateHalfLevel);
-    calcShearRate(timeIdx);
-    for (int i = 0; i < shr.size(); ++i) {
-        shr[i].applyBndCond(timeIdx);
+    calcVorticity(timeIdx);
+    for (int i = 0; i < vor.size(); ++i) {
+        vor[i].applyBndCond(timeIdx);
     }
     rings[0].update(timeIdx, SOUTH_POLE, v, div, updateHalfLevel);
     rings[1].update(timeIdx, NORTH_POLE, v, div, updateHalfLevel);
@@ -220,8 +220,8 @@ void RLLVelocityField::create(const RLLMesh &mesh, bool useStagger,
     }
     div.create("div", "s-1", "divergence", mesh, Location::CENTER, hasHalfLevel);
     if (domain->getNumDim() == 2) {
-        shr.resize(1);
-        shr[0].create("shr_xy", "s-1", "shear rate (x-y)", mesh, Location::CENTER, hasHalfLevel);
+        vor.resize(1);
+        vor[0].create("vor_xy", "s-1", "vorticity (x-y)", mesh, Location::CENTER, hasHalfLevel);
     } else {
         REPORT_ERROR("Under construction!");
     }
@@ -271,7 +271,7 @@ void RLLVelocityField::calcDivergence(const TimeLevelIndex<2> &timeIdx) {
     }
 }
     
-void RLLVelocityField::calcShearRate(const TimeLevelIndex<2> &timeIdx) {
+void RLLVelocityField::calcVorticity(const TimeLevelIndex<2> &timeIdx) {
     if (v[0].getStaggerLocation() == Location::CENTER &&
         v[1].getStaggerLocation() == Location::CENTER) {
         if (domain->getNumDim() == 2) {
@@ -286,7 +286,7 @@ void RLLVelocityField::calcShearRate(const TimeLevelIndex<2> &timeIdx) {
                     double dlat = (mesh->getGridInterval(1, GridType::FULL, j-1)+
                                    mesh->getGridInterval(1, GridType::FULL, j));
                     double duCosLatdlat = (uCosLat2-uCosLat1)/dlat;
-                    shr[0](timeIdx, i, j) = (dvdlon+duCosLatdlat)/ReCosLat;
+                    vor[0](timeIdx, i, j) = (dvdlon-duCosLatdlat)/ReCosLat;
                 }
             }
         } else {
