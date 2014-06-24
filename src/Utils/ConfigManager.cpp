@@ -32,7 +32,7 @@ void ConfigManager::parse(const string &filePath) {
     match_results<std::string::const_iterator> what;
 
     ifstream file;
-    file.open(filePath, std::ios::in);
+    file.open(filePath.c_str(), std::ios::in);
     if (!file.good()) {
         REPORT_ERROR("Fail to open \"" << filePath << "\"!");
     }

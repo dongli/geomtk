@@ -34,6 +34,42 @@ void StructuredDataFile::removeOutputField(int numField, ...) {
     }
     va_end(fields);
 }
+    
+void StructuredDataFile::open(const TimeManager &timeManager) {
+    const Domain &domain = mesh->getDomain();
+    int ret;
+    for (int m = 0; m < domain.getNumDim(); ++m) {
+        int dimid;
+        ret = nc_inq_dimid(fileID, domain.getAxisName(m).c_str(), &dimid);
+        if (ret != NC_NOERR) {
+            REPORT_ERROR("Failed to inquire dimension " << domain.getAxisName(m)
+                         << " in file " << fileName << "!");
+        }
+        size_t len;
+        ret = nc_inq_dimlen(fileID, dimid, &len);
+        if (ret != NC_NOERR) {
+            REPORT_ERROR("Failed to inquire length of dimension " <<
+                         domain.getAxisName(m) << " in file " << fileName
+                         << "!");
+        }
+        if (len != mesh->getNumGrid(m, StructuredStagger::GridType::FULL)) {
+            REPORT_ERROR("Dimension " << domain.getAxisName(m) << " length does not match!");
+        }
+    }
+    for (int i = 0; i < fieldInfos.size(); ++i) {
+        string name = fieldInfos[i].field->getName();
+        ret = nc_inq_varid(fileID, name.c_str(), &fieldInfos[i].varID);
+        if (ret != NC_NOERR) {
+            REPORT_ERROR("Failed to inquire variable " << name <<
+                         " in file " << fileName << "!");
+        }
+        ret = nc_inq_vartype(fileID, fieldInfos[i].varID, &fieldInfos[i].xtype);
+        if (ret != NC_NOERR) {
+            REPORT_ERROR("Failed to inquire variable " << name <<
+                         " type in file " << fileName << "!");
+        }
+    }
+}
 
 void StructuredDataFile::create(const TimeManager &timeManager) {
     const Domain &domain = mesh->getDomain();

@@ -294,7 +294,28 @@ void RLLVelocityField::calcVorticity(const TimeLevelIndex<2> &timeIdx) {
         }
     } else if (v[0].getStaggerLocation() == Location::X_FACE &&
                v[1].getStaggerLocation() == Location::Y_FACE) {
-        
+        if (domain->getNumDim() == 2) {
+            for (int j = 1; j < mesh->getNumGrid(1, GridType::FULL)-1; ++j) {
+                double ReCosLat = domain->getRadius()*mesh->getCosLat(GridType::FULL, j);
+                for (int i = 0; i < mesh->getNumGrid(0, GridType::FULL); ++i) {
+                    double v1 = v[1](timeIdx, i-1, j-1);
+                    double v2 = v[1](timeIdx, i-1, j );
+                    double v3 = v[1](timeIdx, i+1, j-1);
+                    double v4 = v[1](timeIdx, i+1, j  );
+                    double dvdlon = (v3+v4-v1-v2)*0.5/(2*mesh->getGridInterval(0, GridType::HALF, 0));
+                    double uCosLat1 = v[0](timeIdx, i-1, j-1)*mesh->getCosLat(GridType::HALF, j-1);
+                    double uCosLat2 = v[0](timeIdx, i,   j-1)*mesh->getCosLat(GridType::HALF, j-1);
+                    double uCosLat3 = v[0](timeIdx, i-1, j+1)*mesh->getCosLat(GridType::HALF, j);
+                    double uCosLat4 = v[0](timeIdx, i,   j+1)*mesh->getCosLat(GridType::HALF, j);
+                    double dlat = (mesh->getGridInterval(1, GridType::FULL, j-1)+
+                                   mesh->getGridInterval(1, GridType::FULL, j));
+                    double duCosLatdlat = (uCosLat4+uCosLat3-uCosLat2-uCosLat1)*0.5/dlat;
+                    vor[0](timeIdx, i, j) = (dvdlon-duCosLatdlat)/ReCosLat;
+                }
+            }
+        } else {
+            REPORT_ERROR("Under construction!");
+        }
     }
 }
 

@@ -75,13 +75,22 @@ public:
     virtual const StructuredMesh& getMesh() const { return *mesh; }
 
     template <typename FieldElementType, int numLevel, int spaceDims>
+    void registerInputField(int numField, ...);
+
+    template <typename FieldElementType, int numLevel, int spaceDims>
     void registerOutputField(int numField, ...);
     
     void removeOutputField(int numField, ...);
 
+    virtual void open(const TimeManager &timeManager);
+
     virtual void create(const TimeManager &timeManager);
 
     virtual void outputGrids();
+
+    template <typename FieldElementType, int numLevel>
+    void input(const TimeLevelIndex<numLevel> &timeIdx,
+               int numField, va_list fields);
 
     template <typename FieldElementType, int numLevel>
     void output(const TimeLevelIndex<numLevel> &timeIdx,
@@ -90,6 +99,31 @@ public:
     template <typename FieldElementType, int numLevel>
     void output(int numField, va_list fields);
 };
+    
+template <typename FieldElementType, int numLevel, int spaceDims>
+void StructuredDataFile::registerInputField(int numField, ...) {
+    va_list fields;
+    va_start(fields, numField);
+    for (int i = 0; i < numField; ++i) {
+        Field *field = dynamic_cast<Field*>(va_arg(fields, Field*));
+        if (field == NULL) {
+            REPORT_ERROR("Argument " << i+2 << " is not a Field pointer!");
+        }
+        FieldInfo info;
+        info.field = field;
+        if (is_same<FieldElementType, double>::value) {
+            info.xtype = NC_DOUBLE;
+        } else if (is_same<FieldElementType, int>::value) {
+            info.xtype = NC_INT;
+        } else {
+            REPORT_ERROR("Unsupported data type \"" <<
+                         typeid(FieldElementType).name() << "\"!");
+        }
+        info.spaceDims = spaceDims;
+        fieldInfos.push_back(info);
+    }
+    va_end(fields);
+}
 
 template <typename FieldElementType, int numLevel, int spaceDims>
 void StructuredDataFile::registerOutputField(int numField, ...) {
@@ -114,6 +148,72 @@ void StructuredDataFile::registerOutputField(int numField, ...) {
         fieldInfos.push_back(info);
     }
     va_end(fields);
+}
+
+template <typename FieldElementType, int numLevel>
+void StructuredDataFile::input(const TimeLevelIndex<numLevel> &timeIdx,
+                               int numField, va_list fields) {
+    typedef StructuredField<FieldElementType, numLevel> FieldType;
+    int ret;
+    for (int i = 0; i < numField; ++i) {
+        Field *field = dynamic_cast<Field*>(va_arg(fields, Field*));
+        FieldType *f = dynamic_cast<FieldType*>(field);
+        if (field == NULL) {
+            REPORT_ERROR("Argument " << i+2 << " is not a Field pointer!");
+        }
+        int j;
+        for (j = 0; j < fieldInfos.size(); ++j) {
+            if (fieldInfos[j].field == field) {
+                if (f == NULL) {
+                    REPORT_ERROR("Field type is not correct!");
+                }
+                int n = mesh->getTotalNumGrid(f->getStaggerLocation());
+                if (fieldInfos[j].xtype == NC_INT) {
+                    int *x = new int[n];
+                    ret = nc_get_var_int(fileID, fieldInfos[j].varID, x);
+                    if (ret != NC_NOERR) {
+                        REPORT_ERROR("Failed to get variable \"" << f->getName() <<
+                                     "\" with error message \"" << nc_strerror(ret) <<
+                                     "\" in file \"" << fileName << "\"!");
+                    }
+                    for (int k = 0; k < n; ++k) {
+                        (*f)(timeIdx, k) = x[k];
+                    }
+                    delete [] x;
+                } else if (fieldInfos[j].xtype == NC_FLOAT) {
+                    float *x = new float[n];
+                    ret = nc_get_var_float(fileID, fieldInfos[j].varID, x);
+                    if (ret != NC_NOERR) {
+                        REPORT_ERROR("Failed to get variable \"" << f->getName() <<
+                                     "\" with error message \"" << nc_strerror(ret) <<
+                                     "\" in file \"" << fileName << "\"!");
+                    }
+                    for (int k = 0; k < n; ++k) {
+                        (*f)(timeIdx, k) = x[k];
+                    }
+                    delete [] x;
+                } else if (fieldInfos[j].xtype == NC_DOUBLE) {
+                    double *x = new double[n];
+                    ret = nc_get_var_double(fileID, fieldInfos[j].varID, x);
+                    if (ret != NC_NOERR) {
+                        REPORT_ERROR("Failed to get variable \"" << f->getName() <<
+                                     "\" with error message \"" << nc_strerror(ret) <<
+                                     "\" in file \"" << fileName << "\"!");
+                    }
+                    for (int k = 0; k < n; ++k) {
+                        (*f)(timeIdx, k) = x[k];
+                    }
+                    delete [] x;
+                } else {
+                    REPORT_ERROR("Unsupported variable type!");
+                }
+                break;
+            }
+        }
+        if (j == fieldInfos.size()) {
+            REPORT_ERROR("Field \"" << f->getName() << "\" is not registered for output!");
+        }
+    }
 }
 
 template <typename FieldElementType, int numLevel>
@@ -226,12 +326,21 @@ public:
 
     void init(const TimeManager &timeManager);
 
+    int registerInputFile(const typename DataFileType::MeshType &mesh,
+                          const string &fileName);
+
     int registerOutputFile(const typename DataFileType::MeshType &mesh,
                            const string &prefix, int freqUnit, double freq);
 
     DataFileType& file(int fileIdx);
 
+    void open(int fileIdx);
+
     void create(int fileIdx);
+
+    template <typename FieldElementType, int numLevel>
+    void input(int fileIdx, const TimeLevelIndex<numLevel> &timeIdx,
+               int numField, ...);
 
     template <typename FieldElementType, int numLevel>
     void output(int fileIdx, const TimeLevelIndex<numLevel> &timeIdx,
@@ -261,13 +370,31 @@ void IOManager<DataFileType>::init(const TimeManager &timeManager) {
 }
 
 template <class DataFileType>
+int IOManager<DataFileType>::registerInputFile(const typename DataFileType::MeshType &mesh,
+                                               const string &fileName) {
+    for (int i = 0; i < files.size(); ++i) {
+        if (files[i].ioType == INPUT && files[i].fileName == fileName) {
+            REPORT_ERROR("File with file name " << fileName <<
+                         " has already been registered for input!");
+        }
+    }
+    DataFileType file(mesh);
+    file.fileName = fileName;
+    file.ioType = INPUT;
+    file.isActive = true;
+    files.push_back(file);
+    REPORT_NOTICE("Register input file with name " << fileName << ".");
+    return files.size()-1;
+}
+    
+template <class DataFileType>
 int IOManager<DataFileType>::registerOutputFile(const typename DataFileType::MeshType &mesh,
                                                 const string &prefix, int freqUnit, double freq) {
     StampString filePattern(prefix+".", ".nc");
     for (int i = 0; i < files.size(); ++i) {
-        if (files[i].filePattern == filePattern) {
+        if (files[i].ioType == OUTPUT && files[i].filePattern == filePattern) {
             REPORT_ERROR("File with pattern " << filePattern <<
-                         " has already been registered!");
+                         " has already been registered for output!");
         }
     }
     DataFileType file(mesh);
@@ -325,6 +452,19 @@ void IOManager<DataFileType>::checkFileActive(DataFileType &dataFile) const {
 }
 
 template <class DataFileType>
+void IOManager<DataFileType>::open(int fileIdx) {
+    DataFileType &dataFile = files[fileIdx];
+    
+    int ret = nc_open(dataFile.fileName.c_str(), NC_NOWRITE, &dataFile.fileID);
+    if (ret != NC_NOERR) {
+        REPORT_ERROR("Unable to open file \"" << dataFile.fileName <<
+                     "\" with error message \"" << nc_strerror(ret) << "\"!");
+    }
+    // let concrete data file class open the rest data file
+    dataFile.open(*timeManager);
+}
+    
+template <class DataFileType>
 void IOManager<DataFileType>::create(int fileIdx) {
     DataFileType &dataFile = files[fileIdx];
 
@@ -341,6 +481,18 @@ void IOManager<DataFileType>::create(int fileIdx) {
     // let concrete data file class create the rest data file
     dataFile.create(*timeManager);
     dataFile.outputGrids();
+}
+
+template <class DataFileType>
+template <typename FieldElementType, int numLevel>
+void IOManager<DataFileType>::input(int fileIdx,
+                                    const TimeLevelIndex<numLevel> &timeIdx,
+                                    int numField, ...) {
+    DataFileType &dataFile = files[fileIdx];
+    va_list fields;
+    va_start(fields, numField);
+    dataFile.template input<FieldElementType, numLevel>(timeIdx, numField, fields);
+    va_end(fields);
 }
 
 template <class DataFileType>
@@ -363,6 +515,7 @@ void IOManager<DataFileType>::output(int fileIdx,
     va_start(fields, numField);
     dataFile.template output<FieldElementType, numLevel>(timeIdx, numField, fields);
     va_end(fields);
+    REPORT_NOTICE("File \"" << dataFile.fileName << "\" is outputted.");
 }
     
 template <class DataFileType>
