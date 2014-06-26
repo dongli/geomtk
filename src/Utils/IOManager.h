@@ -93,6 +93,9 @@ public:
                int numField, va_list fields);
 
     template <typename FieldElementType, int numLevel>
+    void input(int numField, va_list fields);
+
+    template <typename FieldElementType, int numLevel>
     void output(const TimeLevelIndex<numLevel> &timeIdx,
                 int numField, va_list fields);
     
@@ -211,7 +214,72 @@ void StructuredDataFile::input(const TimeLevelIndex<numLevel> &timeIdx,
             }
         }
         if (j == fieldInfos.size()) {
-            REPORT_ERROR("Field \"" << f->getName() << "\" is not registered for output!");
+            REPORT_ERROR("Field \"" << f->getName() << "\" is not registered for input!");
+        }
+    }
+}
+    
+template <typename FieldElementType, int numLevel>
+void StructuredDataFile::input(int numField, va_list fields) {
+    typedef StructuredField<FieldElementType, numLevel> FieldType;
+    int ret;
+    for (int i = 0; i < numField; ++i) {
+        Field *field = dynamic_cast<Field*>(va_arg(fields, Field*));
+        FieldType *f = dynamic_cast<FieldType*>(field);
+        if (field == NULL) {
+            REPORT_ERROR("Argument " << i+2 << " is not a Field pointer!");
+        }
+        int j;
+        for (j = 0; j < fieldInfos.size(); ++j) {
+            if (fieldInfos[j].field == field) {
+                if (f == NULL) {
+                    REPORT_ERROR("Field type is not correct!");
+                }
+                int n = mesh->getTotalNumGrid(f->getStaggerLocation());
+                if (fieldInfos[j].xtype == NC_INT) {
+                    int *x = new int[n];
+                    ret = nc_get_var_int(fileID, fieldInfos[j].varID, x);
+                    if (ret != NC_NOERR) {
+                        REPORT_ERROR("Failed to get variable \"" << f->getName() <<
+                                     "\" with error message \"" << nc_strerror(ret) <<
+                                     "\" in file \"" << fileName << "\"!");
+                    }
+                    for (int k = 0; k < n; ++k) {
+                        (*f)(k) = x[k];
+                    }
+                    delete [] x;
+                } else if (fieldInfos[j].xtype == NC_FLOAT) {
+                    float *x = new float[n];
+                    ret = nc_get_var_float(fileID, fieldInfos[j].varID, x);
+                    if (ret != NC_NOERR) {
+                        REPORT_ERROR("Failed to get variable \"" << f->getName() <<
+                                     "\" with error message \"" << nc_strerror(ret) <<
+                                     "\" in file \"" << fileName << "\"!");
+                    }
+                    for (int k = 0; k < n; ++k) {
+                        (*f)(k) = x[k];
+                    }
+                    delete [] x;
+                } else if (fieldInfos[j].xtype == NC_DOUBLE) {
+                    double *x = new double[n];
+                    ret = nc_get_var_double(fileID, fieldInfos[j].varID, x);
+                    if (ret != NC_NOERR) {
+                        REPORT_ERROR("Failed to get variable \"" << f->getName() <<
+                                     "\" with error message \"" << nc_strerror(ret) <<
+                                     "\" in file \"" << fileName << "\"!");
+                    }
+                    for (int k = 0; k < n; ++k) {
+                        (*f)(k) = x[k];
+                    }
+                    delete [] x;
+                } else {
+                    REPORT_ERROR("Unsupported variable type!");
+                }
+                break;
+            }
+        }
+        if (j == fieldInfos.size()) {
+            REPORT_ERROR("Field \"" << f->getName() << "\" is not registered for input!");
         }
     }
 }
@@ -332,15 +400,22 @@ public:
     int registerOutputFile(const typename DataFileType::MeshType &mesh,
                            const string &prefix, int freqUnit, double freq);
 
+    void removeFile(int fileIdx);
+
     DataFileType& file(int fileIdx);
 
     void open(int fileIdx);
 
     void create(int fileIdx);
 
+    void updateTime(int fileIdx, TimeManager &timeManager);
+
     template <typename FieldElementType, int numLevel>
     void input(int fileIdx, const TimeLevelIndex<numLevel> &timeIdx,
                int numField, ...);
+
+    template <typename FieldElementType, int numLevel>
+    void input(int fileIdx, int numField, ...);
 
     template <typename FieldElementType, int numLevel>
     void output(int fileIdx, const TimeLevelIndex<numLevel> &timeIdx,
@@ -350,8 +425,22 @@ public:
     void output(int fileIdx, int numField, ...);
 
     void close(int fileIdx);
-private:
-    void checkFileActive(DataFileType &dataFile) const;
+
+    /**
+     *  Check if file is active for input or output.
+     *
+     *  @param file the data file object.
+     */
+    void checkFileActive(DataFileType &file);
+
+    /**
+     *  Check if file is active for input or output.
+     *
+     *  @param fileIdx the data file index.
+     *
+     *  @return The boolean result.
+     */
+    bool isFileActive(int fileIdx);
 };
     
 template <class DataFileType>
@@ -408,7 +497,15 @@ int IOManager<DataFileType>::registerOutputFile(const typename DataFileType::Mes
     REPORT_NOTICE("Register output file with pattern " << filePattern << ".");
     return files.size()-1;
 }
-    
+
+template <class DataFileType>
+void IOManager<DataFileType>::removeFile(int fileIdx) {
+    if (fileIdx < 0 || fileIdx >= files.size()) {
+        REPORT_ERROR("File index is out of range!");
+    }
+    files.erase(files.begin()+fileIdx);
+}
+
 template <class DataFileType>
 DataFileType& IOManager<DataFileType>::file(int fileIdx) {
     if (fileIdx < 0 || fileIdx >= files.size()) {
@@ -418,9 +515,9 @@ DataFileType& IOManager<DataFileType>::file(int fileIdx) {
 }
     
 template <class DataFileType>
-void IOManager<DataFileType>::checkFileActive(DataFileType &dataFile) const {
+void IOManager<DataFileType>::checkFileActive(DataFileType &file) {
     double time;
-    switch (dataFile.freqUnit) {
+    switch (file.freqUnit) {
         case IOFrequencyUnit::STEPS:
             time = timeManager->getNumStep();
             break;
@@ -445,42 +542,93 @@ void IOManager<DataFileType>::checkFileActive(DataFileType &dataFile) const {
         default:
             REPORT_ERROR("Unknown IO frequency unit!");
     }
-    if (dataFile.lastTime == -1 || time-dataFile.lastTime >= dataFile.freq) {
-        dataFile.lastTime = time;
-        dataFile.isActive = true;
+    if (file.lastTime == -1 || time-file.lastTime >= file.freq) {
+        file.lastTime = time;
+        file.isActive = true;
     }
+}
+
+template <class DataFileType>
+bool IOManager<DataFileType>::isFileActive(int fileIdx) {
+    DataFileType &file = files[fileIdx];
+    checkFileActive(file);
+    return file.isActive;
 }
 
 template <class DataFileType>
 void IOManager<DataFileType>::open(int fileIdx) {
-    DataFileType &dataFile = files[fileIdx];
+    DataFileType &file = files[fileIdx];
     
-    int ret = nc_open(dataFile.fileName.c_str(), NC_NOWRITE, &dataFile.fileID);
+    int ret;
+    ret = nc_open(file.fileName.c_str(), NC_NOWRITE, &file.fileID);
     if (ret != NC_NOERR) {
-        REPORT_ERROR("Unable to open file \"" << dataFile.fileName <<
+        REPORT_ERROR("Unable to open file \"" << file.fileName <<
                      "\" with error message \"" << nc_strerror(ret) << "\"!");
     }
+    ret = nc_inq_varid(file.fileID, "time", &file.timeVarID);
+    if (ret != NC_NOERR) {
+        REPORT_ERROR("Unable to inquire time variable ID in file \"" <<
+                     file.fileName << "\" with error message \"" <<
+                     nc_strerror(ret) << "\"!");
+    }
     // let concrete data file class open the rest data file
-    dataFile.open(*timeManager);
+    file.open(*timeManager);
 }
     
 template <class DataFileType>
 void IOManager<DataFileType>::create(int fileIdx) {
-    DataFileType &dataFile = files[fileIdx];
+    DataFileType &file = files[fileIdx];
 
     // check if it is time to output
-    checkFileActive(dataFile);
-    if (!dataFile.isActive) return;
+    checkFileActive(file);
+    if (!file.isActive) return;
 
-    dataFile.fileName = dataFile.filePattern.run("%5.5d", timeManager->getNumStep());
-    int ret = nc_create(dataFile.fileName.c_str(), NC_CLOBBER, &dataFile.fileID);
+    file.fileName = file.filePattern.run("%5.5d", timeManager->getNumStep());
+    int ret = nc_create(file.fileName.c_str(), NC_CLOBBER, &file.fileID);
     if (ret != NC_NOERR) {
-        REPORT_ERROR("Unable to create file \"" << dataFile.fileName <<
+        REPORT_ERROR("Unable to create file \"" << file.fileName <<
                      "\" with error message \"" << nc_strerror(ret) << "\"!");
     }
     // let concrete data file class create the rest data file
-    dataFile.create(*timeManager);
-    dataFile.outputGrids();
+    file.create(*timeManager);
+    file.outputGrids();
+}
+
+template <class DataFileType>
+void IOManager<DataFileType>::updateTime(int fileIdx, TimeManager &timeManager) {
+    DataFileType &file = files[fileIdx];
+    double value;
+    char units[100];
+    int ret;
+    ret = nc_get_var(file.fileID, file.timeVarID, &value);
+    if (ret != NC_NOERR) {
+        REPORT_ERROR("Failed to get time variable in file \"" << file.fileName <<
+                     "\" with error message \"" << nc_strerror(ret) << "\"!");
+    }
+    ret = nc_get_att_text(file.fileID, file.timeVarID, "units", units);
+    if (ret != NC_NOERR) {
+        REPORT_ERROR("Failed to get time units in file \"" << file.fileName <<
+                     "\" with error message \"" << nc_strerror(ret) << "\"!");
+    }
+    regex reDays("^days");
+    regex reDate("(\\d\\d\\d\\d)-(\\d\\d)-(\\d\\d) (\\d\\d)*:(\\d\\d)*:(\\d\\.\\d*)*");
+    match_results<std::string::const_iterator> what;
+    string tmp = units;
+    Time time;
+    if (regex_search(tmp, what, reDate)) {
+        tmp = what[1]; time.year = atoi(tmp.c_str());
+        tmp = what[2]; time.month = atoi(tmp.c_str());
+        tmp = what[3]; time.day = atoi(tmp.c_str());
+        tmp = what[4]; time.hour = atoi(tmp.c_str());
+        tmp = what[5]; time.minute = atoi(tmp.c_str());
+        tmp = what[6]; time.second = atof(tmp.c_str());
+    }
+    if (regex_search(units, reDays)) {
+        time += value*TimeUnit::DAYS;
+    } else {
+        REPORT_ERROR("Unsupported time units!");
+    }
+    timeManager.resetCurrentTime(time);
 }
 
 template <class DataFileType>
@@ -488,10 +636,20 @@ template <typename FieldElementType, int numLevel>
 void IOManager<DataFileType>::input(int fileIdx,
                                     const TimeLevelIndex<numLevel> &timeIdx,
                                     int numField, ...) {
-    DataFileType &dataFile = files[fileIdx];
+    DataFileType &file = files[fileIdx];
     va_list fields;
     va_start(fields, numField);
-    dataFile.template input<FieldElementType, numLevel>(timeIdx, numField, fields);
+    file.template input<FieldElementType, numLevel>(timeIdx, numField, fields);
+    va_end(fields);
+}
+
+template <class DataFileType>
+template <typename FieldElementType, int numLevel>
+void IOManager<DataFileType>::input(int fileIdx, int numField, ...) {
+    DataFileType &file = files[fileIdx];
+    va_list fields;
+    va_start(fields, numField);
+    file.template input<FieldElementType, numLevel>(numField, fields);
     va_end(fields);
 }
 
@@ -500,12 +658,12 @@ template <typename FieldElementType, int numLevel>
 void IOManager<DataFileType>::output(int fileIdx,
                                      const TimeLevelIndex<numLevel> &timeIdx,
                                      int numField, ...) {
-    DataFileType &dataFile = files[fileIdx];
-    if (!dataFile.isActive) return;
+    DataFileType &file = files[fileIdx];
+    if (!file.isActive) return;
     // write time
     double time = timeManager->getDays();
     size_t index[1] = {0};
-    int ret = nc_put_var1(dataFile.fileID, dataFile.timeVarID, index, &time);
+    int ret = nc_put_var1(file.fileID, file.timeVarID, index, &time);
     if (ret != NC_NOERR) {
         REPORT_ERROR("Failed to put variable time with error message \"" <<
                      nc_strerror(ret) << "\"!");
@@ -513,20 +671,19 @@ void IOManager<DataFileType>::output(int fileIdx,
     // write fields
     va_list fields;
     va_start(fields, numField);
-    dataFile.template output<FieldElementType, numLevel>(timeIdx, numField, fields);
+    file.template output<FieldElementType, numLevel>(timeIdx, numField, fields);
     va_end(fields);
-    REPORT_NOTICE("File \"" << dataFile.fileName << "\" is outputted.");
 }
     
 template <class DataFileType>
 template <typename FieldElementType, int numLevel>
 void IOManager<DataFileType>::output(int fileIdx, int numField, ...) {
-    DataFileType &dataFile = files[fileIdx];
-    if (!dataFile.isActive) return;
+    DataFileType &file = files[fileIdx];
+    if (!file.isActive) return;
         // write time
     double time = timeManager->getDays();
     size_t index[1] = {0};
-    int ret = nc_put_var1(dataFile.fileID, dataFile.timeVarID, index, &time);
+    int ret = nc_put_var1(file.fileID, file.timeVarID, index, &time);
     if (ret != NC_NOERR) {
         REPORT_ERROR("Failed to put variable time with error message \"" <<
                      nc_strerror(ret) << "\"!");
@@ -534,19 +691,19 @@ void IOManager<DataFileType>::output(int fileIdx, int numField, ...) {
     // write fields
     va_list fields;
     va_start(fields, numField);
-    dataFile.template output<FieldElementType, numLevel>(numField, fields);
+    file.template output<FieldElementType, numLevel>(numField, fields);
     va_end(fields);
 }
 
 template <class DataFileType>
 void IOManager<DataFileType>::close(int fileIdx) {
-    DataFileType &dataFile = files[fileIdx];
-    if (!dataFile.isActive) return;
-    if (nc_close(dataFile.fileID) != NC_NOERR) {
+    DataFileType &file = files[fileIdx];
+    if (!file.isActive) return;
+    if (nc_close(file.fileID) != NC_NOERR) {
         REPORT_ERROR("Failed to close output file \"" <<
                      files[fileIdx].fileName << "\"!");
     }
-    dataFile.isActive = false;
+    file.isActive = false;
 }
 
 } // geomtk

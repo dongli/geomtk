@@ -416,6 +416,10 @@ void TimeManager::init(Time startTime, Time endTime, double stepSize) {
     this->stepSize = stepSize;
 }
 
+void TimeManager::resetCurrentTime(Time time) {
+    currTime = time;
+}
+
 void TimeManager::advance(bool mute) {
     numStep++;
     currTime += stepSize;

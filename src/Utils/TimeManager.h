@@ -105,8 +105,34 @@ public:
     TimeManager();
     ~TimeManager();
 
+    /**
+     *  Initialize time manager.
+     *
+     *  @param startTime the start time.
+     *  @param endTime   the end time.
+     *  @param stepSize  the time step size in seconds.
+     */
     void init(Time startTime, Time endTime, double stepSize);
+
+    /**
+     *  Reset the current time.
+     *
+     *  @param time the current time.
+     */
+    void resetCurrentTime(Time time);
+
+    /**
+     *  Advance the time by one time step.
+     *
+     *  @param mute boolean to control whether print message or not.
+     */
     void advance(bool mute = false);
+
+    /**
+     *  Check if the end time is reached.
+     *
+     *  @return Boolean true if the end time is reached, otherwise false.
+     */
     bool isFinished() const { return currTime > endTime; }
     
     const Time& getStartTime() const { return startTime; }
