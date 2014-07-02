@@ -18,9 +18,6 @@ protected:
         
         timeManager.init(startTime, endTime, 1*TimeUnit::MINUTES);
         ioManager.init(timeManager);
-        domain = new SphereDomain(2);
-        mesh = new RLLMesh(*domain);
-        mesh->init(10, 10);
     }
     
     void TearDown() {
@@ -29,7 +26,34 @@ protected:
     }
 };
 
+TEST_F(IOManagerTest, Input2DGrids) {
+    domain = new SphereDomain(2);
+    mesh = new RLLMesh(*domain);
+    mesh->init("grids.nc");
+    double dlon = PI2/240;
+    for (int i = 0; i < 240; ++i) {
+        ASSERT_LE(fabs(mesh->getGridCoordComp(0, RLLStagger::GridType::FULL, i)-i*dlon), 1.0e-15);
+        ASSERT_LE(fabs(mesh->getGridCoordComp(0, RLLStagger::GridType::HALF, i)-(i+0.5)*dlon), 1.0e-15);
+    }
+    double dlat = M_PI/120;
+    for (int j = 0; j < 120; ++j) {
+        ASSERT_LE(fabs(mesh->getGridCoordComp(1, RLLStagger::GridType::FULL, j)+M_PI_2-j*dlat), 1.0e-15);
+        ASSERT_LE(fabs(mesh->getGridCoordComp(1, RLLStagger::GridType::HALF, j)+M_PI_2-(j+0.5)*dlat), 1.0e-15);
+    }
+    ASSERT_LE(fabs(mesh->getGridCoordComp(1, RLLStagger::GridType::FULL, 120)-M_PI_2), 1.0e-15);
+}
+
+TEST_F(IOManagerTest, Input3DGrids) {
+    domain = new SphereDomain(CLASSIC_PRESSURE_SIGMA);
+    mesh = new RLLMesh(*domain);
+    mesh->init("gamil.grids.nc");
+}
+
 TEST_F(IOManagerTest, OutputFrequency) {
+    domain = new SphereDomain(2);
+    mesh = new RLLMesh(*domain);
+    mesh->init(10, 10);
+
     int fileIdx = ioManager.registerOutputFile(*mesh, "test-output", IOFrequencyUnit::MINUTES, 5);
     RLLDataFile &dataFile = ioManager.files[fileIdx];
     ASSERT_FALSE(dataFile.isActive);
@@ -44,6 +68,10 @@ TEST_F(IOManagerTest, OutputFrequency) {
 }
 
 TEST_F(IOManagerTest, OutputField) {
+    domain = new SphereDomain(2);
+    mesh = new RLLMesh(*domain);
+    mesh->init(10, 10);
+
     NumericRLLField<double, 2> f1, f2, f3;
     f1.create("f1", "test units", "a field on CENTER location", *mesh, RLLStagger::Location::CENTER);
     f2.create("f2", "test units", "a field on X_FACE location", *mesh, RLLStagger::Location::X_FACE);

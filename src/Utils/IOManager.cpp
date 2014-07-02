@@ -1,15 +1,16 @@
 #include "IOManager.h"
+#include "SphereDomain.h"
+#include "ClassicPressureSigma.h"
+#include "HybridPressureSigma.h"
 
 namespace geomtk {
 
-StructuredDataFile::StructuredDataFile(const StructuredMesh &mesh) : DataFile() {
+StructuredDataFile::StructuredDataFile(StructuredMesh &mesh) : DataFile() {
     this->mesh = &mesh;
-    for (int m = 0; m < mesh.getDomain().getNumDim(); ++m) {
-        fullDimIDs.resize(mesh.getNumGrid(m, GridType::FULL));
-        fullVarIDs.resize(mesh.getNumGrid(m, GridType::FULL));
-        halfDimIDs.resize(mesh.getNumGrid(m, GridType::HALF));
-        halfVarIDs.resize(mesh.getNumGrid(m, GridType::HALF));
-    }
+    fullDimIDs.resize(mesh.getDomain().getNumDim());
+    fullVarIDs.resize(mesh.getDomain().getNumDim());
+    halfDimIDs.resize(mesh.getDomain().getNumDim());
+    halfVarIDs.resize(mesh.getDomain().getNumDim());
 }
     
 void StructuredDataFile::removeOutputField(int numField, ...) {
@@ -39,21 +40,28 @@ void StructuredDataFile::open(const TimeManager &timeManager) {
     const Domain &domain = mesh->getDomain();
     int ret;
     for (int m = 0; m < domain.getNumDim(); ++m) {
-        int dimid;
-        ret = nc_inq_dimid(fileID, domain.getAxisName(m).c_str(), &dimid);
+        ret = nc_inq_dimid(fileID, domain.getAxisName(m).c_str(), &fullDimIDs[m]);
         if (ret != NC_NOERR) {
             REPORT_ERROR("Failed to inquire dimension " << domain.getAxisName(m)
                          << " in file " << fileName << "!");
         }
-        size_t len;
-        ret = nc_inq_dimlen(fileID, dimid, &len);
-        if (ret != NC_NOERR) {
-            REPORT_ERROR("Failed to inquire length of dimension " <<
-                         domain.getAxisName(m) << " in file " << fileName
-                         << "!");
+        if (mesh->isSet()) {
+            // check if mesh is matched with file
+            size_t len;
+            ret = nc_inq_dimlen(fileID, fullDimIDs[m], &len);
+            if (ret != NC_NOERR) {
+                REPORT_ERROR("Failed to inquire length of dimension " <<
+                             domain.getAxisName(m) << " in file " << fileName
+                             << "!");
+            }
+            if (len != mesh->getNumGrid(m, StructuredStagger::GridType::FULL)) {
+                REPORT_ERROR("Dimension " << domain.getAxisName(m) << " length does not match!");
+            }
         }
-        if (len != mesh->getNumGrid(m, StructuredStagger::GridType::FULL)) {
-            REPORT_ERROR("Dimension " << domain.getAxisName(m) << " length does not match!");
+        ret = nc_inq_varid(fileID, domain.getAxisName(m).c_str(), &fullVarIDs[m]);
+        if (ret != NC_NOERR) {
+            REPORT_ERROR("Failed to inquire variable " << domain.getAxisName(m)
+                         << " in file " << fileName << "!");
         }
     }
     for (int i = 0; i < fieldInfos.size(); ++i) {
@@ -310,6 +318,10 @@ void StructuredDataFile::create(const TimeManager &timeManager) {
     }
 }
 
+void StructuredDataFile::inputGrids() {
+    
+}
+
 void StructuredDataFile::outputGrids() {
     const Domain &domain = mesh->getDomain();
     int ret;
@@ -352,6 +364,103 @@ void StructuredDataFile::outputGrids() {
             REPORT_ERROR("Failed to put variable \"" <<
                          domain.getAxisName(m)+"_bnds" << "\" with " <<
                          "error message \"" << nc_strerror(ret) << "\"!");
+        }
+    }
+}
+
+void RLLDataFile::inputGrids() {
+    SphereDomain &domain = dynamic_cast<SphereDomain&>(mesh->getDomain());
+    char units[30];
+    size_t len;
+    int varID, ret;
+    for (int m = 0; m < 2; ++m) {
+        memset(units, 0, sizeof(units));
+        ret = nc_get_att_text(fileID, fullDimIDs[m], "units", units);
+        if (ret != NC_NOERR) {
+            REPORT_ERROR("Failed to get attribute \"units\" of " <<
+                         "variable \"" << domain.getAxisName(m) << "\" " <<
+                         "with error message \""<< nc_strerror(ret) <<
+                         "\" in file \"" << fileName << "\"!");
+        }
+        if (m == 0) {
+            assert(strcmp(units, "degree_east") == 0 ||
+                   strcmp(units, "degrees_east") == 0);
+        } else if (m == 1) {
+            assert(strcmp(units, "degree_north") == 0 ||
+                   strcmp(units, "degrees_north") == 0);
+        }
+        // get grid size along the axis
+        ret = nc_inq_dimlen(fileID, fullDimIDs[m], &len);
+        if (ret != NC_NOERR) {
+            REPORT_ERROR("Failed to inquire length of dimension " <<
+                         domain.getAxisName(m) << " in file " << fileName
+                         << "!");
+        }
+        vec full(len);
+        ret = nc_get_var(fileID, fullDimIDs[m], full.memptr());
+        if (ret != NC_NOERR) {
+            REPORT_ERROR("Failed to get variable \"" << domain.getAxisName(m) <<
+                         "\" with error message \"" << nc_strerror(ret) <<
+                         "\" in file \"" << fileName << "\"!");
+        }
+        full *= RAD;
+        mesh->setGridCoords(m, len, full);
+    }
+    if (domain.getNumDim() == 3) {
+        if (domain.getVertCoordType() == CLASSIC_PRESSURE_SIGMA) {
+            ClassicPressureSigma &vertCoord = dynamic_cast<ClassicPressureSigma&>(domain.getVertCoord());
+            ret = nc_inq_dimlen(fileID, fullDimIDs[2], &len);
+            if (ret != NC_NOERR) {
+                REPORT_ERROR("Failed to inquire length of dimension " <<
+                             domain.getAxisName(2) << " in file " << fileName
+                             << "!");
+            }
+            vertCoord.fullSigma.set_size(len);
+            ret = nc_get_var(fileID, fullDimIDs[2], vertCoord.fullSigma.memptr());
+            if (ret != NC_NOERR) {
+                REPORT_ERROR("Failed to get variable \"" << domain.getAxisName(2) <<
+                             "\" with error message \"" << nc_strerror(ret) <<
+                             "\" in file \"" << fileName << "\"!");
+            }
+            assert(vertCoord.fullSigma.min() >= 0 && vertCoord.fullSigma.max() <= 1);
+            vertCoord.halfSigma.set_size(len+1);
+            ret = nc_inq_varid(fileID, "ilev", &varID);
+            if (ret != NC_NOERR) {
+                vertCoord.halfSigma[0] = 0;
+                for (int k = 1; k < len; ++k) {
+                    vertCoord.halfSigma[k] = (vertCoord.fullSigma[k-1]+vertCoord.fullSigma[k])*0.5;
+                }
+                vertCoord.halfSigma[len] = 1;
+                vertCoord.halfSigma.print();
+                assert(vertCoord.halfSigma.min() >= 0 && vertCoord.halfSigma.max() <= 1);
+            } else {
+                ret = nc_get_var(fileID, varID, vertCoord.halfSigma.memptr());
+                if (ret != NC_NOERR) {
+                    REPORT_ERROR("Failed to get variable \"ilev\" with error "
+                                 << "message \"" << nc_strerror(ret) <<
+                                 "\" in file \"" << fileName << "\"!")
+                }
+            }
+            ret = nc_inq_varid(fileID, "pmtop", &varID);
+            if (ret != NC_NOERR) {
+                REPORT_ERROR("Failed to get variable \"pmtop\" with error " <<
+                             "message \"" << nc_strerror(ret) << "\" in file \""
+                             << fileName << "\"!");
+            }
+            memset(units, 0, sizeof(units));
+            ret = nc_get_att_text(fileID, varID, "units", units);
+            if (ret != NC_NOERR) {
+                REPORT_ERROR("Failed to get attribute \"units\" of " <<
+                             "variable \"pmtop\" with error message \"" <<
+                             nc_strerror(ret) << "\" in file \"" <<
+                             fileName << "\"!");
+            }
+            assert(strcmp(units, "Pa") == 0);
+            ret = nc_get_var_double(fileID, varID, &vertCoord.pt);
+        } else if (domain.getVertCoordType() == HYBRID_PRESSURE_SIGMA) {
+            REPORT_ERROR("Under construction!");
+        } else {
+            REPORT_ERROR("Under construction!");
         }
     }
 }

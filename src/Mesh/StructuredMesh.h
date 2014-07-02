@@ -42,10 +42,14 @@ public:
     StructuredMesh(Domain &domain);
     virtual ~StructuredMesh();
 
+    virtual void init(const string &fileName);
+
     virtual void init(int nx, int ny, int nz = 1);
 
     virtual void setGridCoords(int axisIdx, int size, const vec &full,
                                const vec &half);
+
+    virtual void setGridCoords(int axisIdx, int size, const vec &full);
 
     vec getGridCoords(int axisIdx, int gridType,
                       bool hasVirtualGrids = false) const;

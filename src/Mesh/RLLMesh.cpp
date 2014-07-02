@@ -1,5 +1,6 @@
 #include "RLLMesh.h"
 #include "RLLMeshIndex.h"
+#include "IOManager.h"
 
 namespace geomtk {
 
@@ -13,6 +14,19 @@ RLLMesh::RLLMesh(Domain &domain) : StructuredMesh(domain) {
 RLLMesh::~RLLMesh() {
 }
 
+void RLLMesh::init(const string &fileName) {
+    IOManager<RLLDataFile> io;
+    int fileIdx = io.registerInputFile(*this, fileName);
+    io.open(fileIdx);
+    io.file(fileIdx).inputGrids();
+    io.close(fileIdx);
+    set = true;
+}
+
+void RLLMesh::init(int nx, int ny, int nz) {
+    StructuredMesh::init(nx, ny, nz);
+}
+
 void RLLMesh::setPoleRadius(double radius) {
     poleRadius = radius;
 }
@@ -24,6 +38,45 @@ double RLLMesh::getPoleRadius() const {
 void RLLMesh::setGridCoords(int axisIdx, int size, const vec &full,
                             const vec &half) {
     StructuredMesh::setGridCoords(axisIdx, size, full, half);
+    if (axisIdx == 0) {
+        cosLonFull.set_size(fullCoords[0].size());
+        sinLonFull.set_size(fullCoords[0].size());
+        cosLonHalf.set_size(halfCoords[0].size());
+        sinLonHalf.set_size(halfCoords[0].size());
+        for (int i = 0; i < fullCoords[0].size(); ++i) {
+            cosLonFull(i) = cos(fullCoords[0](i));
+            sinLonFull(i) = sin(fullCoords[0](i));
+        }
+        for (int i = 0; i < halfCoords[0].size(); ++i) {
+            cosLonHalf(i) = cos(halfCoords[0](i));
+            sinLonHalf(i) = sin(halfCoords[0](i));
+        }
+    } else if (axisIdx == 1) {
+        cosLatFull.set_size(fullCoords[1].size());
+        sinLatFull.set_size(fullCoords[1].size());
+        sinLatFull2.set_size(fullCoords[1].size());
+        cosLatHalf.set_size(halfCoords[1].size());
+        sinLatHalf.set_size(halfCoords[1].size());
+        sinLatHalf2.set_size(halfCoords[1].size());
+        tanLatFull.set_size(fullCoords[1].size());
+        tanLatHalf.set_size(halfCoords[1].size());
+        for (int j = 0; j < fullCoords[1].size(); ++j) {
+            cosLatFull(j) = cos(fullCoords[1](j));
+            sinLatFull(j) = sin(fullCoords[1](j));
+            sinLatFull2(j) = sinLatFull(j)*sinLatFull(j);
+            tanLatFull(j) = tan(fullCoords[1](j));
+        }
+        for (int j = 0; j < halfCoords[1].size(); ++j) {
+            cosLatHalf(j) = cos(halfCoords[1](j));
+            sinLatHalf(j) = sin(halfCoords[1](j));
+            sinLatHalf2(j) = sinLatHalf(j)*sinLatHalf(j);
+            tanLatHalf(j) = tan(halfCoords[1](j));
+        }
+    }
+}
+
+void RLLMesh::setGridCoords(int axisIdx, int size, const vec &full) {
+    StructuredMesh::setGridCoords(axisIdx, size, full);
     if (axisIdx == 0) {
         cosLonFull.set_size(fullCoords[0].size());
         sinLonFull.set_size(fullCoords[0].size());

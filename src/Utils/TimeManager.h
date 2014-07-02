@@ -12,6 +12,10 @@ struct TimeUnit {
     static const int DAYS = 86400;
 };
 
+enum TimeStepUnit {
+    YEAR, MONTH, DAY, HOUR, MINUTE, SECOND
+};
+
 /**
  * Time
  * This class describes the time point.
@@ -28,6 +32,8 @@ public:
     virtual ~Time();
 
     virtual void reset();
+
+    double getTOD() const;
 
     /**
      * This method returns the seconds between this time and other time. The
@@ -78,13 +84,25 @@ public:
     int getNextMonth(int month = -1) const;
 
     const Time operator+(double seconds) const;
+
     Time& operator+=(double seconds);
+
     const Time operator-(double seconds) const;
+
     Time& operator=(const Time &other);
+
+    Time& operator=(const string &other);
+
+    Time& operator=(const char *other);
+
     bool operator==(const Time &other) const;
+
     bool operator>(const Time &other) const;
+
     bool operator>=(const Time &other) const;
+
     bool operator<(const Time &other) const;
+
     bool operator<=(const Time &other) const;
 
     string s(bool onlyDate = false) const;
@@ -99,6 +117,7 @@ class TimeManager {
 protected:
     bool useLeap;
     Time startTime, currTime, endTime;
+    TimeStepUnit stepUnit;
     double stepSize;
     int numStep;
 public:
@@ -112,7 +131,10 @@ public:
      *  @param endTime   the end time.
      *  @param stepSize  the time step size in seconds.
      */
-    void init(Time startTime, Time endTime, double stepSize);
+    void init(const Time &startTime, const Time &endTime, double stepSize);
+
+    void init(const string &startTime, const string &endTime,
+              const string &stepSize);
 
     /**
      *  Reset the current time.

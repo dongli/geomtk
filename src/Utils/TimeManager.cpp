@@ -24,11 +24,14 @@ void Time::reset() {
     second = 0;
 }
 
+double Time::getTOD() const {
+    return hour*TimeUnit::HOURS+minute*TimeUnit::MINUTES+second;
+}
+
 double Time::getSeconds(const Time &other) const {
     double res = 0; int sign = 1;
     const Time *big = this;
     const Time *small = &other;
-    // -------------------------------------------------------------------------
     // judge the sign and set the operands
     if (year == other.year) {
         if (month == other.month) {
@@ -53,11 +56,9 @@ double Time::getSeconds(const Time &other) const {
     } else if (year < other.year) {
         big = &other; small = this; sign = -1;
     }
-    // -------------------------------------------------------------------------
     for (int i = small->year+1; i < big->year; ++i) {
         res += getDaysOfYear(i)*86400;
     }
-    // =========================================================================
     bool flag = small->year != big->year;
     if (flag) {
         for (int i = small->month+1; i <= 12; ++i) {
@@ -71,7 +72,6 @@ double Time::getSeconds(const Time &other) const {
             res += small->getDaysOfMonth(i)*86400;
         }
     }
-    // =========================================================================
     flag = flag || small->month != big->month;
     if (flag) {
         res += (small->getDaysOfMonth(small->month)-small->day)*86400;
@@ -81,7 +81,6 @@ double Time::getSeconds(const Time &other) const {
             res += (big->day-small->day-1)*86400;
         }
     }
-    // =========================================================================
     flag = flag || small->day != big->day;
     if (flag) {
         res += (24-small->hour-1)*3600;
@@ -91,7 +90,6 @@ double Time::getSeconds(const Time &other) const {
             res += (big->hour-small->hour-1)*3600;
         }
     }
-    // =========================================================================
     flag = flag || small->hour != big->hour;
     if (flag) {
         res += (60-small->minute-1)*60;
@@ -101,7 +99,6 @@ double Time::getSeconds(const Time &other) const {
             res += (big->minute-small->minute-1)*60;
         }
     }
-    // =========================================================================
     flag = flag || small->minute != big->minute;
     if (flag) {
         res += 60-small->second;
@@ -197,7 +194,6 @@ int Time::getNextMonth(int month) const {
 const Time Time::operator+(double seconds) const {
     Time res = *this;
     double remain = seconds; // remained time (unit will be changed)
-    // -------------------------------------------------------------------------
     // handle second
     if (remain < 60-res.second) {
         res.second += remain;
@@ -207,7 +203,6 @@ const Time Time::operator+(double seconds) const {
         res.second = fmod(remain, 60);
         remain -= res.second;
     }
-    // -------------------------------------------------------------------------
     // handle minute
     remain /= 60; // turn into minutes
     if (remain < 60-res.minute) {
@@ -218,7 +213,6 @@ const Time Time::operator+(double seconds) const {
         res.minute = int(remain)%60;
         remain -= res.minute;
     }
-    // -------------------------------------------------------------------------
     // handle hour
     remain /= 60; // turn into hours
     if (remain < 24-res.hour) {
@@ -229,7 +223,6 @@ const Time Time::operator+(double seconds) const {
         res.hour = int(remain)%24;
         remain -= res.hour;
     }
-    // -------------------------------------------------------------------------
     // handle day
     remain /= 24; // turn into days
     while (true) {
@@ -255,7 +248,6 @@ Time& Time::operator+=(double seconds) {
 const Time Time::operator-(double seconds) const {
     Time res = *this;
     double remain = seconds; // remained time (unit will be changed)
-    // -------------------------------------------------------------------------
     // handle second
     if (remain <= res.second) {
         // second is enough
@@ -273,7 +265,6 @@ const Time Time::operator-(double seconds) const {
             remain += 60-tmp;
         }
     }
-    // -------------------------------------------------------------------------
     // handle minute
     remain /= 60; // turn into minutes
     if (remain <= res.minute) {
@@ -292,7 +283,6 @@ const Time Time::operator-(double seconds) const {
             remain += 60-tmp;
         }
     }
-    // -------------------------------------------------------------------------
     // handle hour
     remain /= 60; // turn into hours
     if (remain <= res.hour) {
@@ -311,7 +301,6 @@ const Time Time::operator-(double seconds) const {
             remain += 24-tmp;
         }
     }
-    // -------------------------------------------------------------------------
     // handle day
     remain /= 24; // turn into days
     while (true) {
@@ -340,6 +329,40 @@ Time& Time::operator=(const Time &other) {
         second = other.second;
     }
     return *this;
+}
+
+
+static mark_tag tagYear(1), tagMonth(2), tagDay(3), tagTod(4);
+static sregex reTime = (tagYear= repeat<4, 4>(_d)) >> '-' >>
+                       (tagMonth= repeat<2, 2>(_d)) >> '-' >>
+                       (tagDay= repeat<2, 2>(_d)) >>
+                       optional(' ' >> (tagTod= repeat<5, 5>(_d)));
+
+Time& Time::operator=(const string &other) {
+    smatch what;
+
+    if (regex_search(other, what, reTime)) {
+        year = atoi(what[tagYear].str().c_str());
+        month = atoi(what[tagMonth].str().c_str());
+        day = atoi(what[tagDay].str().c_str());
+        if (what[tagTod].str() != "") {
+            int tod = atoi(what[tagTod].str().c_str());
+            hour = tod/TimeUnit::HOURS;
+            tod -= hour*TimeUnit::HOURS;
+            minute = tod/TimeUnit::MINUTES;
+            tod -= minute*TimeUnit::MINUTES;
+            second = tod;
+        }
+    } else {
+        REPORT_ERROR("Bad time string format: \"" << other << "\"!");
+    }
+
+    return *this;
+}
+
+Time& Time::operator=(const char *other) {
+    string other_(other);
+    return operator=(other_);
 }
 
 bool Time::operator==(const Time &other) const {
@@ -396,6 +419,7 @@ string Time::s(bool onlyDate) const {
 // -----------------------------------------------------------------------------
 
 TimeManager::TimeManager() {
+    stepUnit = SECOND;
     useLeap = false;
     currTime.useLeap = useLeap;
     endTime.useLeap = useLeap;
@@ -406,7 +430,8 @@ TimeManager::~TimeManager() {
 
 }
 
-void TimeManager::init(Time startTime, Time endTime, double stepSize) {
+void TimeManager::init(const Time &startTime, const Time &endTime,
+                       double stepSize) {
     if (startTime > endTime) {
         REPORT_ERROR("Start time is less than end time!");
     }
@@ -416,13 +441,73 @@ void TimeManager::init(Time startTime, Time endTime, double stepSize) {
     this->stepSize = stepSize;
 }
 
+mark_tag tagStepSize(1), tagStepUnit(2);
+sregex reStepSize = (tagStepSize= +_d) >> ' ' >> (tagStepUnit= +_w);
+
+void TimeManager::init(const string &startTime, const string &endTime,
+                       const string &stepSize) {
+    this->startTime = startTime;
+    currTime = this->startTime;
+    this->endTime = endTime;
+    smatch what;
+    if (regex_match(stepSize, what, reStepSize)) {
+        this->stepSize = atoi(what[tagStepSize].str().c_str());
+        if (what[tagStepUnit] == "year" ||
+            what[tagStepUnit] == "years") {
+            stepUnit = YEAR;
+        } else if (what[tagStepUnit] == "month" ||
+            what[tagStepUnit] == "months") {
+            stepUnit = MONTH;
+        } else if (what[tagStepUnit] == "day" ||
+                   what[tagStepUnit] == "days") {
+            stepUnit = DAY;
+        } else if (what[tagStepUnit] == "hour" ||
+                   what[tagStepUnit] == "hours"){
+            stepUnit = HOUR;
+        } else if (what[tagStepUnit] == "minute" ||
+                   what[tagStepUnit] == "minutes") {
+            stepUnit = MINUTE;
+        } else if (what[tagStepUnit] == "second" ||
+                   what[tagStepUnit] == "seconds") {
+            stepUnit = SECOND;
+        } else {
+            REPORT_ERROR("Unknown step unit \"" << what[tagStepUnit] << "\"!");
+        }
+    } else {
+        REPORT_ERROR("Bad step size format: \"" << stepSize << "\"!");
+    }
+}
+
 void TimeManager::resetCurrentTime(Time time) {
     currTime = time;
 }
 
 void TimeManager::advance(bool mute) {
     numStep++;
-    currTime += stepSize;
+    switch (stepUnit) {
+        case YEAR:
+            currTime.year += 1;
+            break;
+        case MONTH:
+            if (currTime.month != 12) {
+                currTime.month += 1;
+            } else {
+                currTime.month = 1;
+            }
+            break;
+        case DAY:
+            currTime += stepSize*TimeUnit::DAYS;
+            break;
+        case HOUR:
+            currTime += stepSize*TimeUnit::HOURS;
+            break;
+        case MINUTE:
+            currTime += stepSize*TimeUnit::MINUTES;
+            break;
+        case SECOND:
+            currTime += stepSize;
+            break;
+    }
     if (!mute) REPORT_NOTICE(currTime);
 }
 

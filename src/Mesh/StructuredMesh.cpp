@@ -16,7 +16,12 @@ StructuredMesh::~StructuredMesh() {
     delete [] fullIntervals;
     delete [] halfIntervals;
 }
-    
+
+void StructuredMesh::init(const string &fileName) {
+    REPORT_ERROR("Under construction!");
+    set = true;
+}
+
 void StructuredMesh::init(int nx, int ny, int nz) {
     vec full, half;
     int n[3] = {nx, ny, nz};
@@ -47,6 +52,7 @@ void StructuredMesh::init(int nx, int ny, int nz) {
         setGridCoords(m, n[m], full, half);
     }
     setCellVolumes();
+    set = true;
 }
 
 void StructuredMesh::setGridCoords(int axisIdx, int size, const vec &full,
@@ -62,10 +68,10 @@ void StructuredMesh::setGridCoords(int axisIdx, int size, const vec &full,
             REPORT_ERROR("Full grid size (" << full.size() << ") should " <<
                          "be equal with half grid (" << half.size() << ")!");
         }
-        fullCoords[axisIdx].resize(size+2);
-        halfCoords[axisIdx].resize(size+2);
-        fullIntervals[axisIdx].resize(size+1);
-        halfIntervals[axisIdx].resize(size+1);
+        fullCoords[axisIdx].set_size(size+2);
+        halfCoords[axisIdx].set_size(size+2);
+        fullIntervals[axisIdx].set_size(size+1);
+        halfIntervals[axisIdx].set_size(size+1);
         if (full[0] == domain->getAxisStart(axisIdx)) {
             /*
              o - full grid   0 - virtual full grid
@@ -149,8 +155,8 @@ void StructuredMesh::setGridCoords(int axisIdx, int size, const vec &full,
     else if (domain->getAxisStartBndType(axisIdx) == POLE ||
              domain->getAxisStartBndType(axisIdx) == RIGID ||
              domain->getAxisStartBndType(axisIdx) == OPEN) {
-        if (full[0] == domain->getAxisStart(axisIdx) &&
-            full[size-1] == domain->getAxisEnd(axisIdx)) {
+        if (fabs(full[0]-domain->getAxisStart(axisIdx)) < 1.0e-14 &&
+            fabs(full[size-1]-domain->getAxisEnd(axisIdx)) < 1.0e-14) {
             /*
                 o - full grid
                 * - half grid
@@ -168,10 +174,10 @@ void StructuredMesh::setGridCoords(int axisIdx, int size, const vec &full,
                     halfIntervals
              
              */
-            fullCoords[axisIdx].resize(size);
-            halfCoords[axisIdx].resize(size-1);
-            fullIntervals[axisIdx].resize(size-1);
-            halfIntervals[axisIdx].resize(size);
+            fullCoords[axisIdx].set_size(size);
+            halfCoords[axisIdx].set_size(size-1);
+            fullIntervals[axisIdx].set_size(size-1);
+            halfIntervals[axisIdx].set_size(size);
             // =================================================================
             for (int i = 0; i < size; ++i) {
                 fullCoords[axisIdx](i) = full[i];
@@ -188,8 +194,8 @@ void StructuredMesh::setGridCoords(int axisIdx, int size, const vec &full,
             }
             halfIntervals[axisIdx](0) = half[0]-domain->getAxisStart(axisIdx);
             halfIntervals[axisIdx](size-1) = domain->getAxisEnd(axisIdx)-half[size-2];
-        } else if (half[0] == domain->getAxisStart(axisIdx) &&
-                   half[size] == domain->getAxisEnd(axisIdx)) {
+        } else if (fabs(half[0]-domain->getAxisStart(axisIdx)) < 1.0e-14 &&
+                   fabs(half[size]-domain->getAxisEnd(axisIdx)) < 1.0e-14) {
             /*
                 o - full grid
                 * - half grid
@@ -206,10 +212,10 @@ void StructuredMesh::setGridCoords(int axisIdx, int size, const vec &full,
                      -----------
                     fullIntervals
              */
-            fullCoords[axisIdx].resize(size);
-            halfCoords[axisIdx].resize(size+1);
-            fullIntervals[axisIdx].resize(size+1);
-            halfIntervals[axisIdx].resize(size);
+            fullCoords[axisIdx].set_size(size);
+            halfCoords[axisIdx].set_size(size+1);
+            fullIntervals[axisIdx].set_size(size+1);
+            halfIntervals[axisIdx].set_size(size);
             // =================================================================
             for (int i = 0; i < size; ++i) {
                 fullCoords[axisIdx](i) = full[i];
@@ -238,6 +244,40 @@ void StructuredMesh::setGridCoords(int axisIdx, int size, const vec &full,
     else {
         REPORT_ERROR("Unhandled branch!");
     }
+}
+
+void StructuredMesh::setGridCoords(int axisIdx, int size, const vec &full) {
+    // sanity check
+    if (axisIdx >= domain->getNumDim()) {
+        REPORT_ERROR("Argument axisIdx (" << axisIdx << ") exceeds domain " <<
+                     "dimension (" << domain->getNumDim() << ")!");
+    }
+    // construct the half grid coordinates from full grids
+    vec half;
+    if (domain->getAxisStartBndType(axisIdx) == PERIODIC) {
+        half.set_size(size);
+        if (full[0] == domain->getAxisStart(axisIdx)) {
+            for (int i = 0; i < size-1; ++i) {
+                half[i] = (full[i]+full[i+1])*0.5;
+            }
+            half[size-1] = (full[size-1]+domain->getAxisEnd(axisIdx))*0.5;
+        } else if (full[size-1] == domain->getAxisEnd(axisIdx)) {
+            half[0] = (domain->getAxisStart(axisIdx)+full[0])*0.5;
+            for (int i = 1; i < size; ++i) {
+                half[i] = (full[i-1]+full[i])*0.5;
+            }
+        }
+    } else if (domain->getAxisStartBndType(axisIdx) == POLE ||
+               domain->getAxisStartBndType(axisIdx) == RIGID ||
+               domain->getAxisStartBndType(axisIdx) == OPEN) {
+        half.set_size(size-1);
+        assert(fabs(full[0]-domain->getAxisStart(axisIdx)) < 1.0e-14);
+        assert(fabs(full[size-1]-domain->getAxisEnd(axisIdx)) < 1.0e-14);
+        for (int i = 0; i < size-1; ++i) {
+            half[i] = (full[i]+full[i+1])*0.5;
+        }
+    }
+    setGridCoords(axisIdx, size, full, half);
 }
 
 vec StructuredMesh::getGridCoords(int axisIdx, int gridType,

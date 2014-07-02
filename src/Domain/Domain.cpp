@@ -1,4 +1,6 @@
 #include "Domain.h"
+#include "ClassicPressureSigma.h"
+#include "HybridPressureSigma.h"
 
 namespace geomtk {
 
@@ -86,9 +88,11 @@ Domain::Domain() {
         bndTypeStarts[i] = INVALID;
         bndTypeEnds[i] = INVALID;
     }
+    vertCoord = NULL;
 }
 
 Domain::Domain(int numDim) {
+    assert(numDim < 3);
     this->numDim = numDim;
     axisName.resize(numDim);
     axisLongName.resize(numDim);
@@ -102,11 +106,39 @@ Domain::Domain(int numDim) {
         bndTypeStarts[i] = INVALID;
         bndTypeEnds[i] = INVALID;
     }
+    vertCoord = NULL;
+}
+
+Domain::Domain(VertCoordType type) {
+    this->numDim = 3;
+    axisName.resize(numDim);
+    axisLongName.resize(numDim);
+    axisUnits.resize(numDim);
+    axisStarts.resize(numDim);
+    axisEnds.resize(numDim);
+    axisSpans.resize(numDim);
+    bndTypeStarts = new BndType[numDim];
+    bndTypeEnds = new BndType[numDim];
+    for (int i = 0; i < numDim; ++i) {
+        bndTypeStarts[i] = INVALID;
+        bndTypeEnds[i] = INVALID;
+    }
+    vertCoordType = type;
+    if (type == CLASSIC_PRESSURE_SIGMA) {
+        vertCoord = new ClassicPressureSigma;
+    } else if (type == HYBRID_PRESSURE_SIGMA) {
+        vertCoord = new HybridPressureSigma;
+    } else {
+        vertCoord = NULL;
+    }
 }
 
 Domain::~Domain() {
     delete [] bndTypeStarts;
     delete [] bndTypeEnds;
+    if (vertCoord != NULL) {
+        delete vertCoord;
+    }
 }
 
 void Domain::setAxis(int dim, const string &name, const string &longName,

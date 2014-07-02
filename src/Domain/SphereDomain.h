@@ -138,6 +138,7 @@ public:
     
     SphereDomain();
     SphereDomain(int numDim);
+    SphereDomain(VertCoordType type);
     virtual ~SphereDomain();
 
     double getRadius() const { return radius; }

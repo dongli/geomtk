@@ -11,7 +11,7 @@ protected:
     RLLMesh *mesh;
 
     virtual void SetUp() {
-        domain = new SphereDomain(3);
+        domain = new SphereDomain(CLASSIC_PRESSURE_SIGMA);
         mesh = new RLLMesh(*domain);
         int numLon = 10;
         vec fullLon(numLon), halfLon(numLon);
@@ -40,8 +40,6 @@ protected:
         for (int k = 0; k < numLev+1; ++k) {
             halfLev[k] = k*dlev;
         }
-        domain->setAxis(2, "z", "vertical coordinate", "m",
-                        0.0, RIGID, 1.0, RIGID);
         mesh->setGridCoords(2, numLev, fullLev, halfLev);
     }
 

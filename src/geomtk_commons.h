@@ -1,9 +1,16 @@
 #ifndef __geomtk_commons__
 #define __geomtk_commons__
 
+#include <boost/type_traits/is_same.hpp>
+#include <boost/variant.hpp>
+#include <boost/regex.hpp>
+#include <boost/xpressive/xpressive.hpp>
+#include <boost/lexical_cast.hpp>
 #include <armadillo>
 #include <netcdf.h>
+
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <assert.h>
 #include <cmath>
@@ -14,11 +21,7 @@
 #include <map>
 #include <cstdarg>
 #include <typeinfo>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/variant.hpp>
-#include <boost/regex.hpp>
-#include <boost/lexical_cast.hpp>
-//#include <random>
+#include <random>
 
 namespace geomtk {
 
@@ -34,6 +37,12 @@ using boost::regex;
 using boost::regex_search;
 using boost::match_results;
 using boost::regex_replace;
+using boost::xpressive::sregex;
+using boost::xpressive::smatch;
+using boost::xpressive::mark_tag;
+using boost::xpressive::repeat;
+using boost::xpressive::_d;
+using boost::xpressive::_w;
 
 using std::cout;
 using std::endl;
@@ -42,6 +51,7 @@ using std::setprecision;
 using std::setfill;
 using std::ostream;
 using std::ifstream;
+using std::stringstream;
 
 using std::string;
 using std::vector;

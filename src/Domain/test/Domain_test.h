@@ -12,7 +12,7 @@ protected:
 
     virtual void SetUp() {
         d2 = new Domain;
-        d3 = new Domain(3);
+        d3 = new Domain(HEIGHT);
     }
 
     virtual void TearDown() {

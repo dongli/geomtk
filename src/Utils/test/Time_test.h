@@ -130,6 +130,16 @@ TEST(Time, Operators) {
     ASSERT_EQ(a.hour, c.hour);
     ASSERT_EQ(a.minute+31, c.minute);
     ASSERT_GT(1.0e-13, fabs(a.second+40-c.second));
+
+    Time d;
+    d = "1979-01-01 10200";
+
+    ASSERT_EQ(1979, d.year);
+    ASSERT_EQ(1, d.month);
+    ASSERT_EQ(1, d.day);
+    ASSERT_EQ(2, d.hour);
+    ASSERT_EQ(50, d.minute);
+    ASSERT_EQ(0, d.second);
 }
 
 #endif

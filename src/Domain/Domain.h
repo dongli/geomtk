@@ -9,6 +9,16 @@ enum BndType {
     PERIODIC, OPEN, POLE, RIGID, INVALID
 };
 
+enum VertCoordType {
+    HEIGHT, CLASSIC_PRESSURE_SIGMA, HYBRID_PRESSURE_SIGMA
+};
+
+class VertCoord {
+public:
+    VertCoord() {}
+    virtual ~VertCoord() {}
+};
+
 /**
  *  This class describes the space coordinate of a point.
  */
@@ -109,9 +119,16 @@ protected:
     vec axisSpans;
     BndType *bndTypeStarts;
     BndType *bndTypeEnds;
+    /**
+     *  The vertical coordinate is so special that we need an object to handle
+     *  it.
+     */
+    VertCoordType vertCoordType;
+    VertCoord *vertCoord;
 public:
     Domain();
     Domain(int numDim);
+    Domain(VertCoordType type);
     virtual ~Domain();
 
     /**
@@ -201,6 +218,10 @@ public:
      *  @return The axis end boundary type.
      */
     virtual BndType getAxisEndBndType(int i) const { return bndTypeEnds[i]; }
+
+    VertCoordType getVertCoordType() const { return vertCoordType; }
+
+    VertCoord& getVertCoord() { return *vertCoord; }
 
     /**
      *  Check the given space coordinate, especially when the boundary condition

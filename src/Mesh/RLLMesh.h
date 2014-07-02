@@ -27,8 +27,14 @@ public:
     RLLMesh(Domain &domain);
     virtual ~RLLMesh();
 
+    virtual void init(const string &fileName);
+
+    virtual void init(int nx, int ny, int nz = 1);
+
     void setPoleRadius(double radius);
     double getPoleRadius() const;
+
+    virtual void setGridCoords(int axisIdx, int size, const vec &full);
 
     virtual void setGridCoords(int axisIdx, int size, const vec &full,
                                const vec &half);

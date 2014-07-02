@@ -216,12 +216,29 @@ SphereDomain::SphereDomain() {
 }
 
 SphereDomain::SphereDomain(int numDim) : Domain(numDim) {
+    if (numDim != 2) {
+        REPORT_ERROR("Spherical domain dimension should be 2 in this case!");
+    }
     radius = 1.0;
-    setAxis(0, "lon", "longitude", "radian_east",
-            0.0, PERIODIC, 2.0*M_PI, PERIODIC);
-    setAxis(1, "lat", "latitude", "radian_north",
-            -M_PI_2, POLE, M_PI_2, POLE);
-    // TODO: Handle the vertical axis if has.
+    setAxis(0, "lon", "longitude", "radian_east", 0.0, PERIODIC, 2.0*M_PI, PERIODIC);
+    setAxis(1, "lat", "latitude", "radian_north", -M_PI_2, POLE, M_PI_2, POLE);
+}
+
+SphereDomain::SphereDomain(VertCoordType type) : Domain(type) {
+    radius = 1.0;
+    setAxis(0, "lon", "longitude", "radian_east", 0.0, PERIODIC, 2.0*M_PI, PERIODIC);
+    setAxis(1, "lat", "latitude", "radian_north", -M_PI_2, POLE, M_PI_2, POLE);
+    switch (type) {
+        case CLASSIC_PRESSURE_SIGMA:
+            setAxis(2, "lev", "classic pressure sigma level", "1", 0.0, RIGID, 1.0, RIGID);
+            break;
+        case HYBRID_PRESSURE_SIGMA:
+            setAxis(2, "lev", "hybrid pressure sigma level", "1", 0.0, RIGID, 1.0, RIGID);
+            break;
+        default:
+            REPORT_ERROR("Under construction!");
+            break;
+    }
 }
 
 SphereDomain::~SphereDomain() {

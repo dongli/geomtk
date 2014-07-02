@@ -62,14 +62,14 @@ public:
     typedef StructuredStagger::Location Location;
     typedef StructuredSpaceDimensions SpaceDimensions;
 private:
-    const StructuredMesh *mesh;
+    StructuredMesh *mesh;
 protected:
     vector<int> fullDimIDs, fullVarIDs;
     vector<int> halfDimIDs, halfVarIDs;
 public:
     typedef StructuredMesh MeshType;
 
-    StructuredDataFile(const StructuredMesh &mesh);
+    StructuredDataFile(StructuredMesh &mesh);
     virtual ~StructuredDataFile() {}
 
     virtual const StructuredMesh& getMesh() const { return *mesh; }
@@ -85,6 +85,8 @@ public:
     virtual void open(const TimeManager &timeManager);
 
     virtual void create(const TimeManager &timeManager);
+
+    virtual void inputGrids();
 
     virtual void outputGrids();
 
@@ -365,16 +367,18 @@ struct RLLSpaceDimensions : public StructuredSpaceDimensions {
 };
 
 class RLLDataFile : public StructuredDataFile {
-    const RLLMesh *mesh;
+    RLLMesh *mesh;
 public:
     typedef RLLMesh MeshType;
 
-    RLLDataFile(const RLLMesh &mesh) : StructuredDataFile(mesh) {
+    RLLDataFile(RLLMesh &mesh) : StructuredDataFile(mesh) {
         this->mesh = &mesh;
     }
     virtual ~RLLDataFile() {}
 
     virtual const RLLMesh& getMesh() const { return *mesh; }
+
+    virtual void inputGrids();
 
     virtual void outputGrids();
 };
@@ -394,10 +398,10 @@ public:
 
     void init(const TimeManager &timeManager);
 
-    int registerInputFile(const typename DataFileType::MeshType &mesh,
+    int registerInputFile(typename DataFileType::MeshType &mesh,
                           const string &fileName);
 
-    int registerOutputFile(const typename DataFileType::MeshType &mesh,
+    int registerOutputFile(typename DataFileType::MeshType &mesh,
                            const string &prefix, int freqUnit, double freq);
 
     void removeFile(int fileIdx);
@@ -459,7 +463,7 @@ void IOManager<DataFileType>::init(const TimeManager &timeManager) {
 }
 
 template <class DataFileType>
-int IOManager<DataFileType>::registerInputFile(const typename DataFileType::MeshType &mesh,
+int IOManager<DataFileType>::registerInputFile(typename DataFileType::MeshType &mesh,
                                                const string &fileName) {
     for (int i = 0; i < files.size(); ++i) {
         if (files[i].ioType == INPUT && files[i].fileName == fileName) {
@@ -477,7 +481,7 @@ int IOManager<DataFileType>::registerInputFile(const typename DataFileType::Mesh
 }
     
 template <class DataFileType>
-int IOManager<DataFileType>::registerOutputFile(const typename DataFileType::MeshType &mesh,
+int IOManager<DataFileType>::registerOutputFile(typename DataFileType::MeshType &mesh,
                                                 const string &prefix, int freqUnit, double freq) {
     StampString filePattern(prefix+".", ".nc");
     for (int i = 0; i < files.size(); ++i) {
@@ -567,9 +571,7 @@ void IOManager<DataFileType>::open(int fileIdx) {
     }
     ret = nc_inq_varid(file.fileID, "time", &file.timeVarID);
     if (ret != NC_NOERR) {
-        REPORT_ERROR("Unable to inquire time variable ID in file \"" <<
-                     file.fileName << "\" with error message \"" <<
-                     nc_strerror(ret) << "\"!");
+        file.timeVarID = -999;
     }
     // let concrete data file class open the rest data file
     file.open(*timeManager);

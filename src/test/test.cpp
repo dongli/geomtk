@@ -15,6 +15,7 @@
 #include "RLLRegrid_test.h"
 #include "IOManager_test.h"
 #include "ConfigManager_test.h"
+#include "StampString_test.h"
 
 int main(int argc, char *argv[])
 {

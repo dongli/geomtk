@@ -17,15 +17,22 @@ protected:
     Domain *domain;
     bool set;
 public:
-    Mesh(Domain &domain);
-    virtual ~Mesh();
+    Mesh(Domain &domain) { this->domain = &domain; set = false; }
+    virtual ~Mesh() {}
+
+    /**
+     *  Read grids from file.
+     *
+     *  @param fileName the grid file name.
+     */
+    virtual void init(const string &fileName) = 0;
 
     /**
      *  Get the spatial domain.
      *
      *  @return The domain.
      */
-    const Domain& getDomain() const;
+    Domain& getDomain() const { return *domain; }
 
     virtual void getGridCoord(int cellIdx, int loc, SpaceCoord &x) const = 0;
 
@@ -43,7 +50,7 @@ public:
      *
      *  @return The boolean flag.
      */
-    bool isSet() const;
+    bool isSet() const { return set; }
 };
 
 }
