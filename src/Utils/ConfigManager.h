@@ -18,7 +18,7 @@ public:
     ConfigManager();
     virtual ~ConfigManager();
 
-    void parse(const string &filePath);
+    void parse(const string &filePath, bool mute = false);
 
     /**
      *  Check if a key is in a given pack.
@@ -29,6 +29,15 @@ public:
      *  @return Boolean status.
      */
     bool hasKey(const string &packName, const string &key) const;
+
+    /**
+     *  Return all the keys of a given pack.
+     *
+     *  @param packName the pack name.
+     *
+     *  @return The vector of the keys.
+     */
+    vector<string> getKeys(const string &packName) const;
 
     /**
      *  Get the value of a given key in the given pack.

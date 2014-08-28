@@ -1,5 +1,5 @@
-#ifndef __Domain_test__
-#define __Domain_test__
+#ifndef __Geomtk_Domain_test__
+#define __Geomtk_Domain_test__
 
 #include "Domain.h"
 
@@ -39,4 +39,4 @@ TEST_F(DomainTest, SetAxis) {
     EXPECT_EQ(RIGID, d2->getAxisEndBndType(1));
 }
 
-#endif
+#endif // __Geomtk_Domain_test__

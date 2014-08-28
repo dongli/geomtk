@@ -1,11 +1,11 @@
 #ifndef __Geomtk_RLLField_test__
 #define __Geomtk_RLLField_test__
 
-#include "NumericRLLField.h"
+#include "RLLField.h"
 
 using namespace geomtk;
 
-class NumericRLLFieldTest : public ::testing::Test {
+class RLLFieldTest : public ::testing::Test {
 protected:
     SphereDomain *sphere;
     RLLMesh *mesh;
@@ -46,10 +46,10 @@ protected:
     }
 };
 
-TEST_F(NumericRLLFieldTest, AssignmentOperator) {
-    NumericRLLField<double, 2> f, g;
-    f.create("1", "2", "3", *mesh, RLLStagger::Location::CENTER);
-    for (int i = 0; i < mesh->getTotalNumGrid(RLLStagger::Location::CENTER); ++i) {
+TEST_F(RLLFieldTest, AssignmentOperator) {
+    RLLField<double, 2> f, g;
+    f.create("1", "2", "3", *mesh, RLLStagger::Location::CENTER, 2, false);
+    for (int i = 0; i < mesh->getTotalNumGrid(RLLStagger::Location::CENTER, f.getNumDim()); ++i) {
         f(timeIdx, i) = i;
     }
     ASSERT_EQ(NULL, &g.getMesh());
@@ -61,14 +61,14 @@ TEST_F(NumericRLLFieldTest, AssignmentOperator) {
     ASSERT_EQ(f.getStaggerLocation(), g.getStaggerLocation());
     ASSERT_EQ(f.getGridType(0), g.getGridType(0));
     ASSERT_EQ(f.getGridType(1), g.getGridType(1));
-    for (int i = 0; i < mesh->getTotalNumGrid(RLLStagger::Location::CENTER); ++i) {
+    for (int i = 0; i < mesh->getTotalNumGrid(RLLStagger::Location::CENTER, f.getNumDim()); ++i) {
         ASSERT_EQ(i, g(timeIdx, i));
     }
 }
 
-TEST_F(NumericRLLFieldTest, CheckScalarField) {
-    NumericRLLField<double, 2> f;
-    f.create("", "", "", *mesh, RLLStagger::Location::CENTER);
+TEST_F(RLLFieldTest, CheckScalarField) {
+    RLLField<double, 2> f;
+    f.create("", "", "", *mesh, RLLStagger::Location::CENTER, 2, false);
     // -------------------------------------------------------------------------
     // check data dimensionality
     ASSERT_EQ(12, f.data->getLevel(timeIdx).n_rows);
@@ -99,13 +99,13 @@ TEST_F(NumericRLLFieldTest, CheckScalarField) {
 
 }
 
-TEST_F(NumericRLLFieldTest, TestVectorFieldHalfLevel) {
+TEST_F(RLLFieldTest, TestVectorFieldHalfLevel) {
     TimeLevelIndex<2> newTimeIdx = timeIdx+1;
     TimeLevelIndex<2> halfTimeIdx = timeIdx+0.5;
-    NumericRLLField<double, 2> u, v;
+    RLLField<double, 2> u, v;
 
-    u.create("u", "", "", *mesh, RLLStagger::Location::X_FACE, true);
-    v.create("v", "", "", *mesh, RLLStagger::Location::Y_FACE, true);
+    u.create("u", "", "", *mesh, RLLStagger::Location::X_FACE, 2, true);
+    v.create("v", "", "", *mesh, RLLStagger::Location::Y_FACE, 2, true);
 
     ASSERT_EQ(12, u.data->getLevel(timeIdx).n_rows);
     ASSERT_EQ(10, u.data->getLevel(timeIdx).n_cols);

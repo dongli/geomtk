@@ -2,6 +2,7 @@
 #define __Geomtk_IOManager_test__
 
 #include "geomtk.h"
+#include "gen_test_data.h"
 
 using namespace geomtk;
 
@@ -12,10 +13,11 @@ protected:
     SphereDomain *domain;
     RLLMesh *mesh;
     TimeLevelIndex<2> timeIdx;
-    
+    StampString filePattern;
+
     void SetUp() {
         Time startTime(0), endTime(1*TimeUnit::DAYS);
-        
+        filePattern.init("test-output.%5s.nc");
         timeManager.init(startTime, endTime, 1*TimeUnit::MINUTES);
         ioManager.init(timeManager);
     }
@@ -26,27 +28,25 @@ protected:
     }
 };
 
-TEST_F(IOManagerTest, Input2DGrids) {
+TEST_F(IOManagerTest, Input2DMesh) {
     domain = new SphereDomain(2);
     mesh = new RLLMesh(*domain);
-    mesh->init("grids.nc");
-    double dlon = PI2/240;
-    for (int i = 0; i < 240; ++i) {
+
+    gen_2d_tv_data("test.nc");
+    mesh->init("test.nc");
+    double dlon = PI2/10;
+    for (int i = 0; i < 10; ++i) {
         ASSERT_LE(fabs(mesh->getGridCoordComp(0, RLLStagger::GridType::FULL, i)-i*dlon), 1.0e-15);
         ASSERT_LE(fabs(mesh->getGridCoordComp(0, RLLStagger::GridType::HALF, i)-(i+0.5)*dlon), 1.0e-15);
     }
-    double dlat = M_PI/120;
-    for (int j = 0; j < 120; ++j) {
+    double dlat = M_PI/9;
+    for (int j = 0; j < 10; ++j) {
         ASSERT_LE(fabs(mesh->getGridCoordComp(1, RLLStagger::GridType::FULL, j)+M_PI_2-j*dlat), 1.0e-15);
+        if (j == 9) continue;
         ASSERT_LE(fabs(mesh->getGridCoordComp(1, RLLStagger::GridType::HALF, j)+M_PI_2-(j+0.5)*dlat), 1.0e-15);
     }
-    ASSERT_LE(fabs(mesh->getGridCoordComp(1, RLLStagger::GridType::FULL, 120)-M_PI_2), 1.0e-15);
-}
-
-TEST_F(IOManagerTest, Input3DGrids) {
-    domain = new SphereDomain(CLASSIC_PRESSURE_SIGMA);
-    mesh = new RLLMesh(*domain);
-    mesh->init("gamil.grids.nc");
+    ASSERT_LE(fabs(mesh->getGridCoordComp(1, RLLStagger::GridType::FULL, 9)-M_PI_2), 1.0e-15);
+    SystemTools::removeFile("test.nc");
 }
 
 TEST_F(IOManagerTest, OutputFrequency) {
@@ -54,11 +54,11 @@ TEST_F(IOManagerTest, OutputFrequency) {
     mesh = new RLLMesh(*domain);
     mesh->init(10, 10);
 
-    int fileIdx = ioManager.registerOutputFile(*mesh, "test-output", IOFrequencyUnit::MINUTES, 5);
+    int fileIdx = ioManager.registerOutputFile(*mesh, filePattern, MINUTE, 5);
     RLLDataFile &dataFile = ioManager.files[fileIdx];
     ASSERT_FALSE(dataFile.isActive);
     while (!timeManager.isFinished()) {
-        ioManager.checkFileActive(dataFile);
+        ioManager.isFileActive(fileIdx);
         double seconds = timeManager.getSeconds();
         if (fmod(seconds, 300) == 0) {
             ASSERT_TRUE(dataFile.isActive);
@@ -72,26 +72,26 @@ TEST_F(IOManagerTest, OutputField) {
     mesh = new RLLMesh(*domain);
     mesh->init(10, 10);
 
-    NumericRLLField<double, 2> f1, f2, f3;
-    f1.create("f1", "test units", "a field on CENTER location", *mesh, RLLStagger::Location::CENTER);
-    f2.create("f2", "test units", "a field on X_FACE location", *mesh, RLLStagger::Location::X_FACE);
-    f3.create("f3", "test units", "a field on Y_FACE location", *mesh, RLLStagger::Location::Y_FACE);
+    RLLField<double, 2> f1, f2, f3;
+    f1.create("f1", "test units", "a field on CENTER location", *mesh, RLLStagger::Location::CENTER, 2, false);
+    f2.create("f2", "test units", "a field on X_FACE location", *mesh, RLLStagger::Location::X_FACE, 2, false);
+    f3.create("f3", "test units", "a field on Y_FACE location", *mesh, RLLStagger::Location::Y_FACE, 2, false);
 
-    for (int i = 0; i < mesh->getTotalNumGrid(f1.getStaggerLocation()); ++i) {
+    for (int i = 0; i < mesh->getTotalNumGrid(f1.getStaggerLocation(), f1.getNumDim()); ++i) {
         f1(timeIdx, i) = 1;
     }
-    for (int i = 0; i < mesh->getTotalNumGrid(f2.getStaggerLocation()); ++i) {
+    for (int i = 0; i < mesh->getTotalNumGrid(f2.getStaggerLocation(), f2.getNumDim()); ++i) {
         f2(timeIdx, i) = 2;
     }
-    for (int i = 0; i < mesh->getTotalNumGrid(f3.getStaggerLocation()); ++i) {
+    for (int i = 0; i < mesh->getTotalNumGrid(f3.getStaggerLocation(), f3.getNumDim()); ++i) {
         f3(timeIdx, i) = 3;
     }
 
-    int fileIdx = ioManager.registerOutputFile(*mesh, "test-output", IOFrequencyUnit::STEPS, 1);
-    ioManager.file(fileIdx).registerOutputField<double, 2, RLLSpaceDimensions::FULL_DIMENSION>(3, &f1, &f2, &f3);
+    int fileIdx = ioManager.registerOutputFile(*mesh, filePattern, STEP, 1);
+    ioManager.file(fileIdx).registerField("double", RLLSpaceDimensions::FULL_DIMENSION, {&f1, &f2, &f3});
     ioManager.create(fileIdx);
-    ioManager.output<double, 2>(fileIdx, timeIdx, 2, &f1, &f2);
-    ioManager.output<double, 2>(fileIdx, timeIdx, 1, &f3);
+    ioManager.output<double, 2>(fileIdx, timeIdx, {&f1, &f2});
+    ioManager.output<double, 2>(fileIdx, timeIdx, {&f3});
     ioManager.close(fileIdx);
 
     int fileID, unlimDimID, timeDimID;
@@ -147,10 +147,10 @@ TEST_F(IOManagerTest, OutputField) {
     ASSERT_EQ(dimIDs[1], latDimID);
     ASSERT_EQ(dimIDs[2], lonDimID);
 
-    x = new double[mesh->getTotalNumGrid(f1.getStaggerLocation())];
+    x = new double[mesh->getTotalNumGrid(f1.getStaggerLocation(), f1.getNumDim())];
     ret = nc_get_var_double(fileID, varID, x);
     ASSERT_EQ(NC_NOERR, ret);
-    for (int i = 0; i < mesh->getTotalNumGrid(f1.getStaggerLocation()); ++i) {
+    for (int i = 0; i < mesh->getTotalNumGrid(f1.getStaggerLocation(), f1.getNumDim()); ++i) {
         ASSERT_EQ(x[i], f1(timeIdx, i));
     }
     delete [] x;
@@ -193,10 +193,10 @@ TEST_F(IOManagerTest, OutputField) {
     ASSERT_EQ(dimIDs[1], latDimID);
     ASSERT_EQ(dimIDs[2], lonBndsDimID);
 
-    x = new double[mesh->getTotalNumGrid(f2.getStaggerLocation())];
+    x = new double[mesh->getTotalNumGrid(f2.getStaggerLocation(), f2.getNumDim())];
     ret = nc_get_var_double(fileID, varID, x);
     ASSERT_EQ(NC_NOERR, ret);
-    for (int i = 0; i < mesh->getTotalNumGrid(f2.getStaggerLocation()); ++i) {
+    for (int i = 0; i < mesh->getTotalNumGrid(f2.getStaggerLocation(), f2.getNumDim()); ++i) {
         ASSERT_EQ(x[i], f2(timeIdx, i));
     }
     delete [] x;
@@ -239,10 +239,10 @@ TEST_F(IOManagerTest, OutputField) {
     ASSERT_EQ(dimIDs[1], latBndsDimID);
     ASSERT_EQ(dimIDs[2], lonDimID);
 
-    x = new double[mesh->getTotalNumGrid(f3.getStaggerLocation())];
+    x = new double[mesh->getTotalNumGrid(f3.getStaggerLocation(), f3.getNumDim())];
     ret = nc_get_var_double(fileID, varID, x);
     ASSERT_EQ(NC_NOERR, ret);
-    for (int i = 0; i < mesh->getTotalNumGrid(f3.getStaggerLocation()); ++i) {
+    for (int i = 0; i < mesh->getTotalNumGrid(f3.getStaggerLocation(), f3.getNumDim()); ++i) {
         ASSERT_EQ(x[i], f3(timeIdx, i));
     }
     delete [] x;
@@ -273,8 +273,7 @@ TEST_F(IOManagerTest, OutputField) {
 
     ret = nc_close(fileID);
 
-    ret = std::remove("test-output.00000.nc");
-    ASSERT_EQ(0, ret);
+    SystemTools::removeFile("test-output.00000.nc");
 }
 
 #endif // __Geomtk_IOManager_test__

@@ -17,13 +17,15 @@ enum RegridMethod {
  * @brief This is the base class that provides regridding operations. Concrete
  * regrid child classes will be bounded to a specific mesh. 
  */
-
+template <class MeshType, class CoordType>
 class Regrid {
 protected:
-    const Mesh *mesh;
+    const MeshType *mesh;
 public:
-    Regrid(const Mesh &mesh) { this->mesh = &mesh; }
+    Regrid(const MeshType &mesh) { this->mesh = &mesh; }
     virtual ~Regrid() {}
+
+    const MeshType& getMesh() const { return *mesh; }
 };
 
 }

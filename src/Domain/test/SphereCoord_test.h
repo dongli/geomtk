@@ -1,7 +1,10 @@
-#ifndef __Geomtk_SphereCoord__
-#define __Geomtk_SphereCoord__
+#ifndef __Geomtk_SphereCoord_test__
+#define __Geomtk_SphereCoord_test__
 
+#include "SphereCoord.h"
 #include "SphereDomain.h"
+
+using namespace geomtk;
 
 TEST(SphereDomain, CopyConstructor) {
     SphereDomain domain(2);
@@ -20,4 +23,4 @@ TEST(SphereDomain, CopyConstructor) {
     ASSERT_EQ(x.getSinLat(), y.getSinLat());
 }
 
-#endif
+#endif // __Geomtk_SphereCoord_test__

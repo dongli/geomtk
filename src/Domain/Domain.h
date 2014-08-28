@@ -2,114 +2,27 @@
 #define __Geomtk_Domain__
 
 #include "geomtk_commons.h"
+#include "SpaceCoord.h"
+#include "BodyCoord.h"
+#include "VertCoord.h"
 
 namespace geomtk {
+
+enum DomainType {
+    CARTESIAN_DOMAIN, SPHERE_DOMAIN
+};
 
 enum BndType {
     PERIODIC, OPEN, POLE, RIGID, INVALID
 };
 
-enum VertCoordType {
-    HEIGHT, CLASSIC_PRESSURE_SIGMA, HYBRID_PRESSURE_SIGMA
-};
-
-class VertCoord {
-public:
-    VertCoord() {}
-    virtual ~VertCoord() {}
-};
-
 /**
- *  This class describes the space coordinate of a point.
+ *  This class describtes the Cartesian domain, and can be derived by other
+ *  domains.
  */
-class SpaceCoord {
-protected:
-    vec coord;
-public:
-    SpaceCoord(int numDim);
-    SpaceCoord(const SpaceCoord &other);
-    virtual ~SpaceCoord();
-
-    virtual void setCoord(double x, double y);
-    virtual void setCoord(double x, double y, double z);
-    virtual void setCoordComp(int dim, double comp);
-
-    virtual SpaceCoord& operator=(const SpaceCoord &other) {
-        if (this != &other) {
-            coord = other.coord;
-        }
-        return *this;
-    }
-
-    virtual double operator()(int i) const { return coord(i); }
-    virtual double& operator()(int i) { return coord(i); }
-    virtual const vec& operator()() const { return coord; }
-    virtual vec& operator()() { return coord; }
-
-    /**
-     *  This method return the Cartesian coordinate, in this case it is `coord`,
-     *  so this method is just for compatible with SphereCoord.
-     *
-     *  @return The Cartesian coordinate vector.
-     */
-    const vec& getCartCoord() const { return coord; }
-
-    virtual void print() const;
-};
-
-/**
- *  This class describes the body coordinate referenced to a point.
- */
-class BodyCoord : public SpaceCoord {
-public:
-    BodyCoord(int numDim);
-    virtual ~BodyCoord();
-};
-
-// -----------------------------------------------------------------------------
-
-class Velocity {
-protected:
-    vec v;
-public:
-    Velocity();
-    Velocity(int numDim);
-    virtual ~Velocity();
-
-    virtual void setNumDim(int numDim);
-
-    double operator()(int i) const { return v(i); }
-    double& operator()(int i) { return v(i); }
-    vec& operator()() { return v; }
-
-    const Velocity operator+(const Velocity &other) const {
-        Velocity res;
-        res.v = v+other.v;
-        return res;
-    }
-    const Velocity operator-(const Velocity &other) const {
-        Velocity res;
-        res.v = v-other.v;
-        return res;
-    }
-    const Velocity operator*(double scale) const {
-        Velocity res;
-        res.v = v*scale;
-        return res;
-    }
-    const Velocity operator/(double scale) const {
-        Velocity res;
-        res.v = v/scale;
-        return res;
-    }
-
-    virtual void print() const;
-};
-
-// -----------------------------------------------------------------------------
-
 class Domain {
 protected:
+    DomainType type;
     int numDim;
     vector<string> axisName;
     vector<string> axisLongName;
@@ -123,13 +36,19 @@ protected:
      *  The vertical coordinate is so special that we need an object to handle
      *  it.
      */
-    VertCoordType vertCoordType;
     VertCoord *vertCoord;
 public:
     Domain();
     Domain(int numDim);
     Domain(VertCoordType type);
     virtual ~Domain();
+
+    /**
+     *  Return the type of the domain.
+     *
+     *  @return The domain type enum.
+     */
+    DomainType getType() const { return type; }
 
     /**
      *  Return the dimension number of the domain.
@@ -219,8 +138,11 @@ public:
      */
     virtual BndType getAxisEndBndType(int i) const { return bndTypeEnds[i]; }
 
-    VertCoordType getVertCoordType() const { return vertCoordType; }
-
+    /**
+     *  Return the vertical coordinate object.
+     *
+     *  @return The vertical coordinate object.
+     */
     VertCoord& getVertCoord() { return *vertCoord; }
 
     /**
@@ -261,4 +183,4 @@ public:
 
 }
 
-#endif
+#endif // __Geomtk_Domain__

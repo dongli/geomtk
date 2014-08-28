@@ -11,6 +11,10 @@ public:
 
     static void getFileNames(const string &fileRoot, const string &filePattern,
                              vector<string> &fileNames);
+
+    static void writeFile(const string &filePath, const string &content);
+
+    static void removeFile(const string &filePath);
 };
 
 }

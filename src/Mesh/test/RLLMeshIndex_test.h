@@ -7,6 +7,9 @@ using namespace geomtk;
 
 class RLLMeshIndexTest : public ::testing::Test {
 protected:
+    typedef StructuredStagger::GridType GridType;
+    typedef StructuredStagger::Location Location;
+
     SphereDomain *domain;
     RLLMesh *mesh;
     RLLMeshIndex *index;
@@ -81,10 +84,10 @@ TEST_F(RLLMeshIndexTest, Locate) {
     x(0) =  0.9*M_PI;
     x(1) = -0.11*M_PI;
     index->locate(*mesh, x);
-    ASSERT_EQ(2, (*index)(0, StructuredStagger::GridType::FULL));
-    ASSERT_EQ(1, (*index)(1, StructuredStagger::GridType::FULL));
-    ASSERT_EQ(1, (*index)(0, StructuredStagger::GridType::HALF));
-    ASSERT_EQ(1, (*index)(1, StructuredStagger::GridType::HALF));
+    ASSERT_EQ(2, (*index)(0, GridType::FULL));
+    ASSERT_EQ(1, (*index)(1, GridType::FULL));
+    ASSERT_EQ(1, (*index)(0, GridType::HALF));
+    ASSERT_EQ(1, (*index)(1, GridType::HALF));
     ASSERT_EQ(NOT_POLE, index->getPole());
     ASSERT_FALSE(index->isInPolarCap());
     ASSERT_FALSE(index->isOnPole());
@@ -92,20 +95,20 @@ TEST_F(RLLMeshIndexTest, Locate) {
     x(0) = 0.14*M_PI;
     index->reset();
     index->locate(*mesh, x);
-    ASSERT_EQ(0, (*index)(0, StructuredStagger::GridType::FULL));
-    ASSERT_EQ(-1, (*index)(0, StructuredStagger::GridType::HALF));
+    ASSERT_EQ(0, (*index)(0, GridType::FULL));
+    ASSERT_EQ(-1, (*index)(0, GridType::HALF));
 
     x(0) = 1.9*M_PI;
     index->reset();
     index->locate(*mesh, x);
-    ASSERT_EQ(4, (*index)(0, StructuredStagger::GridType::FULL));
-    ASSERT_EQ(4, (*index)(0, StructuredStagger::GridType::HALF));
+    ASSERT_EQ(4, (*index)(0, GridType::FULL));
+    ASSERT_EQ(4, (*index)(0, GridType::HALF));
 
     x(1) = -0.2*M_PI;
     index->reset();
     index->locate(*mesh, x);
-    ASSERT_EQ(1, (*index)(1, StructuredStagger::GridType::FULL));
-    ASSERT_EQ(0, (*index)(1, StructuredStagger::GridType::HALF));
+    ASSERT_EQ(1, (*index)(1, GridType::FULL));
+    ASSERT_EQ(0, (*index)(1, GridType::HALF));
     ASSERT_EQ(NOT_POLE, index->getPole());
     ASSERT_FALSE(index->isInPolarCap());
     ASSERT_FALSE(index->isOnPole());
@@ -113,8 +116,8 @@ TEST_F(RLLMeshIndexTest, Locate) {
     x(1) = -0.39*M_PI;
     index->reset();
     index->locate(*mesh, x);
-    ASSERT_EQ(0, (*index)(1, StructuredStagger::GridType::FULL));
-    ASSERT_EQ(-1, (*index)(1, StructuredStagger::GridType::HALF));
+    ASSERT_EQ(0, (*index)(1, GridType::FULL));
+    ASSERT_EQ(-1, (*index)(1, GridType::HALF));
     ASSERT_EQ(SOUTH_POLE, index->getPole());
     ASSERT_TRUE(index->isInPolarCap());
     ASSERT_FALSE(index->isOnPole());
@@ -122,11 +125,17 @@ TEST_F(RLLMeshIndexTest, Locate) {
     x(1) = 0.41*M_PI;
     index->reset();
     index->locate(*mesh, x);
-    ASSERT_EQ(3, (*index)(1, StructuredStagger::GridType::FULL));
-    ASSERT_EQ(3, (*index)(1, StructuredStagger::GridType::HALF));
+    ASSERT_EQ(3, (*index)(1, GridType::FULL));
+    ASSERT_EQ(3, (*index)(1, GridType::HALF));
     ASSERT_EQ(NORTH_POLE, index->getPole());
     ASSERT_TRUE(index->isInPolarCap());
     ASSERT_TRUE(index->isOnPole());
+}
+
+TEST_F(RLLMeshIndexTest, WrapIndex) {
+    (*index)(0, GridType::FULL) = 0;
+    (*index)(1, GridType::FULL) = 0;
+    ASSERT_EQ(index->wrapIndex(*mesh, Location::CENTER), 0);
 }
 
 #endif

@@ -2,115 +2,15 @@
 #define __Geomtk_TimeManager__
 
 #include "geomtk_commons.h"
+#include "_Time.h"
 
 namespace geomtk {
 
-struct TimeUnit {
-    static const int SECONDS = 1;
-    static const int MINUTES = 60;
-    static const int HOURS = 3600;
-    static const int DAYS = 86400;
-};
-
-enum TimeStepUnit {
-    YEAR, MONTH, DAY, HOUR, MINUTE, SECOND
-};
-
-/**
- * Time
- * This class describes the time point.
- */
-
-class Time {
-public:
-    bool useLeap;
-    int year, month, day, hour, minute;
-    double second;
-
-    Time();
-    Time(double seconds);
-    virtual ~Time();
-
-    virtual void reset();
-
-    double getTOD() const;
-
-    /**
-     * This method returns the seconds between this time and other time. The
-     * sign is included to represent the time direction.
-     */
-    double getSeconds(const Time &other) const;
-
-    double getMinutes(const Time &other) const;
-    
-    double getHours(const Time &other) const;
-    
-    double getDays(const Time &other) const;
-
-    /**
-     * This method returns the days included in the given month and year. If the
-     * month and year are not given, use the ones in this object.
-     */
-    int getDaysOfMonth(int month = -1, int year = -1) const;
-    
-    /**
-     * This method returns the days before the given month and in the given
-     * year. If the month and year are not given, use the ones in this object.
-     */
-    int getDaysBeforeMonth(int month = -1, int year = -1) const;
-    
-    /**
-     * This method returns the days after the given month and in the given
-     * year. If the month and year are not given, use the ones in this object.
-     */
-    int getDaysAfterMonth(int month = -1, int year = -1) const;
-    
-    /**
-     * This method returns the days included in the given year. If the year is
-     * not given, use the one in this object.
-     */
-    int getDaysOfYear(int year = -1) const;
-    
-    /**
-     * This method returns the previous month of the given month. If the month
-     * is not given, use the one in this object.
-     */
-    int getPrevMonth(int month = -1) const;
-    
-    /**
-     * This method returns the next month of the given month. If the month is
-     * not given, use the one in this object.
-     */
-    int getNextMonth(int month = -1) const;
-
-    const Time operator+(double seconds) const;
-
-    Time& operator+=(double seconds);
-
-    const Time operator-(double seconds) const;
-
-    Time& operator=(const Time &other);
-
-    Time& operator=(const string &other);
-
-    Time& operator=(const char *other);
-
-    bool operator==(const Time &other) const;
-
-    bool operator>(const Time &other) const;
-
-    bool operator>=(const Time &other) const;
-
-    bool operator<(const Time &other) const;
-
-    bool operator<=(const Time &other) const;
-
-    string s(bool onlyDate = false) const;
-
-    friend inline ostream& operator<<(ostream &os, Time &other) {
-        os << other.s();
-        return os;
-    }
+struct Alarm {
+    TimeStepUnit unit;
+    double freq;
+    Time lastTime;
+    int lastStep;
 };
 
 class TimeManager {
@@ -120,6 +20,7 @@ protected:
     TimeStepUnit stepUnit;
     double stepSize;
     int numStep;
+    vector<Alarm> alarms;
 public:
     TimeManager();
     ~TimeManager();
@@ -143,6 +44,27 @@ public:
      */
     void resetCurrentTime(Time time);
 
+    void reset();
+
+    /**
+     *  Add an alarm with given frequency
+     *
+     *  @param unit the frequency unit.
+     *  @param freq the frequency.
+     *
+     *  @return The alarm index.
+     */
+    int addAlarm(TimeStepUnit unit, double freq);
+
+    /**
+     *  Check if an alarm is ringing in current step.
+     *
+     *  @param i the alarm index.
+     *
+     *  @return The boolean status.
+     */
+    bool checkAlarm(int i);
+
     /**
      *  Advance the time by one time step.
      *
@@ -158,13 +80,25 @@ public:
     bool isFinished() const { return currTime > endTime; }
     
     const Time& getStartTime() const { return startTime; }
+
     const Time& getCurrTime() const { return currTime; }
+
     const Time& getEndTime() const { return endTime; }
+
     double getStepSize() const { return stepSize; }
+
+    TimeStepUnit getStepUnit() const { return stepUnit; }
+
     int getNumStep() const { return numStep; }
+
+    int getTotalNumStep() const;
+
     double getSeconds() const { return currTime.getSeconds(startTime); }
+
     double getMinutes() const { return currTime.getMinutes(startTime); }
+
     double getHours() const { return currTime.getHours(startTime); }
+
     double getDays() const { return currTime.getDays(startTime); }
 };
 

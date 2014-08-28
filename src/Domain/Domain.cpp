@@ -4,77 +4,8 @@
 
 namespace geomtk {
 
-SpaceCoord::SpaceCoord(int numDim) {
-    coord.resize(numDim);
-}
-
-SpaceCoord::SpaceCoord(const SpaceCoord &other) {
-    coord.resize(other.coord.size());
-    *this = other;
-}
-
-SpaceCoord::~SpaceCoord() {
-}
-
-void SpaceCoord::setCoord(double x, double y) {
-    coord[0] = x;
-    coord[1] = y;
-}
-
-void SpaceCoord::setCoord(double x, double y, double z) {
-    coord[0] = x;
-    coord[1] = y;
-    coord[2] = z;
-}
-
-void SpaceCoord::setCoordComp(int dim, double comp) {
-    coord(dim) = comp;
-}
-
-void SpaceCoord::print() const {
-    cout << "Coordinate:";
-    for (int i = 0; i < coord.size(); ++i) {
-        cout << setw(20) << setprecision(10) << coord(i);
-    }
-    cout << endl;
-}
-
-// -----------------------------------------------------------------------------
-
-BodyCoord::BodyCoord(int numDim) : SpaceCoord(numDim) {
-}
-    
-BodyCoord::~BodyCoord() {
-}
-
-// -----------------------------------------------------------------------------
-
-Velocity::Velocity() {
-    v.resize(3);
-}
-
-Velocity::Velocity(int numDim) {
-    v.resize(numDim);
-}
-
-Velocity::~Velocity() {
-}
-
-void Velocity::setNumDim(int numDim) {
-    v.resize(numDim);
-}
-
-void Velocity::print() const {
-    cout << "Velocity:";
-    for (int i = 0; i < v.size(); ++i) {
-        cout << setw(20) << v(i);
-    }
-    cout << endl;
-}
-
-// -----------------------------------------------------------------------------
-
 Domain::Domain() {
+    type = CARTESIAN_DOMAIN;
     numDim = 2;
     axisName.resize(numDim);
     axisLongName.resize(numDim);
@@ -93,6 +24,7 @@ Domain::Domain() {
 
 Domain::Domain(int numDim) {
     assert(numDim < 3);
+    type = CARTESIAN_DOMAIN;
     this->numDim = numDim;
     axisName.resize(numDim);
     axisLongName.resize(numDim);
@@ -109,8 +41,9 @@ Domain::Domain(int numDim) {
     vertCoord = NULL;
 }
 
-Domain::Domain(VertCoordType type) {
+Domain::Domain(VertCoordType vertCoordType) {
     this->numDim = 3;
+    type = CARTESIAN_DOMAIN;
     axisName.resize(numDim);
     axisLongName.resize(numDim);
     axisUnits.resize(numDim);
@@ -123,13 +56,16 @@ Domain::Domain(VertCoordType type) {
         bndTypeStarts[i] = INVALID;
         bndTypeEnds[i] = INVALID;
     }
-    vertCoordType = type;
-    if (type == CLASSIC_PRESSURE_SIGMA) {
-        vertCoord = new ClassicPressureSigma;
-    } else if (type == HYBRID_PRESSURE_SIGMA) {
-        vertCoord = new HybridPressureSigma;
-    } else {
-        vertCoord = NULL;
+    switch (vertCoordType) {
+        case CLASSIC_PRESSURE_SIGMA:
+            vertCoord = new ClassicPressureSigma;
+            break;
+        case HYBRID_PRESSURE_SIGMA:
+            vertCoord = new HybridPressureSigma;
+            break;
+        default:
+            vertCoord = NULL;
+            break;
     }
 }
 

@@ -2,132 +2,10 @@
 #define __SphereDomain__
 
 #include "Domain.h"
+#include "SphereCoord.h"
+#include "SphereVelocity.h"
 
 namespace geomtk {
-
-enum Pole {
-    SOUTH_POLE = 0, NORTH_POLE = 1, NOT_POLE = 2
-};
-
-class SphereDomain;
-
-/**
- * SphereCoord
- * This class describes the coordinate of sphere.
- */
-
-class SphereCoord : public SpaceCoord {
-protected:
-    vec xt; //>! horizontal coordinate on polar stereographic plane
-    // TODO: How to calculate Cartesian coordinate, since the vertical
-    //       coordinate may not be height?
-    vec::fixed<3> cartCoord; //>! Cartesian coordinate representation
-    double cosLon, sinLon, cosLat, sinLat;
-public:
-    SphereCoord(int numDim);
-    SphereCoord(const SphereCoord &other);
-    virtual ~SphereCoord();
-
-    virtual void setCoord(double lon, double lat);
-    virtual void setCoord(double lon, double lat, double lev);
-    virtual void setCoordComp(int dim, double comp);
-    void setCartCoord(double x, double y, double z);
-    void updateTrigonometricFunctions();
-
-    double getCosLon() const { return cosLon; }
-    double getSinLon() const { return sinLon; }
-    double getCosLat() const { return cosLat; }
-    double getSinLat() const { return sinLat; }
-
-    /**
-     *  Subscript operator for polar stereographic projected coorinate.
-     *
-     *  @param i the coordinate component index.
-     *
-     *  @return The coordinate componnet.
-     */
-    double operator[](int i) const { return xt(i); }
-    double& operator[](int i) { return xt(i); }
-
-    /**
-     *  Get the polar stereographic projected coorinate with the vertical
-     *  coordinate component unchanged.
-     *
-     *  @return The polar stereographic projected coorinate.
-     */
-    const vec& getPSCoord() const { return xt; }
-    vec& getPSCoord() { return xt; }
-
-    SphereCoord& operator=(const SphereCoord& other);
-
-    void transformToPS(const SphereDomain &domain);
-
-    void transformFromPS(const SphereDomain &domain, Pole pole);
-
-    void transformToCart(const SphereDomain &domain);
-
-    const vec& getCartCoord() const { return cartCoord; }
-
-    virtual void print() const;
-};
-
-// -----------------------------------------------------------------------------
-
-class SphereVelocity : public Velocity {
-protected:
-    vec::fixed<2> vt;
-public:
-    SphereVelocity();
-    SphereVelocity(int numDim);
-    virtual ~SphereVelocity();
-
-    /**
-     * Subscript operator of transformed velocity.
-     * @param dim which dimension of velocity that is needed.
-     */
-    double operator[](int i) const { return vt(i); }
-
-    /**
-     * Subscript operator of transformed velocity.
-     * @param dim which dimension of velocity that is needed.
-     */
-    double& operator[](int i) { return vt(i); }
-
-    SphereVelocity& operator=(const SphereVelocity &other);
-
-    const SphereVelocity operator+(const SphereVelocity &other) const;
-    const SphereVelocity operator-(const SphereVelocity &other) const;
-    const SphereVelocity operator*(double scale) const;
-    const SphereVelocity operator/(double scale) const;
-
-    /**
-     * Transform velocity onto polar stereographic plane.
-     * @param x the space coordinate.
-     */
-    void transformToPS(const SphereCoord &x);
-
-    /**
-     * Transform velocity onto polar stereographic plane.
-     * Incorperate calculated sine and cosine of longitude and latitude of
-     * grids.
-     * @param sinLat 
-     * @param sinLat2
-     * @param sinLon
-     * @param cosLon
-     */
-    void transformToPS(double sinLat, double sinLat2,
-                       double sinLon, double cosLon);
-
-    /**
-     * Transform velocity from polar stereographic plane.
-     * @param x the space coordinate.
-     */
-     void transformFromPS(const SphereCoord &x);
-
-    virtual void print() const;
-};
-
-// -----------------------------------------------------------------------------
 
 class SphereDomain : public Domain {
     double radius;
@@ -142,10 +20,13 @@ public:
     virtual ~SphereDomain();
 
     double getRadius() const { return radius; }
+
     void setRadius(double radius) { this->radius = radius; }
 
     double calcDistance(const SphereCoord &x, const SphereCoord &y) const;
+
     double calcDistance(const SphereCoord &x, double lon, double lat) const;
+
     double calcDistance(const SphereCoord &x, double lon, double sinLat,
                         double cosLat) const;
 
@@ -186,6 +67,11 @@ public:
     void projectBack(ProjectionType projType, const SphereCoord &xp,
                      SphereCoord &xo, const vec &xs) const;
 
+    /**
+     *  Get a brief about the domain.
+     *
+     *  @return The brief.
+     */
     virtual string getBrief() const;
 };
 

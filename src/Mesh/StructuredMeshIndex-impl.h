@@ -1,9 +1,8 @@
-#include "StructuredMeshIndex.h"
-
 namespace geomtk {
 
-StructuredMeshIndex::StructuredMeshIndex(int numDim) : MeshIndex(numDim) {
-    this->numDim = numDim;
+template <class MeshType, class CoordType>
+StructuredMeshIndex<MeshType, CoordType>::StructuredMeshIndex(int numDim)
+        : MeshIndex<MeshType, CoordType>(numDim) {
     // NOTE: Index is 3D no matter the dimension size of domain.
     indices = new int*[3];
     for (int i = 0; i < 3; ++i) {
@@ -12,37 +11,42 @@ StructuredMeshIndex::StructuredMeshIndex(int numDim) : MeshIndex(numDim) {
     reset();
 }
 
-StructuredMeshIndex::~StructuredMeshIndex() {
+template <class MeshType, class CoordType>
+StructuredMeshIndex<MeshType, CoordType>::~StructuredMeshIndex() {
     for (int i = 0; i < 3; ++i) {
         delete [] indices[i];
     }
     delete [] indices;
 }
 
-void StructuredMeshIndex::reset() {
-    for (int m = 0; m < numDim; ++m) {
+template <class MeshType, class CoordType>
+void StructuredMeshIndex<MeshType, CoordType>::reset() {
+    for (int m = 0; m < this->numDim; ++m) {
         indices[m][GridType::FULL] = UNDEFINED_MESH_INDEX;
         indices[m][GridType::HALF] = UNDEFINED_MESH_INDEX;
     }
     // set the extra dimension indices to 0
-    for (int m = numDim; m < 3; ++m) {
+    for (int m = this->numDim; m < 3; ++m) {
         indices[m][GridType::FULL] = 0;
         indices[m][GridType::HALF] = 0;
     }
 }
 
-int StructuredMeshIndex::operator()(int axisIdx, int gridType) const {
+template <class MeshType, class CoordType>
+int StructuredMeshIndex<MeshType, CoordType>::operator()(int axisIdx, int gridType) const {
     return indices[axisIdx][gridType];
 }
 
-int& StructuredMeshIndex::operator()(int axisIdx, int gridType) {
+template <class MeshType, class CoordType>
+int& StructuredMeshIndex<MeshType, CoordType>::operator()(int axisIdx, int gridType) {
     return indices[axisIdx][gridType];
 }
 
-StructuredMeshIndex& StructuredMeshIndex::operator=(const StructuredMeshIndex &other) {
-    MeshIndex::operator=(other);
+template <class MeshType, class CoordType>
+StructuredMeshIndex<MeshType, CoordType>& StructuredMeshIndex<MeshType, CoordType>::
+        operator=(const StructuredMeshIndex<MeshType, CoordType> &other) {
+    MeshIndex<MeshType, CoordType>::operator=(other);
     if (this != &other) {
-        numDim = other.numDim;
         for (int m = 0; m < 3; ++m) {
             for (int i = 0; i < 2; ++i) {
                 indices[m][i] = other.indices[m][i];
@@ -52,8 +56,8 @@ StructuredMeshIndex& StructuredMeshIndex::operator=(const StructuredMeshIndex &o
     return *this;
 }
 
-void StructuredMeshIndex::locate(const Mesh &mesh_, const SpaceCoord &x) {
-    const StructuredMesh &mesh = static_cast<const StructuredMesh&>(mesh_);
+template <class MeshType, class CoordType>
+void StructuredMeshIndex<MeshType, CoordType>::locate(const MeshType &mesh, const CoordType &x) {
     const Domain &domain = mesh.getDomain();
     for (int m = 0; m < domain.getNumDim(); ++m) {
         // sanity check
@@ -201,7 +205,41 @@ void StructuredMeshIndex::locate(const Mesh &mesh_, const SpaceCoord &x) {
     }
 }
 
-void StructuredMeshIndex::print() const {
+template <class MeshType, class CoordType>
+int StructuredMeshIndex<MeshType, CoordType>::wrapIndex(const MeshType &mesh, int loc) const {
+    if (this->numDim == 2) {
+        switch (loc) {
+            case Location::CENTER:
+                return mesh.wrapIndex(indices[0][GridType::FULL], indices[1][GridType::FULL], loc);
+            case Location::X_FACE:
+                return mesh.wrapIndex(indices[0][GridType::HALF], indices[1][GridType::FULL], loc);
+            case Location::Y_FACE:
+                return mesh.wrapIndex(indices[0][GridType::FULL], indices[1][GridType::HALF], loc);
+            case Location::XY_VERTEX:
+                return mesh.wrapIndex(indices[0][GridType::HALF], indices[1][GridType::HALF], loc);
+            default:
+                REPORT_ERROR("Unsupported stagger location!");
+        }
+    } else if (this->numDim == 3) {
+        switch (loc) {
+            case Location::CENTER:
+                return mesh.wrapIndex(indices[0][GridType::FULL], indices[1][GridType::FULL], indices[2][GridType::FULL], loc);
+            case Location::X_FACE:
+                return mesh.wrapIndex(indices[0][GridType::HALF], indices[1][GridType::FULL], indices[2][GridType::FULL], loc);
+            case Location::Y_FACE:
+                return mesh.wrapIndex(indices[0][GridType::FULL], indices[1][GridType::HALF], indices[2][GridType::FULL], loc);
+            case Location::XY_VERTEX:
+                return mesh.wrapIndex(indices[0][GridType::HALF], indices[1][GridType::HALF], indices[2][GridType::FULL], loc);
+            case Location::Z_FACE:
+                return mesh.wrapIndex(indices[0][GridType::FULL], indices[1][GridType::FULL], indices[2][GridType::HALF], loc);
+            default:
+                REPORT_ERROR("Unsupported stagger location!");
+        }
+    }
+}
+
+template <class MeshType, class CoordType>
+void StructuredMeshIndex<MeshType, CoordType>::print() const {
     cout << "Center indices:";
     for (int m = 0; m < 3; ++m) {
         cout << setw(10) << indices[m][GridType::FULL];
@@ -214,4 +252,4 @@ void StructuredMeshIndex::print() const {
     cout << endl;
 }
 
-}
+} // geomtk

@@ -1,5 +1,5 @@
-#ifndef __SphereDomain_test__
-#define __SphereDomain_test__
+#ifndef __Geomtk_SphereDomain_test__
+#define __Geomtk_SphereDomain_test__
 
 #include "SphereDomain.h"
 

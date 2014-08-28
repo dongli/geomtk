@@ -3,7 +3,7 @@
 namespace geomtk {
 
 ClassicPressureSigma::ClassicPressureSigma() {
-
+    type = CLASSIC_PRESSURE_SIGMA;
 }
 
 ClassicPressureSigma::~ClassicPressureSigma() {

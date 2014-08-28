@@ -34,8 +34,8 @@ void PolarRing::create(const RLLMesh &mesh, bool hasHalfLevel) {
 }
 
 void PolarRing::update(const TimeLevelIndex<2> &timeIdx, Pole pole,
-                       const vector<NumericRLLField<double, 2> > &v,
-                       const NumericRLLField<double, 2> &div,
+                       const vector<RLLField<double, 2> > &v,
+                       const RLLField<double, 2> &div,
                        bool updateHalfLevel) {
     // ring variable is at A-grids
     int nx = mesh->getNumGrid(0, GridType::FULL, true);
@@ -204,24 +204,24 @@ void RLLVelocityField::create(const RLLMesh &mesh, bool useStagger,
     this->domain = static_cast<const SphereDomain*>(&mesh.getDomain());
     v.resize(mesh.getDomain().getNumDim());
     if (useStagger) {
-        v[0].create("u", "m s-1", "zonal wind speed", mesh, Location::X_FACE, hasHalfLevel);
-        v[1].create("v", "m s-1", "meridional wind speed", mesh, Location::Y_FACE, hasHalfLevel);
+        v[0].create("u", "m s-1", "zonal wind speed", mesh, Location::X_FACE, 2, hasHalfLevel);
+        v[1].create("v", "m s-1", "meridional wind speed", mesh, Location::Y_FACE, 2, hasHalfLevel);
         if (mesh.getDomain().getNumDim() == 3) {
             REPORT_ERROR("Under construction!");
-            v[2].create("w", "?", "vertical wind speed", mesh, Location::Z_FACE, hasHalfLevel);
+            v[2].create("w", "?", "vertical wind speed", mesh, Location::Z_FACE, 2, hasHalfLevel);
         }
     } else {
-        v[0].create("u", "m s-1", "zonal wind speed", mesh, Location::CENTER, hasHalfLevel);
-        v[1].create("v", "m s-1", "meridional wind speed", mesh, Location::CENTER, hasHalfLevel);
+        v[0].create("u", "m s-1", "zonal wind speed", mesh, Location::CENTER, 2, hasHalfLevel);
+        v[1].create("v", "m s-1", "meridional wind speed", mesh, Location::CENTER, 2, hasHalfLevel);
         if (mesh.getDomain().getNumDim() == 3) {
             REPORT_ERROR("Under construction!");
-            v[2].create("w", "?", "vertical wind speed", mesh, Location::CENTER, hasHalfLevel);
+            v[2].create("w", "?", "vertical wind speed", mesh, Location::CENTER, 2, hasHalfLevel);
         }
     }
-    div.create("div", "s-1", "divergence", mesh, Location::CENTER, hasHalfLevel);
+    div.create("div", "s-1", "divergence", mesh, Location::CENTER, 2, hasHalfLevel);
     if (domain->getNumDim() == 2) {
         vor.resize(1);
-        vor[0].create("vor_xy", "s-1", "vorticity (x-y)", mesh, Location::CENTER, hasHalfLevel);
+        vor[0].create("vor_xy", "s-1", "vorticity (x-y)", mesh, Location::CENTER, 2, hasHalfLevel);
     } else {
         REPORT_ERROR("Under construction!");
     }

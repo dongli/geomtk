@@ -1,13 +1,12 @@
 #include "RLLMesh.h"
 #include "RLLMeshIndex.h"
 #include "IOManager.h"
+#include "SphereDomain.h"
 
 namespace geomtk {
 
-RLLMesh::RLLMesh(Domain &domain) : StructuredMesh(domain) {
-    if (dynamic_cast<SphereDomain*>(&domain) == NULL) {
-        REPORT_ERROR("The domain should be SphereDomain!");
-    }
+RLLMesh::RLLMesh(SphereDomain &domain) : StructuredMesh<SphereDomain, SphereCoord>(domain) {
+    type = RLL_MESH;
     poleRadius = 18.0*RAD;
 }
 
@@ -20,24 +19,53 @@ void RLLMesh::init(const string &fileName) {
     io.open(fileIdx);
     io.file(fileIdx).inputGrids();
     io.close(fileIdx);
+    // Store the coordinates of each grid point for convenience.
+    for (int loc = 0; loc < 4; ++loc) {
+        gridCoords[loc].set_size(getTotalNumGrid(loc, domain->getNumDim()));
+        for (int i = 0; i < gridCoords[loc].size(); ++i) {
+            gridCoords[loc][i].setNumDim(domain->getNumDim());
+            getGridCoord(i, loc, gridCoords[loc][i]);
+        }
+    }
+    set = true;
+}
+
+void RLLMesh::init(const string &fileNameH, const string &fileNameV) {
+    IOManager<RLLDataFile> io;
+    int fileIdx = io.registerInputFile(*this, fileNameH);
+    io.open(fileIdx);
+    io.file(fileIdx).inputHorizontalGrids();
+    io.close(fileIdx);
+    fileIdx = io.registerInputFile(*this, fileNameV);
+    io.open(fileIdx);
+    io.file(fileIdx).inputVerticalGrids();
+    io.close(fileIdx);
+    // Store the coordinates of each grid point for convenience.
+    for (int loc = 0; loc < 4; ++loc) {
+        gridCoords[loc].set_size(getTotalNumGrid(loc, domain->getNumDim()));
+        for (int i = 0; i < gridCoords[loc].size(); ++i) {
+            gridCoords[loc][i].setNumDim(domain->getNumDim());
+            getGridCoord(i, loc, gridCoords[loc][i]);
+        }
+    }
     set = true;
 }
 
 void RLLMesh::init(int nx, int ny, int nz) {
-    StructuredMesh::init(nx, ny, nz);
-}
-
-void RLLMesh::setPoleRadius(double radius) {
-    poleRadius = radius;
-}
-
-double RLLMesh::getPoleRadius() const {
-    return poleRadius;
+    StructuredMesh<SphereDomain, SphereCoord>::init(nx, ny, nz);
+    // Store the coordinates of each grid point for convenience.
+    for (int loc = 0; loc < 4; ++loc) {
+        gridCoords[loc].set_size(getTotalNumGrid(loc, domain->getNumDim()));
+        for (int i = 0; i < gridCoords[loc].size(); ++i) {
+            gridCoords[loc][i].setNumDim(domain->getNumDim());
+            getGridCoord(i, loc, gridCoords[loc][i]);
+        }
+    }
 }
 
 void RLLMesh::setGridCoords(int axisIdx, int size, const vec &full,
                             const vec &half) {
-    StructuredMesh::setGridCoords(axisIdx, size, full, half);
+    StructuredMesh<SphereDomain, SphereCoord>::setGridCoords(axisIdx, size, full, half);
     if (axisIdx == 0) {
         cosLonFull.set_size(fullCoords[0].size());
         sinLonFull.set_size(fullCoords[0].size());
@@ -76,7 +104,7 @@ void RLLMesh::setGridCoords(int axisIdx, int size, const vec &full,
 }
 
 void RLLMesh::setGridCoords(int axisIdx, int size, const vec &full) {
-    StructuredMesh::setGridCoords(axisIdx, size, full);
+    StructuredMesh<SphereDomain, SphereCoord>::setGridCoords(axisIdx, size, full);
     if (axisIdx == 0) {
         cosLonFull.set_size(fullCoords[0].size());
         sinLonFull.set_size(fullCoords[0].size());
@@ -115,11 +143,10 @@ void RLLMesh::setGridCoords(int axisIdx, int size, const vec &full) {
 }
 
 void RLLMesh::setCellVolumes() {
-    const SphereDomain &domain = static_cast<const SphereDomain&>(*(this->domain));
     volumes.set_size(getNumGrid(0, GridType::FULL),
                      getNumGrid(1, GridType::FULL),
                      getNumGrid(2, GridType::FULL));
-    double R2 = domain.getRadius()*domain.getRadius();
+    double R2 = domain->getRadius()*domain->getRadius();
     for (int k = 0; k < volumes.n_slices; ++k) {
         for (int j = 1; j < volumes.n_cols-1; ++j) {
             double dsinLat = sinLatHalf(j)-sinLatHalf(j-1);
@@ -213,10 +240,9 @@ double RLLMesh::getTanLat(int gridType, int j) const {
 
 void RLLMesh::move(const SphereCoord &x0, double dt, const SphereVelocity &v,
                    const RLLMeshIndex &idx, SphereCoord &x1) const {
-    const SphereDomain &domain = static_cast<const SphereDomain&>(*(this->domain));
     if (!idx.isOnPole()) {
-        double dlon = dt*v(0)/domain.getRadius()/cos(x0(1));
-        double dlat = dt*v(1)/domain.getRadius();
+        double dlon = dt*v(0)/domain->getRadius()/cos(x0(1));
+        double dlat = dt*v(1)/domain->getRadius();
         double lon = x0(0)+dlon;
         double lat = x0(1)+dlat;
         if (lat > M_PI_2) {
@@ -236,15 +262,15 @@ void RLLMesh::move(const SphereCoord &x0, double dt, const SphereVelocity &v,
     } else {
         x1[0] = x0[0]+dt*v[0];
         x1[1] = x0[1]+dt*v[1];
-        x1.transformFromPS(domain, idx.getPole());
+        x1.transformFromPS(*domain, idx.getPole());
     }
-    if (domain.getNumDim() == 3) {
+    if (domain->getNumDim() == 3) {
         double dlev = dt*v(2);
         x1(2) = x0(2)+dlev;
 #ifndef NDEBUG
-        assert(x1(2) >= domain.getAxisStart(2) && x1(2) <= domain.getAxisEnd(2));
+        assert(x1(2) >= domain->getAxisStart(2) && x1(2) <= domain->getAxisEnd(2));
 #endif
     }
 }
 
-}
+} // geomtk

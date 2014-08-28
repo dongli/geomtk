@@ -2,7 +2,7 @@
 #define __Geomtk_HybridPressureSigma__
 
 #include "geomtk_commons.h"
-#include "Domain.h"
+#include "TerrainFollowing.h"
 
 namespace geomtk {
 
@@ -15,7 +15,7 @@ namespace geomtk {
  *  where A and B are coefficients, p0 is some reference pressure and
  *  ps is the surface pressure.
  */
-class HybridPressureSigma : public VertCoord {
+class HybridPressureSigma : public TerrainFollowing {
 public:
     vec fullA, halfA;
     vec fullB, halfB;
@@ -24,7 +24,7 @@ public:
     HybridPressureSigma();
     virtual ~HybridPressureSigma();
 
-    double getPressure(double ps, int k);
+    virtual double getPressure(double ps, int k) const;
 };
 
 }

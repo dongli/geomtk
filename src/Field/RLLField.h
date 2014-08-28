@@ -6,24 +6,16 @@
 
 namespace geomtk {
 
-template <typename T, int N = 2>
-class RLLField : public StructuredField<T, N> {
+template <typename DataType, int NumTimeLevel>
+class RLLField : public StructuredField<RLLMesh, DataType, NumTimeLevel> {
 public:
-    RLLField();
-    virtual ~RLLField();
+	typedef RLLMesh MeshType;
+
+    RLLField() {}
+    virtual ~RLLField() {}
 };
 
-// -----------------------------------------------------------------------------
+} // geomtk
 
-template <typename T, int N>
-RLLField<T, N>::RLLField() : StructuredField<T, N>() {
-}
-
-template <typename T, int N>
-RLLField<T, N>::~RLLField() {
-}
-
-}
-
-#endif
+#endif // __Geomtk_RLLField__
 

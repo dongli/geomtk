@@ -16,7 +16,7 @@ ConfigManager::~ConfigManager() {
  *      <key> = <value> \
  *              <continued-value>
  */
-void ConfigManager::parse(const string &filePath) {
+void ConfigManager::parse(const string &filePath, bool mute) {
     // some patterns
     regex reWhiteSpace("\\s");
     regex reContinueChar("\\\\\\s*$");
@@ -36,7 +36,9 @@ void ConfigManager::parse(const string &filePath) {
     if (!file.good()) {
         REPORT_ERROR("Fail to open \"" << filePath << "\"!");
     }
-    REPORT_NOTICE("Parse \"" << filePath << "\".");
+    if (!mute) {
+        REPORT_NOTICE("Parse \"" << filePath << "\".");
+    }
 
     string line;
     while (!file.eof()) {
@@ -95,6 +97,17 @@ void ConfigManager::parse(const string &filePath) {
 bool ConfigManager::hasKey(const string &packName, const string &key) const {
     const ConfigPack &pack = getPack(packName);
     return pack.keyValues.count(key) != 0;
+}
+
+vector<string> ConfigManager::getKeys(const string &packName) const {
+    vector<string> keys;
+    const ConfigPack &pack = getPack(packName);
+    map<string, variant<string, double, bool> >::const_iterator keyValue;
+    for (keyValue = pack.keyValues.begin();
+         keyValue != pack.keyValues.end(); ++keyValue) {
+        keys.push_back(keyValue->first);
+    }
+    return keys;
 }
 
 void ConfigManager::getValue(const string &packName, const string &key,
@@ -156,7 +169,7 @@ void ConfigManager::print() const {
         cout << "ConfigPack \"" << pack->name << "\":" << endl;
         map<string, variant<string, double, bool> >::const_iterator keyValue;
         for (keyValue = pack->keyValues.begin();
-             keyValue != (*pack).keyValues.end(); ++keyValue) {
+             keyValue != pack->keyValues.end(); ++keyValue) {
             cout << "  " << keyValue->first << " = " << keyValue->second << endl;
         }
     }

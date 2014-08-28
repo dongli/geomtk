@@ -6,13 +6,13 @@
 
 namespace geomtk {
 
-class StructuredMeshIndex : public MeshIndex {
+template <class MeshType, class CoordType>
+class StructuredMeshIndex : public MeshIndex<MeshType, CoordType> {
 public:
     typedef StructuredStagger::GridType GridType;
     typedef StructuredStagger::Location Location;
 protected:
     int **indices;
-    int numDim;
 public:
     StructuredMeshIndex(int numDim);
     virtual ~StructuredMeshIndex();
@@ -27,14 +27,15 @@ public:
 
     virtual StructuredMeshIndex& operator=(const StructuredMeshIndex &other);
 
-    /**
-     *  MeshIndex::locate(SpaceCoord x)
-     */
-    virtual void locate(const Mesh &mesh, const SpaceCoord &x);
+    virtual void locate(const MeshType &mesh, const CoordType &x);
+
+    virtual int wrapIndex(const MeshType &mesh, int loc) const;
 
     virtual void print() const;
 };
 
-}
+} // geomtk
 
-#endif
+#include "StructuredMeshIndex-impl.h"
+
+#endif // __Geomtk_StructuredMeshIndex__

@@ -2,7 +2,7 @@
 #define __Geomtk_ClassicPressureSigma__
 
 #include "geomtk_commons.h"
-#include "Domain.h"
+#include "TerrainFollowing.h"
 
 namespace geomtk {
 
@@ -16,7 +16,7 @@ namespace geomtk {
  *  where p is the pressure, pt is the model top pressure and ps is the
  *  surface pressure.
  */
-class ClassicPressureSigma : public VertCoord {
+class ClassicPressureSigma : public TerrainFollowing {
 public:
     vec fullSigma;
     vec halfSigma;
@@ -25,7 +25,7 @@ public:
     ClassicPressureSigma();
     virtual ~ClassicPressureSigma();
 
-    double getPressure(double ps, int k) const;
+    virtual double getPressure(double ps, int k) const;
 };
 
 }

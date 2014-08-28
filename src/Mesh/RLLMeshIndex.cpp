@@ -2,7 +2,7 @@
 
 namespace geomtk {
 
-RLLMeshIndex::RLLMeshIndex(int numDim) : StructuredMeshIndex(numDim) {
+RLLMeshIndex::RLLMeshIndex(int numDim) : StructuredMeshIndex<RLLMesh, SphereCoord>(numDim) {
     reset();
 }
 
@@ -10,7 +10,7 @@ RLLMeshIndex::~RLLMeshIndex() {
 }
 
 void RLLMeshIndex::reset() {
-    StructuredMeshIndex::reset();
+    StructuredMeshIndex<RLLMesh, SphereCoord>::reset();
     pole = NOT_POLE;
     inPolarCap = false;
     onPole = false;
@@ -18,7 +18,7 @@ void RLLMeshIndex::reset() {
 }
 
 RLLMeshIndex& RLLMeshIndex::operator=(const RLLMeshIndex &other) {
-    StructuredMeshIndex::operator=(other);
+    StructuredMeshIndex<RLLMesh, SphereCoord>::operator=(other);
     if (this != &other) {
         pole = other.pole;
         inPolarCap = other.inPolarCap;
@@ -28,8 +28,8 @@ RLLMeshIndex& RLLMeshIndex::operator=(const RLLMeshIndex &other) {
     return *this;
 }
 
-void RLLMeshIndex::locate(const Mesh &mesh_, const SpaceCoord &x) {
-    StructuredMeshIndex::locate(mesh_, x);
+void RLLMeshIndex::locate(const RLLMesh &mesh_, const SphereCoord &x) {
+    StructuredMeshIndex<RLLMesh, SphereCoord>::locate(mesh_, x);
     const RLLMesh &mesh = static_cast<const RLLMesh&>(mesh_);
     if (indices[1][GridType::FULL] == 0) {
         pole = SOUTH_POLE;
@@ -52,7 +52,7 @@ void RLLMeshIndex::locate(const Mesh &mesh_, const SpaceCoord &x) {
 }
 
 void RLLMeshIndex::print() const {
-    StructuredMeshIndex::print();
+    StructuredMeshIndex<RLLMesh, SphereCoord>::print();
     cout << "inPolarCap: " << inPolarCap << endl;
     cout << "onPole: " << onPole << endl;
     cout << "pole: ";
@@ -66,4 +66,4 @@ void RLLMeshIndex::print() const {
     cout << "moveOnPole: " << moveOnPole << endl;
 }
 
-}
+} // geomtk

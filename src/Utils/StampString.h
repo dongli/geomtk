@@ -12,33 +12,31 @@ enum StampType {
 
 class StampString {
 protected:
-    string prefix, suffix;
     string pattern;
 
-    sregex re4DigitYear;
-    sregex re2DigitYear;
-    sregex re2DigitMonth;
-    sregex reMonth;
-    sregex re2DigitDay;
-    sregex reDay;
-    sregex re5DigitTOD;
-    sregex reTOD;
+    static sregex re4DigitYear;
+    static sregex re2DigitYear;
+    static sregex re2DigitMonth;
+    static sregex reMonth;
+    static sregex re2DigitDay;
+    static sregex reDay;
+    static sregex re5DigitTOD;
+    static sregex reTOD;
+    static sregex reStep;
 public:
     StampString();
-    StampString(const string &prefix, const string &suffix);
     StampString(const string &pattern);
     virtual ~StampString();
 
     void init(const string &pattern) { this->pattern = pattern; }
 
     string run(const Time &time);
-    string run(const string &format, int tag);
     string run(const TimeManager &timeManager);
 
     bool operator==(const StampString &other) const;
     
     friend ostream& operator<<(ostream &os, const StampString &stampString) {
-        os << stampString.prefix << "<...>" << stampString.suffix;
+        os << stampString.pattern;
         return os;
     }
 };

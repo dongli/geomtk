@@ -19,7 +19,9 @@ protected:
 };
 
 TEST_F(ConfigManagerTest, Parse) {
-    configManager.parse("/Users/dongli/Dropbox/Works/geodiag/tools/geomtk/src/Utils/test/test.config");
+    SystemTools::writeFile("test.config", "test_config:\n\na = 1.0\nb = \"hello, \\\"world\\\"! \" \\\n  \"It's me.\"\nc = -1\nd = -1.0e+10\n");
+
+    configManager.parse("test.config", true);
 
     double a;
     configManager.getValue("test_config", "a", a);
@@ -33,6 +35,8 @@ TEST_F(ConfigManagerTest, Parse) {
     double d;
     configManager.getValue("test_config", "d", d);
     ASSERT_EQ(d, -1.0e+10);
+
+    SystemTools::removeFile("test.config");
 }
 
 #endif

@@ -2,7 +2,7 @@
 
 namespace geomtk {
 
-RLLRegrid::RLLRegrid(const Mesh &mesh) : Regrid(mesh) {
+RLLRegrid::RLLRegrid(const RLLMesh &mesh) : Regrid<RLLMesh, SphereCoord>(mesh) {
 }
 
 RLLRegrid::~RLLRegrid() {
@@ -11,28 +11,27 @@ RLLRegrid::~RLLRegrid() {
 void RLLRegrid::run(RegridMethod method, const TimeLevelIndex<2> &timeIdx,
                     const RLLVelocityField &f, const SphereCoord &x,
                     SphereVelocity &y, RLLMeshIndex *idx_) {
-    const RLLMesh &mesh = static_cast<const RLLMesh&>(*(this->mesh));
     RLLMeshIndex *idx;
     if (idx_ == NULL) {
-        idx = new RLLMeshIndex(mesh.getDomain().getNumDim());
-        idx->locate(mesh, x);
+        idx = new RLLMeshIndex(mesh->getDomain().getNumDim());
+        idx->locate(*mesh, x);
     } else {
         idx = idx_;
     }
     if (idx->isInPolarCap()) {
-        const SphereDomain &domain = static_cast<const SphereDomain&>(mesh.getDomain());
+        const SphereDomain &domain = mesh->getDomain();
         const PolarRing &ring = f.getPolarRing(idx->getPole());
         const double eps = 1.0e-10;
-        int j = idx->getPole() == SOUTH_POLE ? 1 : mesh.getNumGrid(1, RLLStagger::GridType::FULL)-2;
+        int j = idx->getPole() == SOUTH_POLE ? 1 : mesh->getNumGrid(1, RLLStagger::GridType::FULL)-2;
         int k = (*idx)(2, RLLStagger::GridType::FULL);
-        double sinLat = mesh.getSinLat(RLLStagger::GridType::FULL, j);
-        double cosLat = mesh.getCosLat(RLLStagger::GridType::FULL, j);
+        double sinLat = mesh->getSinLat(RLLStagger::GridType::FULL, j);
+        double cosLat = mesh->getCosLat(RLLStagger::GridType::FULL, j);
         // horizontal velocity
         y[0] = 0.0; y[1] = 0.0;
         bool match = false;
         double ws = 0.0;
-        for (int i = 0; i < mesh.getNumGrid(0, RLLStagger::GridType::FULL); ++i) {
-            double d = domain.calcDistance(x, mesh.getGridCoordComp(0, RLLStagger::GridType::FULL, i),
+        for (int i = 0; i < mesh->getNumGrid(0, RLLStagger::GridType::FULL); ++i) {
+            double d = domain.calcDistance(x, mesh->getGridCoordComp(0, RLLStagger::GridType::FULL, i),
                                            sinLat, cosLat);
             if (d < eps) {
                 y[0] = ring.getTransformedData(0, timeIdx, i, k);
@@ -55,8 +54,8 @@ void RLLRegrid::run(RegridMethod method, const TimeLevelIndex<2> &timeIdx,
             REPORT_ERROR("Under construction!");
             // linear interpolation
             int i = (*idx)(0, RLLStagger::GridType::FULL);
-            double z1 = mesh.getGridCoordComp(2, RLLStagger::GridType::HALF, k);
-            double z2 = mesh.getGridCoordComp(2, RLLStagger::GridType::HALF, k+1);
+            double z1 = mesh->getGridCoordComp(2, RLLStagger::GridType::HALF, k);
+            double z2 = mesh->getGridCoordComp(2, RLLStagger::GridType::HALF, k+1);
             double c = (z2-x(2))/(z2-z1);
             y(2) = c*f(2)(timeIdx, i, j, k)+(1.0-c)*f(2)(timeIdx, i, j, k+1);
         }
@@ -71,11 +70,11 @@ void RLLRegrid::run(RegridMethod method, const TimeLevelIndex<2> &timeIdx,
                 i2 = i1+1; i3 = i1; i4 = i2;
                 j1 = (*idx)(1, f(m).getGridType(1));
                 j2 = j1; j3 = j1+1; j4 = j3;
-                double x1 = mesh.getGridCoordComp(0, f(m).getGridType(0), i1);
-                double x2 = mesh.getGridCoordComp(0, f(m).getGridType(0), i2);
+                double x1 = mesh->getGridCoordComp(0, f(m).getGridType(0), i1);
+                double x2 = mesh->getGridCoordComp(0, f(m).getGridType(0), i2);
                 double X = (x(0)-x1)/(x2-x1);
-                double y1 = mesh.getGridCoordComp(1, f(m).getGridType(1), j1);
-                double y2 = mesh.getGridCoordComp(1, f(m).getGridType(1), j3);
+                double y1 = mesh->getGridCoordComp(1, f(m).getGridType(1), j1);
+                double y2 = mesh->getGridCoordComp(1, f(m).getGridType(1), j3);
                 double Y = (x(1)-y1)/(y2-y1);
                 double f1 = f(m)(timeIdx, i1, j1, 0);
                 double f2 = f(m)(timeIdx, i2, j2, 0);

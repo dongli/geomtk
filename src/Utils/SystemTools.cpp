@@ -57,4 +57,18 @@ void SystemTools::getFileNames(const string &fileRoot,
     }
 }
 
+void SystemTools::writeFile(const string &filePath, const string &content) {
+    ofstream file;
+    file.open(filePath, ios::out);
+    file << content;
+    file.close();
+}
+
+void SystemTools::removeFile(const string &filePath) {
+    if (!boost::filesystem::exists(filePath)) {
+        REPORT_WARNING("File \"" << filePath << "\" to be removed does not exist!");
+    }
+    boost::filesystem::remove_all(filePath);
+}
+
 }
