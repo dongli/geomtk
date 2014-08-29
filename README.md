@@ -27,34 +27,46 @@ Basic usage
 ```C++
 #include "geomtk.h"
 
-using geomtk::SphereDomain;
-using geomtk::RLLMesh;
-using geomtk::RLLScalarField;
-using geomtk::RLLVectorField;
+// Choose the specific classes for use.
+typedef geomtk::SphereDomain Domain;
+typedef geomtk::SphereCoord SpaceCoord;
+typedef geomtk::BodyCoord BodyCoord;
+typedef geomtk::SphereVelocity Velocity;
+typedef geomtk::RLLMesh Mesh;
+typedef geomtk::RLLMeshIndex MeshIndex;
+typedef geomtk::RLLField<double, 2> Field;
+typedef geomtk::RLLVelocityField VelocityField;
+typedef geomtk::RLLRegrid Regrid;
+typedef geomtk::TimeManager TimeManager;
+typedef geomtk::TimeLevelIndex<2> TimeLevelIndex;
+typedef geomtk::IOManager<geomtk::RLLDataFile> IOManager;
+typedef geomtk::ConfigManager ConfigManager;
+typedef geomtk::StampString StampString;
 
+int CENTER = geomtk::RLLStagger::Location::CENTER;
 ...
 
-SphereDomain sphere(3);
-RLLMesh mesh(sphere);
-RLLScalarField q(mesh);
-RLLVectorField v(mesh);
-RLLRegrid regrid(mesh);
+Domain sphere(3);
+Mesh mesh(sphere);
+Field q(); // Field with two time levels.
+VelocityField V(); // Velocity field is also two time levels.
+Regrid regrid(mesh);
+TimeLevelIndex timeIdx; // Time level index.
 
 sphere.setRadius(6371.299e3);
 
-mesh.setGridCoords(0, 128, lonFull, lonHalf); // lonFull and lonHalf are 'double' arrays
-mesh.setGridCoords(1, 60, latFull, latHalf); // latFull and latHalf are 'double' arrays
-mesh.setGridCoords(2, 26, levFull, levHalf); // levFull and levHalf are 'double' arrays
+// Initialize the regular lat-lon mesh.
+mesh.init(128, 64);
 
 // zonal virtual grids are added, which is apparent to user
-q.create(CENTER, CENTER, CENTER);
+q.create("q", "kg m-3", "moisture density", mesh, CENTER, sphere.getNumDim());
 // three components are included in v
-v.create(EDGE, CENTER, CENTER, CENTER, EDGE, CENTER, CENTER, CENTER, EDGE);
+V.create(mesh, CENTER);
 
 for (int k = 0; k < mesh.getNumGrid(2, CENTER); ++k) {
 	for (int j = 0; j < mesh.getNumGrid(1, CENTER); ++j) {
 		for (int i = 0; i < mesh.getNumGrid(0, CENTER); ++i) {
-			q(0, i, j, k) = ...;
+			q(timeIdx, i, j, k) = ...;
 		}
 	}
 }
@@ -66,7 +78,12 @@ x(1) = ...;
 x(2) = ...;
 
 double y;
-regrid.run(q, x, y);
+regrid.run(geomtk::BILINEAR, timeIdx, q, x, y);
+
+// Shift time level index.
+timeIdx.shift();
+
+...
 
 ```
 
