@@ -8,6 +8,7 @@
 #include <boost/xpressive/xpressive.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/timer/timer.hpp>
 #include <netcdf.h>
 #include <mlpack/methods/range_search/range_search.hpp>
 #include <armadillo>
@@ -46,6 +47,7 @@ using boost::xpressive::mark_tag;
 using boost::xpressive::repeat;
 using boost::xpressive::_d;
 using boost::xpressive::_w;
+using boost::timer::cpu_timer;
 
 typedef mlpack::tree::BinarySpaceTree<
     mlpack::bound::HRectBound<2>,

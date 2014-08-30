@@ -43,7 +43,7 @@ endif ()
 include_directories (${ARMADILLO_INCLUDE_DIRS})
 # Boost
 find_package (Boost 1.55.0 REQUIRED
-    COMPONENTS regex filesystem system
+    COMPONENTS regex filesystem system timer
 )
 if (NOT Boost_FOUND)
     message (FATAL_ERROR
