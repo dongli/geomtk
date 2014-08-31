@@ -101,11 +101,9 @@ public:
 
     virtual int getLevelIndex(int i, int loc) const;
 
-    virtual void unwrapIndex(int cellIdx, int i[3], int loc) const;
+    virtual void unwrapIndex(int loc, int cellIdx, int gridIdx[3]) const;
 
-    virtual int wrapIndex(int i, int j, int loc) const;
-
-    virtual int wrapIndex(int i, int j, int k, int loc) const;
+    virtual int wrapIndex(int loc, int i, int j, int k = 0) const;
 
     virtual bool isHorizontalGridsSame(const Mesh<DomainType, CoordType> &other) const;
 protected:

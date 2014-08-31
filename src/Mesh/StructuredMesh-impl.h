@@ -252,7 +252,7 @@ void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int s
 template <class DomainType, class CoordType>
 int StructuredMesh<DomainType, CoordType>::getLevelIndex(int i, int loc) const {
     int idx[3];
-    unwrapIndex(i, idx, loc);
+    unwrapIndex(loc, i, idx);
     return idx[2];
 }
 
@@ -381,7 +381,7 @@ void StructuredMesh<DomainType, CoordType>::getGridCoord(int i, int loc, CoordTy
     // TODO: Set a CoordType array to store the grid coordinates, so we can
     // avoid the duplicate works.
     int idx[3];
-    unwrapIndex(i, idx, loc);
+    unwrapIndex(loc, i, idx);
     switch (loc) {
         case Location::CENTER:
             for (int m = 0; m < this->domain->getNumDim(); ++m) {
@@ -551,8 +551,8 @@ int StructuredMesh<DomainType, CoordType>::getNumGrid(int axisIdx, int gridType,
 }
 
 template <class DomainType, class CoordType>
-void StructuredMesh<DomainType, CoordType>::unwrapIndex(int cellIdx, int i[3],
-                                                        int loc) const {
+void StructuredMesh<DomainType, CoordType>::
+unwrapIndex(int loc, int cellIdx, int gridIdx[3]) const {
     int nx, ny;
     switch (loc) {
         case Location::CENTER:
@@ -575,32 +575,15 @@ void StructuredMesh<DomainType, CoordType>::unwrapIndex(int cellIdx, int i[3],
         default:
             REPORT_ERROR("Unknown stagger location!");
     }
-    i[2] = cellIdx/(nx*ny);
-    cellIdx -= i[2]*nx*ny;
-    i[1] = cellIdx/nx;
-    i[0] = cellIdx%nx;
+    gridIdx[2] = cellIdx/(nx*ny);
+    cellIdx -= gridIdx[2]*nx*ny;
+    gridIdx[1] = cellIdx/nx;
+    gridIdx[0] = cellIdx%nx;
 }
 
 template <class DomainType, class CoordType>
-int StructuredMesh<DomainType, CoordType>::wrapIndex(int i, int j, int loc) const {
-    int nx, res;
-    switch (loc) {
-        case Location::CENTER: case Location::Y_FACE:
-            nx = getNumGrid(0, GridType::FULL);
-            break;
-        case Location::X_FACE: case Location::XY_VERTEX:
-            nx = getNumGrid(0, GridType::HALF);
-            break;
-        default:
-            REPORT_ERROR("Unsupported stagger location!");
-    }
-    res = nx*j;
-    res += i;
-    return res;
-}
-
-template <class DomainType, class CoordType>
-int StructuredMesh<DomainType, CoordType>::wrapIndex(int i, int j, int k, int loc) const {
+int StructuredMesh<DomainType, CoordType>::
+wrapIndex(int loc, int i, int j, int k) const {
     int nx, ny, res;
     switch (loc) {
         case Location::CENTER:
@@ -640,7 +623,7 @@ void StructuredMesh<DomainType, CoordType>::setGridCoords() {
         set_size(getTotalNumGrid(loc, this->domain->getNumDim()));
         for (int cellIdx = 0; cellIdx < gridCoords[loc].size(); ++cellIdx) {
             gridCoords[loc][cellIdx].setNumDim(this->domain->getNumDim());
-            unwrapIndex(cellIdx, gridIdx, loc);
+            unwrapIndex(loc, cellIdx, gridIdx);
             for (int m = 0; m < this->domain->getNumDim(); ++m) {
                 if ((m == 0 && (loc == Location::X_FACE || loc == Location::XY_VERTEX)) ||
                     (m == 1 && (loc == Location::Y_FACE || loc == Location::XY_VERTEX)) ||

@@ -142,53 +142,53 @@ operator()(int i, int j, int k) {
 template <class MeshType, typename DataType, int NumTimeLevel>
 const DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) const {
-    int i[3];
-    this->mesh->unwrapIndex(cellIdx, i, staggerLocation);
+    int gridIdx[3];
+    this->mesh->unwrapIndex(staggerLocation, cellIdx, gridIdx);
     for (int m = 0; m < this->mesh->getDomain().getNumDim(); ++m) {
         if (this->mesh->getDomain().getAxisStartBndType(m) == PERIODIC) {
-            i[m] += 1;
+            gridIdx[m] += 1;
         }
     }
-    return data->getLevel(timeIdx)(i[0], i[1], i[2]);
+    return data->getLevel(timeIdx)(gridIdx[0], gridIdx[1], gridIdx[2]);
 }
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) {
-    int i[3];
-    this->mesh->unwrapIndex(cellIdx, i, staggerLocation);
+    int gridIdx[3];
+    this->mesh->unwrapIndex(staggerLocation, cellIdx, gridIdx);
     for (int m = 0; m < this->mesh->getDomain().getNumDim(); ++m) {
         if (this->mesh->getDomain().getAxisStartBndType(m) == PERIODIC) {
-            i[m] += 1;
+            gridIdx[m] += 1;
         }
     }
-    return data->getLevel(timeIdx)(i[0], i[1], i[2]);
+    return data->getLevel(timeIdx)(gridIdx[0], gridIdx[1], gridIdx[2]);
 }
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 const DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()(int cellIdx) const {
-    int i[3];
-    this->mesh->unwrapIndex(cellIdx, i, staggerLocation);
+    int gridIdx[3];
+    this->mesh->unwrapIndex(staggerLocation, cellIdx, gridIdx);
     for (int m = 0; m < this->mesh->getDomain().getNumDim(); ++m) {
         if (this->mesh->getDomain().getAxisStartBndType(m) == PERIODIC) {
-            i[m] += 1;
+            gridIdx[m] += 1;
         }
     }
-    return data->getLevel(0)(i[0], i[1], i[2]);
+    return data->getLevel(0)(gridIdx[0], gridIdx[1], gridIdx[2]);
 }
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()(int cellIdx) {
-    int i[3];
-    this->mesh->unwrapIndex(cellIdx, i, staggerLocation);
+    int gridIdx[3];
+    this->mesh->unwrapIndex(staggerLocation, cellIdx, gridIdx);
     for (int m = 0; m < this->mesh->getDomain().getNumDim(); ++m) {
         if (this->mesh->getDomain().getAxisStartBndType(m) == PERIODIC) {
-            i[m] += 1;
+            gridIdx[m] += 1;
         }
     }
-    return data->getLevel(0)(i[0], i[1], i[2]);
+    return data->getLevel(0)(gridIdx[0], gridIdx[1], gridIdx[2]);
 }
 
 template <class MeshType, typename DataType, int NumTimeLevel>

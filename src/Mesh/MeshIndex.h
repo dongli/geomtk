@@ -27,7 +27,7 @@ public:
      */
     virtual void locate(const MeshType &mesh, const CoordType &x) = 0;
 
-    virtual int wrapIndex(const MeshType &mesh, int loc) const = 0;
+    virtual int getIndex(const MeshType &mesh, int loc) const = 0;
 
     virtual void print() const = 0;
 };

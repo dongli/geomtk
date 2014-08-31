@@ -206,35 +206,31 @@ void StructuredMeshIndex<MeshType, CoordType>::locate(const MeshType &mesh, cons
 }
 
 template <class MeshType, class CoordType>
-int StructuredMeshIndex<MeshType, CoordType>::wrapIndex(const MeshType &mesh, int loc) const {
-    if (this->numDim == 2) {
-        switch (loc) {
-            case Location::CENTER:
-                return mesh.wrapIndex(indices[0][GridType::FULL], indices[1][GridType::FULL], loc);
-            case Location::X_FACE:
-                return mesh.wrapIndex(indices[0][GridType::HALF], indices[1][GridType::FULL], loc);
-            case Location::Y_FACE:
-                return mesh.wrapIndex(indices[0][GridType::FULL], indices[1][GridType::HALF], loc);
-            case Location::XY_VERTEX:
-                return mesh.wrapIndex(indices[0][GridType::HALF], indices[1][GridType::HALF], loc);
-            default:
-                REPORT_ERROR("Unsupported stagger location!");
-        }
-    } else if (this->numDim == 3) {
-        switch (loc) {
-            case Location::CENTER:
-                return mesh.wrapIndex(indices[0][GridType::FULL], indices[1][GridType::FULL], indices[2][GridType::FULL], loc);
-            case Location::X_FACE:
-                return mesh.wrapIndex(indices[0][GridType::HALF], indices[1][GridType::FULL], indices[2][GridType::FULL], loc);
-            case Location::Y_FACE:
-                return mesh.wrapIndex(indices[0][GridType::FULL], indices[1][GridType::HALF], indices[2][GridType::FULL], loc);
-            case Location::XY_VERTEX:
-                return mesh.wrapIndex(indices[0][GridType::HALF], indices[1][GridType::HALF], indices[2][GridType::FULL], loc);
-            case Location::Z_FACE:
-                return mesh.wrapIndex(indices[0][GridType::FULL], indices[1][GridType::FULL], indices[2][GridType::HALF], loc);
-            default:
-                REPORT_ERROR("Unsupported stagger location!");
-        }
+int StructuredMeshIndex<MeshType, CoordType>::
+getIndex(const MeshType &mesh, int loc) const {
+    switch (loc) {
+        case Location::CENTER:
+            return mesh.wrapIndex(loc, indices[0][GridType::FULL],
+                                  indices[1][GridType::FULL],
+                                  indices[2][GridType::FULL]);
+        case Location::X_FACE:
+            return mesh.wrapIndex(loc, indices[0][GridType::HALF],
+                                  indices[1][GridType::FULL],
+                                  indices[2][GridType::FULL]);
+        case Location::Y_FACE:
+            return mesh.wrapIndex(loc, indices[0][GridType::FULL],
+                                  indices[1][GridType::HALF],
+                                  indices[2][GridType::FULL]);
+        case Location::XY_VERTEX:
+            return mesh.wrapIndex(loc, indices[0][GridType::HALF],
+                                  indices[1][GridType::HALF],
+                                  indices[2][GridType::FULL]);
+        case Location::Z_FACE:
+            return mesh.wrapIndex(loc, indices[0][GridType::FULL],
+                                  indices[1][GridType::FULL],
+                                  indices[2][GridType::HALF]);
+        default:
+            REPORT_ERROR("Unsupported stagger location!");
     }
 }
 

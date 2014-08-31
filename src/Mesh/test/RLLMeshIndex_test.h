@@ -114,10 +114,16 @@ TEST_F(RLLMeshIndexTest, Locate) {
     ASSERT_TRUE(index->isOnPole());
 }
 
-TEST_F(RLLMeshIndexTest, WrapIndex) {
+TEST_F(RLLMeshIndexTest, GetIndex) {
     (*index)(0, GridType::FULL) = 0;
     (*index)(1, GridType::FULL) = 0;
-    ASSERT_EQ(index->wrapIndex(*mesh, Location::CENTER), 0);
+    ASSERT_EQ(0, index->getIndex(*mesh, Location::CENTER));
+    (*index)(0, GridType::FULL) = 3;
+    (*index)(1, GridType::FULL) = 2;
+    ASSERT_EQ(13, index->getIndex(*mesh, Location::CENTER));
+    (*index)(0, GridType::HALF) = 2;
+    (*index)(1, GridType::HALF) = 3;
+    ASSERT_EQ(17, index->getIndex(*mesh, Location::XY_VERTEX));
 }
 
 #endif
