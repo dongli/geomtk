@@ -108,6 +108,8 @@ public:
     virtual int wrapIndex(int i, int j, int k, int loc) const;
 
     virtual bool isHorizontalGridsSame(const Mesh<DomainType, CoordType> &other) const;
+protected:
+    virtual void setGridCoords();
 };
 
 } // geomtk

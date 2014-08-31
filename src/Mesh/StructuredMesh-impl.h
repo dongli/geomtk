@@ -19,12 +19,12 @@ StructuredMesh<DomainType, CoordType>::~StructuredMesh() {
 
 template <class DomainType, class CoordType>
 void StructuredMesh<DomainType, CoordType>::init(const string &fileName) {
-    REPORT_ERROR("Under construction!");
+    setGridCoords();
 }
 
 template <class DomainType, class CoordType>
 void StructuredMesh<DomainType, CoordType>::init(const string &fileNameH, const string &fileNameV) {
-    REPORT_ERROR("Under construction!");
+    setGridCoords();
 }
 
 template <class DomainType, class CoordType>
@@ -52,20 +52,24 @@ void StructuredMesh<DomainType, CoordType>::init(int nx, int ny, int nz) {
             for (int i = 0; i < n[m]-1; ++i) {
                 half[i] = full[i]+0.5*dx;
             }
+        } else if (this->domain->getAxisStartBndType(m) == RIGID &&
+                   this->domain->getAxisEndBndType(m) == RIGID) {
+            full.resize(n[m]);
+            half.resize(n[m]+1);
+            dx = this->domain->getAxisSpan(m)/n[m];
+            for (int i = 0; i < n[m]; ++i) {
+                full[i] = this->domain->getAxisStart(m)+0.5*dx+i*dx;
+            }
+            for (int i = 0; i < n[m]+1; ++i) {
+                half[i] = this->domain->getAxisStart(m)+i*dx;
+            }
         } else {
             REPORT_ERROR("Under construction!");
         }
         setGridCoordComps(m, n[m], full, half);
     }
     setCellVolumes();
-    // Store the coordinates of each grid point for convenience.
-    for (int loc = 0; loc < 4; ++loc) {
-        gridCoords[loc].set_size(getTotalNumGrid(loc, this->domain->getNumDim()));
-        for (int i = 0; i < gridCoords[loc].size(); ++i) {
-            gridCoords[loc][i].setNumDim(this->domain->getNumDim());
-            getGridCoord(i, loc, gridCoords[loc][i]);
-        }
-    }
+    setGridCoords();
     this->set = true;
 }
 
@@ -625,6 +629,31 @@ int StructuredMesh<DomainType, CoordType>::wrapIndex(int i, int j, int k, int lo
     res += nx*j;
     res += i;
     return res;
+}
+
+template <class DomainType, class CoordType>
+void StructuredMesh<DomainType, CoordType>::setGridCoords() {
+    // Store the coordinates of each grid point for convenience.
+    int gridIdx[3];
+    for (int loc = 0; loc < 5; ++loc) {
+        gridCoords[loc].
+        set_size(getTotalNumGrid(loc, this->domain->getNumDim()));
+        for (int cellIdx = 0; cellIdx < gridCoords[loc].size(); ++cellIdx) {
+            gridCoords[loc][cellIdx].setNumDim(this->domain->getNumDim());
+            unwrapIndex(cellIdx, gridIdx, loc);
+            for (int m = 0; m < this->domain->getNumDim(); ++m) {
+                if ((m == 0 && (loc == Location::X_FACE || loc == Location::XY_VERTEX)) ||
+                    (m == 1 && (loc == Location::Y_FACE || loc == Location::XY_VERTEX)) ||
+                    (m == 2 && loc == Location::Z_FACE)) {
+                    gridCoords[loc][cellIdx].
+                    setCoordComp(m, getGridCoordComp(m, GridType::HALF, gridIdx[m]));
+                } else {
+                    gridCoords[loc][cellIdx].
+                    setCoordComp(m, getGridCoordComp(m, GridType::FULL, gridIdx[m]));
+                }
+            }
+        }
+    }
 }
 
 } // geomtk

@@ -19,14 +19,7 @@ void RLLMesh::init(const string &fileName) {
     io.open(fileIdx);
     io.file(fileIdx).inputGrids();
     io.close(fileIdx);
-    // Store the coordinates of each grid point for convenience.
-    for (int loc = 0; loc < 4; ++loc) {
-        gridCoords[loc].set_size(getTotalNumGrid(loc, domain->getNumDim()));
-        for (int i = 0; i < gridCoords[loc].size(); ++i) {
-            gridCoords[loc][i].setNumDim(domain->getNumDim());
-            getGridCoord(i, loc, gridCoords[loc][i]);
-        }
-    }
+    StructuredMesh<SphereDomain, SphereCoord>::init(fileName);
     set = true;
 }
 
@@ -40,27 +33,12 @@ void RLLMesh::init(const string &fileNameH, const string &fileNameV) {
     io.open(fileIdx);
     io.file(fileIdx).inputVerticalGrids();
     io.close(fileIdx);
-    // Store the coordinates of each grid point for convenience.
-    for (int loc = 0; loc < 4; ++loc) {
-        gridCoords[loc].set_size(getTotalNumGrid(loc, domain->getNumDim()));
-        for (int i = 0; i < gridCoords[loc].size(); ++i) {
-            gridCoords[loc][i].setNumDim(domain->getNumDim());
-            getGridCoord(i, loc, gridCoords[loc][i]);
-        }
-    }
+    StructuredMesh<SphereDomain, SphereCoord>::init(fileNameH, fileNameV);
     set = true;
 }
 
 void RLLMesh::init(int nx, int ny, int nz) {
     StructuredMesh<SphereDomain, SphereCoord>::init(nx, ny, nz);
-    // Store the coordinates of each grid point for convenience.
-    for (int loc = 0; loc < 4; ++loc) {
-        gridCoords[loc].set_size(getTotalNumGrid(loc, domain->getNumDim()));
-        for (int i = 0; i < gridCoords[loc].size(); ++i) {
-            gridCoords[loc][i].setNumDim(domain->getNumDim());
-            getGridCoord(i, loc, gridCoords[loc][i]);
-        }
-    }
 }
 
 void RLLMesh::setGridCoordComps(int axisIdx, int size, const vec &full,
@@ -272,6 +250,15 @@ void RLLMesh::move(const SphereCoord &x0, double dt, const SphereVelocity &v,
 #ifndef NDEBUG
         assert(x1(2) >= domain->getAxisStart(2) && x1(2) <= domain->getAxisEnd(2));
 #endif
+    }
+}
+
+void RLLMesh::setGridCoords() {
+    StructuredMesh<SphereDomain, SphereCoord>::setGridCoords();
+    for (int loc = 0; loc < 5; ++loc) {
+        for (int cellIdx = 0; cellIdx < gridCoords[loc].size(); ++cellIdx) {
+            gridCoords[loc][cellIdx].transformToCart(*domain);
+        }
     }
 }
 

@@ -72,6 +72,8 @@ public:
 
     void move(const SphereCoord &x0, double dt, const SphereVelocity &v,
               const RLLMeshIndex &idx, SphereCoord &x1) const;
+protected:
+    virtual void setGridCoords();
 };
 
 }
