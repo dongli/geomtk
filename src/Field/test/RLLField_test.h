@@ -7,49 +7,30 @@ using namespace geomtk;
 
 class RLLFieldTest : public ::testing::Test {
 protected:
+    typedef RLLField<double, 2> RLLField;
+    typedef RLLStagger::Location Location;
+    typedef RLLStagger::GridType GridType;
+    
     SphereDomain *sphere;
     RLLMesh *mesh;
     TimeLevelIndex<2> timeIdx;
 
     virtual void SetUp() {
-        // ---------------------------------------------------------------------
-        // create testing variables
         sphere = new SphereDomain(2);
         mesh = new RLLMesh(*sphere);
-        // ---------------------------------------------------------------------
-        // setup mesh
-        int numLon = 10;
-        vec fullLon(numLon), halfLon(numLon);
-        double dlon = 2.0*M_PI/numLon;
-        for (int i = 0; i < numLon; ++i) {
-            fullLon[i] = i*dlon;
-            halfLon[i] = i*dlon+dlon*0.5;
-        }
-        mesh->setGridCoords(0, numLon, fullLon, halfLon);
-        int numLat = 10;
-        vec fullLat(numLat), halfLat(numLat-1);
-        double dlat = M_PI/(numLat-1);
-        for (int j = 0; j < numLat; ++j) {
-            fullLat[j] = j*dlat-M_PI_2;
-        }
-        for (int j = 0; j < numLat-1; ++j) {
-            halfLat[j] = dlat*0.5+j*dlat-M_PI_2;
-        }
-        mesh->setGridCoords(1, numLat, fullLat, halfLat);
+        mesh->init(10, 10);
     }
 
     virtual void TearDown() {
-        // ---------------------------------------------------------------------
-        // clean testing variables
         delete mesh;
         delete sphere;
     }
 };
 
 TEST_F(RLLFieldTest, AssignmentOperator) {
-    RLLField<double, 2> f, g;
-    f.create("1", "2", "3", *mesh, RLLStagger::Location::CENTER, 2, false);
-    for (int i = 0; i < mesh->getTotalNumGrid(RLLStagger::Location::CENTER, f.getNumDim()); ++i) {
+    RLLField f, g;
+    f.create("f", "1", "f", *mesh, Location::CENTER, 2);
+    for (int i = 0; i < mesh->getTotalNumGrid(Location::CENTER, f.getNumDim()); ++i) {
         f(timeIdx, i) = i;
     }
     ASSERT_EQ(NULL, &g.getMesh());
@@ -61,16 +42,15 @@ TEST_F(RLLFieldTest, AssignmentOperator) {
     ASSERT_EQ(f.getStaggerLocation(), g.getStaggerLocation());
     ASSERT_EQ(f.getGridType(0), g.getGridType(0));
     ASSERT_EQ(f.getGridType(1), g.getGridType(1));
-    for (int i = 0; i < mesh->getTotalNumGrid(RLLStagger::Location::CENTER, f.getNumDim()); ++i) {
+    for (int i = 0; i < mesh->getTotalNumGrid(Location::CENTER, f.getNumDim()); ++i) {
         ASSERT_EQ(i, g(timeIdx, i));
     }
 }
 
 TEST_F(RLLFieldTest, CheckScalarField) {
-    RLLField<double, 2> f;
-    f.create("", "", "", *mesh, RLLStagger::Location::CENTER, 2, false);
-    // -------------------------------------------------------------------------
-    // check data dimensionality
+    RLLField f;
+    f.create("f", "1", "f", *mesh, Location::CENTER, 2);
+    // Check data dimensionality.
     ASSERT_EQ(12, f.data->getLevel(timeIdx).n_rows);
     ASSERT_EQ(10, f.data->getLevel(timeIdx).n_cols);
     // -------------------------------------------------------------------------
@@ -86,14 +66,13 @@ TEST_F(RLLFieldTest, CheckScalarField) {
         ASSERT_EQ(f(timeIdx, -1, j), f(timeIdx, n-1, j));
         ASSERT_EQ(f(timeIdx,  n, j), f(timeIdx,   0, j));
     }
-    // -------------------------------------------------------------------------
-    // check data indexing
+    // Check data 1D indexing.
     ASSERT_EQ(0, f(timeIdx, 0));
     ASSERT_EQ(9, f(timeIdx, 9));
-    for (int j = 0; j < mesh->getNumGrid(1, RLLStagger::GridType::FULL); ++j) {
-        for (int i = 0; i < mesh->getNumGrid(0, RLLStagger::GridType::FULL); ++i) {
-            int cellIdx = i+j*mesh->getNumGrid(0, RLLStagger::GridType::FULL);
-            ASSERT_EQ(i+j*mesh->getNumGrid(0, RLLStagger::GridType::FULL), f(timeIdx, cellIdx));
+    for (int j = 0; j < mesh->getNumGrid(1, GridType::FULL); ++j) {
+        for (int i = 0; i < mesh->getNumGrid(0, GridType::FULL); ++i) {
+            int cellIdx = i+j*mesh->getNumGrid(0, GridType::FULL);
+            ASSERT_EQ(i+j*mesh->getNumGrid(0, GridType::FULL), f(timeIdx, cellIdx));
         }
     }
 
@@ -102,10 +81,10 @@ TEST_F(RLLFieldTest, CheckScalarField) {
 TEST_F(RLLFieldTest, TestVectorFieldHalfLevel) {
     TimeLevelIndex<2> newTimeIdx = timeIdx+1;
     TimeLevelIndex<2> halfTimeIdx = timeIdx+0.5;
-    RLLField<double, 2> u, v;
+    RLLField u, v;
 
-    u.create("u", "", "", *mesh, RLLStagger::Location::X_FACE, 2, true);
-    v.create("v", "", "", *mesh, RLLStagger::Location::Y_FACE, 2, true);
+    u.create("u", "m s-1", "u velocity component", *mesh, Location::X_FACE, 2, true);
+    v.create("v", "m s-1", "v velocity component", *mesh, Location::Y_FACE, 2, true);
 
     ASSERT_EQ(12, u.data->getLevel(timeIdx).n_rows);
     ASSERT_EQ(10, u.data->getLevel(timeIdx).n_cols);

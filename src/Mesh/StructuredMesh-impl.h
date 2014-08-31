@@ -55,7 +55,7 @@ void StructuredMesh<DomainType, CoordType>::init(int nx, int ny, int nz) {
         } else {
             REPORT_ERROR("Under construction!");
         }
-        setGridCoords(m, n[m], full, half);
+        setGridCoordComps(m, n[m], full, half);
     }
     setCellVolumes();
     // Store the coordinates of each grid point for convenience.
@@ -70,7 +70,7 @@ void StructuredMesh<DomainType, CoordType>::init(int nx, int ny, int nz) {
 }
 
 template <class DomainType, class CoordType>
-void StructuredMesh<DomainType, CoordType>::setGridCoords(int axisIdx, int size, const vec &full, const vec &half) {
+void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
     // sanity check
     if (axisIdx >= this->domain->getNumDim()) {
         REPORT_ERROR("Argument axisIdx (" << axisIdx << ") exceeds domain " <<
@@ -284,7 +284,7 @@ bool StructuredMesh<DomainType, CoordType>::isHorizontalGridsSame(const Mesh<Dom
 }
 
 template <class DomainType, class CoordType>
-void StructuredMesh<DomainType, CoordType>::setGridCoords(int axisIdx, int size, const vec &full) {
+void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int size, const vec &full) {
     // sanity check
     if (axisIdx >= this->domain->getNumDim()) {
         REPORT_ERROR("Argument axisIdx (" << axisIdx << ") exceeds domain " <<
@@ -315,11 +315,11 @@ void StructuredMesh<DomainType, CoordType>::setGridCoords(int axisIdx, int size,
             half[i] = (full[i]+full[i+1])*0.5;
         }
     }
-    setGridCoords(axisIdx, size, full, half);
+    setGridCoordComps(axisIdx, size, full, half);
 }
 
 template <class DomainType, class CoordType>
-vec StructuredMesh<DomainType, CoordType>::getGridCoords(int axisIdx, int gridType, bool hasVirtualGrids) const {
+vec StructuredMesh<DomainType, CoordType>::getGridCoordComps(int axisIdx, int gridType, bool hasVirtualGrids) const {
     if (axisIdx >= this->domain->getNumDim()) {
         REPORT_ERROR("Argument axisIdx (" << axisIdx << ") exceeds domain " <<
                      "dimension (" << this->domain->getNumDim() << ")!");

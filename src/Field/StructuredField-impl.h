@@ -13,13 +13,9 @@ StructuredField<MeshType, DataType, NumTimeLevel>::~StructuredField() {
 }
 
 template <class MeshType, typename DataType, int NumTimeLevel>
-void StructuredField<MeshType, DataType, NumTimeLevel>::create(const string &name,
-                                                                const string &units,
-                                                                const string &longName,
-                                                                const MeshType &mesh,
-                                                                int loc,
-                                                                int numDim,
-                                                                bool hasHalfLevel) {
+void StructuredField<MeshType, DataType, NumTimeLevel>::
+create(const string &name, const string &units, const string &longName,
+       const MeshType &mesh, int loc, int numDim, bool hasHalfLevel) {
     Field<MeshType>::create(name, units, longName, mesh, numDim, hasHalfLevel);
     staggerLocation = loc;
     gridTypes.resize(numDim);
@@ -68,41 +64,8 @@ void StructuredField<MeshType, DataType, NumTimeLevel>::create(const string &nam
 }
 
 template <class MeshType, typename DataType, int NumTimeLevel>
-DataType StructuredField<MeshType, DataType, NumTimeLevel>::operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j) const {
-    // The virtual boundary grids at the periodic boundary conditions are hiden from user.
-    int I, J;
-    if (this->mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
-        I = i+1;
-    } else {
-        I = i;
-    }
-    if (this->mesh->getDomain().getAxisStartBndType(1) == PERIODIC) {
-        J = j+1;
-    } else {
-        J = j;
-    }
-    return data->getLevel(timeIdx)(I, J);
-}
-
-template <class MeshType, typename DataType, int NumTimeLevel>
-DataType& StructuredField<MeshType, DataType, NumTimeLevel>::operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j) {
-    // The virtual boundary grids at the periodic boundary conditions are hiden from user.
-    int I, J;
-    if (this->mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
-        I = i+1;
-    } else {
-        I = i;
-    }
-    if (this->mesh->getDomain().getAxisStartBndType(1) == PERIODIC) {
-        J = j+1;
-    } else {
-        J = j;
-    }
-    return data->getLevel(timeIdx)(I, J);
-}
-
-template <class MeshType, typename DataType, int NumTimeLevel>
-DataType StructuredField<MeshType, DataType, NumTimeLevel>::operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k) const {
+const DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
+operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k) const {
     // The virtual boundary grids at the periodic boundary conditions are hiden
     // from user.
     int I, J;
@@ -120,7 +83,8 @@ DataType StructuredField<MeshType, DataType, NumTimeLevel>::operator()(const Tim
 }
 
 template <class MeshType, typename DataType, int NumTimeLevel>
-DataType& StructuredField<MeshType, DataType, NumTimeLevel>::operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k) {
+DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
+operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k) {
     // The virtual boundary grids at the periodic boundary conditions are hiden
     // from user.
     int I, J;
@@ -138,43 +102,8 @@ DataType& StructuredField<MeshType, DataType, NumTimeLevel>::operator()(const Ti
 }
 
 template <class MeshType, typename DataType, int NumTimeLevel>
-DataType StructuredField<MeshType, DataType, NumTimeLevel>::operator()(int i, int j) const {
-    // The virtual boundary grids at the periodic boundary conditions are hiden
-    // from user.
-    int I, J;
-    if (this->mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
-        I = i+1;
-    } else {
-        I = i;
-    }
-    if (this->mesh->getDomain().getAxisStartBndType(1) == PERIODIC) {
-        J = j+1;
-    } else {
-        J = j;
-    }
-    return data->getLevel(0)(I, J);
-}
-
-template <class MeshType, typename DataType, int NumTimeLevel>
-DataType& StructuredField<MeshType, DataType, NumTimeLevel>::operator()(int i, int j) {
-    // The virtual boundary grids at the periodic boundary conditions are hiden
-    // from user.
-    int I, J;
-    if (this->mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
-        I = i+1;
-    } else {
-        I = i;
-    }
-    if (this->mesh->getDomain().getAxisStartBndType(1) == PERIODIC) {
-        J = j+1;
-    } else {
-        J = j;
-    }
-    return data->getLevel(0)(I, J);
-}
-
-template <class MeshType, typename DataType, int NumTimeLevel>
-DataType StructuredField<MeshType, DataType, NumTimeLevel>::operator()(int i, int j, int k) const {
+const DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
+operator()(int i, int j, int k) const {
     // The virtual boundary grids at the periodic boundary conditions are hiden
     // from user.
     int I, J;
@@ -192,7 +121,8 @@ DataType StructuredField<MeshType, DataType, NumTimeLevel>::operator()(int i, in
 }
 
 template <class MeshType, typename DataType, int NumTimeLevel>
-DataType& StructuredField<MeshType, DataType, NumTimeLevel>::operator()(int i, int j, int k) {
+DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
+operator()(int i, int j, int k) {
     // The virtual boundary grids at the periodic boundary conditions are hiden
     // from user.
     int I, J;
@@ -210,7 +140,8 @@ DataType& StructuredField<MeshType, DataType, NumTimeLevel>::operator()(int i, i
 }
 
 template <class MeshType, typename DataType, int NumTimeLevel>
-DataType StructuredField<MeshType, DataType, NumTimeLevel>::operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) const {
+const DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
+operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) const {
     int i[3];
     this->mesh->unwrapIndex(cellIdx, i, staggerLocation);
     for (int m = 0; m < this->mesh->getDomain().getNumDim(); ++m) {
@@ -222,7 +153,8 @@ DataType StructuredField<MeshType, DataType, NumTimeLevel>::operator()(const Tim
 }
 
 template <class MeshType, typename DataType, int NumTimeLevel>
-DataType& StructuredField<MeshType, DataType, NumTimeLevel>::operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) {
+DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
+operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) {
     int i[3];
     this->mesh->unwrapIndex(cellIdx, i, staggerLocation);
     for (int m = 0; m < this->mesh->getDomain().getNumDim(); ++m) {
@@ -234,7 +166,8 @@ DataType& StructuredField<MeshType, DataType, NumTimeLevel>::operator()(const Ti
 }
 
 template <class MeshType, typename DataType, int NumTimeLevel>
-DataType StructuredField<MeshType, DataType, NumTimeLevel>::operator()(int cellIdx) const {
+const DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
+operator()(int cellIdx) const {
     int i[3];
     this->mesh->unwrapIndex(cellIdx, i, staggerLocation);
     for (int m = 0; m < this->mesh->getDomain().getNumDim(); ++m) {
@@ -246,7 +179,8 @@ DataType StructuredField<MeshType, DataType, NumTimeLevel>::operator()(int cellI
 }
 
 template <class MeshType, typename DataType, int NumTimeLevel>
-DataType& StructuredField<MeshType, DataType, NumTimeLevel>::operator()(int cellIdx) {
+DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
+operator()(int cellIdx) {
     int i[3];
     this->mesh->unwrapIndex(cellIdx, i, staggerLocation);
     for (int m = 0; m < this->mesh->getDomain().getNumDim(); ++m) {
@@ -258,8 +192,9 @@ DataType& StructuredField<MeshType, DataType, NumTimeLevel>::operator()(int cell
 }
 
 template <class MeshType, typename DataType, int NumTimeLevel>
-StructuredField<MeshType, DataType, NumTimeLevel>& StructuredField<MeshType, DataType, NumTimeLevel>::operator=
-        (const StructuredField<MeshType, DataType, NumTimeLevel> &other) {
+StructuredField<MeshType, DataType, NumTimeLevel>&
+StructuredField<MeshType, DataType, NumTimeLevel>::
+operator=(const StructuredField<MeshType, DataType, NumTimeLevel> &other) {
     if (this != &other) {
         Field<MeshType>::operator=(other);
         staggerLocation = other.staggerLocation;

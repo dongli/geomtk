@@ -63,9 +63,10 @@ void RLLMesh::init(int nx, int ny, int nz) {
     }
 }
 
-void RLLMesh::setGridCoords(int axisIdx, int size, const vec &full,
-                            const vec &half) {
-    StructuredMesh<SphereDomain, SphereCoord>::setGridCoords(axisIdx, size, full, half);
+void RLLMesh::setGridCoordComps(int axisIdx, int size, const vec &full,
+                                const vec &half) {
+    StructuredMesh<SphereDomain, SphereCoord>::
+    setGridCoordComps(axisIdx, size, full, half);
     if (axisIdx == 0) {
         cosLonFull.set_size(fullCoords[0].size());
         sinLonFull.set_size(fullCoords[0].size());
@@ -103,8 +104,9 @@ void RLLMesh::setGridCoords(int axisIdx, int size, const vec &full,
     }
 }
 
-void RLLMesh::setGridCoords(int axisIdx, int size, const vec &full) {
-    StructuredMesh<SphereDomain, SphereCoord>::setGridCoords(axisIdx, size, full);
+void RLLMesh::setGridCoordComps(int axisIdx, int size, const vec &full) {
+    StructuredMesh<SphereDomain, SphereCoord>::
+    setGridCoordComps(axisIdx, size, full);
     if (axisIdx == 0) {
         cosLonFull.set_size(fullCoords[0].size());
         sinLonFull.set_size(fullCoords[0].size());

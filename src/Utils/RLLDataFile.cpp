@@ -48,9 +48,9 @@ void RLLDataFile::inputHorizontalGrids() {
                 half[i] = half2d(1, i);
             }
             half *= RAD;
-            mesh->setGridCoords(m, len, full, half);
+            mesh->setGridCoordComps(m, len, full, half);
         } else {
-            mesh->setGridCoords(m, len, full);
+            mesh->setGridCoordComps(m, len, full);
         }
     }
 }
@@ -86,7 +86,7 @@ void RLLDataFile::inputVerticalGrids() {
             CHECK_NC_GET_VAR(ret, fileName, "ilev");
         }
         domain.setAxis(2, "lev", "classic sigma", "1", 0, RIGID, 1, RIGID);
-        mesh->setGridCoords(2, len, vertCoord.fullSigma, vertCoord.halfSigma);
+        mesh->setGridCoordComps(2, len, vertCoord.fullSigma, vertCoord.halfSigma);
         ret = nc_inq_varid(fileID, "pmtop", &varID);
         CHECK_NC_INQ_VARID(ret, fileName, "pmtop");
         memset(units, 0, sizeof(units));
@@ -109,7 +109,7 @@ void RLLDataFile::inputVerticalGrids() {
         }
         domain.setAxis(2, "lev", "pressure levels", "Pa",
                        full[0], RIGID, full[len-1], RIGID);
-        mesh->setGridCoords(2, len, full);
+        mesh->setGridCoordComps(2, len, full);
     } else {
         REPORT_ERROR("Under construction!");
     }
@@ -144,19 +144,19 @@ void RLLDataFile::outputGrids() {
     // write spatial grids
     for (int m = 0; m < domain.getNumDim(); ++m) {
         if (m == 0 || m == 1) {
-            vec x = mesh->getGridCoords(m, GridType::FULL)/RAD;
+            vec x = mesh->getGridCoordComps(m, GridType::FULL)/RAD;
             ret = nc_put_var(fileID, fullVarIDs[m], x.memptr());
         } else {
             ret = nc_put_var(fileID, fullVarIDs[m],
-                             mesh->getGridCoords(m, GridType::FULL).memptr());
+                             mesh->getGridCoordComps(m, GridType::FULL).memptr());
         }
         CHECK_NC_GET_VAR(ret, fileName, domain.getAxisName(m));
         if (m == 0 || m == 1) {
-            vec x = mesh->getGridCoords(m, GridType::HALF)/RAD;
+            vec x = mesh->getGridCoordComps(m, GridType::HALF)/RAD;
             ret = nc_put_var(fileID, halfVarIDs[m], x.memptr());
         } else {
             ret = nc_put_var(fileID, halfVarIDs[m],
-                             mesh->getGridCoords(m, GridType::HALF).memptr());
+                             mesh->getGridCoordComps(m, GridType::HALF).memptr());
         }
         CHECK_NC_GET_VAR(ret, fileName, domain.getAxisName(m)+"_bnds");
     }

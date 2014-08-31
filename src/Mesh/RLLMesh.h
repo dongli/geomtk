@@ -51,10 +51,10 @@ public:
 
     double getPoleRadius() const { return poleRadius; }
 
-    virtual void setGridCoords(int axisIdx, int size, const vec &full);
+    virtual void setGridCoordComps(int axisIdx, int size, const vec &full);
 
-    virtual void setGridCoords(int axisIdx, int size, const vec &full,
-                               const vec &half);
+    virtual void setGridCoordComps(int axisIdx, int size, const vec &full,
+                                   const vec &half);
 
     virtual void setCellVolumes();
 

@@ -60,13 +60,13 @@ public:
 
     virtual void init(int nx, int ny, int nz = 1);
 
-    virtual void setGridCoords(int axisIdx, int size, const vec &full,
-                               const vec &half);
+    virtual void setGridCoordComps(int axisIdx, int size, const vec &full,
+                                   const vec &half);
 
-    virtual void setGridCoords(int axisIdx, int size, const vec &full);
+    virtual void setGridCoordComps(int axisIdx, int size, const vec &full);
 
-    vec getGridCoords(int axisIdx, int gridType,
-                      bool hasVirtualGrids = false) const;
+    vec getGridCoordComps(int axisIdx, int gridType,
+                          bool hasVirtualGrids = false) const;
 
     double getGridCoordComp(int axisIdx, int gridType, int gridIdx) const;
 

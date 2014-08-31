@@ -26,27 +26,19 @@ public:
     virtual void create(const string &name, const string &units, const string &longName,
                         const MeshType &mesh, int loc, int numDim, bool hasHalfLevel = false);
 
-    DataType operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j) const;
+    const DataType& operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k = 0) const;
 
-    DataType& operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j);
+    DataType& operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k = 0);
 
-    DataType operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k) const;
+    const DataType& operator()(int i, int j, int k = 0) const;
 
-    DataType& operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k);
+    DataType& operator()(int i, int j, int k = 0);
 
-    DataType operator()(int i, int j) const;
-
-    DataType& operator()(int i, int j);
-
-    DataType operator()(int i, int j, int k) const;
-
-    DataType& operator()(int i, int j, int k);
-
-    DataType operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) const;
+    const DataType& operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) const;
 
     DataType& operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx);
 
-    DataType operator()(int cellIdx) const;
+    const DataType& operator()(int cellIdx) const;
 
     DataType& operator()(int cellIdx);
 

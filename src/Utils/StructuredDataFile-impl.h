@@ -269,10 +269,10 @@ void StructuredDataFile<MeshType>::outputGrids() {
     // write spatial grids
     for (int m = 0; m < domain.getNumDim(); ++m) {
         ret = nc_put_var(this->fileID, fullVarIDs[m],
-                         this->mesh->getGridCoords(m, GridType::FULL).memptr());
+                         this->mesh->getGridCoordComps(m, GridType::FULL).memptr());
         CHECK_NC_PUT_VAR(ret, this->fileName, domain.getAxisName(m));
         ret = nc_put_var(this->fileID, halfVarIDs[m],
-                         this->mesh->getGridCoords(m, GridType::HALF).memptr());
+                         this->mesh->getGridCoordComps(m, GridType::HALF).memptr());
         CHECK_NC_PUT_VAR(ret, this->fileName, domain.getAxisName(m)+"_bnds");
     }
 }
