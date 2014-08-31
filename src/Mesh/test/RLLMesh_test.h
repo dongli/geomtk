@@ -25,6 +25,17 @@ protected:
     }
 };
 
+TEST_F(RLLMeshTest, CheckIndexRanges) {
+    ASSERT_EQ(mesh->getStartIndex(0, GridType::FULL), 1);
+    ASSERT_EQ(mesh->getStartIndex(1, GridType::FULL), 0);
+    ASSERT_EQ(mesh->getStartIndex(0, GridType::HALF), 1);
+    ASSERT_EQ(mesh->getStartIndex(1, GridType::HALF), 0);
+    ASSERT_EQ(mesh->getEndIndex(0, GridType::FULL), 10);
+    ASSERT_EQ(mesh->getEndIndex(1, GridType::FULL), 9);
+    ASSERT_EQ(mesh->getEndIndex(0, GridType::HALF), 10);
+    ASSERT_EQ(mesh->getEndIndex(1, GridType::HALF), 8);
+}
+
 TEST_F(RLLMeshTest, Check1DGridCoords) {
     for (int i = 0; i < 5; ++i) {
         ASSERT_EQ(mesh->getTotalNumGrid(i, 3), mesh->gridCoords[i].size());

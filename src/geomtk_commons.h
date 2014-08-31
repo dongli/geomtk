@@ -32,6 +32,7 @@ namespace geomtk {
 using arma::vec;
 using arma::mat;
 using arma::cube;
+using arma::umat;
 using arma::span;
 using arma::field;
 

@@ -3,6 +3,8 @@ namespace geomtk {
 template <class DomainType, class CoordType>
 StructuredMesh<DomainType, CoordType>::StructuredMesh(DomainType &domain)
         : Mesh<DomainType, CoordType>(domain) {
+    fullIndexRanges.set_size(2, domain.getNumDim());
+    halfIndexRanges.set_size(2, domain.getNumDim());
     fullCoords = new vec[domain.getNumDim()];
     halfCoords = new vec[domain.getNumDim()];
     fullIntervals = new vec[domain.getNumDim()];
@@ -246,6 +248,51 @@ void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int s
         REPORT_ERROR("Axis " << axisIdx << " is not set!");
     } else {
         REPORT_ERROR("Unhandled branch!");
+    }
+    // Set the default grid index ranges.
+    for (int m = 0; m < this->domain->getNumDim(); ++m) {
+        if (fullCoords[m].size() == 0) {
+            return;
+        }
+    }
+    for (int m = 0; m < this->domain->getNumDim(); ++m) {
+        if (this->domain->getAxisStartBndType(m) == PERIODIC) {
+            fullIndexRanges(0, m) = 1;
+            fullIndexRanges(1, m) = fullCoords[m].size()-2;
+            halfIndexRanges(0, m) = 1;
+            halfIndexRanges(1, m) = halfCoords[m].size()-2;
+        } else {
+            fullIndexRanges(0, m) = 0;
+            fullIndexRanges(1, m) = fullCoords[m].size()-1;
+            halfIndexRanges(0, m) = 0;
+            halfIndexRanges(1, m) = halfCoords[m].size()-1;
+        }
+    }
+}
+
+template <class DomainType, class CoordType>
+int StructuredMesh<DomainType, CoordType>::
+getStartIndex(int axisIdx, int gridType) const {
+    switch (gridType) {
+        case GridType::FULL:
+            return fullIndexRanges(0, axisIdx);
+        case GridType::HALF:
+            return halfIndexRanges(0, axisIdx);
+        default:
+            REPORT_ERROR("Unknown grid type!");
+    }
+}
+
+template <class DomainType, class CoordType>
+int StructuredMesh<DomainType, CoordType>::
+getEndIndex(int axisIdx, int gridType) const {
+    switch (gridType) {
+        case GridType::FULL:
+            return fullIndexRanges(1, axisIdx);
+        case GridType::HALF:
+            return halfIndexRanges(1, axisIdx);
+        default:
+            REPORT_ERROR("Unknown grid type!");
     }
 }
 

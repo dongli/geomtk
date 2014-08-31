@@ -13,8 +13,10 @@ enum MeshType {
 /**
  *  This is an abstract class.
  */
-template <class DomainType, class CoordType>
+template <class DomainType_, class CoordType>
 class Mesh {
+public:
+    typedef DomainType_ DomainType;
 protected:
     MeshType type;
     DomainType *domain;

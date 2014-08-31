@@ -32,6 +32,8 @@ public:
     typedef StructuredStagger::GridType GridType;
     typedef StructuredStagger::Location Location;
 protected:
+    umat fullIndexRanges;
+    umat halfIndexRanges;
     vec *fullCoords;
     vec *halfCoords;
     vec *fullIntervals;
@@ -59,6 +61,8 @@ public:
     virtual void init(const string &fileNameH, const string &fileNameV);
 
     virtual void init(int nx, int ny, int nz = 1);
+
+    void setGridIndexRange(int axisIdx, int gridType, int start, int end);
 
     virtual void setGridCoordComps(int axisIdx, int size, const vec &full,
                                    const vec &half);
@@ -98,6 +102,10 @@ public:
 
     int getNumGrid(int axisIdx, int gridType,
                    bool hasVirtualGrids = false) const;
+
+    int getStartIndex(int axisIdx, int gridType) const;
+
+    int getEndIndex(int axisIdx, int gridType) const;
 
     virtual int getLevelIndex(int i, int loc) const;
 
