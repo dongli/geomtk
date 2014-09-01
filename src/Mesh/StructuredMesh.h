@@ -62,52 +62,199 @@ public:
 
     virtual void init(int nx, int ny, int nz = 1);
 
+    /**
+     *  Set the grid index ranges (start index and end index).
+     *
+     *  @param axisIdx  the axis index.
+     *  @param gridType the grid type (FULL or HALF).
+     *  @param start    the start index.
+     *  @param end      the end index.
+     */
     void setGridIndexRange(int axisIdx, int gridType, int start, int end);
 
+    /**
+     *  Set the grid coordinate components.
+     *
+     *  @param axisIdx the axis index.
+     *  @param size    the grid size.
+     *  @param full    the full grid coordinate component array.
+     *  @param half    the half grid coordinate component array.
+     */
     virtual void setGridCoordComps(int axisIdx, int size, const vec &full,
                                    const vec &half);
 
+    /**
+     *  Set the grid coordinate components.
+     *
+     *  @param axisIdx the axis index.
+     *  @param size    the grid size.
+     *  @param full    the full grid coordinate component array.
+     */
     virtual void setGridCoordComps(int axisIdx, int size, const vec &full);
 
+    /**
+     *  Get the grid coordinate component array.
+     *
+     *  @param axisIdx         the axis index.
+     *  @param gridType        the grid type (FULL or HALF).
+     *  @param hasVirtualGrids boolean flag of including virtual grids.
+     *
+     *  @return The grid coordinate component array.
+     */
     vec getGridCoordComps(int axisIdx, int gridType,
                           bool hasVirtualGrids = false) const;
 
+    /**
+     *  Get the grid coordinate component at given position.
+     *
+     *  @param axisIdx  the axis index.
+     *  @param gridType the grid type (FULL or HALF).
+     *  @param gridIdx  the grid index.
+     *
+     *  @return The grid coordinate component.
+     */
     double getGridCoordComp(int axisIdx, int gridType, int gridIdx) const;
 
     /**
      *  Get the space coordinate of a grid with given location.
      *
-     *  @param i   the grid index (the cells are arranged as 1D array).
-     *  @param loc the grid location.
-     *  @param x   the grid space coordinate.
-     */
-    void getGridCoord(int i, int loc, CoordType &x) const;
-
-    /**
-     *  Get the space coordinate of a grid with given location.
+     *  @param loc     the grid location.
+     *  @param cellIdx the cell index.
      *
-     *  @param i   the grid index (the cells are arranged as 1D array).
-     *  @param loc the grid location.
      *  @return The grid space coordinate.
      */
-    const CoordType& getGridCoord(int i, int loc) const;
+    virtual const CoordType& getGridCoord(int loc, int cellIdx) const;
 
+    /**
+     *  Set the cell volumes after grids are set.
+     */
     virtual void setCellVolumes();
 
+    /**
+     *  Get the cell volume.
+     *
+     *  @param cellIdx the cell index.
+     *
+     *  @return The cell volume.
+     */
     virtual double getCellVolume(int cellIdx) const;
 
+    /**
+     *  Get the grid interval.
+     *
+     *  @param axisIdx  the axis index.
+     *  @param gridType the grid type (FULL or HALF).
+     *  @param gridIdx  the grid index.
+     *
+     *  @return The grid interval.
+     */
     double getGridInterval(int axisIdx, int gridType, int gridIdx) const;
 
+    /**
+     *  Get the total grid number on given location (e.g. CENTER).
+     *
+     *  @param loc    the grid location.
+     *  @param numDim the dimension number.
+     *
+     *  @return The total grid number.
+     */
     virtual int getTotalNumGrid(int loc, int numDim) const;
 
+    /**
+     *  Get the grid number along the given axis.
+     *
+     *  @param axisIdx         the axis index.
+     *  @param gridType        the grid type.
+     *  @param hasVirtualGrids boolean flag of including virtual grids.
+     *
+     *  @return The grid number.
+     */
     int getNumGrid(int axisIdx, int gridType,
                    bool hasVirtualGrids = false) const;
 
+    /**
+     *  Get the start grid index along the given axis.
+     *
+     *  @param axisIdx  the axis index.
+     *  @param gridType the grid type.
+     *
+     *  @return The start grid index.
+     */
     int getStartIndex(int axisIdx, int gridType) const;
 
+    /**
+     *  Get the end grid index along the given axis.
+     *
+     *  @param axisIdx  the axis index.
+     *  @param gridType the grid type.
+     *
+     *  @return The end grid index.
+     */
     int getEndIndex(int axisIdx, int gridType) const;
 
-    virtual int getLevelIndex(int i, int loc) const;
+    /**
+     *  Get the start grid index along x axis.
+     *
+     *  @param gridType the grid type.
+     *
+     *  @return The start grid index along x axis.
+     */
+    int is(int gridType) const;
+
+    /**
+     *  Get the end grid index along x axis.
+     *
+     *  @param gridType the grid type.
+     *
+     *  @return The end grid index along x axis.
+     */
+    int ie(int gridType) const;
+
+    /**
+     *  Get the start grid index along y axis.
+     *
+     *  @param gridType the grid type.
+     *
+     *  @return The start grid index along x axis.
+     */
+    int js(int gridType) const;
+
+    /**
+     *  Get the end grid index along y axis.
+     *
+     *  @param gridType the grid type.
+     *
+     *  @return The end grid index along y axis.
+     */
+    int je(int gridType) const;
+
+    /**
+     *  Get the start grid index along z axis.
+     *
+     *  @param gridType the grid type.
+     *
+     *  @return The start grid index along z axis.
+     */
+    int ks(int gridType) const;
+
+    /**
+     *  Get the end grid index along z axis.
+     *
+     *  @param gridType the grid type.
+     *
+     *  @return The end grid index along z axis.
+     */
+    int ke(int gridType) const;
+
+    /**
+     *  Get the vertical level index.
+     *
+     *  @param loc     the grid location.
+     *  @param cellIdx the cell index.
+     *
+     *  @return The vertical level index.
+     */
+    virtual int getLevelIndex(int loc, int cellIdx) const;
 
     virtual void unwrapIndex(int loc, int cellIdx, int gridIdx[3]) const;
 

@@ -25,7 +25,7 @@ void StructuredMeshIndex<MeshType, CoordType>::reset() {
         indices[m][GridType::FULL] = UNDEFINED_MESH_INDEX;
         indices[m][GridType::HALF] = UNDEFINED_MESH_INDEX;
     }
-    // set the extra dimension indices to 0
+    // Set the extra dimension indices to 0.
     for (int m = this->numDim; m < 3; ++m) {
         indices[m][GridType::FULL] = 0;
         indices[m][GridType::HALF] = 0;
@@ -44,7 +44,7 @@ int& StructuredMeshIndex<MeshType, CoordType>::operator()(int axisIdx, int gridT
 
 template <class MeshType, class CoordType>
 StructuredMeshIndex<MeshType, CoordType>& StructuredMeshIndex<MeshType, CoordType>::
-        operator=(const StructuredMeshIndex<MeshType, CoordType> &other) {
+operator=(const StructuredMeshIndex<MeshType, CoordType> &other) {
     MeshIndex<MeshType, CoordType>::operator=(other);
     if (this != &other) {
         for (int m = 0; m < 3; ++m) {
@@ -56,22 +56,19 @@ StructuredMeshIndex<MeshType, CoordType>& StructuredMeshIndex<MeshType, CoordTyp
     return *this;
 }
 
+// TODO: Could we use the searching results by using MLPACK?
 template <class MeshType, class CoordType>
-void StructuredMeshIndex<MeshType, CoordType>::locate(const MeshType &mesh, const CoordType &x) {
-    const Domain &domain = mesh.getDomain();
+void StructuredMeshIndex<MeshType, CoordType>::
+locate(const MeshType &mesh, const CoordType &x) {
+    const typename MeshType::DomainType &domain = mesh.getDomain();
+#ifndef NDEBUG
+    assert(domain.isValid(x));
+#endif
     for (int m = 0; m < domain.getNumDim(); ++m) {
-        // sanity check
-        if (x(m) < domain.getAxisStart(m) ||
-            x(m) > domain.getAxisEnd(m)) {
-            REPORT_ERROR("Coordinate x is out of range on dimension " << m << "!");
-        }
         if (indices[m][GridType::FULL] == UNDEFINED_MESH_INDEX) {
             if (domain.getAxisStartBndType(m) == PERIODIC) {
-                for (int i = 0; i < mesh.getNumGrid(m, GridType::FULL); ++i) {
-                    // cout << setw(5) << i;
-                    // cout << setw(10) << mesh.getGridCoord(m, GridType::FULL, i);
-                    // cout << setw(10) << x(m);
-                    // cout << setw(10) << mesh.getGridCoord(m, GridType::FULL, i+1) << endl;
+                for (int i = mesh.getStartIndex(m, GridType::FULL);
+                     i <= mesh.getEndIndex(m, GridType::FULL); ++i) {
                     if (x(m) >= mesh.getGridCoordComp(m, GridType::FULL, i) &&
                         x(m) <= mesh.getGridCoordComp(m, GridType::FULL, i+1)) {
                         indices[m][GridType::FULL] = i;
@@ -87,7 +84,8 @@ void StructuredMeshIndex<MeshType, CoordType>::locate(const MeshType &mesh, cons
                     }
                 }
             } else {
-                for (int i = 0; i < mesh.getNumGrid(m, GridType::FULL)-1; ++i) {
+                for (int i = mesh.getStartIndex(m, GridType::FULL);
+                     i < mesh.getEndIndex(m, GridType::FULL); ++i) {
                     if (x(m) >= mesh.getGridCoordComp(m, GridType::FULL, i) &&
                         x(m) <= mesh.getGridCoordComp(m, GridType::FULL, i+1)) {
                         indices[m][GridType::FULL] = i;
@@ -95,19 +93,19 @@ void StructuredMeshIndex<MeshType, CoordType>::locate(const MeshType &mesh, cons
                     }
                 }
                 if (domain.getAxisStartBndType(m) == POLE) {
-                    if (x(m) < mesh.getGridCoordComp(m, GridType::HALF, 0)) {
+                    if (x(m) < mesh.getGridCoordComp(m, GridType::HALF,
+                                                     mesh.getStartIndex(m, GridType::HALF))) {
                         indices[m][GridType::HALF] = -1;
                         continue;
                     } else if (x(m) > mesh.getGridCoordComp(m, GridType::HALF,
-                                                            mesh.getNumGrid(m, GridType::HALF)-1)) {
+                                                            mesh.getEndIndex(m, GridType::HALF))) {
                         indices[m][GridType::HALF] =
                             mesh.getNumGrid(m, GridType::HALF)-1;
                         continue;
                     }
                 }
-                int i1 = max(indices[m][GridType::FULL]-2, 0);
-                int i2 = min(indices[m][GridType::FULL]+2,
-                             mesh.getNumGrid(m, GridType::FULL)-1);
+                int i1 = max(indices[m][GridType::FULL]-2, mesh.getStartIndex(m, GridType::FULL));
+                int i2 = min(indices[m][GridType::FULL]+2, mesh.getEndIndex(m, GridType::FULL));
                 for (int i = i1; i < i2; ++i) {
                     if (x(m) >= mesh.getGridCoordComp(m, GridType::HALF, i) &&
                         x(m) <= mesh.getGridCoordComp(m, GridType::HALF, i+1)) {
@@ -118,23 +116,18 @@ void StructuredMeshIndex<MeshType, CoordType>::locate(const MeshType &mesh, cons
             }
         } else {
             if (domain.getAxisStartBndType(m) == PERIODIC) {
-                if (x(m) < mesh.getGridCoordComp(m, GridType::FULL,
-                                                 indices[m][GridType::FULL])) {
-                    for (int i = indices[m][GridType::FULL]-1; i >= 0; --i) {
-                        // cout << setw(5) << i;
-                        // cout << setw(10) << mesh.getGridCoord(m, GridType::FULL, i);
-                        // cout << setw(10) << x(m);
-                        // cout << setw(10) << mesh.getGridCoord(m, GridType::FULL, i+1) << endl;
+                if (x(m) < mesh.getGridCoordComp(m, GridType::FULL, indices[m][GridType::FULL])) {
+                    for (int i = indices[m][GridType::FULL]-1;
+                         i >= mesh.getStartIndex(m, GridType::FULL); --i) {
                         if (x(m) >= mesh.getGridCoordComp(m, GridType::FULL, i) &&
                             x(m) <= mesh.getGridCoordComp(m, GridType::FULL, i+1)) {
                             indices[m][GridType::FULL] = i;
                             break;
                         }
                     }
-                } else if (x(m) > mesh.getGridCoordComp(m, GridType::FULL,
-                                                        indices[m][GridType::FULL]+1)) {
+                } else if (x(m) > mesh.getGridCoordComp(m, GridType::FULL, indices[m][GridType::FULL]+1)) {
                     for (int i = indices[m][GridType::FULL]+1;
-                         i < mesh.getNumGrid(m, GridType::FULL); ++i) {
+                         i <= mesh.getEndIndex(m, GridType::FULL); ++i) {
                         if (x(m) >= mesh.getGridCoordComp(m, GridType::FULL, i) &&
                             x(m) <= mesh.getGridCoordComp(m, GridType::FULL, i+1)) {
                             indices[m][GridType::FULL] = i;
@@ -151,23 +144,16 @@ void StructuredMeshIndex<MeshType, CoordType>::locate(const MeshType &mesh, cons
                     }
                 }
             } else {
-                if (x(m) < mesh.getGridCoordComp(m, GridType::FULL,
-                                                 indices[m][GridType::FULL])) {
+                if (x(m) < mesh.getGridCoordComp(m, GridType::FULL, indices[m][GridType::FULL])) {
                     for (int i = indices[m][GridType::FULL]-1; i >= 0; --i) {
-                        // cout << setw(5) << i;
-                        // cout << setw(10) << mesh.getGridCoord(m, GridType::FULL, i);
-                        // cout << setw(10) << x(m);
-                        // cout << setw(10) << mesh.getGridCoord(m, GridType::FULL, i+1) << endl;
                         if (x(m) >= mesh.getGridCoordComp(m, GridType::FULL, i) &&
                             x(m) <= mesh.getGridCoordComp(m, GridType::FULL, i+1)) {
                             indices[m][GridType::FULL] = i;
                             break;
                         }
                     }
-                } else if (x(m) > mesh.getGridCoordComp(m, GridType::FULL,
-                                                        indices[m][GridType::FULL]+1)) {
-                    for (int i = indices[m][GridType::FULL]+1;
-                         i < mesh.getNumGrid(m, GridType::FULL); ++i) {
+                } else if (x(m) > mesh.getGridCoordComp(m, GridType::FULL, indices[m][GridType::FULL]+1)) {
+                    for (int i = indices[m][GridType::FULL]+1; i <= mesh.getEndIndex(m, GridType::FULL); ++i) {
                         if (x(m) >= mesh.getGridCoordComp(m, GridType::FULL, i) &&
                             x(m) <= mesh.getGridCoordComp(m, GridType::FULL, i+1)) {
                             indices[m][GridType::FULL] = i;
@@ -176,19 +162,16 @@ void StructuredMeshIndex<MeshType, CoordType>::locate(const MeshType &mesh, cons
                     }
                 }
                 if (domain.getAxisStartBndType(m) == POLE) {
-                    if (x(m) < mesh.getGridCoordComp(m, GridType::HALF, 0)) {
+                    if (x(m) < mesh.getGridCoordComp(m, GridType::HALF, mesh.getStartIndex(m, GridType::HALF))) {
                         indices[m][GridType::HALF] = -1;
                         continue;
-                    } else if (x(m) > mesh.getGridCoordComp(m, GridType::HALF,
-                                                            mesh.getNumGrid(m, GridType::HALF)-1)) {
-                        indices[m][GridType::HALF] =
-                            mesh.getNumGrid(m, GridType::HALF)-1;
+                    } else if (x(m) > mesh.getGridCoordComp(m, GridType::HALF, mesh.getEndIndex(m, GridType::HALF))) {
+                        indices[m][GridType::HALF] = mesh.getNumGrid(m, GridType::HALF)-1;
                         continue;
                     }
                 }
-                int i1 = max(indices[m][GridType::FULL]-2, 0);
-                int i2 = min(indices[m][GridType::FULL]+2,
-                             mesh.getNumGrid(m, GridType::FULL)-1);
+                int i1 = max(indices[m][GridType::FULL]-2, mesh.getStartIndex(m, GridType::FULL));
+                int i2 = min(indices[m][GridType::FULL]+2, mesh.getEndIndex(m, GridType::FULL));
                 for (int i = i1; i < i2; ++i) {
                     if (x(m) >= mesh.getGridCoordComp(m, GridType::HALF, i) &&
                         x(m) <= mesh.getGridCoordComp(m, GridType::HALF, i+1)) {

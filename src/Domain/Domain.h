@@ -151,7 +151,8 @@ public:
      *
      *  @param x the space coordinate.
      */
-    virtual void check(SpaceCoord &x) const;
+    template <typename CoordType>
+    bool isValid(const CoordType &x) const;
 
     /**
      *  Calculate distance between two space coordinates.
@@ -180,6 +181,16 @@ public:
      */
     virtual string getBrief() const;
 };
+
+template <typename CoordType>
+bool Domain::isValid(const CoordType &x) const {
+    for (int m = 0; m < numDim; ++m) {
+        if (x(m) < getAxisStart(m) || x(m) > getAxisEnd(m)) {
+            return false;
+        }
+    }
+    return true;
+}
 
 }
 

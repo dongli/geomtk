@@ -30,7 +30,7 @@ public:
      *
      *  @param fileName the grid file name.
      */
-    virtual void init(const string &fileName);
+    virtual void init(const string &fileName) = 0;
 
     /**
      *  Read grids from one file for horizontal grids and one file for vertical
@@ -39,7 +39,7 @@ public:
      *  @param fileNameH the horizontal grid file name.
      *  @param fileNameV the vertical grid file name.
      */
-    virtual void init(const string &fileNameH, const string &fileNameV);
+    virtual void init(const string &fileNameH, const string &fileNameV) = 0;
 
     /**
      *  Get the mesh type (see enum MeshType), then you can cast the mesh to
@@ -59,11 +59,11 @@ public:
     /**
      *  Get the space coordinate of a grid with given location.
      *
-     *  @param i   the grid index (the cells are arranged as 1D array).
      *  @param loc the grid location.
-     *  @param x   the grid space coordinate.
+     *  @param i   the grid index (the cells are arranged as 1D array).
+     *  @return The grid space coordinate.
      */
-    virtual void getGridCoord(int i, int loc, CoordType &x) const = 0;
+    virtual const CoordType& getGridCoord(int loc, int i) const = 0;
 
     /**
      *  Set the center grid cell volumes.
@@ -88,12 +88,14 @@ public:
     virtual int getTotalNumGrid(int loc, int numDim) const = 0;
 
     /**
-     *  Get the level index.
+     *  Get the vertical level index.
      *
-     *  @param i   the cell index (the cells are arranged as 1D array).
-     *  @param loc the cell location.
+     *  @param loc     the grid location.
+     *  @param cellIdx the cell index.
+     *
+     *  @return The vertical level index.
      */
-    virtual int getLevelIndex(int i, int loc) const;
+    virtual int getLevelIndex(int loc, int cellIdx) const = 0;
 
     /**
      *  Check if the mesh is set or not.

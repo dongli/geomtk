@@ -76,6 +76,8 @@ public:
 
     const FieldType& getDivergence() const { return div; }
 
+    FieldType& getDivergence() { return div; }
+    
     const vector<FieldType>& getVorticity() const { return vor; }
 
     const PolarRing& getPolarRing(Pole pole) const { return rings[pole]; }

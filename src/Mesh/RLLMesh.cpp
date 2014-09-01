@@ -155,9 +155,9 @@ void RLLMesh::setCellVolumes() {
 double RLLMesh::getCosLon(int gridType, int i) const {
     switch (gridType) {
         case GridType::FULL:
-            return cosLonFull(i+1);
+            return cosLonFull[i];
         case GridType::HALF:
-            return cosLonHalf(i+1);
+            return cosLonHalf[i];
         default:
             REPORT_ERROR("Unknown grid type!");
     }
@@ -166,9 +166,9 @@ double RLLMesh::getCosLon(int gridType, int i) const {
 double RLLMesh::getSinLon(int gridType, int i) const {
     switch (gridType) {
         case GridType::FULL:
-            return sinLonFull(i+1);
+            return sinLonFull[i];
         case GridType::HALF:
-            return sinLonHalf(i+1);
+            return sinLonHalf[i];
         default:
             REPORT_ERROR("Unknown grid type!");
     }
@@ -177,9 +177,9 @@ double RLLMesh::getSinLon(int gridType, int i) const {
 double RLLMesh::getCosLat(int gridType, int j) const {
     switch (gridType) {
         case GridType::FULL:
-            return cosLatFull(j);
+            return cosLatFull[j];
         case GridType::HALF:
-            return cosLatHalf(j);
+            return cosLatHalf[j];
         default:
             REPORT_ERROR("Unknown grid type!");
     }
@@ -188,9 +188,9 @@ double RLLMesh::getCosLat(int gridType, int j) const {
 double RLLMesh::getSinLat(int gridType, int j) const {
     switch (gridType) {
         case GridType::FULL:
-            return sinLatFull(j);
+            return sinLatFull[j];
         case GridType::HALF:
-            return sinLatHalf(j);
+            return sinLatHalf[j];
         default:
             REPORT_ERROR("Unknown grid type!");
     }
@@ -199,9 +199,9 @@ double RLLMesh::getSinLat(int gridType, int j) const {
 double RLLMesh::getSinLat2(int gridType, int j) const {
     switch (gridType) {
         case GridType::FULL:
-            return sinLatFull2(j);
+            return sinLatFull2[j];
         case GridType::HALF:
-            return sinLatHalf2(j);
+            return sinLatHalf2[j];
         default:
             REPORT_ERROR("Unknown grid type!");
     }
@@ -210,9 +210,9 @@ double RLLMesh::getSinLat2(int gridType, int j) const {
 double RLLMesh::getTanLat(int gridType, int j) const {
     switch (gridType) {
         case GridType::FULL:
-            return tanLatFull(j);
+            return tanLatFull[j];
         case GridType::HALF:
-            return tanLatHalf(j);
+            return tanLatHalf[j];
         default:
             REPORT_ERROR("Unknown grid type!");
     }

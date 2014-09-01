@@ -7,6 +7,10 @@ using namespace geomtk;
 
 class RLLRegridTest : public ::testing::Test {
 protected:
+    const int FULL = RLLStagger::GridType::FULL;
+    const int HALF = RLLStagger::GridType::HALF;
+    const int CENTER = RLLStagger::Location::CENTER;
+
     SphereDomain *domain;
     RLLMesh *mesh;
     RLLRegrid *regrid;
@@ -39,13 +43,13 @@ protected:
 
 TEST_F(RLLRegridTest, Run) {
     v.create(*mesh, true);
-    for (int j = 0; j < mesh->getNumGrid(1, RLLStagger::GridType::FULL); ++j) {
-        for (int i = 0; i < mesh->getNumGrid(0, RLLStagger::GridType::HALF); ++i) {
+    for (int j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+        for (int i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
             v(0)(timeIdx, i, j) = 5.0;
         }
     }
-    for (int j = 0; j < mesh->getNumGrid(1, RLLStagger::GridType::HALF); ++j) {
-        for (int i = 0; i < mesh->getNumGrid(0, RLLStagger::GridType::FULL); ++i) {
+    for (int j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
+        for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
             v(1)(timeIdx, i, j) = 5.0;
         }
     }

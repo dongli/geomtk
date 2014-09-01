@@ -3,8 +3,10 @@ namespace geomtk {
 template <class DomainType, class CoordType>
 StructuredMesh<DomainType, CoordType>::StructuredMesh(DomainType &domain)
         : Mesh<DomainType, CoordType>(domain) {
-    fullIndexRanges.set_size(2, domain.getNumDim());
-    halfIndexRanges.set_size(2, domain.getNumDim());
+    fullIndexRanges.set_size(2, 3);
+    halfIndexRanges.set_size(2, 3);
+    fullIndexRanges.fill(0);
+    halfIndexRanges.fill(0);
     fullCoords = new vec[domain.getNumDim()];
     halfCoords = new vec[domain.getNumDim()];
     fullIntervals = new vec[domain.getNumDim()];
@@ -271,6 +273,78 @@ void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int s
 }
 
 template <class DomainType, class CoordType>
+int StructuredMesh<DomainType, CoordType>::is(int gridType) const {
+    switch (gridType) {
+        case GridType::FULL:
+            return fullIndexRanges(0, 0);
+        case GridType::HALF:
+            return halfIndexRanges(0, 0);
+        default:
+            REPORT_ERROR("Unknown grid type!");
+    }
+}
+
+template <class DomainType, class CoordType>
+int StructuredMesh<DomainType, CoordType>::ie(int gridType) const {
+    switch (gridType) {
+        case GridType::FULL:
+            return fullIndexRanges(1, 0);
+        case GridType::HALF:
+            return halfIndexRanges(1, 0);
+        default:
+            REPORT_ERROR("Unknown grid type!");
+    }
+}
+
+template <class DomainType, class CoordType>
+int StructuredMesh<DomainType, CoordType>::js(int gridType) const {
+    switch (gridType) {
+        case GridType::FULL:
+            return fullIndexRanges(0, 1);
+        case GridType::HALF:
+            return halfIndexRanges(0, 1);
+        default:
+            REPORT_ERROR("Unknown grid type!");
+    }
+}
+
+template <class DomainType, class CoordType>
+int StructuredMesh<DomainType, CoordType>::je(int gridType) const {
+    switch (gridType) {
+        case GridType::FULL:
+            return fullIndexRanges(1, 1);
+        case GridType::HALF:
+            return halfIndexRanges(1, 1);
+        default:
+            REPORT_ERROR("Unknown grid type!");
+    }
+}
+
+template <class DomainType, class CoordType>
+int StructuredMesh<DomainType, CoordType>::ks(int gridType) const {
+    switch (gridType) {
+        case GridType::FULL:
+            return fullIndexRanges(0, 2);
+        case GridType::HALF:
+            return halfIndexRanges(0, 2);
+        default:
+            REPORT_ERROR("Unknown grid type!");
+    }
+}
+
+template <class DomainType, class CoordType>
+int StructuredMesh<DomainType, CoordType>::ke(int gridType) const {
+    switch (gridType) {
+        case GridType::FULL:
+            return fullIndexRanges(1, 2);
+        case GridType::HALF:
+            return halfIndexRanges(1, 2);
+        default:
+            REPORT_ERROR("Unknown grid type!");
+    }
+}
+
+template <class DomainType, class CoordType>
 int StructuredMesh<DomainType, CoordType>::
 getStartIndex(int axisIdx, int gridType) const {
     switch (gridType) {
@@ -402,82 +476,18 @@ double StructuredMesh<DomainType, CoordType>::getGridCoordComp(int axisIdx, int 
         REPORT_ERROR("Argument axisIdx (" << axisIdx << ") exceeds domain " <<
                      "dimension (" << this->domain->getNumDim() << ")!");
     }
-    if (this->domain->getAxisStartBndType(axisIdx) == PERIODIC) {
-        switch (gridType) {
-            case GridType::FULL:
-                return fullCoords[axisIdx](gridIdx+1);
-            case GridType::HALF:
-                return halfCoords[axisIdx](gridIdx+1);
-            default:
-                REPORT_ERROR("Unknown grid type!");
-        }
-    } else {
-        switch (gridType) {
-            case GridType::FULL:
-                return fullCoords[axisIdx](gridIdx);
-            case GridType::HALF:
-                return halfCoords[axisIdx](gridIdx);
-            default:
-                REPORT_ERROR("Unknown grid type!");
-        }
-    }
-}
-
-template <class DomainType, class CoordType>
-void StructuredMesh<DomainType, CoordType>::getGridCoord(int i, int loc, CoordType &x) const {
-    // TODO: Set a CoordType array to store the grid coordinates, so we can
-    // avoid the duplicate works.
-    int idx[3];
-    unwrapIndex(loc, i, idx);
-    switch (loc) {
-        case Location::CENTER:
-            for (int m = 0; m < this->domain->getNumDim(); ++m) {
-                x.setCoordComp(m, getGridCoordComp(m, GridType::FULL, idx[m]));
-            }
-            break;
-        case Location::X_FACE:
-            for (int m = 0; m < this->domain->getNumDim(); ++m) {
-                if (m == 0) {
-                    x.setCoordComp(m, getGridCoordComp(m, GridType::HALF, idx[m]));
-                } else {
-                    x.setCoordComp(m, getGridCoordComp(m, GridType::FULL, idx[m]));
-                }
-            }
-            break;
-        case Location::Y_FACE:
-            for (int m = 0; m < this->domain->getNumDim(); ++m) {
-                if (m == 1) {
-                    x.setCoordComp(m, getGridCoordComp(m, GridType::HALF, idx[m]));
-                } else {
-                    x.setCoordComp(m, getGridCoordComp(m, GridType::FULL, idx[m]));
-                }
-            }
-            break;
-        case Location::Z_FACE:
-            for (int m = 0; m < this->domain->getNumDim(); ++m) {
-                if (m == 2) {
-                    x.setCoordComp(m, getGridCoordComp(m, GridType::HALF, idx[m]));
-                } else {
-                    x.setCoordComp(m, getGridCoordComp(m, GridType::FULL, idx[m]));
-                }
-            }
-            break;
-        case Location::XY_VERTEX:
-            for (int m = 0; m < this->domain->getNumDim(); ++m) {
-                if (m == 0 || m == 1) {
-                    x.setCoordComp(m, getGridCoordComp(m, GridType::HALF, idx[m]));
-                } else {
-                    x.setCoordComp(m, getGridCoordComp(m, GridType::FULL, idx[m]));
-                }
-            }
-            break;
+    switch (gridType) {
+        case GridType::FULL:
+            return fullCoords[axisIdx](gridIdx);
+        case GridType::HALF:
+            return halfCoords[axisIdx](gridIdx);
         default:
-            REPORT_ERROR("Unknown stagger location!");
+            REPORT_ERROR("Unknown grid type!");
     }
 }
 
 template <class DomainType, class CoordType>
-const CoordType& StructuredMesh<DomainType, CoordType>::getGridCoord(int i, int loc) const {
+const CoordType& StructuredMesh<DomainType, CoordType>::getGridCoord(int loc, int i) const {
     return gridCoords[loc][i];
 }
 
@@ -606,26 +616,50 @@ unwrapIndex(int loc, int cellIdx, int gridIdx[3]) const {
         case Location::Z_FACE:
             nx = getNumGrid(0, GridType::FULL);
             ny = getNumGrid(1, GridType::FULL);
+            gridIdx[2] = cellIdx/(nx*ny);
+            cellIdx -= gridIdx[2]*nx*ny;
+            gridIdx[1] = cellIdx/nx;
+            gridIdx[0] = cellIdx%nx;
+            gridIdx[0] += fullIndexRanges(0, 0);
+            gridIdx[1] += fullIndexRanges(0, 1);
+            gridIdx[2] += fullIndexRanges(0, 2);
             break;
         case Location::X_FACE:
             nx = getNumGrid(0, GridType::HALF);
             ny = getNumGrid(1, GridType::FULL);
+            gridIdx[2] = cellIdx/(nx*ny);
+            cellIdx -= gridIdx[2]*nx*ny;
+            gridIdx[1] = cellIdx/nx;
+            gridIdx[0] = cellIdx%nx;
+            gridIdx[0] += halfIndexRanges(0, 0);
+            gridIdx[1] += fullIndexRanges(0, 1);
+            gridIdx[2] += fullIndexRanges(0, 2);
             break;
         case Location::Y_FACE:
             nx = getNumGrid(0, GridType::FULL);
             ny = getNumGrid(1, GridType::HALF);
+            gridIdx[2] = cellIdx/(nx*ny);
+            cellIdx -= gridIdx[2]*nx*ny;
+            gridIdx[1] = cellIdx/nx;
+            gridIdx[0] = cellIdx%nx;
+            gridIdx[0] += fullIndexRanges(0, 0);
+            gridIdx[1] += halfIndexRanges(0, 1);
+            gridIdx[2] += fullIndexRanges(0, 2);
             break;
         case Location::XY_VERTEX:
             nx = getNumGrid(0, GridType::HALF);
             ny = getNumGrid(1, GridType::HALF);
+            gridIdx[2] = cellIdx/(nx*ny);
+            cellIdx -= gridIdx[2]*nx*ny;
+            gridIdx[1] = cellIdx/nx;
+            gridIdx[0] = cellIdx%nx;
+            gridIdx[0] += halfIndexRanges(0, 0);
+            gridIdx[1] += halfIndexRanges(0, 1);
+            gridIdx[2] += fullIndexRanges(0, 2);
             break;
         default:
             REPORT_ERROR("Unknown stagger location!");
     }
-    gridIdx[2] = cellIdx/(nx*ny);
-    cellIdx -= gridIdx[2]*nx*ny;
-    gridIdx[1] = cellIdx/nx;
-    gridIdx[0] = cellIdx%nx;
 }
 
 template <class DomainType, class CoordType>
@@ -636,18 +670,30 @@ wrapIndex(int loc, int i, int j, int k) const {
         case Location::CENTER:
             nx = getNumGrid(0, GridType::FULL);
             ny = getNumGrid(1, GridType::FULL);
+            i -= fullIndexRanges(0, 0);
+            j -= fullIndexRanges(0, 1);
+            k -= fullIndexRanges(0, 2);
             break;
         case Location::X_FACE:
             nx = getNumGrid(0, GridType::HALF);
             ny = getNumGrid(1, GridType::FULL);
+            i -= halfIndexRanges(0, 0);
+            j -= fullIndexRanges(0, 1);
+            k -= fullIndexRanges(0, 2);
             break;
         case Location::Y_FACE:
             nx = getNumGrid(0, GridType::FULL);
             ny = getNumGrid(1, GridType::HALF);
+            i -= fullIndexRanges(0, 0);
+            j -= halfIndexRanges(0, 1);
+            k -= fullIndexRanges(0, 2);
             break;
         case Location::XY_VERTEX:
             nx = getNumGrid(0, GridType::HALF);
             ny = getNumGrid(1, GridType::HALF);
+            i -= halfIndexRanges(0, 0);
+            j -= halfIndexRanges(0, 1);
+            k -= fullIndexRanges(0, 2);
             break;
         case Location::Z_FACE:
             REPORT_ERROR("Under construction!");
@@ -666,8 +712,7 @@ void StructuredMesh<DomainType, CoordType>::setGridCoords() {
     // Store the coordinates of each grid point for convenience.
     int gridIdx[3];
     for (int loc = 0; loc < 5; ++loc) {
-        gridCoords[loc].
-        set_size(getTotalNumGrid(loc, this->domain->getNumDim()));
+        gridCoords[loc].set_size(getTotalNumGrid(loc, this->domain->getNumDim()));
         for (int cellIdx = 0; cellIdx < gridCoords[loc].size(); ++cellIdx) {
             gridCoords[loc][cellIdx].setNumDim(this->domain->getNumDim());
             unwrapIndex(loc, cellIdx, gridIdx);
@@ -675,11 +720,9 @@ void StructuredMesh<DomainType, CoordType>::setGridCoords() {
                 if ((m == 0 && (loc == Location::X_FACE || loc == Location::XY_VERTEX)) ||
                     (m == 1 && (loc == Location::Y_FACE || loc == Location::XY_VERTEX)) ||
                     (m == 2 && loc == Location::Z_FACE)) {
-                    gridCoords[loc][cellIdx].
-                    setCoordComp(m, getGridCoordComp(m, GridType::HALF, gridIdx[m]));
+                    gridCoords[loc][cellIdx].setCoordComp(m, getGridCoordComp(m, GridType::HALF, gridIdx[m]));
                 } else {
-                    gridCoords[loc][cellIdx].
-                    setCoordComp(m, getGridCoordComp(m, GridType::FULL, gridIdx[m]));
+                    gridCoords[loc][cellIdx].setCoordComp(m, getGridCoordComp(m, GridType::FULL, gridIdx[m]));
                 }
             }
         }

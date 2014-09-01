@@ -8,6 +8,12 @@ using namespace geomtk;
 
 class IOManagerTest : public ::testing::Test {
 protected:
+    const int FULL = RLLStagger::GridType::FULL;
+    const int HALF = RLLStagger::GridType::HALF;
+    const int CENTER = RLLStagger::Location::CENTER;
+    const int X_FACE = RLLStagger::Location::X_FACE;
+    const int Y_FACE = RLLStagger::Location::Y_FACE;
+
     TimeManager timeManager;
     IOManager<RLLDataFile> ioManager;
     SphereDomain *domain;
@@ -34,18 +40,21 @@ TEST_F(IOManagerTest, Input2DMesh) {
 
     gen_2d_tv_data("test.nc");
     mesh->init("test.nc");
-    double dlon = PI2/10;
-    for (int i = 0; i < 10; ++i) {
-        ASSERT_LE(fabs(mesh->getGridCoordComp(0, RLLStagger::GridType::FULL, i)-i*dlon), 1.0e-15);
-        ASSERT_LE(fabs(mesh->getGridCoordComp(0, RLLStagger::GridType::HALF, i)-(i+0.5)*dlon), 1.0e-15);
+    double dlon = PI2/mesh->getNumGrid(0, FULL);
+    for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+        ASSERT_LE(fabs(mesh->getGridCoordComp(0, FULL, i)-(i-1)*dlon), 1.0e-15);
     }
-    double dlat = M_PI/9;
-    for (int j = 0; j < 10; ++j) {
-        ASSERT_LE(fabs(mesh->getGridCoordComp(1, RLLStagger::GridType::FULL, j)+M_PI_2-j*dlat), 1.0e-15);
-        if (j == 9) continue;
-        ASSERT_LE(fabs(mesh->getGridCoordComp(1, RLLStagger::GridType::HALF, j)+M_PI_2-(j+0.5)*dlat), 1.0e-15);
+    for (int i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
+        ASSERT_LE(fabs(mesh->getGridCoordComp(0, HALF, i)-(i-0.5)*dlon), 1.0e-15);
     }
-    ASSERT_LE(fabs(mesh->getGridCoordComp(1, RLLStagger::GridType::FULL, 9)-M_PI_2), 1.0e-15);
+    double dlat = M_PI/(mesh->getNumGrid(1, FULL)-1);
+    for (int j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+        ASSERT_LE(fabs(mesh->getGridCoordComp(1, FULL, j)+M_PI_2-j*dlat), 1.0e-15);
+    }
+    for (int j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
+        ASSERT_LE(fabs(mesh->getGridCoordComp(1, HALF, j)+M_PI_2-(j+0.5)*dlat), 1.0e-15);
+    }
+    ASSERT_LE(fabs(mesh->getGridCoordComp(1, FULL, 9)-M_PI_2), 1.0e-15);
     SystemTools::removeFile("test.nc");
 }
 
@@ -73,9 +82,9 @@ TEST_F(IOManagerTest, OutputField) {
     mesh->init(10, 10);
 
     RLLField<double, 2> f1, f2, f3;
-    f1.create("f1", "test units", "a field on CENTER location", *mesh, RLLStagger::Location::CENTER, 2, false);
-    f2.create("f2", "test units", "a field on X_FACE location", *mesh, RLLStagger::Location::X_FACE, 2, false);
-    f3.create("f3", "test units", "a field on Y_FACE location", *mesh, RLLStagger::Location::Y_FACE, 2, false);
+    f1.create("f1", "test units", "a field on CENTER location", *mesh, CENTER, 2, false);
+    f2.create("f2", "test units", "a field on X_FACE location", *mesh, X_FACE, 2, false);
+    f3.create("f3", "test units", "a field on Y_FACE location", *mesh, Y_FACE, 2, false);
 
     for (int i = 0; i < mesh->getTotalNumGrid(f1.getStaggerLocation(), f1.getNumDim()); ++i) {
         f1(timeIdx, i) = 1;
@@ -116,11 +125,12 @@ TEST_F(IOManagerTest, OutputField) {
     ret = nc_inq_dimid(fileID, "lon", &lonDimID);
     ASSERT_EQ(NC_NOERR, ret);
 
-    x = new double[mesh->getNumGrid(0, RLLStagger::GridType::FULL)];
+    x = new double[mesh->getNumGrid(0, FULL)];
     ret = nc_get_var_double(fileID, lonDimID, x);
     ASSERT_EQ(NC_NOERR, ret);
-    for (int i = 0; i < mesh->getNumGrid(0, RLLStagger::GridType::FULL); ++i) {
-        ASSERT_GE(1.0e-15, fabs(mesh->getGridCoordComp(0, RLLStagger::GridType::FULL, i)/RAD-x[i]));
+    for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+        // Note: 'i' starts from 1, so the index of 'x' is 'i-1'.
+        ASSERT_GE(1.0e-15, fabs(mesh->getGridCoordComp(0, FULL, i)/RAD-x[i-1]));
     }
     delete [] x;
 
@@ -129,6 +139,14 @@ TEST_F(IOManagerTest, OutputField) {
 
     ret = nc_inq_dimid(fileID, "lat", &latDimID);
     ASSERT_EQ(NC_NOERR, ret);
+
+    x = new double[mesh->getNumGrid(1, FULL)];
+    ret = nc_get_var_double(fileID, latDimID, x);
+    ASSERT_EQ(NC_NOERR, ret);
+    for (int j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+        ASSERT_GE(1.0e-15, fabs(mesh->getGridCoordComp(1, FULL, j)/RAD-x[j]));
+    }
+    delete [] x;
 
     ret = nc_inq_dimid(fileID, "lat_bnds", &latBndsDimID);
     ASSERT_EQ(NC_NOERR, ret);

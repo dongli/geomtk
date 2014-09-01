@@ -109,7 +109,7 @@ public:
     }
 
     template <typename Q = DataType>
-    typename enable_if<is_arithmetic<Q>::value, void>::type
+    typename enable_if<is_arithmetic<Q>::value, DataType>::type
     max(const TimeLevelIndex<NumTimeLevel> &timeIdx) {
         DataType res = -999999;
         for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
@@ -121,19 +121,19 @@ public:
     }
 
     template <typename Q = DataType>
-    typename enable_if<is_arithmetic<Q>::value, void>::type
+    typename enable_if<is_arithmetic<Q>::value, DataType>::type
     max() {
         DataType res = -999999;
         for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
-            if (res < (*this)(0, i)) {
-                res = (*this)(0, i);
+            if (res < (*this)(i)) {
+                res = (*this)(i);
             }
         }
         return res;
     }
 
     template <typename Q = DataType>
-    typename enable_if<is_arithmetic<Q>::value, void>::type
+    typename enable_if<is_arithmetic<Q>::value, DataType>::type
     min(const TimeLevelIndex<NumTimeLevel> &timeIdx) {
         DataType res = 999999;
         for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
@@ -145,15 +145,37 @@ public:
     }
 
     template <typename Q = DataType>
-    typename enable_if<is_arithmetic<Q>::value, void>::type
+    typename enable_if<is_arithmetic<Q>::value, DataType>::type
     min() {
         DataType res = 999999;
         for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
-            if (res > (*this)(0, i)) {
-                res = (*this)(0, i);
+            if (res > (*this)(i)) {
+                res = (*this)(i);
             }
         }
         return res;
+    }
+
+    template <typename Q = DataType>
+    typename enable_if<is_arithmetic<Q>::value, bool>::type
+    hasNan(const TimeLevelIndex<NumTimeLevel> &timeIdx) {
+        for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
+            if (std::isnan((*this)(timeIdx, i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    template <typename Q = DataType>
+    typename enable_if<is_arithmetic<Q>::value, bool>::type
+    hasNan() {
+        for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
+            if (std::isnan((*this)(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 };
 
