@@ -3,6 +3,7 @@
 
 #include "RLLField.h"
 #include "SphereDomain.h"
+#include "StructuredVelocityField.h"
 
 namespace geomtk {
 
@@ -44,19 +45,9 @@ public:
 
 // -----------------------------------------------------------------------------
 
-class RLLVelocityField {
-public:
-    typedef SphereDomain DomainType;
-    typedef RLLMesh MeshType;
-    typedef RLLField<double, 2> FieldType;
-    typedef RLLStagger::GridType GridType;
-    typedef RLLStagger::Location Location;
+class RLLVelocityField
+: public StructuredVelocityField<RLLMesh, RLLField<double, 2> > {
 protected:
-    const DomainType *domain;   //>! underlying domain
-    const MeshType *mesh;       //>! underlying mesh
-    vector<FieldType> v;        //>! velocity component fields
-    FieldType div;              //>! divergence field
-    vector<FieldType> vor;      //>! vorticity field
     PolarRing rings[2];
 public:
     RLLVelocityField();
@@ -68,25 +59,13 @@ public:
     virtual void create(const RLLMesh &mesh, bool useStagger,
                         bool hasHalfLevel = false);
 
-    const RLLMesh& getMesh() const { return v[0].getMesh(); }
-
-    FieldType& operator()(int compIdx) { return v[compIdx]; }
-    
-    const FieldType& operator()(int compIdx) const { return v[compIdx]; }
-
-    const FieldType& getDivergence() const { return div; }
-
-    FieldType& getDivergence() { return div; }
-    
-    const vector<FieldType>& getVorticity() const { return vor; }
-
     const PolarRing& getPolarRing(Pole pole) const { return rings[pole]; }
 
-    void calcDivergence(const TimeLevelIndex<2> &timeIdx);
+    virtual void calcDivergence(const TimeLevelIndex<2> &timeIdx);
 
-    void calcVorticity(const TimeLevelIndex<2> &timeIdx);
+    virtual void calcVorticity(const TimeLevelIndex<2> &timeIdx);
 };
 
-}
+} // geomtk
 
-#endif
+#endif // __Geomtk_RLLVelocityField__

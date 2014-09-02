@@ -32,6 +32,7 @@
 // Field class hierarchy
 #include "Field.h"
 #include "CartesianField.h"
+#include "CartesianVelocityField.h"
 #include "RLLField.h"
 #include "RLLVelocityField.h"
 // Regrid class hierarchy

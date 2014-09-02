@@ -177,63 +177,39 @@ void PolarRing::print() const {
 
 // -----------------------------------------------------------------------------
 
-RLLVelocityField::RLLVelocityField() {
+RLLVelocityField::RLLVelocityField()
+    : StructuredVelocityField<MeshType, FieldType>() {
 }
 
 RLLVelocityField::~RLLVelocityField() {
 }
 
-void RLLVelocityField::applyBndCond(const TimeLevelIndex<2> &timeIdx,
-                                    bool updateHalfLevel) {
-    for (int m = 0; m < v.size(); ++m) {
-        v[m].applyBndCond(timeIdx, updateHalfLevel);
-    }
-    calcDivergence(timeIdx);
-    div.applyBndCond(timeIdx, updateHalfLevel);
-    calcVorticity(timeIdx);
-    for (int m = 0; m < vor.size(); ++m) {
-        vor[m].applyBndCond(timeIdx);
-    }
-    rings[0].update(timeIdx, SOUTH_POLE, v, div, updateHalfLevel);
-    rings[1].update(timeIdx, NORTH_POLE, v, div, updateHalfLevel);
-}
-    
 void RLLVelocityField::create(const RLLMesh &mesh, bool useStagger,
                               bool hasHalfLevel) {
-    this->mesh = &mesh;
-    this->domain = static_cast<const SphereDomain*>(&mesh.getDomain());
-    v.resize(mesh.getDomain().getNumDim());
-    if (useStagger) {
-        v[0].create("u", "m s-1", "zonal wind speed", mesh, Location::X_FACE, 2, hasHalfLevel);
-        v[1].create("v", "m s-1", "meridional wind speed", mesh, Location::Y_FACE, 2, hasHalfLevel);
-        if (mesh.getDomain().getNumDim() == 3) {
-            REPORT_ERROR("Under construction!");
-            v[2].create("w", "?", "vertical wind speed", mesh, Location::Z_FACE, 2, hasHalfLevel);
-        }
-    } else {
-        v[0].create("u", "m s-1", "zonal wind speed", mesh, Location::CENTER, 2, hasHalfLevel);
-        v[1].create("v", "m s-1", "meridional wind speed", mesh, Location::CENTER, 2, hasHalfLevel);
-        if (mesh.getDomain().getNumDim() == 3) {
-            REPORT_ERROR("Under construction!");
-            v[2].create("w", "?", "vertical wind speed", mesh, Location::CENTER, 2, hasHalfLevel);
-        }
-    }
-    div.create("div", "s-1", "divergence", mesh, Location::CENTER, 2, hasHalfLevel);
-    if (domain->getNumDim() == 2) {
-        vor.resize(1);
-        vor[0].create("vor_xy", "s-1", "vorticity (x-y)", mesh, Location::CENTER, 2, hasHalfLevel);
-    } else {
-        REPORT_ERROR("Under construction!");
+    StructuredVelocityField<MeshType, FieldType>::
+    create(mesh, useStagger, hasHalfLevel);
+    v[0].setLongName("zonal wind speed");
+    v[1].setLongName("meridional wind speed");
+    if (mesh.getDomain().getNumDim() == 3) {
+        v[2].setLongName("vertical wind speed");
     }
     rings[0].create(mesh, hasHalfLevel);
     rings[1].create(mesh, hasHalfLevel);
+}
+
+void RLLVelocityField::applyBndCond(const TimeLevelIndex<2> &timeIdx,
+                                    bool updateHalfLevel) {
+    StructuredVelocityField<MeshType, FieldType>::
+    applyBndCond(timeIdx, updateHalfLevel);
+    rings[0].update(timeIdx, SOUTH_POLE, v, div, updateHalfLevel);
+    rings[1].update(timeIdx, NORTH_POLE, v, div, updateHalfLevel);
 }
 
 void RLLVelocityField::calcDivergence(const TimeLevelIndex<2> &timeIdx) {
     if (v[0].getStaggerLocation() == Location::CENTER &&
         v[1].getStaggerLocation() == Location::CENTER) {
         for (int j = mesh->js(GridType::FULL)+1; j <= mesh->je(GridType::FULL)-1; ++j) {
-            double ReCosLat = domain->getRadius()*mesh->getCosLat(GridType::FULL, j);
+            double ReCosLat = mesh->getDomain().getRadius()*mesh->getCosLat(GridType::FULL, j);
             for (int i = mesh->is(GridType::FULL); i <= mesh->ie(GridType::FULL); ++i) {
                 double u1 = v[0](timeIdx, i-1, j);
                 double u2 = v[0](timeIdx, i+1, j);
@@ -249,7 +225,7 @@ void RLLVelocityField::calcDivergence(const TimeLevelIndex<2> &timeIdx) {
     } else if (v[0].getStaggerLocation() == Location::X_FACE &&
                v[1].getStaggerLocation() == Location::Y_FACE) {
         for (int j = mesh->js(GridType::FULL)+1; j <= mesh->je(GridType::FULL)-1; ++j) {
-            double ReCosLat = domain->getRadius()*mesh->getCosLat(GridType::FULL, j);
+            double ReCosLat = mesh->getDomain().getRadius()*mesh->getCosLat(GridType::FULL, j);
             for (int i = mesh->is(GridType::FULL); i <= mesh->ie(GridType::FULL); ++i) {
                 double u1 = v[0](timeIdx, i-1, j);
                 double u2 = v[0](timeIdx, i, j);
@@ -268,9 +244,9 @@ void RLLVelocityField::calcDivergence(const TimeLevelIndex<2> &timeIdx) {
 void RLLVelocityField::calcVorticity(const TimeLevelIndex<2> &timeIdx) {
     if (v[0].getStaggerLocation() == Location::CENTER &&
         v[1].getStaggerLocation() == Location::CENTER) {
-        if (domain->getNumDim() == 2) {
+        if (mesh->getDomain().getNumDim() == 2) {
             for (int j = mesh->js(GridType::FULL)+1; j <= mesh->je(GridType::FULL)-1; ++j) {
-                double ReCosLat = domain->getRadius()*mesh->getCosLat(GridType::FULL, j);
+                double ReCosLat = mesh->getDomain().getRadius()*mesh->getCosLat(GridType::FULL, j);
                 for (int i = mesh->is(GridType::FULL); i <= mesh->ie(GridType::FULL); ++i) {
                     double v1 = v[1](timeIdx, i-1, j);
                     double v2 = v[1](timeIdx, i, j);
@@ -288,9 +264,9 @@ void RLLVelocityField::calcVorticity(const TimeLevelIndex<2> &timeIdx) {
         }
     } else if (v[0].getStaggerLocation() == Location::X_FACE &&
                v[1].getStaggerLocation() == Location::Y_FACE) {
-        if (domain->getNumDim() == 2) {
+        if (mesh->getDomain().getNumDim() == 2) {
             for (int j = mesh->js(GridType::FULL)+1; j <= mesh->je(GridType::FULL)-1; ++j) {
-                double ReCosLat = domain->getRadius()*mesh->getCosLat(GridType::FULL, j);
+                double ReCosLat = mesh->getDomain().getRadius()*mesh->getCosLat(GridType::FULL, j);
                 for (int i = mesh->is(GridType::FULL); i <= mesh->ie(GridType::FULL); ++i) {
                     double v1 = v[1](timeIdx, i-1, j-1);
                     double v2 = v[1](timeIdx, i-1, j );
@@ -315,4 +291,4 @@ void RLLVelocityField::calcVorticity(const TimeLevelIndex<2> &timeIdx) {
     }
 }
 
-}
+} // geomtk

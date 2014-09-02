@@ -54,17 +54,34 @@ public:
         int nx = data->getLevel(0).n_rows;
         int ny = data->getLevel(0).n_cols;
         int nz = data->getLevel(0).n_slices;
-        if (this->mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
+        const Domain &domain = this->mesh->getDomain();
+        field<DataType> &d = data->getLevel(timeIdx);
+        if (domain.getAxisStartBndType(0) == PERIODIC) {
+            // TODO: Need to modify when doing parallel.
             for (int k = 0; k < nz; ++k) {
                 for (int j = 0; j < ny; ++j) {
-                    data->getLevel(timeIdx)(0, j, k) =
-                    data->getLevel(timeIdx)(nx-2, j, k);
-                    data->getLevel(timeIdx)(nx-1, j, k) =
-                    data->getLevel(timeIdx)(1, j, k);
+                    d(0,    j, k) = d(nx-2, j, k);
+                    d(nx-1, j, k) = d(1,    j, k);
                 }
             }
-        } else {
-            REPORT_ERROR("Under construction!");
+        }
+        if (domain.getAxisStartBndType(1) == PERIODIC) {
+            for (int k = 0; k < nz; ++k) {
+                for (int i = 0; i < nx; ++i) {
+                    d(i, 0,    k) = d(i, ny-2, k);
+                    d(i, ny-1, k) = d(i, 1,    k);
+                }
+            }
+        }
+        if (domain.getNumDim() == 3) {
+            if (domain.getAxisStartBndType(2) == PERIODIC) {
+                for (int j = 0; j < ny; ++j) {
+                    for (int i = 0; i < nx; ++i) {
+                        d(i, j, 0   ) = d(i, j, nz-2);
+                        d(i, j, nz-1) = d(i, j, 1   );
+                    }
+                }
+            }
         }
         if (updateHalfLevel && data->hasHalfLevel()) {
             if (NumTimeLevel < 2) {
@@ -73,9 +90,6 @@ public:
             }
             TimeLevelIndex<NumTimeLevel> halfTimeIdx = timeIdx-0.5;
             TimeLevelIndex<NumTimeLevel> oldTimeIdx = timeIdx-1;
-            int nx = data->getLevel(0).n_rows;
-            int ny = data->getLevel(0).n_cols;
-            int nz = data->getLevel(0).n_slices;
             for (int k = 0; k < nz; ++k) {
                 for (int j = 0; j < ny; ++j) {
                     for (int i = 0; i < nx; ++i) {
@@ -94,17 +108,34 @@ public:
         int nx = data->getLevel(0).n_rows;
         int ny = data->getLevel(0).n_cols;
         int nz = data->getLevel(0).n_slices;
-        if (this->mesh->getDomain().getAxisStartBndType(0) == PERIODIC) {
+        const Domain &domain = this->mesh->getDomain();
+        field<DataType> &d = data->getLevel(0);
+        if (domain.getAxisStartBndType(0) == PERIODIC) {
+            // TODO: Need to modify when doing parallel.
             for (int k = 0; k < nz; ++k) {
                 for (int j = 0; j < ny; ++j) {
-                    data->getLevel(0)(0, j, k) =
-                    data->getLevel(0)(nx-2, j, k);
-                    data->getLevel(0)(nx-1, j, k) =
-                    data->getLevel(0)(1, j, k);
+                    d(0,    j, k) = d(nx-2, j, k);
+                    d(nx-1, j, k) = d(1,    j, k);
                 }
             }
-        } else {
-            REPORT_ERROR("Under construction!");
+        }
+        if (domain.getAxisStartBndType(1) == PERIODIC) {
+            for (int k = 0; k < nz; ++k) {
+                for (int i = 0; i < nx; ++i) {
+                    d(i, 0,    k) = d(i, ny-2, k);
+                    d(i, ny-1, k) = d(i, 1,    k);
+                }
+            }
+        }
+        if (domain.getNumDim() == 3) {
+            if (domain.getAxisStartBndType(2) == PERIODIC) {
+                for (int j = 0; j < ny; ++j) {
+                    for (int i = 0; i < nx; ++i) {
+                        d(i, j, 0   ) = d(i, j, nz-2);
+                        d(i, j, nz-1) = d(i, j, 1   );
+                    }
+                }
+            }
         }
     }
 
