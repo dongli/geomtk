@@ -60,7 +60,7 @@ public:
     /**
      *  Set the axis along the specified dimension, including the meta info.
      *
-     *  @param dim          the dimension index.
+     *  @param axisIdx      the axis index.
      *  @param axisName     the short name of the axis, e.g. 'x'.
      *  @param axisLongName the long name of the axis.
      *  @param axisUnits    the coordinate units of the axis.
@@ -69,7 +69,7 @@ public:
      *  @param end          the end coordinate value.
      *  @param bndTypeEnd   the boundary type of the axis end.
      */
-    virtual void setAxis(int dim, const string &axisName,
+    virtual void setAxis(int axisIdx, const string &axisName,
                          const string &axisLongName, const string &axisUnits,
                          double start, BndType bndTypeStart,
                          double end, BndType bndTypeEnd);

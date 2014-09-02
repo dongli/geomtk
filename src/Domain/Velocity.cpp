@@ -4,10 +4,12 @@ namespace geomtk {
 
 Velocity::Velocity() {
     v.set_size(3);
+    v.fill(0);
 }
 
 Velocity::Velocity(int numDim) {
     v.set_size(numDim);
+    v.fill(0);
 }
 
 Velocity::~Velocity() {

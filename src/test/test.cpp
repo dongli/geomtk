@@ -5,6 +5,7 @@
 #include "Domain_test.h"
 #include "SphereCoord_test.h"
 #include "SphereDomain_test.h"
+#include "CartesianMesh_test.h"
 #include "RLLMesh_test.h"
 #include "RLLMeshIndex_test.h"
 #include "RLLField_test.h"

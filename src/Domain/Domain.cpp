@@ -23,7 +23,6 @@ Domain::Domain() {
 }
 
 Domain::Domain(int numDim) {
-    assert(numDim < 3);
     type = CARTESIAN_DOMAIN;
     this->numDim = numDim;
     axisName.resize(numDim);
