@@ -4,7 +4,8 @@
 
 namespace geomtk {
 
-Domain::Domain() {
+template <typename CoordType>
+Domain<CoordType>::Domain() {
     type = CARTESIAN_DOMAIN;
     numDim = 2;
     axisName.resize(numDim);
@@ -22,7 +23,8 @@ Domain::Domain() {
     vertCoord = NULL;
 }
 
-Domain::Domain(int numDim) {
+template <typename CoordType>
+Domain<CoordType>::Domain(int numDim) {
     type = CARTESIAN_DOMAIN;
     this->numDim = numDim;
     axisName.resize(numDim);
@@ -40,7 +42,8 @@ Domain::Domain(int numDim) {
     vertCoord = NULL;
 }
 
-Domain::Domain(VertCoordType vertCoordType) {
+template <typename CoordType>
+Domain<CoordType>::Domain(VertCoordType vertCoordType) {
     this->numDim = 3;
     type = CARTESIAN_DOMAIN;
     axisName.resize(numDim);
@@ -68,7 +71,8 @@ Domain::Domain(VertCoordType vertCoordType) {
     }
 }
 
-Domain::~Domain() {
+template <typename CoordType>
+Domain<CoordType>::~Domain() {
     delete [] bndTypeStarts;
     delete [] bndTypeEnds;
     if (vertCoord != NULL) {
@@ -76,7 +80,8 @@ Domain::~Domain() {
     }
 }
 
-void Domain::setAxis(int dim, const string &name, const string &longName,
+template <typename CoordType>
+void Domain<CoordType>::setAxis(int dim, const string &name, const string &longName,
                      const string &units, double start, BndType bndTypeStart,
                      double end, BndType bndTypeEnd) {
     // sanity check
@@ -100,18 +105,40 @@ void Domain::setAxis(int dim, const string &name, const string &longName,
     bndTypeEnds[dim] = bndTypeEnd;
     axisSpans(dim) = end-start;
 }
-    
-double Domain::calcDistance(const SpaceCoord &x, const SpaceCoord &y) const {
-    REPORT_ERROR("Domain does not implement this method!");
-}
-    
-vec Domain::diffCoord(const SpaceCoord &x, const SpaceCoord &y) const {
-    return x()-y();
-}
 
-string Domain::getBrief() const {
+template <typename CoordType>
+string Domain<CoordType>::getBrief() const {
     static string brief = "normal domain";
     return brief;
 }
 
+template <typename CoordType>
+void Domain<CoordType>::constrain(CoordType &x) const {
+    for (int m = 0; m < numDim; ++m) {
+        if (x(m) < getAxisStart(m)) {
+            if (getAxisStartBndType(m) == PERIODIC) {
+                x(m) += getAxisSpan(m);
+            } else {
+                REPORT_ERROR("Coordinate is out of range!");
+            }
+        } else if (x(m) > getAxisEnd(m)) {
+            if (getAxisStartBndType(m) == PERIODIC) {
+                x(m) -= getAxisSpan(m);
+            } else {
+                REPORT_ERROR("Coordinate is out of range!");
+            }
+        }
+    }
 }
+
+template <typename CoordType>
+bool Domain<CoordType>::isValid(const CoordType &x) const {
+    for (int m = 0; m < numDim; ++m) {
+        if (x(m) < getAxisStart(m) || x(m) > getAxisEnd(m)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+} // geomtk

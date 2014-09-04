@@ -31,7 +31,6 @@ protected:
 };
 
 TEST_F(RLLVelocityFieldTest, Basics) {
-    ASSERT_EQ(domain, v.domain);
     ASSERT_EQ(mesh, v.mesh);
     ASSERT_EQ(2, v.v.size());
     ASSERT_EQ("div", v.div.getName());

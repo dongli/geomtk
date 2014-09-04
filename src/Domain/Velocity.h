@@ -22,6 +22,8 @@ public:
 
     double& operator()(int i) { return v(i); }
 
+    const vec& operator()() const { return v; }
+
     vec& operator()() { return v; }
 
     const Velocity operator+(const Velocity &other) const;

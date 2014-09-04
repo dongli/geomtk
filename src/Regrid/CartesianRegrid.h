@@ -4,6 +4,7 @@
 #include "Regrid.h"
 #include "CartesianMeshIndex.h"
 #include "CartesianField.h"
+#include "CartesianVelocityField.h"
 
 namespace geomtk {
 
@@ -20,6 +21,10 @@ public:
     void run(RegridMethod method, const TimeLevelIndex<N> &timeIdx,
              const CartesianField<T, N> &f, const SpaceCoord &x, T &y,
              CartesianMeshIndex *idx = NULL);
+
+    void run(RegridMethod method, const TimeLevelIndex<2> &timeIdx,
+             const CartesianVelocityField &f, const SpaceCoord &x,
+             Velocity &v, CartesianMeshIndex *idx = NULL);
 };
 
 template <typename T, int N>

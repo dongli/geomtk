@@ -116,7 +116,7 @@ void RLLDataFile::inputVerticalGrids() {
 }
 
 void RLLDataFile::outputGrids() {
-    const Domain &domain = mesh->getDomain();
+    const auto &domain = mesh->getDomain();
     int ret;
     // write units
     ret = nc_redef(fileID);

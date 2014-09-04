@@ -5,12 +5,16 @@
 
 namespace geomtk {
 
-class CartesianDomain : public Domain {
+class CartesianDomain : public Domain<SpaceCoord> {
 public:
 	CartesianDomain() : Domain() {}
 	CartesianDomain(int numDim) : Domain(numDim) {}
 	CartesianDomain(VertCoordType type) : Domain(type) {}
 	virtual ~CartesianDomain() {}
+
+    virtual vec diffCoord(const SpaceCoord &x, const SpaceCoord &y) const;
+
+    virtual double calcDistance(const SpaceCoord &x, const SpaceCoord &y) const;
 };
 
 } // geomtk

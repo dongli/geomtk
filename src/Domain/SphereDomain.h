@@ -7,7 +7,9 @@
 
 namespace geomtk {
 
-class SphereDomain : public Domain {
+// TODO: SphereDomain may still need to be templated for considering
+// CubicSphereCoord.
+class SphereDomain : public Domain<SphereCoord> {
     double radius;
 public:
     enum ProjectionType {
@@ -23,7 +25,8 @@ public:
 
     void setRadius(double radius) { this->radius = radius; }
 
-    double calcDistance(const SphereCoord &x, const SphereCoord &y) const;
+    virtual double calcDistance(const SphereCoord &x,
+                                const SphereCoord &y) const;
 
     double calcDistance(const SphereCoord &x, double lon, double lat) const;
 

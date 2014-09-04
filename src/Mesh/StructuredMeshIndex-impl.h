@@ -60,11 +60,12 @@ operator=(const StructuredMeshIndex<MeshType, CoordType> &other) {
 template <class MeshType, class CoordType>
 void StructuredMeshIndex<MeshType, CoordType>::
 locate(const MeshType &mesh, const CoordType &x) {
-    const typename MeshType::DomainType &domain = mesh.getDomain();
+    const auto &domain = mesh.getDomain();
 #ifndef NDEBUG
     assert(domain.isValid(x));
 #endif
     for (int m = 0; m < domain.getNumDim(); ++m) {
+        // #####################################################################
         if (indices[m][GridType::FULL] == UNDEFINED_MESH_INDEX) {
             if (domain.getAxisStartBndType(m) == PERIODIC) {
                 for (int i = mesh.getStartIndex(m, GridType::FULL);
@@ -83,7 +84,9 @@ locate(const MeshType &mesh, const CoordType &x) {
                         break;
                     }
                 }
-            } else {
+            }
+            // =================================================================
+            else if (mesh.getGridCoordComp(m, GridType::FULL, 0) == domain.getAxisStart(m)) {
                 for (int i = mesh.getStartIndex(m, GridType::FULL);
                      i < mesh.getEndIndex(m, GridType::FULL); ++i) {
                     if (x(m) >= mesh.getGridCoordComp(m, GridType::FULL, i) &&
@@ -92,6 +95,7 @@ locate(const MeshType &mesh, const CoordType &x) {
                         break;
                     }
                 }
+                // TODO: Could we remove the POLE condition?
                 if (domain.getAxisStartBndType(m) == POLE) {
                     if (x(m) < mesh.getGridCoordComp(m, GridType::HALF,
                                                      mesh.getStartIndex(m, GridType::HALF))) {
@@ -99,8 +103,7 @@ locate(const MeshType &mesh, const CoordType &x) {
                         continue;
                     } else if (x(m) > mesh.getGridCoordComp(m, GridType::HALF,
                                                             mesh.getEndIndex(m, GridType::HALF))) {
-                        indices[m][GridType::HALF] =
-                            mesh.getNumGrid(m, GridType::HALF)-1;
+                        indices[m][GridType::HALF] = mesh.getNumGrid(m, GridType::HALF)-1;
                         continue;
                     }
                 }
@@ -114,9 +117,41 @@ locate(const MeshType &mesh, const CoordType &x) {
                     }
                 }
             }
-        } else {
+            // =================================================================
+            else {
+                for (int i = mesh.getStartIndex(m, GridType::HALF);
+                     i < mesh.getEndIndex(m, GridType::HALF); ++i) {
+                    if (x(m) >= mesh.getGridCoordComp(m, GridType::HALF, i) &&
+                        x(m) <= mesh.getGridCoordComp(m, GridType::HALF, i+1)) {
+                        indices[m][GridType::HALF] = i;
+                        break;
+                    }
+                }
+                if (x(m) < mesh.getGridCoordComp(m, GridType::FULL,
+                                                 mesh.getStartIndex(m, GridType::FULL))) {
+                    indices[m][GridType::FULL] = -1;
+                    continue;
+                } else if (x(m) > mesh.getGridCoordComp(m, GridType::FULL,
+                                                        mesh.getEndIndex(m, GridType::FULL))) {
+                    indices[m][GridType::FULL] = mesh.getNumGrid(m, GridType::FULL)-1;
+                    continue;
+                }
+                int i1 = max(indices[m][GridType::HALF]-2, mesh.getStartIndex(m, GridType::HALF));
+                int i2 = min(indices[m][GridType::HALF]+2, mesh.getEndIndex(m, GridType::HALF));
+                for (int i = i1; i < i2; ++i) {
+                    if (x(m) >= mesh.getGridCoordComp(m, GridType::FULL, i) &&
+                        x(m) <= mesh.getGridCoordComp(m, GridType::FULL, i+1)) {
+                        indices[m][GridType::FULL] = i;
+                        break;
+                    }
+                }
+            }
+        }
+        // #####################################################################
+        else {
             if (domain.getAxisStartBndType(m) == PERIODIC) {
-                if (x(m) < mesh.getGridCoordComp(m, GridType::FULL, indices[m][GridType::FULL])) {
+                if (x(m) < mesh.getGridCoordComp(m, GridType::FULL,
+                                                 indices[m][GridType::FULL])) {
                     for (int i = indices[m][GridType::FULL]-1;
                          i >= mesh.getStartIndex(m, GridType::FULL); --i) {
                         if (x(m) >= mesh.getGridCoordComp(m, GridType::FULL, i) &&
@@ -125,7 +160,8 @@ locate(const MeshType &mesh, const CoordType &x) {
                             break;
                         }
                     }
-                } else if (x(m) > mesh.getGridCoordComp(m, GridType::FULL, indices[m][GridType::FULL]+1)) {
+                } else if (x(m) > mesh.getGridCoordComp(m, GridType::FULL,
+                                                        indices[m][GridType::FULL]+1)) {
                     for (int i = indices[m][GridType::FULL]+1;
                          i <= mesh.getEndIndex(m, GridType::FULL); ++i) {
                         if (x(m) >= mesh.getGridCoordComp(m, GridType::FULL, i) &&
@@ -143,17 +179,23 @@ locate(const MeshType &mesh, const CoordType &x) {
                         break;
                     }
                 }
-            } else {
-                if (x(m) < mesh.getGridCoordComp(m, GridType::FULL, indices[m][GridType::FULL])) {
-                    for (int i = indices[m][GridType::FULL]-1; i >= 0; --i) {
+            }
+            // =================================================================
+            else if (mesh.getGridCoordComp(m, GridType::FULL, 0) == domain.getAxisStart(m)) {
+                if (x(m) < mesh.getGridCoordComp(m, GridType::FULL,
+                                                 indices[m][GridType::FULL])) {
+                    for (int i = indices[m][GridType::FULL]-1;
+                         i >= mesh.getStartIndex(m, GridType::FULL); --i) {
                         if (x(m) >= mesh.getGridCoordComp(m, GridType::FULL, i) &&
                             x(m) <= mesh.getGridCoordComp(m, GridType::FULL, i+1)) {
                             indices[m][GridType::FULL] = i;
                             break;
                         }
                     }
-                } else if (x(m) > mesh.getGridCoordComp(m, GridType::FULL, indices[m][GridType::FULL]+1)) {
-                    for (int i = indices[m][GridType::FULL]+1; i <= mesh.getEndIndex(m, GridType::FULL); ++i) {
+                } else if (x(m) > mesh.getGridCoordComp(m, GridType::FULL,
+                                                        indices[m][GridType::FULL]+1)) {
+                    for (int i = indices[m][GridType::FULL]+1;
+                         i <= mesh.getEndIndex(m, GridType::FULL); ++i) {
                         if (x(m) >= mesh.getGridCoordComp(m, GridType::FULL, i) &&
                             x(m) <= mesh.getGridCoordComp(m, GridType::FULL, i+1)) {
                             indices[m][GridType::FULL] = i;
@@ -161,11 +203,14 @@ locate(const MeshType &mesh, const CoordType &x) {
                         }
                     }
                 }
+                // TODO: Could we remove the POLE condition?
                 if (domain.getAxisStartBndType(m) == POLE) {
-                    if (x(m) < mesh.getGridCoordComp(m, GridType::HALF, mesh.getStartIndex(m, GridType::HALF))) {
+                    if (x(m) < mesh.getGridCoordComp(m, GridType::HALF,
+                                                     mesh.getStartIndex(m, GridType::HALF))) {
                         indices[m][GridType::HALF] = -1;
                         continue;
-                    } else if (x(m) > mesh.getGridCoordComp(m, GridType::HALF, mesh.getEndIndex(m, GridType::HALF))) {
+                    } else if (x(m) > mesh.getGridCoordComp(m, GridType::HALF,
+                                                            mesh.getEndIndex(m, GridType::HALF))) {
                         indices[m][GridType::HALF] = mesh.getNumGrid(m, GridType::HALF)-1;
                         continue;
                     }
@@ -176,6 +221,48 @@ locate(const MeshType &mesh, const CoordType &x) {
                     if (x(m) >= mesh.getGridCoordComp(m, GridType::HALF, i) &&
                         x(m) <= mesh.getGridCoordComp(m, GridType::HALF, i+1)) {
                         indices[m][GridType::HALF] = i;
+                        break;
+                    }
+                }
+            }
+            // =================================================================
+            else {
+                if (x(m) < mesh.getGridCoordComp(m, GridType::HALF,
+                                                 indices[m][GridType::HALF])) {
+                    for (int i = indices[m][GridType::HALF]-1;
+                         i >= mesh.getStartIndex(m, GridType::HALF); --i) {
+                        if (x(m) >= mesh.getGridCoordComp(m, GridType::HALF, i) &&
+                            x(m) <= mesh.getGridCoordComp(m, GridType::HALF, i+1)) {
+                            indices[m][GridType::HALF] = i;
+                            break;
+                        }
+                    }
+                } else if (x(m) > mesh.getGridCoordComp(m, GridType::HALF,
+                                                        indices[m][GridType::HALF]+1)) {
+                    for (int i = indices[m][GridType::HALF]+1;
+                         i <= mesh.getEndIndex(m, GridType::HALF); ++i) {
+                        if (x(m) >= mesh.getGridCoordComp(m, GridType::HALF, i) &&
+                            x(m) <= mesh.getGridCoordComp(m, GridType::HALF, i+1)) {
+                            indices[m][GridType::HALF] = i;
+                            break;
+                        }
+                    }
+                }
+                    if (x(m) < mesh.getGridCoordComp(m, GridType::FULL,
+                                                     mesh.getStartIndex(m, GridType::FULL))) {
+                        indices[m][GridType::FULL] = -1;
+                        continue;
+                    } else if (x(m) > mesh.getGridCoordComp(m, GridType::FULL,
+                                                            mesh.getEndIndex(m, GridType::FULL))) {
+                        indices[m][GridType::FULL] = mesh.getNumGrid(m, GridType::FULL)-1;
+                        continue;
+                    }
+                int i1 = max(indices[m][GridType::HALF]-2, mesh.getStartIndex(m, GridType::HALF));
+                int i2 = min(indices[m][GridType::HALF]+2, mesh.getEndIndex(m, GridType::HALF));
+                for (int i = i1; i < i2; ++i) {
+                    if (x(m) >= mesh.getGridCoordComp(m, GridType::FULL, i) &&
+                        x(m) <= mesh.getGridCoordComp(m, GridType::FULL, i+1)) {
+                        indices[m][GridType::FULL] = i;
                         break;
                     }
                 }

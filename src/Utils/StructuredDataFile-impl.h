@@ -11,7 +11,7 @@ StructuredDataFile<MeshType>::StructuredDataFile(MeshType &mesh) : DataFile<Mesh
 
 template <class MeshType>
 void StructuredDataFile<MeshType>::open(const TimeManager &timeManager) {
-    const Domain &domain = this->mesh->getDomain();
+    const auto &domain = this->mesh->getDomain();
     int ret;
     // inquire full dimensions
     for (int m = 0; m < domain.getNumDim(); ++m) {
@@ -49,7 +49,7 @@ void StructuredDataFile<MeshType>::open(const TimeManager &timeManager) {
 
 template <class MeshType>
 void StructuredDataFile<MeshType>::create(const TimeManager &timeManager) {
-    const Domain &domain = this->mesh->getDomain();
+    const auto &domain = this->mesh->getDomain();
     string name, longName, units;
     int ret;
     // define spatial dimensions and their coordinate variables
@@ -252,7 +252,7 @@ void StructuredDataFile<MeshType>::inputVerticalGrids() {
 
 template <class MeshType>
 void StructuredDataFile<MeshType>::outputGrids() {
-    const Domain &domain = this->mesh->getDomain();
+    const auto &domain = this->mesh->getDomain();
     int ret;
     // write units
     ret = nc_redef(this->fileID);

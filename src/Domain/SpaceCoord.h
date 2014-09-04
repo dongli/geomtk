@@ -41,7 +41,7 @@ public:
      *
      *  @return The Cartesian coordinate vector.
      */
-    const vec& getCartCoord() const { return coord; }
+    virtual const vec& getCartCoord() const { return coord; }
 
     virtual void print() const;
 };

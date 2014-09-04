@@ -80,6 +80,12 @@ void RLLMesh::setGridCoordComps(int axisIdx, int size, const vec &full,
             tanLatHalf(j) = tan(halfCoords[1](j));
         }
     }
+    for (int m = 0; m < this->domain->getNumDim(); ++m) {
+        if (fullCoords[m].size() == 0) {
+            return;
+        }
+    }
+    setCellVolumes();
 }
 
 void RLLMesh::setGridCoordComps(int axisIdx, int size, const vec &full) {
@@ -120,9 +126,19 @@ void RLLMesh::setGridCoordComps(int axisIdx, int size, const vec &full) {
             tanLatHalf(j) = tan(halfCoords[1](j));
         }
     }
+    for (int m = 0; m < this->domain->getNumDim(); ++m) {
+        if (fullCoords[m].size() == 0) {
+            return;
+        }
+    }
+    setCellVolumes();
 }
 
 void RLLMesh::setCellVolumes() {
+    if (sinLatHalf.size() == 0) {
+        // This is a kluge to avoid index overflow when sin and cos are not set.
+        return;
+    }
     volumes.set_size(getNumGrid(0, GridType::FULL),
                      getNumGrid(1, GridType::FULL),
                      getNumGrid(2, GridType::FULL));

@@ -20,6 +20,7 @@ public:
 protected:
     MeshType type;
     DomainType *domain;
+    field<double> volumes;
     bool set;
 public:
     Mesh(DomainType &domain);
@@ -75,7 +76,7 @@ public:
      *
      *  @param i the cell index (the cells are arranged as 1D array).
      */
-    virtual double getCellVolume(int i) const = 0;
+    double getCellVolume(int i) const { return volumes(i); };
 
     /**
      *  Get the total grid number with given location and dimension number.

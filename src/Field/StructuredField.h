@@ -54,7 +54,7 @@ public:
         int nx = data->getLevel(0).n_rows;
         int ny = data->getLevel(0).n_cols;
         int nz = data->getLevel(0).n_slices;
-        const Domain &domain = this->mesh->getDomain();
+        const auto &domain = this->mesh->getDomain();
         field<DataType> &d = data->getLevel(timeIdx);
         if (domain.getAxisStartBndType(0) == PERIODIC) {
             // TODO: Need to modify when doing parallel.
@@ -108,7 +108,7 @@ public:
         int nx = data->getLevel(0).n_rows;
         int ny = data->getLevel(0).n_cols;
         int nz = data->getLevel(0).n_slices;
-        const Domain &domain = this->mesh->getDomain();
+        const auto &domain = this->mesh->getDomain();
         field<DataType> &d = data->getLevel(0);
         if (domain.getAxisStartBndType(0) == PERIODIC) {
             // TODO: Need to modify when doing parallel.
@@ -141,7 +141,7 @@ public:
 
     template <typename Q = DataType>
     typename enable_if<is_arithmetic<Q>::value, DataType>::type
-    max(const TimeLevelIndex<NumTimeLevel> &timeIdx) {
+    max(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
         DataType res = -999999;
         for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
             if (res < (*this)(timeIdx, i)) {
@@ -153,7 +153,7 @@ public:
 
     template <typename Q = DataType>
     typename enable_if<is_arithmetic<Q>::value, DataType>::type
-    max() {
+    max() const {
         DataType res = -999999;
         for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
             if (res < (*this)(i)) {
@@ -165,7 +165,7 @@ public:
 
     template <typename Q = DataType>
     typename enable_if<is_arithmetic<Q>::value, DataType>::type
-    min(const TimeLevelIndex<NumTimeLevel> &timeIdx) {
+    min(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
         DataType res = 999999;
         for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
             if (res > (*this)(timeIdx, i)) {
@@ -177,7 +177,7 @@ public:
 
     template <typename Q = DataType>
     typename enable_if<is_arithmetic<Q>::value, DataType>::type
-    min() {
+    min() const {
         DataType res = 999999;
         for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
             if (res > (*this)(i)) {
@@ -189,7 +189,7 @@ public:
 
     template <typename Q = DataType>
     typename enable_if<is_arithmetic<Q>::value, bool>::type
-    hasNan(const TimeLevelIndex<NumTimeLevel> &timeIdx) {
+    hasNan(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
         for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
             if (std::isnan((*this)(timeIdx, i))) {
                 return true;
@@ -200,7 +200,7 @@ public:
 
     template <typename Q = DataType>
     typename enable_if<is_arithmetic<Q>::value, bool>::type
-    hasNan() {
+    hasNan() const {
         for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
             if (std::isnan((*this)(i))) {
                 return true;

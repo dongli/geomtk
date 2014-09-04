@@ -51,7 +51,7 @@ TEST_F(SphereDomainTest, Constructor) {
     EXPECT_EQ(POLE, domain->getAxisEndBndType(1));
 }
 
-TEST_F(SphereDomainTest, CalcDistance) {
+TEST_F(SphereDomainTest, CalculateDistance) {
     SphereCoord x(2), y(2);
     x.setCoord(1.0/3.0*M_PI, 1.0/3.0*M_PI);
     y.setCoord(1.0/3.0*M_PI, -1.0/3.0*M_PI);

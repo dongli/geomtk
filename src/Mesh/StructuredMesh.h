@@ -22,6 +22,11 @@ struct StructuredStagger {
     };
 };
 
+enum StructuredGridStyle {
+    FULL_LEAD,
+    HALF_LEAD
+};
+
 /**
  *  This class describes the structured mesh by storing the grid coordinates and
  *  providing several querying methods.
@@ -38,8 +43,9 @@ protected:
     vec *halfCoords;
     vec *fullIntervals;
     vec *halfIntervals;
-    field<double> volumes;
     field<CoordType> gridCoords[5]; // With different locations.
+
+    StructuredGridStyle gridStyles[3];
 public:
     StructuredMesh(DomainType &domain);
     virtual ~StructuredMesh();
@@ -128,16 +134,7 @@ public:
     /**
      *  Set the cell volumes after grids are set.
      */
-    virtual void setCellVolumes();
-
-    /**
-     *  Get the cell volume.
-     *
-     *  @param cellIdx the cell index.
-     *
-     *  @return The cell volume.
-     */
-    virtual double getCellVolume(int cellIdx) const;
+    virtual void setCellVolumes() = 0;
 
     /**
      *  Get the grid interval.

@@ -75,7 +75,7 @@ public:
 
     void transformToCart(const SphereDomain &domain);
 
-    const vec& getCartCoord() const { return cartCoord; }
+    virtual const vec& getCartCoord() const { return cartCoord; }
 
     virtual void print() const;
 };

@@ -23,6 +23,8 @@ public:
     }
     virtual ~CartesianMesh() {}
 
+    virtual void setCellVolumes();
+
     void move(const SpaceCoord &x0, double dt, const Velocity &v,
               const CartesianMeshIndex &idx, SpaceCoord &x1) const;
 };

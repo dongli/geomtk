@@ -56,8 +56,10 @@ void StructuredMesh<DomainType, CoordType>::init(int nx, int ny, int nz) {
             for (int i = 0; i < n[m]-1; ++i) {
                 half[i] = full[i]+0.5*dx;
             }
-        } else if (this->domain->getAxisStartBndType(m) == RIGID &&
-                   this->domain->getAxisEndBndType(m) == RIGID) {
+        } else if ((this->domain->getAxisStartBndType(m) == RIGID &&
+                    this->domain->getAxisEndBndType(m) == RIGID) ||
+                   (this->domain->getAxisStartBndType(m) == OPEN &&
+                    this->domain->getAxisEndBndType(m) == OPEN)) {
             full.resize(n[m]);
             half.resize(n[m]+1);
             dx = this->domain->getAxisSpan(m)/n[m];
@@ -72,13 +74,12 @@ void StructuredMesh<DomainType, CoordType>::init(int nx, int ny, int nz) {
         }
         setGridCoordComps(m, n[m], full, half);
     }
-    setCellVolumes();
-    setGridCoords();
     this->set = true;
 }
 
 template <class DomainType, class CoordType>
-void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
+void StructuredMesh<DomainType, CoordType>::
+setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
     // sanity check
     if (axisIdx >= this->domain->getNumDim()) {
         REPORT_ERROR("Argument axisIdx (" << axisIdx << ") exceeds domain " <<
@@ -93,7 +94,7 @@ void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int s
         halfCoords[axisIdx].set_size(size+2);
         fullIntervals[axisIdx].set_size(size+1);
         halfIntervals[axisIdx].set_size(size+1);
-        if (full[0] == this->domain->getAxisStart(axisIdx)) {
+        if (fabs(full[0]-this->domain->getAxisStart(axisIdx)) < 1.0e-14) {
             /*
              o - full grid   0 - virtual full grid
              * - half grid   x - virtual half grid
@@ -118,6 +119,9 @@ void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int s
                 fullCoords[axisIdx](i+1) = full[i];
                 halfCoords[axisIdx](i+1) = half[i];
             }
+            // Note: Make sure this first full grid coordinate is equal with the
+            // axis starting coordinate to ease the following judging.
+            fullCoords[axisIdx](1) = this->domain->getAxisStart(axisIdx);
             fullCoords[axisIdx](size+1) = this->domain->getAxisEnd(axisIdx);
             halfCoords[axisIdx](size+1) = this->domain->getAxisSpan(axisIdx)+half[0];
             for (int i = 0; i < size; ++i) {
@@ -128,7 +132,7 @@ void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int s
                 halfIntervals[axisIdx](i) = halfCoords[axisIdx](i)-halfCoords[axisIdx](i-1);
             }
             halfIntervals[axisIdx](0) = halfIntervals[axisIdx](size);
-        } else if (half[0] == this->domain->getAxisStart(axisIdx)) {
+        } else if (fabs(half[0]-this->domain->getAxisStart(axisIdx)) < 1.0e-14) {
             /*
              o - full grid   0 - virtual full grid
              * - half grid   x - virtual half grid
@@ -153,6 +157,9 @@ void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int s
                 fullCoords[axisIdx](i+1) = full[i];
                 halfCoords[axisIdx](i+1) = half[i];
             }
+            // Note: Make sure this first half grid coordinate is equal with the
+            // axis starting coordinate to ease the following judging.
+            halfCoords[axisIdx](1) = this->domain->getAxisStart(axisIdx);
             fullCoords[axisIdx](size+1) = this->domain->getAxisSpan(axisIdx)+full[0];
             halfCoords[axisIdx](size+1) = this->domain->getAxisEnd(axisIdx);
             for (int i = 1; i < size+1; ++i) {
@@ -168,8 +175,8 @@ void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int s
                          "of dimension " << axisIdx << "!");
         }
     } else if (this->domain->getAxisStartBndType(axisIdx) == POLE ||
-             this->domain->getAxisStartBndType(axisIdx) == RIGID ||
-             this->domain->getAxisStartBndType(axisIdx) == OPEN) {
+               this->domain->getAxisStartBndType(axisIdx) == RIGID ||
+               this->domain->getAxisStartBndType(axisIdx) == OPEN) {
         if (fabs(full[0]-this->domain->getAxisStart(axisIdx)) < 1.0e-14 &&
             fabs(full[size-1]-this->domain->getAxisEnd(axisIdx)) < 1.0e-14) {
             /*
@@ -199,6 +206,11 @@ void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int s
             for (int i = 0; i < size-1; ++i) {
                 halfCoords[axisIdx](i) = half[i];
             }
+            // Note: Make sure the both ends of the full grid coordinates are
+            // equal with the axis starting and ending coordiante to ease the
+            // following judging.
+            fullCoords[axisIdx](0) = this->domain->getAxisStart(axisIdx);
+            fullCoords[axisIdx](size-1) = this->domain->getAxisEnd(axisIdx);
             for (int i = 0; i < size-1; ++i) {
                 fullIntervals[axisIdx](i) = full[i+1]-full[i];
             }
@@ -235,6 +247,11 @@ void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int s
             for (int i = 0; i < size+1; ++i) {
                 halfCoords[axisIdx](i) = half[i];
             }
+            // Note: Make sure the both ends of the half grid coordinates are
+            // equal with the axis starting and ending coordiante to ease the
+            // following judging.
+            halfCoords[axisIdx](0) = this->domain->getAxisStart(axisIdx);
+            halfCoords[axisIdx](size) = this->domain->getAxisEnd(axisIdx);
             for (int i = 1; i < size; ++i) {
                 fullIntervals[axisIdx](i) = full[i]-full[i-1];
             }
@@ -251,13 +268,14 @@ void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int s
     } else {
         REPORT_ERROR("Unhandled branch!");
     }
-    // Set the default grid index ranges.
+    // Check if all the grid components are set.
     for (int m = 0; m < this->domain->getNumDim(); ++m) {
         if (fullCoords[m].size() == 0) {
             return;
         }
     }
     for (int m = 0; m < this->domain->getNumDim(); ++m) {
+        // Set the default grid index ranges.
         if (this->domain->getAxisStartBndType(m) == PERIODIC) {
             fullIndexRanges(0, m) = 1;
             fullIndexRanges(1, m) = fullCoords[m].size()-2;
@@ -269,7 +287,20 @@ void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int s
             halfIndexRanges(0, m) = 0;
             halfIndexRanges(1, m) = halfCoords[m].size()-1;
         }
+        // Set grid styles.
+        if (fullCoords[m](getStartIndex(m, GridType::FULL)) ==
+            this->domain->getAxisStart(m)) {
+            gridStyles[m] = FULL_LEAD;
+        } else if (halfCoords[m](getStartIndex(m, GridType::HALF)) ==
+                   this->domain->getAxisStart(m)) {
+            gridStyles[m] = HALF_LEAD;
+        } else {
+            REPORT_ERROR("Unexpected branch!");
+        }
     }
+    // Set other parameters.
+    setCellVolumes();
+    setGridCoords();
 }
 
 template <class DomainType, class CoordType>
@@ -433,12 +464,23 @@ void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int s
     } else if (this->domain->getAxisStartBndType(axisIdx) == POLE ||
                this->domain->getAxisStartBndType(axisIdx) == RIGID ||
                this->domain->getAxisStartBndType(axisIdx) == OPEN) {
-        half.set_size(size-1);
-        assert(fabs(full[0]-this->domain->getAxisStart(axisIdx)) < 1.0e-14);
-        assert(fabs(full[size-1]-this->domain->getAxisEnd(axisIdx)) < 1.0e-14);
-        for (int i = 0; i < size-1; ++i) {
-            half[i] = (full[i]+full[i+1])*0.5;
+
+        if (fabs(full[0]-this->domain->getAxisStart(axisIdx)) < 1.0e-14) {
+            assert(fabs(full[size-1]-this->domain->getAxisEnd(axisIdx)) < 1.0e-14);
+            half.set_size(size-1);
+            for (int i = 0; i < size-1; ++i) {
+                half[i] = (full[i]+full[i+1])*0.5;
+            }
+        } else {
+            half.set_size(size+1);
+            half[0] = this->domain->getAxisStart(axisIdx);
+            for (int i = 1; i < size; ++i) {
+                half[i] = (full[i]+full[i-1])*0.5;
+            }
+            half[size] = this->domain->getAxisEnd(axisIdx);
         }
+    } else {
+        REPORT_ERROR("Under construction!");
     }
     setGridCoordComps(axisIdx, size, full, half);
 }
@@ -489,16 +531,6 @@ double StructuredMesh<DomainType, CoordType>::getGridCoordComp(int axisIdx, int 
 template <class DomainType, class CoordType>
 const CoordType& StructuredMesh<DomainType, CoordType>::getGridCoord(int loc, int i) const {
     return gridCoords[loc][i];
-}
-
-template <class DomainType, class CoordType>
-void StructuredMesh<DomainType, CoordType>::setCellVolumes() {
-    REPORT_ERROR("Under construction!");
-}
-
-template <class DomainType, class CoordType>
-double StructuredMesh<DomainType, CoordType>::getCellVolume(int cellIdx) const {
-    return volumes(cellIdx);
 }
 
 template <class DomainType, class CoordType>

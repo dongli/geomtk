@@ -20,6 +20,7 @@ enum BndType {
  *  This class describtes the Cartesian domain, and can be derived by other
  *  domains.
  */
+template <typename CoordType>
 class Domain {
 protected:
     DomainType type;
@@ -146,12 +147,18 @@ public:
     VertCoord& getVertCoord() { return *vertCoord; }
 
     /**
+     *  Constrain the given coordinate if the boundary condition is periodic.
+     *
+     *  @param x the space coordinate.
+     */
+    void constrain(CoordType &x) const;
+
+    /**
      *  Check the given space coordinate, especially when the boundary condition
      *  is periodic. The out-of-range coordinate should be put back.
      *
      *  @param x the space coordinate.
      */
-    template <typename CoordType>
     bool isValid(const CoordType &x) const;
 
     /**
@@ -162,7 +169,7 @@ public:
      *
      *  @return The distance.
      */
-    double calcDistance(const SpaceCoord &x, const SpaceCoord &y) const;
+    virtual double calcDistance(const CoordType &x, const CoordType &y) const = 0;
 
     /**
      *  Difference two space coordinates.
@@ -182,16 +189,8 @@ public:
     virtual string getBrief() const;
 };
 
-template <typename CoordType>
-bool Domain::isValid(const CoordType &x) const {
-    for (int m = 0; m < numDim; ++m) {
-        if (x(m) < getAxisStart(m) || x(m) > getAxisEnd(m)) {
-            return false;
-        }
-    }
-    return true;
-}
+} // geomtk
 
-}
+#include "Domain-impl.h"
 
 #endif // __Geomtk_Domain__
