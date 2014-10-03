@@ -7,7 +7,7 @@ using namespace geomtk;
 
 class RLLFieldTest : public ::testing::Test {
 protected:
-    typedef RLLField<double, 2> RLLField;
+    typedef RLLField<double, 2> Field;
 
     const int FULL = RLLStagger::GridType::FULL;
     const int CENTER = RLLStagger::Location::CENTER;
@@ -15,7 +15,7 @@ protected:
     SphereDomain *sphere;
     RLLMesh *mesh;
     TimeLevelIndex<2> timeIdx;
-    RLLField f, g;
+    Field f, g;
 
     virtual void SetUp() {
         sphere = new SphereDomain(2);
