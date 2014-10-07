@@ -58,7 +58,7 @@ include_directories (${NETCDF_INCLUDE_DIRS})
 # Hdf5
 find_package (HDF5 REQUIRED)
 include_directories (${HDF5_INCLUDE_DIRS})
-# mlpack
+# MLPACK
 if (DEFINED ENV{MLPACK_ROOT})
     message ("@@ Use user provided library MLPACK.")
     message ("@@ MLPACK_ROOT = $ENV{MLPACK_ROOT}")
@@ -92,6 +92,7 @@ if (use_as_submodule)
         ${ARMADILLO_INCLUDE_DIRS}
         ${NETCDF_INCLUDE_DIRS}
         ${Boost_INCLUDE_DIRS}
+        ${HDF5_INCLUDE_DIRS}
         ${MLPACK_INCLUDE_DIR}
         ${LIBXML2_INCLUDE_DIR}
         PARENT_SCOPE
