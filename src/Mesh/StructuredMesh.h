@@ -155,7 +155,7 @@ public:
      *
      *  @return The total grid number.
      */
-    virtual int getTotalNumGrid(int loc, int numDim) const;
+    virtual int getTotalNumGrid(int loc, int numDim = -1) const;
 
     /**
      *  Get the grid number along the given axis.

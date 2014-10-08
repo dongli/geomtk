@@ -188,6 +188,26 @@ public:
     }
 
     template <typename Q = DataType>
+    typename enable_if<is_arithmetic<Q>::value, DataType>::type
+    sum(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
+        DataType res = 0;
+        for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
+            res += (*this)(timeIdx, i);
+        }
+        return res;
+    }
+
+    template <typename Q = DataType>
+    typename enable_if<is_arithmetic<Q>::value, DataType>::type
+    sum() const {
+        DataType res = 0;
+        for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
+            res += (*this)(i);
+        }
+        return res;
+    }
+
+    template <typename Q = DataType>
     typename enable_if<is_arithmetic<Q>::value, bool>::type
     hasNan(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
         for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {

@@ -62,13 +62,14 @@ void TimeManager::init(const string &startTime, const string &endTime,
     }
 }
 
-void TimeManager::resetCurrentTime(Time time) {
-    currTime = time;
-}
-
 void TimeManager::reset() {
     numStep = 0;
     currTime = startTime;
+}
+
+void TimeManager::reset(int numStep, const Time &currTime) {
+    this->numStep = numStep;
+    this->currTime = currTime;
 }
 
 int TimeManager::addAlarm(TimeStepUnit unit, double freq) {

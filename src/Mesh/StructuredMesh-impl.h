@@ -563,6 +563,9 @@ double StructuredMesh<DomainType, CoordType>::getGridInterval(int axisIdx, int g
 
 template <class DomainType, class CoordType>
 int StructuredMesh<DomainType, CoordType>::getTotalNumGrid(int loc, int numDim) const {
+    if (numDim == -1) {
+        numDim = this->domain->getNumDim();
+    }
 #ifndef NDEBUG
     assert(numDim > 1 && numDim <= 3);
 #endif

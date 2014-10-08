@@ -37,14 +37,9 @@ public:
     void init(const string &startTime, const string &endTime,
               const string &stepSize);
 
-    /**
-     *  Reset the current time.
-     *
-     *  @param time the current time.
-     */
-    void resetCurrentTime(Time time);
-
     void reset();
+
+    void reset(int numStep, const Time &time);
 
     /**
      *  Add an alarm with given frequency

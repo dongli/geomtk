@@ -110,6 +110,12 @@ struct check_has_operator_plus {
 template <typename T>
 struct has_operator_plus : has_member<T, check_has_operator_plus> {};
 
+inline string getBinary(double x) {
+    long xl = *(long*)&x;
+    std::bitset<sizeof(long)*8> xb(xl);
+    return xb.to_string<char, string::traits_type, string::allocator_type>();
+}
+
 // report macros
 inline string getFunctionName(const string &str) {
     size_t j = str.find("(");

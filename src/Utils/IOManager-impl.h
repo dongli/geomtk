@@ -109,6 +109,18 @@ void IOManager<DataFileType>::create(int fileIdx) {
     file.fileName = file.filePattern.run(*timeManager);
     int ret = nc_create(file.fileName.c_str(), NC_CLOBBER, &file.fileID);
     CHECK_NC_CREATE(ret, file.fileName);
+    // define temporal dimension
+    int timeStep = timeManager->getNumStep();
+    ret = nc_put_att(file.fileID, NC_GLOBAL, "time_step", NC_INT, 1, &timeStep);
+    CHECK_NC_PUT_ATT(ret, file.fileName, "NC_GLOBAL", "time_step");
+    ret = nc_def_dim(file.fileID, "time", NC_UNLIMITED, &file.timeDimID);
+    CHECK_NC_DEF_DIM(ret, file.fileName, "time");
+    ret = nc_def_var(file.fileID, "time", NC_DOUBLE, 1, &file.timeDimID, &file.timeVarID);
+    CHECK_NC_DEF_VAR(ret, file.fileName, "time")
+    string units = "days since "+timeManager->getStartTime().s();
+    ret = nc_put_att(file.fileID, file.timeVarID, "units", NC_CHAR,
+                     units.length(), units.c_str());
+    CHECK_NC_PUT_ATT(ret, file.fileName, "time", "units");
     // let concrete data file class create the rest data file
     file.create(*timeManager);
     file.outputGrids();
@@ -117,13 +129,16 @@ void IOManager<DataFileType>::create(int fileIdx) {
 template <class DataFileType>
 void IOManager<DataFileType>::updateTime(int fileIdx, TimeManager &timeManager) {
     DataFileType &file = files[fileIdx];
-    double value;
+    int timeStep;
+    double timeValue;
     char units[100];
     int ret;
-    ret = nc_get_var(file.fileID, file.timeVarID, &value);
-    CHECK_NC_PUT_VAR(ret, file.fileName, "time");
+    ret = nc_get_att(file.fileID, NC_GLOBAL, "time_step", &timeStep);
+    CHECK_NC_GET_ATT(ret, file.fileName, "NC_GLOBAL", "time_step");
+    ret = nc_get_var(file.fileID, file.timeVarID, &timeValue);
+    CHECK_NC_GET_VAR(ret, file.fileName, "time");
     ret = nc_get_att_text(file.fileID, file.timeVarID, "units", units);
-    CHECK_NC_PUT_ATT(ret, file.fileName, "time", "units");
+    CHECK_NC_GET_ATT(ret, file.fileName, "time", "units");
     regex reDays("^days");
     regex reDate("(\\d\\d\\d\\d)-(\\d\\d)-(\\d\\d) (\\d\\d)*:(\\d\\d)*:(\\d\\.\\d*)*");
     match_results<std::string::const_iterator> what;
@@ -138,11 +153,11 @@ void IOManager<DataFileType>::updateTime(int fileIdx, TimeManager &timeManager) 
         tmp = what[6]; time.second = atof(tmp.c_str());
     }
     if (regex_search(units, reDays)) {
-        time += value*TimeUnit::DAYS;
+        time += timeValue*TimeUnit::DAYS;
     } else {
         REPORT_ERROR("Unsupported time units!");
     }
-    timeManager.resetCurrentTime(time);
+    timeManager.reset(timeStep, time);
 }
 
 template <class DataFileType>

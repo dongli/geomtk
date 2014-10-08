@@ -75,15 +75,6 @@ void StructuredDataFile<MeshType>::create(const TimeManager &timeManager) {
                          &halfDimIDs[m], &halfVarIDs[m]);
         CHECK_NC_DEF_VAR(ret, this->fileName, name);
     }
-    // define temporal dimension
-    ret = nc_def_dim(this->fileID, "time", NC_UNLIMITED, &this->timeDimID);
-    CHECK_NC_DEF_DIM(ret, this->fileName, "time");
-    ret = nc_def_var(this->fileID, "time", NC_DOUBLE, 1, &this->timeDimID, &this->timeVarID);
-    CHECK_NC_DEF_VAR(ret, this->fileName, "time")
-    units = "days since "+timeManager.getStartTime().s();
-    ret = nc_put_att(this->fileID, this->timeVarID, "units", NC_CHAR,
-                     units.length(), units.c_str());
-    CHECK_NC_PUT_ATT(ret, this->fileName, "time", "units");
     // define fields
     for (int i = 0; i < this->fieldInfos.size(); ++i) {
         name = this->fieldInfos[i].field->getName();
