@@ -1,30 +1,43 @@
+# CMake build script for GEOMTK.
+#
+# Copyright Li Dong 2013.
+#
+# Authors:
+#   - Li Dong <dongli@lasg.iap.ac.cn>
+
 cmake_minimum_required (VERSION 2.8)
 
 # Check if this project is used as a submodule.
 if (DEFINED PROJECT_NAME)
     message ("@@ GEOMTK is used as a submodule.")
     set (use_as_submodule TRUE)
-else ()
-    option (FLAG_OPENMP "Turn OpenMP compiler flag ON or OFF" OFF)
-    option (FLAG_SHARED "Turn building shared libraries ON of OFF" OFF)
-
-    if (FLAG_OPENMP)
-        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-    else ()
-        message ("@@ LASM does not use OpenMP compiler flag.")
-    endif ()
-    if (FLAG_SHARED)
-        set (shared_or_static SHARED)
-    else ()
-        set (shared_or_static STATIC)
-    endif ()
-
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif ()
 
 project (geomtk CXX)
 
-# Add external libraries.
+option (OPENMP "Turn OpenMP compiler flag ON or OFF" OFF)
+option (SHARED "Turn building shared libraries ON of OFF" OFF)
+
+if (OPENMP)
+    message ("@@ LASM uses OpenMP compiler flag.")
+    find_package (OpenMP)
+    if (OPENMP_FOUND)
+        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    else ()
+        message (WARNING "CXX compiler does not support OpenMP!")
+    endif ()
+else ()
+    message ("@@ LASM does not use OpenMP compiler flag.")
+endif ()
+if (SHARED)
+    set (shared_or_static SHARED)
+else ()
+    set (shared_or_static STATIC)
+endif ()
+
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+# Handle the external libraries.
 # Armadillo
 if (DEFINED ENV{ARMADILLO_ROOT})
     message ("@@ Use user provided library Armadillo.")
@@ -41,31 +54,40 @@ else ()
     endif ()
 endif ()
 include_directories (${ARMADILLO_INCLUDE_DIRS})
+# HDF5
+set (HDF5_DIR $ENV{HDF5_ROOT})
+find_package (HDF5)
+include_directories (${HDF5_INCLUDE_DIRS})
 # Boost
+if (DEFINED ENV{BOOST_ROOT})
+    message ("@@ Use user provided library Boost.")
+    message ("@@ BOOST_ROOT = $ENV{BOOST_ROOT}")
+    set (CMAKE_FIND_PREFIX_PATH $ENV{BOOST_ROOT})
+endif ()
 find_package (Boost 1.55.0 REQUIRED
     COMPONENTS regex filesystem system timer
 )
 if (NOT Boost_FOUND)
     message (FATAL_ERROR
         "CMake couldn't find library Boost! "
+        "If it have been installed and you know where it is, "
+        "set BOOST_ROOT (e.g. in .bashrc) to it."
     )
 endif ()
 include_directories (${Boost_INCLUDE_DIRS})
-# NetCDF
+# NETCDF
 list (APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
-find_package (NETCDF COMPONENTS C)
+find_package (NETCDF REQUIRED COMPONENTS C)
 include_directories (${NETCDF_INCLUDE_DIRS})
-# Hdf5
-find_package (HDF5 REQUIRED)
-include_directories (${HDF5_INCLUDE_DIRS})
 # MLPACK
 if (DEFINED ENV{MLPACK_ROOT})
     message ("@@ Use user provided library MLPACK.")
     message ("@@ MLPACK_ROOT = $ENV{MLPACK_ROOT}")
-    set (MLPACK_INCLUDE_DIR "$ENV{MLPACK_ROOT}/include")
-    set (MLPACK_LIBRARIES "-L$ENV{MLPACK_ROOT}/lib -lmlpack")
+    set (MLPACK_INCLUDE_DIRS "$ENV{MLPACK_ROOT}/include")
+    set (MLPACK_LIBRARY_DIRS "$ENV{MLPACK_ROOT}/lib")
     find_package(LibXml2 2.6.0 REQUIRED)
-    include_directories (${MLPACK_INCLUDE_DIR} ${LIBXML2_INCLUDE_DIR})
+    include_directories (${MLPACK_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIR})
+    link_directories (${MLPACK_LIBRARY_DIRS})
 else ()
     message (FATAL_ERROR
         "CMake couldn't find library MLPACK! "
@@ -74,7 +96,7 @@ else ()
     )
 endif ()
 
-# Set source directory structure.
+# Set the source directory structure.
 set (source_directories
     "${PROJECT_SOURCE_DIR}/src"
     "${PROJECT_SOURCE_DIR}/src/Domain"
@@ -84,17 +106,15 @@ set (source_directories
     "${PROJECT_SOURCE_DIR}/src/Utils"
 )
 
-# Record the source directories into <PROJECT_NAME>_INCLUDE_DIRS for upper
-# project to use.
+# Record the source directories and library include directories for upper project.
 if (use_as_submodule)
     set (GEOMTK_INCLUDE_DIRS
         ${source_directories}
         ${ARMADILLO_INCLUDE_DIRS}
+        ${HDF5_INCLUDE_DIRS}
         ${NETCDF_INCLUDE_DIRS}
         ${Boost_INCLUDE_DIRS}
-        ${HDF5_INCLUDE_DIRS}
-        ${MLPACK_INCLUDE_DIR}
-        ${LIBXML2_INCLUDE_DIR}
+        ${MLPACK_INCLUDE_DIRS}
         PARENT_SCOPE
     )
 endif ()
@@ -110,16 +130,17 @@ foreach (dir ${source_directories})
     list (APPEND sources ${tmp2})
 endforeach ()
 
-# Add library targets.
+# Define library targets.
 add_library (geomtk ${shared_or_static} ${headers} ${sources})
 target_link_libraries (geomtk
     ${ARMADILLO_LIBRARIES}
-    ${NETCDF_C_LIBRARIES}
+    ${HDF5_LIBRARIES}
+    ${NETCDF_LIBRARIES}
     ${Boost_LIBRARIES}
-    ${MLPACK_LIBRARIES}
+    mlpack
 )
 
-# Add install rules.
+# Define install rules.
 if (${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
     install (TARGETS geomtk
         ARCHIVE DESTINATION lib
@@ -133,7 +154,7 @@ if (${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
     endforeach ()
 endif ()
 
-# Add uninstall rules.
+# Define uninstall rules.
 if (${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
     configure_file (
         "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
@@ -145,8 +166,9 @@ if (${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
     )
 endif ()
 
-# Add testing target.
+# Define testing target
 add_subdirectory ("${PROJECT_SOURCE_DIR}/external/gtest-1.7.0")
+
 foreach (dir ${source_directories})
     if (EXISTS "${dir}/test")
         include_directories ("${dir}/test")
@@ -155,6 +177,7 @@ foreach (dir ${source_directories})
     endif (EXISTS "${dir}/test")
 endforeach ()
 include_directories (${gtest_SOURCE_DIR} ${gtest_SOURCE_DIR}/include)
+
 add_executable (test_geomtk
     ${test_headers}
     "${PROJECT_SOURCE_DIR}/src/test/test.cpp"
