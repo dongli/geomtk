@@ -123,7 +123,7 @@ bool TimeManager::checkAlarm(int i) {
             break;
     }
     if (alarms[i].unit == STEP) {
-        if (diffStep == alarms[i].freq || diffStep == 0) {
+        if (diffStep >= alarms[i].freq || diffStep == 0) {
             alarms[i].lastStep = numStep;
             return true;
         } else {
