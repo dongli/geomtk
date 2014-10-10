@@ -1,105 +1,113 @@
-# - Find NETCDF
-# Find the NETCDF library
 #
-# Using NETCDF:
-#  find_package (NETCDF REQUIRED)
-#  include_directories (${NETCDF_INCLUDE_DIRS})
-#  add_executable (foo foo.cpp)
-#  target_link_libraries (foo ${NETCDF_LIBRARIES})
-# This module sets the following variables:
-#  NETCDF_FOUND - set to true if the library is found
-#  NETCDF_INCLUDE_DIRS - list of required include directories
-#  NETCDF_C_LIBRARIES - list of C libraries to be linked
-#  NETCDF_Fortran_LIBRARIES - list of Fortran libraries to be linked
-#  NETCDF_VERSION_MAJOR - major version number
-#  NETCDF_VERSION_MINOR - minor version number
-#  NETCDF_VERSION_PATCH - patch version number
+# FindNETCDF
+# ----------
 #
-# Authors
-#  - Li Dong <dongli@lasg.iap.ac.cn>
-# ------------------------------------------------------------------------------
-# try to find the nc-config command
-find_program (NETCDF_NCCONFIG_COMMAND
-    NAME nc-config
-    HINTS ENV NETCDF_ROOT
-    PATH_SUFFIXES bin
-    DOC "NETCDF nc-config command. Used only to detect NETCDF root."
-)
-mark_as_advanced (NETCDF_NCCONFIG_COMMAND)
-if (NOT NETCDF_NCCONFIG_COMMAND)
-    if (DEFINED ENV{NETCDF_ROOT})
-        set (NETCDF_NCCONFIG_COMMAND $ENV{NETCDF_ROOT}/bin/nc-config)
-    else ()
-        message (FATAL_ERROR "Could not find NETCDF!")
+# Find NETCDF, a set of software libraries and self-describing, machine-independent data formats.
+#
+# Possible input environment variables:
+#
+#   NETCDF_ROOT - Root directory of NETCDF (all language interfaces reside there).
+#   NETCDF_C_ROOT - Root directory of NETCDF C interface.
+#   NETCDF_CXX_ROOT - Root directory of NETCDF CXX interface.
+#   NETCDF_FORTRAN_ROOT - Root directory of NETCDF Fortran interface.
+#
+# Output CMake variables:
+#
+#   NETCDF_INCLUDE_DIRS - List of all the NETCDF includes (with all interfaces) and the dependency includes.
+#   NETCDF_LIBRARY_DIRS - List of all the NETCDF libs (with all interfaces) and the dependency libs.
+#   NETCDF_LIBRARIES - List of all the NETCDF libraries (shared or static) and the dependency libraries.
+#
+# Authors:
+#
+#   - Li Dong <dongli@lasg.iap.ac.cn>
+#
+
+if (${NETCDF_FIND_REQUIRED})
+    set (required_or_not REQUIRED)
+endif ()
+if (${NETCDF_FIND_QUIETLY})
+    set (quiet_or_not QUIET)
+endif ()
+
+# NETCDF C interface must be found.
+list (FIND NETCDF_FIND_COMPONENTS "C" res)
+if (res EQUAL -1)
+    list (APPEND NETCDF_FIND_COMPONENTS "C")
+endif ()
+
+set (netcdf_interfaces "C" "CXX" "Fortran")
+set (netcdf_config_command "nc-config" "ncxx4-config" "nf-config")
+set (netcdf_libraries "netcdf" "netcdf_c++4" "netcdff")
+foreach (i RANGE 0 2)
+    list (GET netcdf_interfaces ${i} lang)
+    list (GET netcdf_config_command ${i} config_command)
+    list (GET netcdf_libraries ${i} lib)
+    list (FIND NETCDF_FIND_COMPONENTS ${lang} res)
+    if (NOT res EQUAL -1)
+        find_program (${lang}_config NAMES ${config_command})
+        if (${lang}_config MATCHES "NOTFOUND")
+            foreach (var IN ITEMS "NETCDF_ROOT" "NETCDF_${lang}_ROOT")
+                if (DEFINED ENV{${var}})
+                    set (NETCDF_${lang}_ROOT $ENV{${var}})
+                    break ()
+                endif ()
+            endforeach ()
+            if (DEFINED NETCDF_${lang}_ROOT)
+                set (${lang}_config "${NETCDF_${lang}_ROOT}/bin/${config_command}")
+            endif ()
+        else ()
+            get_filename_component (bin ${${lang}_config} PATH)
+            string (REGEX REPLACE "/bin$" "" NETCDF_${lang}_ROOT ${bin})
+        endif ()
+        if (DEFINED NETCDF_${lang}_ROOT)
+            list (APPEND NETCDF_${lang}_INCLUDE_DIRS "${NETCDF_${lang}_ROOT}/include")
+            list (APPEND NETCDF_${lang}_LIBRARY_DIRS "${NETCDF_${lang}_ROOT}/lib")
+            if (NETCDF_USE_STATIC)
+                find_library (NETCDF_${lang}_LIBRARIES
+                    NAMES lib${lib}.a
+                    HINTS ${NETCDF_${lang}_LIBRARY_DIRS}
+                )
+            else ()
+                find_library (NETCDF_${lang}_LIBRARIES
+                    NAMES ${lib}
+                    HINTS ${NETCDF_${lang}_LIBRARY_DIRS}
+                )
+            endif ()
+            # Get version string.
+            execute_process (COMMAND ${${lang}_config} --version OUTPUT_VARIABLE output)
+            string (REGEX MATCH "[0-9]+.[0-9]+.[0-9]+" NETCDF_${lang}_VERSION_STRING ${output})
+        else ()
+            set (NETCDF_LACK_INTERFACE TRUE)
+        endif ()
+    endif ()
+endforeach ()
+
+if (NOT NETCDF_LACK_INTERFACE)
+    set (NETCDF_ALL_FOUND TRUE)
+endif ()
+
+execute_process (COMMAND nc-config --has-pnetcdf OUTPUT_VARIABLE output)
+if (output MATCHES "yes")
+    find_package (PNETCDF ${quiet_or_not} ${required_or_not})
+    if (PNETCDF_FOUND)
+        list (APPEND NETCDF_INCLUDE_DIRS ${PNETCDF_INCLUDE_DIRS})
+        list (APPEND NETCDF_LIBRARY_DIRS ${PNETCDF_LIBRARY_DIRS})
+        list (APPEND NETCDF_LIBRARIES ${PNETCDF_LIBRARIES})
     endif ()
 endif ()
-set (NETCDF_FOUND TRUE)
-# ------------------------------------------------------------------------------
-# set NETCDF root
-get_filename_component (
-    NETCDF_ROOT
-    ${NETCDF_NCCONFIG_COMMAND}
-    PATH
-)
-get_filename_component (
-    NETCDF_ROOT
-    ${NETCDF_ROOT}
-    PATH
-)
-# ------------------------------------------------------------------------------
-# get version
-execute_process (
-    COMMAND ${NETCDF_NCCONFIG_COMMAND} --version
-    OUTPUT_VARIABLE output
-    RESULT_VARIABLE result
-    ERROR_VARIABLE error
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-string (REGEX REPLACE "netCDF *" "" tmp ${output})
-string (REPLACE "." ";" tmp ${tmp})
-list (GET tmp 0 NETCDF_VERSION_MAJOR)
-list (GET tmp 1 NETCDF_VERSION_MINOR)
-list (GET tmp 2 NETCDF_VERSION_PATCH)
-# ------------------------------------------------------------------------------
-# check which components does NETCDF have
-set (NETCDF_COMPONENTS "C")
-execute_process (
-    COMMAND ${NETCDF_NCCONFIG_COMMAND} --has-c++4
-    OUTPUT_VARIABLE output
-    RESULT_VARIABLE result
-    ERROR_VARIABLE error
-)
-if (${output} MATCHES "yes")
-    list (APPEND NETCDF_COMPONENTS "CXX")
-endif ()
-execute_process (
-    COMMAND ${NETCDF_NCCONFIG_COMMAND} --has-f90
-    OUTPUT_VARIABLE output
-    RESULT_VARIABLE result
-    ERROR_VARIABLE error
-)
-if (${output} MATCHES "yes")
-    list (APPEND NETCDF_COMPONENTS "Fortran")
-endif ()
-# ------------------------------------------------------------------------------
-# set NETCDF include and libraries
-set (NETCDF_INCLUDE_DIRS ${NETCDF_ROOT}/include)
-list (FIND NETCDF_FIND_COMPONENTS "C" find_C)
-if (NOT ${find_C} EQUAL -1)
-    set (NETCDF_C_LIBRARIES "-L${NETCDF_ROOT}/lib -lnetcdf")
-endif ()
-list (FIND NETCDF_FIND_COMPONENTS "Fortran" find_Fortran)
-list (FIND NETCDF_COMPONENTS "Fortran" has_Fortran)
-if (NOT ${find_Fortran} EQUAL -1)
-    if (${has_Fortran} EQUAL -1)
-        message (FATAL_ERROR "NETCDF does not have Fortran API installed!")
+
+foreach (lang IN LISTS netcdf_interfaces)
+    if (DEFINED NETCDF_${lang}_INCLUDE_DIRS)
+        list (APPEND NETCDF_INCLUDE_DIRS ${NETCDF_${lang}_INCLUDE_DIRS})
+        list (APPEND NETCDF_LIBRARY_DIRS ${NETCDF_${lang}_LIBRARY_DIRS})
+        list (APPEND NETCDF_LIBRARIES ${NETCDF_${lang}_LIBRARIES})
     endif ()
-    set (NETCDF_Fortran_LIBRARIES "${NETCDF_LIBRARIES} -lnetcdf -lnetcdff")
-endif ()
-# ------------------------------------------------------------------------------
-# report 
-message (STATUS
-    "Found NETCDF ${NETCDF_VERSION_MAJOR}."
-                 "${NETCDF_VERSION_MINOR}."
-                 "${NETCDF_VERSION_PATCH} "
-    "in ${NETCDF_ROOT}")
+endforeach ()
+list (REMOVE_DUPLICATES NETCDF_INCLUDE_DIRS)
+list (REMOVE_DUPLICATES NETCDF_LIBRARY_DIRS)
+list (REMOVE_DUPLICATES NETCDF_LIBRARIES)
+
+include (FindPackageHandleStandardArgs)
+find_package_handle_standard_args (NETCDF FOUND_VAR NETCDF_FOUND
+    REQUIRED_VARS NETCDF_ALL_FOUND NETCDF_INCLUDE_DIRS NETCDF_LIBRARY_DIRS NETCDF_LIBRARIES
+)
