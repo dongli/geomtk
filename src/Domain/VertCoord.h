@@ -12,12 +12,12 @@ enum VertCoordType {
  */
 class VertCoord {
 protected:
-    VertCoordType type;
+    VertCoordType _type;
 public:
     VertCoord() {}
     virtual ~VertCoord() {}
 
-    VertCoordType getType() const { return type; }
+    VertCoordType type() const { return _type; }
 };
 
 } // geomtk

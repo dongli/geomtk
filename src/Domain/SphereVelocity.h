@@ -14,23 +14,18 @@ public:
     SphereVelocity(int numDim);
     virtual ~SphereVelocity();
 
-    /**
-     * Subscript operator of transformed velocity.
-     * @param dim which dimension of velocity that is needed.
-     */
-    double operator[](int i) const { return vt(i); }
+    const vec::fixed<2> psVelocity() const { return vt; }
 
-    /**
-     * Subscript operator of transformed velocity.
-     * @param dim which dimension of velocity that is needed.
-     */
-    double& operator[](int i) { return vt(i); }
+    vec::fixed<2> psVelocity() { return vt; }
 
     SphereVelocity& operator=(const SphereVelocity &other);
 
     const SphereVelocity operator+(const SphereVelocity &other) const;
+
     const SphereVelocity operator-(const SphereVelocity &other) const;
+
     const SphereVelocity operator*(double scale) const;
+
     const SphereVelocity operator/(double scale) const;
 
     /**

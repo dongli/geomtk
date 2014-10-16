@@ -38,18 +38,18 @@ void SphereCoord::setCoord(double lon, double lat, double lev) {
 void SphereCoord::setCoordComp(int dim, double comp) {
     coord(dim) = comp;
     if (dim == 0) {
-        cosLon = cos(comp);
-        sinLon = sin(comp);
+        _cosLon = cos(comp);
+        _sinLon = sin(comp);
     } else if (dim == 1) {
-        cosLat = cos(comp);
-        sinLat = sin(comp);
+        _cosLat = cos(comp);
+        _sinLat = sin(comp);
     }
 }
     
 void SphereCoord::setCartCoord(double x, double y, double z) {
-    cartCoord[0] = x;
-    cartCoord[1] = y;
-    cartCoord[2] = z;
+    _cartCoord[0] = x;
+    _cartCoord[1] = y;
+    _cartCoord[2] = z;
     coord[0] = atan2(y, x);
     coord[1] = asin(z);
     if (coord[0] < 0.0) coord[0] += PI2;
@@ -58,21 +58,21 @@ void SphereCoord::setCartCoord(double x, double y, double z) {
 }
 
 void SphereCoord::updateTrigonometricFunctions() {
-    cosLon = cos(coord[0]);
-    sinLon = sin(coord[0]);
-    cosLat = cos(coord[1]);
-    sinLat = sin(coord[1]);
+    _cosLon = cos(coord[0]);
+    _sinLon = sin(coord[0]);
+    _cosLat = cos(coord[1]);
+    _sinLat = sin(coord[1]);
 }
 
 SphereCoord& SphereCoord::operator=(const SphereCoord &other) {
     if (this != &other) {
         SpaceCoord::operator=(other);
         xt = other.xt;
-        cartCoord = other.cartCoord;
-        cosLon = other.cosLon;
-        sinLon = other.sinLon;
-        cosLat = other.cosLat;
-        sinLat = other.sinLat;
+        _cartCoord = other.cartCoord();
+        _cosLon = other.cosLon();
+        _sinLon = other.sinLon();
+        _cosLat = other.cosLat();
+        _sinLat = other.sinLat();
     }
     return *this;
 }
@@ -80,13 +80,13 @@ SphereCoord& SphereCoord::operator=(const SphereCoord &other) {
 void SphereCoord::transformToPS(const SphereDomain &domain) {
     double tanLat = tan(coord[1]);
     if (coord[1] < 0.0) { // South Pole
-        xt[0] =  domain.getRadius()*cosLon/tanLat;
-        xt[1] = -domain.getRadius()*sinLon/tanLat;
+        xt[0] =  domain.radius()*_cosLon/tanLat;
+        xt[1] = -domain.radius()*_sinLon/tanLat;
     } else { // North Pole
-        xt[0] =  domain.getRadius()*cosLon/tanLat;
-        xt[1] =  domain.getRadius()*sinLon/tanLat;
+        xt[0] =  domain.radius()*_cosLon/tanLat;
+        xt[1] =  domain.radius()*_sinLon/tanLat;
     }
-    if (domain.getNumDim() == 3) {
+    if (domain.numDim() == 3) {
         xt[2] = coord[2];
     }
 }
@@ -94,29 +94,29 @@ void SphereCoord::transformToPS(const SphereDomain &domain) {
 void SphereCoord::transformFromPS(const SphereDomain &domain, Pole pole) {
     if (pole == SOUTH_POLE) { // South Pole
         coord[0] = atan2(xt[1], -xt[0]);
-        coord[1] = -atan(domain.getRadius()/sqrt(xt[0]*xt[0]+xt[1]*xt[1]));
+        coord[1] = -atan(domain.radius()/sqrt(xt[0]*xt[0]+xt[1]*xt[1]));
 #ifndef NDEBUG
         assert(coord[1] < 0);
 #endif
     } else { // North Pole
         coord[0] = atan2(xt[1], xt[0]);
-        coord[1] = atan(domain.getRadius()/sqrt(xt[0]*xt[0]+xt[1]*xt[1]));
+        coord[1] = atan(domain.radius()/sqrt(xt[0]*xt[0]+xt[1]*xt[1]));
 #ifndef NDEBUG
         assert(coord[1] > 0);
 #endif
     }
     if (coord[0] < 0.0) coord[0] += PI2;
     if (coord[0] > PI2) coord[0] -= PI2;
-    if (domain.getNumDim() == 3) {
+    if (domain.numDim() == 3) {
         coord[2] = xt[2];
     }
     updateTrigonometricFunctions();
 }
 
 void SphereCoord::transformToCart(const SphereDomain &domain) {
-    cartCoord[0] = domain.getRadius()*cosLat*cosLon;
-    cartCoord[1] = domain.getRadius()*cosLat*sinLon;
-    cartCoord[2] = domain.getRadius()*sinLat;
+    _cartCoord[0] = domain.radius()*_cosLat*_cosLon;
+    _cartCoord[1] = domain.radius()*_cosLat*_sinLon;
+    _cartCoord[2] = domain.radius()*_sinLat;
 }
 
 void SphereCoord::print() const {

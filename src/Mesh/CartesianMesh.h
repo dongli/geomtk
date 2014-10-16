@@ -19,7 +19,7 @@ public:
 public:
     CartesianMesh(CartesianDomain &domain)
             : StructuredMesh<CartesianDomain, SpaceCoord>(domain) {
-        this->type = CARTESIAN_MESH;
+        this->_type = CARTESIAN_MESH;
     }
     virtual ~CartesianMesh() {}
 

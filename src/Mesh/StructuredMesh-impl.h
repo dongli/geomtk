@@ -7,10 +7,10 @@ StructuredMesh<DomainType, CoordType>::StructuredMesh(DomainType &domain)
     halfIndexRanges.set_size(2, 3);
     fullIndexRanges.fill(0);
     halfIndexRanges.fill(0);
-    fullCoords = new vec[domain.getNumDim()];
-    halfCoords = new vec[domain.getNumDim()];
-    fullIntervals = new vec[domain.getNumDim()];
-    halfIntervals = new vec[domain.getNumDim()];
+    fullCoords = new vec[domain.numDim()];
+    halfCoords = new vec[domain.numDim()];
+    fullIntervals = new vec[domain.numDim()];
+    halfIntervals = new vec[domain.numDim()];
 }
 
 template <class DomainType, class CoordType>
@@ -36,38 +36,38 @@ void StructuredMesh<DomainType, CoordType>::init(int nx, int ny, int nz) {
     vec full, half;
     int n[3] = {nx, ny, nz};
     double dx;
-    for (int m = 0; m < this->domain->getNumDim(); ++m) {
-        if (this->domain->getAxisStartBndType(m) == PERIODIC) {
+    for (int m = 0; m < this->domain().numDim(); ++m) {
+        if (this->domain().axisStartBndType(m) == PERIODIC) {
             full.resize(n[m]);
             half.resize(n[m]);
-            dx = this->domain->getAxisSpan(m)/n[m];
+            dx = this->domain().axisSpan(m)/n[m];
             for (int i = 0; i < n[m]; ++i) {
-                full[i] = this->domain->getAxisStart(m)+i*dx;
+                full[i] = this->domain().axisStart(m)+i*dx;
                 half[i] = full[i]+0.5*dx;
             }
-        } else if (this->domain->getAxisStartBndType(m) == POLE &&
-                   this->domain->getAxisEndBndType(m) == POLE) {
+        } else if (this->domain().axisStartBndType(m) == POLE &&
+                   this->domain().axisEndBndType(m) == POLE) {
             full.resize(n[m]);
             half.resize(n[m]-1);
-            dx = this->domain->getAxisSpan(m)/(n[m]-1);
+            dx = this->domain().axisSpan(m)/(n[m]-1);
             for (int i = 0; i < n[m]; ++i) {
-                full[i] = this->domain->getAxisStart(m)+i*dx;
+                full[i] = this->domain().axisStart(m)+i*dx;
             }
             for (int i = 0; i < n[m]-1; ++i) {
                 half[i] = full[i]+0.5*dx;
             }
-        } else if ((this->domain->getAxisStartBndType(m) == RIGID &&
-                    this->domain->getAxisEndBndType(m) == RIGID) ||
-                   (this->domain->getAxisStartBndType(m) == OPEN &&
-                    this->domain->getAxisEndBndType(m) == OPEN)) {
+        } else if ((this->domain().axisStartBndType(m) == RIGID &&
+                    this->domain().axisEndBndType(m) == RIGID) ||
+                   (this->domain().axisStartBndType(m) == OPEN &&
+                    this->domain().axisEndBndType(m) == OPEN)) {
             full.resize(n[m]);
             half.resize(n[m]+1);
-            dx = this->domain->getAxisSpan(m)/n[m];
+            dx = this->domain().axisSpan(m)/n[m];
             for (int i = 0; i < n[m]; ++i) {
-                full[i] = this->domain->getAxisStart(m)+0.5*dx+i*dx;
+                full[i] = this->domain().axisStart(m)+0.5*dx+i*dx;
             }
             for (int i = 0; i < n[m]+1; ++i) {
-                half[i] = this->domain->getAxisStart(m)+i*dx;
+                half[i] = this->domain().axisStart(m)+i*dx;
             }
         } else {
             REPORT_ERROR("Under construction!");
@@ -81,11 +81,11 @@ template <class DomainType, class CoordType>
 void StructuredMesh<DomainType, CoordType>::
 setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
     // sanity check
-    if (axisIdx >= this->domain->getNumDim()) {
+    if (axisIdx >= this->domain().numDim()) {
         REPORT_ERROR("Argument axisIdx (" << axisIdx << ") exceeds domain " <<
-                     "dimension (" << this->domain->getNumDim() << ")!");
+                     "dimension (" << this->domain().numDim() << ")!");
     }
-    if (this->domain->getAxisStartBndType(axisIdx) == PERIODIC) {
+    if (this->domain().axisStartBndType(axisIdx) == PERIODIC) {
         if (full.size() != half.size()) {
             REPORT_ERROR("Full grid size (" << full.size() << ") should " <<
                          "be equal with half grid (" << half.size() << ")!");
@@ -94,7 +94,7 @@ setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
         halfCoords[axisIdx].set_size(size+2);
         fullIntervals[axisIdx].set_size(size+1);
         halfIntervals[axisIdx].set_size(size+1);
-        if (fabs(full[0]-this->domain->getAxisStart(axisIdx)) < 1.0e-14) {
+        if (fabs(full[0]-this->domain().axisStart(axisIdx)) < 1.0e-14) {
             /*
              o - full grid   0 - virtual full grid
              * - half grid   x - virtual half grid
@@ -113,17 +113,17 @@ setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
                   -----------
                  halfIntervals
              */
-            fullCoords[axisIdx](0) = full[0]-this->domain->getAxisEnd(axisIdx)+full[size-1];
-            halfCoords[axisIdx](0) = half[size-1]-this->domain->getAxisSpan(axisIdx);
+            fullCoords[axisIdx](0) = full[0]-this->domain().axisEnd(axisIdx)+full[size-1];
+            halfCoords[axisIdx](0) = half[size-1]-this->domain().axisSpan(axisIdx);
             for (int i = 0; i < size; ++i) {
                 fullCoords[axisIdx](i+1) = full[i];
                 halfCoords[axisIdx](i+1) = half[i];
             }
             // Note: Make sure this first full grid coordinate is equal with the
             // axis starting coordinate to ease the following judging.
-            fullCoords[axisIdx](1) = this->domain->getAxisStart(axisIdx);
-            fullCoords[axisIdx](size+1) = this->domain->getAxisEnd(axisIdx);
-            halfCoords[axisIdx](size+1) = this->domain->getAxisSpan(axisIdx)+half[0];
+            fullCoords[axisIdx](1) = this->domain().axisStart(axisIdx);
+            fullCoords[axisIdx](size+1) = this->domain().axisEnd(axisIdx);
+            halfCoords[axisIdx](size+1) = this->domain().axisSpan(axisIdx)+half[0];
             for (int i = 0; i < size; ++i) {
                 fullIntervals[axisIdx](i) = fullCoords[axisIdx](i+1)-fullCoords[axisIdx](i);
             }
@@ -132,7 +132,7 @@ setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
                 halfIntervals[axisIdx](i) = halfCoords[axisIdx](i)-halfCoords[axisIdx](i-1);
             }
             halfIntervals[axisIdx](0) = halfIntervals[axisIdx](size);
-        } else if (fabs(half[0]-this->domain->getAxisStart(axisIdx)) < 1.0e-14) {
+        } else if (fabs(half[0]-this->domain().axisStart(axisIdx)) < 1.0e-14) {
             /*
              o - full grid   0 - virtual full grid
              * - half grid   x - virtual half grid
@@ -151,17 +151,17 @@ setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
                   -----------
                  halfIntervals
              */
-            fullCoords[axisIdx](0) = full[size-1]-this->domain->getAxisSpan(axisIdx);
-            halfCoords[axisIdx](0) = half[0]-this->domain->getAxisEnd(axisIdx)+half[size-1];
+            fullCoords[axisIdx](0) = full[size-1]-this->domain().axisSpan(axisIdx);
+            halfCoords[axisIdx](0) = half[0]-this->domain().axisEnd(axisIdx)+half[size-1];
             for (int i = 0; i < size; ++i) {
                 fullCoords[axisIdx](i+1) = full[i];
                 halfCoords[axisIdx](i+1) = half[i];
             }
             // Note: Make sure this first half grid coordinate is equal with the
             // axis starting coordinate to ease the following judging.
-            halfCoords[axisIdx](1) = this->domain->getAxisStart(axisIdx);
-            fullCoords[axisIdx](size+1) = this->domain->getAxisSpan(axisIdx)+full[0];
-            halfCoords[axisIdx](size+1) = this->domain->getAxisEnd(axisIdx);
+            halfCoords[axisIdx](1) = this->domain().axisStart(axisIdx);
+            fullCoords[axisIdx](size+1) = this->domain().axisSpan(axisIdx)+full[0];
+            halfCoords[axisIdx](size+1) = this->domain().axisEnd(axisIdx);
             for (int i = 1; i < size+1; ++i) {
                 fullIntervals[axisIdx](i) = fullCoords[axisIdx](i)-fullCoords[axisIdx](i-1);
             }
@@ -174,11 +174,11 @@ setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
             REPORT_ERROR("Don't know how to handle input grid coordinates "
                          "of dimension " << axisIdx << "!");
         }
-    } else if (this->domain->getAxisStartBndType(axisIdx) == POLE ||
-               this->domain->getAxisStartBndType(axisIdx) == RIGID ||
-               this->domain->getAxisStartBndType(axisIdx) == OPEN) {
-        if (fabs(full[0]-this->domain->getAxisStart(axisIdx)) < 1.0e-14 &&
-            fabs(full[size-1]-this->domain->getAxisEnd(axisIdx)) < 1.0e-14) {
+    } else if (this->domain().axisStartBndType(axisIdx) == POLE ||
+               this->domain().axisStartBndType(axisIdx) == RIGID ||
+               this->domain().axisStartBndType(axisIdx) == OPEN) {
+        if (fabs(full[0]-this->domain().axisStart(axisIdx)) < 1.0e-14 &&
+            fabs(full[size-1]-this->domain().axisEnd(axisIdx)) < 1.0e-14) {
             /*
                 o - full grid
                 * - half grid
@@ -209,18 +209,18 @@ setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
             // Note: Make sure the both ends of the full grid coordinates are
             // equal with the axis starting and ending coordiante to ease the
             // following judging.
-            fullCoords[axisIdx](0) = this->domain->getAxisStart(axisIdx);
-            fullCoords[axisIdx](size-1) = this->domain->getAxisEnd(axisIdx);
+            fullCoords[axisIdx](0) = this->domain().axisStart(axisIdx);
+            fullCoords[axisIdx](size-1) = this->domain().axisEnd(axisIdx);
             for (int i = 0; i < size-1; ++i) {
                 fullIntervals[axisIdx](i) = full[i+1]-full[i];
             }
             for (int i = 1; i < size-1; ++i) {
                 halfIntervals[axisIdx](i) = half[i]-half[i-1];
             }
-            halfIntervals[axisIdx](0) = half[0]-this->domain->getAxisStart(axisIdx);
-            halfIntervals[axisIdx](size-1) = this->domain->getAxisEnd(axisIdx)-half[size-2];
-        } else if (fabs(half[0]-this->domain->getAxisStart(axisIdx)) < 1.0e-14 &&
-                   fabs(half[size]-this->domain->getAxisEnd(axisIdx)) < 1.0e-14) {
+            halfIntervals[axisIdx](0) = half[0]-this->domain().axisStart(axisIdx);
+            halfIntervals[axisIdx](size-1) = this->domain().axisEnd(axisIdx)-half[size-2];
+        } else if (fabs(half[0]-this->domain().axisStart(axisIdx)) < 1.0e-14 &&
+                   fabs(half[size]-this->domain().axisEnd(axisIdx)) < 1.0e-14) {
             /*
                 o - full grid
                 * - half grid
@@ -250,33 +250,33 @@ setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
             // Note: Make sure the both ends of the half grid coordinates are
             // equal with the axis starting and ending coordiante to ease the
             // following judging.
-            halfCoords[axisIdx](0) = this->domain->getAxisStart(axisIdx);
-            halfCoords[axisIdx](size) = this->domain->getAxisEnd(axisIdx);
+            halfCoords[axisIdx](0) = this->domain().axisStart(axisIdx);
+            halfCoords[axisIdx](size) = this->domain().axisEnd(axisIdx);
             for (int i = 1; i < size; ++i) {
                 fullIntervals[axisIdx](i) = full[i]-full[i-1];
             }
-            fullIntervals[axisIdx](0) = full[0]-this->domain->getAxisStart(axisIdx);
-            fullIntervals[axisIdx](size) = this->domain->getAxisEnd(axisIdx)-full[size-1];
+            fullIntervals[axisIdx](0) = full[0]-this->domain().axisStart(axisIdx);
+            fullIntervals[axisIdx](size) = this->domain().axisEnd(axisIdx)-full[size-1];
             for (int i = 0; i < size; ++i) {
                 halfIntervals[axisIdx](i) = half[i+1]-half[i];
             }
         } else {
             REPORT_ERROR("Unhandled branch!");
         }
-    } else if (this->domain->getAxisStartBndType(axisIdx) == INVALID) {
+    } else if (this->domain().axisStartBndType(axisIdx) == INVALID) {
         REPORT_ERROR("Axis " << axisIdx << " is not set!");
     } else {
         REPORT_ERROR("Unhandled branch!");
     }
     // Check if all the grid components are set.
-    for (int m = 0; m < this->domain->getNumDim(); ++m) {
+    for (int m = 0; m < this->domain().numDim(); ++m) {
         if (fullCoords[m].size() == 0) {
             return;
         }
     }
-    for (int m = 0; m < this->domain->getNumDim(); ++m) {
+    for (int m = 0; m < this->domain().numDim(); ++m) {
         // Set the default grid index ranges.
-        if (this->domain->getAxisStartBndType(m) == PERIODIC) {
+        if (this->domain().axisStartBndType(m) == PERIODIC) {
             fullIndexRanges(0, m) = 1;
             fullIndexRanges(1, m) = fullCoords[m].size()-2;
             halfIndexRanges(0, m) = 1;
@@ -288,11 +288,11 @@ setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
             halfIndexRanges(1, m) = halfCoords[m].size()-1;
         }
         // Set grid styles.
-        if (fullCoords[m](getStartIndex(m, GridType::FULL)) ==
-            this->domain->getAxisStart(m)) {
+        if (fullCoords[m](startIndex(m, GridType::FULL)) ==
+            this->domain().axisStart(m)) {
             gridStyles[m] = FULL_LEAD;
-        } else if (halfCoords[m](getStartIndex(m, GridType::HALF)) ==
-                   this->domain->getAxisStart(m)) {
+        } else if (halfCoords[m](startIndex(m, GridType::HALF)) ==
+                   this->domain().axisStart(m)) {
             gridStyles[m] = HALF_LEAD;
         } else {
             REPORT_ERROR("Unexpected branch!");
@@ -377,7 +377,7 @@ int StructuredMesh<DomainType, CoordType>::ke(int gridType) const {
 
 template <class DomainType, class CoordType>
 int StructuredMesh<DomainType, CoordType>::
-getStartIndex(int axisIdx, int gridType) const {
+startIndex(int axisIdx, int gridType) const {
     switch (gridType) {
         case GridType::FULL:
             return fullIndexRanges(0, axisIdx);
@@ -390,7 +390,7 @@ getStartIndex(int axisIdx, int gridType) const {
 
 template <class DomainType, class CoordType>
 int StructuredMesh<DomainType, CoordType>::
-getEndIndex(int axisIdx, int gridType) const {
+endIndex(int axisIdx, int gridType) const {
     switch (gridType) {
         case GridType::FULL:
             return fullIndexRanges(1, axisIdx);
@@ -402,7 +402,7 @@ getEndIndex(int axisIdx, int gridType) const {
 }
 
 template <class DomainType, class CoordType>
-int StructuredMesh<DomainType, CoordType>::getLevelIndex(int i, int loc) const {
+int StructuredMesh<DomainType, CoordType>::levelIndex(int i, int loc) const {
     int idx[3];
     unwrapIndex(loc, i, idx);
     return idx[2];
@@ -413,7 +413,7 @@ bool StructuredMesh<DomainType, CoordType>::isHorizontalGridsSame(const Mesh<Dom
     if (this == &_other) {
         return true;
     }
-    if (this->getType() != _other.getType()) {
+    if (this->type() != _other.type()) {
         return false;
     }
     const StructuredMesh<DomainType, CoordType> &other = static_cast<const StructuredMesh<DomainType, CoordType>&>(_other);
@@ -442,42 +442,42 @@ bool StructuredMesh<DomainType, CoordType>::isHorizontalGridsSame(const Mesh<Dom
 template <class DomainType, class CoordType>
 void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int size, const vec &full) {
     // sanity check
-    if (axisIdx >= this->domain->getNumDim()) {
+    if (axisIdx >= this->domain().numDim()) {
         REPORT_ERROR("Argument axisIdx (" << axisIdx << ") exceeds domain " <<
-                     "dimension (" << this->domain->getNumDim() << ")!");
+                     "dimension (" << this->domain().numDim() << ")!");
     }
     // construct the half grid coordinates from full grids
     vec half;
-    if (this->domain->getAxisStartBndType(axisIdx) == PERIODIC) {
+    if (this->domain().axisStartBndType(axisIdx) == PERIODIC) {
         half.set_size(size);
-        if (full[0] == this->domain->getAxisStart(axisIdx)) {
+        if (full[0] == this->domain().axisStart(axisIdx)) {
             for (int i = 0; i < size-1; ++i) {
                 half[i] = (full[i]+full[i+1])*0.5;
             }
-            half[size-1] = (full[size-1]+this->domain->getAxisEnd(axisIdx))*0.5;
-        } else if (full[size-1] == this->domain->getAxisEnd(axisIdx)) {
-            half[0] = (this->domain->getAxisStart(axisIdx)+full[0])*0.5;
+            half[size-1] = (full[size-1]+this->domain().axisEnd(axisIdx))*0.5;
+        } else if (full[size-1] == this->domain().axisEnd(axisIdx)) {
+            half[0] = (this->domain().axisStart(axisIdx)+full[0])*0.5;
             for (int i = 1; i < size; ++i) {
                 half[i] = (full[i-1]+full[i])*0.5;
             }
         }
-    } else if (this->domain->getAxisStartBndType(axisIdx) == POLE ||
-               this->domain->getAxisStartBndType(axisIdx) == RIGID ||
-               this->domain->getAxisStartBndType(axisIdx) == OPEN) {
+    } else if (this->domain().axisStartBndType(axisIdx) == POLE ||
+               this->domain().axisStartBndType(axisIdx) == RIGID ||
+               this->domain().axisStartBndType(axisIdx) == OPEN) {
 
-        if (fabs(full[0]-this->domain->getAxisStart(axisIdx)) < 1.0e-14) {
-            assert(fabs(full[size-1]-this->domain->getAxisEnd(axisIdx)) < 1.0e-14);
+        if (fabs(full[0]-this->domain().axisStart(axisIdx)) < 1.0e-14) {
+            assert(fabs(full[size-1]-this->domain().axisEnd(axisIdx)) < 1.0e-14);
             half.set_size(size-1);
             for (int i = 0; i < size-1; ++i) {
                 half[i] = (full[i]+full[i+1])*0.5;
             }
         } else {
             half.set_size(size+1);
-            half[0] = this->domain->getAxisStart(axisIdx);
+            half[0] = this->domain().axisStart(axisIdx);
             for (int i = 1; i < size; ++i) {
                 half[i] = (full[i]+full[i-1])*0.5;
             }
-            half[size] = this->domain->getAxisEnd(axisIdx);
+            half[size] = this->domain().axisEnd(axisIdx);
         }
     } else {
         REPORT_ERROR("Under construction!");
@@ -486,12 +486,13 @@ void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int s
 }
 
 template <class DomainType, class CoordType>
-vec StructuredMesh<DomainType, CoordType>::getGridCoordComps(int axisIdx, int gridType, bool hasVirtualGrids) const {
-    if (axisIdx >= this->domain->getNumDim()) {
+vec StructuredMesh<DomainType, CoordType>::
+gridCoordComps(int axisIdx, int gridType, bool hasVirtualGrids) const {
+    if (axisIdx >= this->domain().numDim()) {
         REPORT_ERROR("Argument axisIdx (" << axisIdx << ") exceeds domain " <<
-                     "dimension (" << this->domain->getNumDim() << ")!");
+                     "dimension (" << this->domain().numDim() << ")!");
     }
-    if (this->domain->getAxisStartBndType(axisIdx) == PERIODIC && !hasVirtualGrids) {
+    if (this->domain().axisStartBndType(axisIdx) == PERIODIC && !hasVirtualGrids) {
         switch (gridType) {
             case GridType::FULL:
                 return fullCoords[axisIdx](span(1, fullCoords[axisIdx].size()-2));
@@ -513,10 +514,11 @@ vec StructuredMesh<DomainType, CoordType>::getGridCoordComps(int axisIdx, int gr
 }
 
 template <class DomainType, class CoordType>
-double StructuredMesh<DomainType, CoordType>::getGridCoordComp(int axisIdx, int gridType, int gridIdx) const {
-    if (axisIdx >= this->domain->getNumDim()) {
+double StructuredMesh<DomainType, CoordType>::
+gridCoordComp(int axisIdx, int gridType, int gridIdx) const {
+    if (axisIdx >= this->domain().numDim()) {
         REPORT_ERROR("Argument axisIdx (" << axisIdx << ") exceeds domain " <<
-                     "dimension (" << this->domain->getNumDim() << ")!");
+                     "dimension (" << this->domain().numDim() << ")!");
     }
     switch (gridType) {
         case GridType::FULL:
@@ -529,18 +531,19 @@ double StructuredMesh<DomainType, CoordType>::getGridCoordComp(int axisIdx, int 
 }
 
 template <class DomainType, class CoordType>
-const CoordType& StructuredMesh<DomainType, CoordType>::getGridCoord(int loc, int i) const {
+const CoordType& StructuredMesh<DomainType, CoordType>::
+gridCoord(int loc, int i) const {
     return gridCoords[loc][i];
 }
 
 template <class DomainType, class CoordType>
-double StructuredMesh<DomainType, CoordType>::getGridInterval(int axisIdx, int gridType,
-                                                              int gridIdx) const {
-    if (axisIdx >= this->domain->getNumDim()) {
+double StructuredMesh<DomainType, CoordType>::
+gridInterval(int axisIdx, int gridType, int gridIdx) const {
+    if (axisIdx >= this->domain().numDim()) {
         REPORT_ERROR("Argument axisIdx (" << axisIdx << ") exceeds domain " <<
-                     "dimension (" << this->domain->getNumDim() << ")!");
+                     "dimension (" << this->domain().numDim() << ")!");
     }
-    if (this->domain->getAxisStartBndType(axisIdx) == PERIODIC) {
+    if (this->domain().axisStartBndType(axisIdx) == PERIODIC) {
         switch (gridType) {
             case GridType::FULL:
                 return fullIntervals[axisIdx](gridIdx+1);
@@ -562,9 +565,10 @@ double StructuredMesh<DomainType, CoordType>::getGridInterval(int axisIdx, int g
 }
 
 template <class DomainType, class CoordType>
-int StructuredMesh<DomainType, CoordType>::getTotalNumGrid(int loc, int numDim) const {
+int StructuredMesh<DomainType, CoordType>::
+totalNumGrid(int loc, int numDim) const {
     if (numDim == -1) {
-        numDim = this->domain->getNumDim();
+        numDim = this->domain().numDim();
     }
 #ifndef NDEBUG
     assert(numDim > 1 && numDim <= 3);
@@ -572,43 +576,43 @@ int StructuredMesh<DomainType, CoordType>::getTotalNumGrid(int loc, int numDim) 
     switch (loc) {
         case Location::CENTER:
             if (numDim == 2) {
-                return getNumGrid(0, GridType::FULL)*
-                       getNumGrid(1, GridType::FULL);
+                return numGrid(0, GridType::FULL)*
+                       numGrid(1, GridType::FULL);
             } else {
-                return getNumGrid(0, GridType::FULL)*
-                       getNumGrid(1, GridType::FULL)*
-                       getNumGrid(2, GridType::FULL);
+                return numGrid(0, GridType::FULL)*
+                       numGrid(1, GridType::FULL)*
+                       numGrid(2, GridType::FULL);
             }
         case Location::X_FACE:
             if (numDim == 2) {
-                return getNumGrid(0, GridType::HALF)*
-                       getNumGrid(1, GridType::FULL);
+                return numGrid(0, GridType::HALF)*
+                       numGrid(1, GridType::FULL);
             } else {
-                return getNumGrid(0, GridType::HALF)*
-                       getNumGrid(1, GridType::FULL)*
-                       getNumGrid(2, GridType::FULL);
+                return numGrid(0, GridType::HALF)*
+                       numGrid(1, GridType::FULL)*
+                       numGrid(2, GridType::FULL);
             }
         case Location::Y_FACE:
             if (numDim == 2) {
-                return getNumGrid(0, GridType::FULL)*
-                       getNumGrid(1, GridType::HALF);
+                return numGrid(0, GridType::FULL)*
+                       numGrid(1, GridType::HALF);
             } else {
-                return getNumGrid(0, GridType::FULL)*
-                       getNumGrid(1, GridType::HALF)*
-                       getNumGrid(2, GridType::FULL);
+                return numGrid(0, GridType::FULL)*
+                       numGrid(1, GridType::HALF)*
+                       numGrid(2, GridType::FULL);
             }
         case Location::Z_FACE:
-            return getNumGrid(0, GridType::FULL)*
-                   getNumGrid(1, GridType::FULL)*
-                   getNumGrid(2, GridType::HALF);
+            return numGrid(0, GridType::FULL)*
+                   numGrid(1, GridType::FULL)*
+                   numGrid(2, GridType::HALF);
         case Location::XY_VERTEX:
             if (numDim == 2) {
-                return getNumGrid(0, GridType::HALF)*
-                       getNumGrid(1, GridType::HALF);
+                return numGrid(0, GridType::HALF)*
+                       numGrid(1, GridType::HALF);
             } else {
-                return getNumGrid(0, GridType::HALF)*
-                       getNumGrid(1, GridType::HALF)*
-                       getNumGrid(2, GridType::FULL);
+                return numGrid(0, GridType::HALF)*
+                       numGrid(1, GridType::HALF)*
+                       numGrid(2, GridType::FULL);
             }
         default:
             REPORT_ERROR("Unknown stagger location!");
@@ -616,12 +620,12 @@ int StructuredMesh<DomainType, CoordType>::getTotalNumGrid(int loc, int numDim) 
 }
 
 template <class DomainType, class CoordType>
-int StructuredMesh<DomainType, CoordType>::getNumGrid(int axisIdx, int gridType,
-                                                      bool hasVirtualGrids) const {
-    if (axisIdx >= this->domain->getNumDim()) {
+int StructuredMesh<DomainType, CoordType>::
+numGrid(int axisIdx, int gridType, bool hasVirtualGrids) const {
+    if (axisIdx >= this->domain().numDim()) {
         return 1;
     }
-    if (this->domain->getAxisStartBndType(axisIdx) == PERIODIC && !hasVirtualGrids) {
+    if (this->domain().axisStartBndType(axisIdx) == PERIODIC && !hasVirtualGrids) {
         switch (gridType) {
             case GridType::FULL:
                 return fullCoords[axisIdx].size()-2;
@@ -649,8 +653,8 @@ unwrapIndex(int loc, int cellIdx, int gridIdx[3]) const {
     switch (loc) {
         case Location::CENTER:
         case Location::Z_FACE:
-            nx = getNumGrid(0, GridType::FULL);
-            ny = getNumGrid(1, GridType::FULL);
+            nx = numGrid(0, GridType::FULL);
+            ny = numGrid(1, GridType::FULL);
             gridIdx[2] = cellIdx/(nx*ny);
             cellIdx -= gridIdx[2]*nx*ny;
             gridIdx[1] = cellIdx/nx;
@@ -660,8 +664,8 @@ unwrapIndex(int loc, int cellIdx, int gridIdx[3]) const {
             gridIdx[2] += fullIndexRanges(0, 2);
             break;
         case Location::X_FACE:
-            nx = getNumGrid(0, GridType::HALF);
-            ny = getNumGrid(1, GridType::FULL);
+            nx = numGrid(0, GridType::HALF);
+            ny = numGrid(1, GridType::FULL);
             gridIdx[2] = cellIdx/(nx*ny);
             cellIdx -= gridIdx[2]*nx*ny;
             gridIdx[1] = cellIdx/nx;
@@ -671,8 +675,8 @@ unwrapIndex(int loc, int cellIdx, int gridIdx[3]) const {
             gridIdx[2] += fullIndexRanges(0, 2);
             break;
         case Location::Y_FACE:
-            nx = getNumGrid(0, GridType::FULL);
-            ny = getNumGrid(1, GridType::HALF);
+            nx = numGrid(0, GridType::FULL);
+            ny = numGrid(1, GridType::HALF);
             gridIdx[2] = cellIdx/(nx*ny);
             cellIdx -= gridIdx[2]*nx*ny;
             gridIdx[1] = cellIdx/nx;
@@ -682,8 +686,8 @@ unwrapIndex(int loc, int cellIdx, int gridIdx[3]) const {
             gridIdx[2] += fullIndexRanges(0, 2);
             break;
         case Location::XY_VERTEX:
-            nx = getNumGrid(0, GridType::HALF);
-            ny = getNumGrid(1, GridType::HALF);
+            nx = numGrid(0, GridType::HALF);
+            ny = numGrid(1, GridType::HALF);
             gridIdx[2] = cellIdx/(nx*ny);
             cellIdx -= gridIdx[2]*nx*ny;
             gridIdx[1] = cellIdx/nx;
@@ -703,29 +707,29 @@ wrapIndex(int loc, int i, int j, int k) const {
     int nx, ny, res;
     switch (loc) {
         case Location::CENTER:
-            nx = getNumGrid(0, GridType::FULL);
-            ny = getNumGrid(1, GridType::FULL);
+            nx = numGrid(0, GridType::FULL);
+            ny = numGrid(1, GridType::FULL);
             i -= fullIndexRanges(0, 0);
             j -= fullIndexRanges(0, 1);
             k -= fullIndexRanges(0, 2);
             break;
         case Location::X_FACE:
-            nx = getNumGrid(0, GridType::HALF);
-            ny = getNumGrid(1, GridType::FULL);
+            nx = numGrid(0, GridType::HALF);
+            ny = numGrid(1, GridType::FULL);
             i -= halfIndexRanges(0, 0);
             j -= fullIndexRanges(0, 1);
             k -= fullIndexRanges(0, 2);
             break;
         case Location::Y_FACE:
-            nx = getNumGrid(0, GridType::FULL);
-            ny = getNumGrid(1, GridType::HALF);
+            nx = numGrid(0, GridType::FULL);
+            ny = numGrid(1, GridType::HALF);
             i -= fullIndexRanges(0, 0);
             j -= halfIndexRanges(0, 1);
             k -= fullIndexRanges(0, 2);
             break;
         case Location::XY_VERTEX:
-            nx = getNumGrid(0, GridType::HALF);
-            ny = getNumGrid(1, GridType::HALF);
+            nx = numGrid(0, GridType::HALF);
+            ny = numGrid(1, GridType::HALF);
             i -= halfIndexRanges(0, 0);
             j -= halfIndexRanges(0, 1);
             k -= fullIndexRanges(0, 2);
@@ -747,17 +751,17 @@ void StructuredMesh<DomainType, CoordType>::setGridCoords() {
     // Store the coordinates of each grid point for convenience.
     int gridIdx[3];
     for (int loc = 0; loc < 5; ++loc) {
-        gridCoords[loc].set_size(getTotalNumGrid(loc, this->domain->getNumDim()));
+        gridCoords[loc].set_size(totalNumGrid(loc, this->domain().numDim()));
         for (int cellIdx = 0; cellIdx < gridCoords[loc].size(); ++cellIdx) {
-            gridCoords[loc][cellIdx].setNumDim(this->domain->getNumDim());
+            gridCoords[loc][cellIdx].setNumDim(this->domain().numDim());
             unwrapIndex(loc, cellIdx, gridIdx);
-            for (int m = 0; m < this->domain->getNumDim(); ++m) {
+            for (int m = 0; m < this->domain().numDim(); ++m) {
                 if ((m == 0 && (loc == Location::X_FACE || loc == Location::XY_VERTEX)) ||
                     (m == 1 && (loc == Location::Y_FACE || loc == Location::XY_VERTEX)) ||
                     (m == 2 && loc == Location::Z_FACE)) {
-                    gridCoords[loc][cellIdx].setCoordComp(m, getGridCoordComp(m, GridType::HALF, gridIdx[m]));
+                    gridCoords[loc][cellIdx].setCoordComp(m, gridCoordComp(m, GridType::HALF, gridIdx[m]));
                 } else {
-                    gridCoords[loc][cellIdx].setCoordComp(m, getGridCoordComp(m, GridType::FULL, gridIdx[m]));
+                    gridCoords[loc][cellIdx].setCoordComp(m, gridCoordComp(m, GridType::FULL, gridIdx[m]));
                 }
             }
         }

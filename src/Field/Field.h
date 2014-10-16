@@ -17,11 +17,11 @@ class Field {
 public:
     typedef MeshType_ MeshType;
 protected:
-    string name;
-    string longName;
-    string units;
-    int numDim;
-    const MeshType *mesh;
+    string _name;
+    string _longName;
+    string _units;
+    int _numDim;
+    const MeshType *_mesh;
     bool hasHalfLevel;
     bool createTag;
 public:
@@ -33,25 +33,25 @@ public:
 
     bool isCreated() const { return createTag; }
 
-    void setName(const string &name) { this->name = name; }
+    void setName(const string &name) { _name = name; }
 
-    void setLongName(const string &longName) { this->longName = longName; }
+    void setLongName(const string &longName) { _longName = longName; }
 
-    void setUnits(const string &units) { this->units = units; }
+    void setUnits(const string &units) { _units = units; }
 
-    const string& getName() const { return name; }
+    const string& name() const { return _name; }
 
-    const string& getLongName() const { return longName; }
+    const string& longName() const { return _longName; }
 
-    const string& getUnits() const { return units; }
+    const string& units() const { return _units; }
 
-    int getNumDim() const { return numDim; }
+    int numDim() const { return _numDim; }
 
-    const MeshType& getMesh() const { return *mesh; }
+    const MeshType& mesh() const { return *_mesh; }
 
     Field& operator=(const Field &other);
 
-    virtual int getStaggerLocation() const = 0;
+    virtual int staggerLocation() const = 0;
 };
 
 } // geomtk

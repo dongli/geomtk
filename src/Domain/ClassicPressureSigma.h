@@ -25,7 +25,7 @@ public:
     ClassicPressureSigma();
     virtual ~ClassicPressureSigma();
 
-    virtual double getPressure(double ps, int k) const;
+    virtual double calcPressure(double ps, int k) const;
 };
 
 }

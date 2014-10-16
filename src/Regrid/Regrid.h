@@ -20,12 +20,12 @@ enum RegridMethod {
 template <class MeshType, class CoordType>
 class Regrid {
 protected:
-    const MeshType *mesh;
+    const MeshType *_mesh;
 public:
-    Regrid(const MeshType &mesh) { this->mesh = &mesh; }
+    Regrid(const MeshType &mesh) { _mesh = &mesh; }
     virtual ~Regrid() {}
 
-    const MeshType& getMesh() const { return *mesh; }
+    const MeshType& mesh() const { return *_mesh; }
 };
 
 }

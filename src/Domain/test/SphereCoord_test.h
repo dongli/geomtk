@@ -15,12 +15,12 @@ TEST(SphereDomain, CopyConstructor) {
     ASSERT_EQ(x().size(), y().size());
     ASSERT_EQ(x(0), y(0));
     ASSERT_EQ(x(1), y(1));
-    ASSERT_EQ(x[0], y[0]);
-    ASSERT_EQ(x[1], y[1]);
-    ASSERT_EQ(x.getCosLon(), y.getCosLon());
-    ASSERT_EQ(x.getSinLon(), y.getSinLon());
-    ASSERT_EQ(x.getCosLat(), y.getCosLat());
-    ASSERT_EQ(x.getSinLat(), y.getSinLat());
+    ASSERT_EQ(x.psCoord()[0], y.psCoord()[0]);
+    ASSERT_EQ(x.psCoord()[1], y.psCoord()[1]);
+    ASSERT_EQ(x.cosLon(), y.cosLon());
+    ASSERT_EQ(x.sinLon(), y.sinLon());
+    ASSERT_EQ(x.cosLat(), y.cosLat());
+    ASSERT_EQ(x.sinLat(), y.sinLat());
 }
 
 #endif // __Geomtk_SphereCoord_test__

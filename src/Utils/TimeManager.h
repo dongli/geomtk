@@ -15,11 +15,11 @@ struct Alarm {
 
 class TimeManager {
 protected:
-    bool useLeap;
-    Time startTime, currTime, endTime;
-    TimeStepUnit stepUnit;
-    double stepSize;
-    int numStep;
+    bool _useLeap;
+    Time _startTime, _currTime, _endTime;
+    TimeStepUnit _stepUnit;
+    double _stepSize;
+    int _numStep;
     vector<Alarm> alarms;
 public:
     TimeManager();
@@ -72,29 +72,29 @@ public:
      *
      *  @return Boolean true if the end time is reached, otherwise false.
      */
-    bool isFinished() const { return currTime > endTime; }
+    bool isFinished() const { return _currTime > _endTime; }
     
-    const Time& getStartTime() const { return startTime; }
+    const Time& startTime() const { return _startTime; }
 
-    const Time& getCurrTime() const { return currTime; }
+    const Time& currTime() const { return _currTime; }
 
-    const Time& getEndTime() const { return endTime; }
+    const Time& endTime() const { return _endTime; }
 
-    double getStepSize() const { return stepSize; }
+    double stepSize() const { return _stepSize; }
 
-    TimeStepUnit getStepUnit() const { return stepUnit; }
+    TimeStepUnit stepUnit() const { return _stepUnit; }
 
-    int getNumStep() const { return numStep; }
+    int numStep() const { return _numStep; }
 
-    int getTotalNumStep() const;
+    int totalNumStep() const;
 
-    double getSeconds() const { return currTime.getSeconds(startTime); }
+    double seconds() const { return _currTime.seconds(_startTime); }
 
-    double getMinutes() const { return currTime.getMinutes(startTime); }
+    double minutes() const { return _currTime.minutes(_startTime); }
 
-    double getHours() const { return currTime.getHours(startTime); }
+    double hours() const { return _currTime.hours(_startTime); }
 
-    double getDays() const { return currTime.getDays(startTime); }
+    double days() const { return _currTime.days(_startTime); }
 };
 
 }

@@ -107,8 +107,8 @@ public:
      *
      *  @return The grid coordinate component array.
      */
-    vec getGridCoordComps(int axisIdx, int gridType,
-                          bool hasVirtualGrids = false) const;
+    vec gridCoordComps(int axisIdx, int gridType,
+                       bool hasVirtualGrids = false) const;
 
     /**
      *  Get the grid coordinate component at given position.
@@ -119,7 +119,7 @@ public:
      *
      *  @return The grid coordinate component.
      */
-    double getGridCoordComp(int axisIdx, int gridType, int gridIdx) const;
+    double gridCoordComp(int axisIdx, int gridType, int gridIdx) const;
 
     /**
      *  Get the space coordinate of a grid with given location.
@@ -129,7 +129,7 @@ public:
      *
      *  @return The grid space coordinate.
      */
-    virtual const CoordType& getGridCoord(int loc, int cellIdx) const;
+    virtual const CoordType& gridCoord(int loc, int cellIdx) const;
 
     /**
      *  Set the cell volumes after grids are set.
@@ -145,7 +145,7 @@ public:
      *
      *  @return The grid interval.
      */
-    double getGridInterval(int axisIdx, int gridType, int gridIdx) const;
+    double gridInterval(int axisIdx, int gridType, int gridIdx) const;
 
     /**
      *  Get the total grid number on given location (e.g. CENTER).
@@ -155,7 +155,7 @@ public:
      *
      *  @return The total grid number.
      */
-    virtual int getTotalNumGrid(int loc, int numDim = -1) const;
+    virtual int totalNumGrid(int loc, int numDim = -1) const;
 
     /**
      *  Get the grid number along the given axis.
@@ -166,8 +166,7 @@ public:
      *
      *  @return The grid number.
      */
-    int getNumGrid(int axisIdx, int gridType,
-                   bool hasVirtualGrids = false) const;
+    int numGrid(int axisIdx, int gridType, bool hasVirtualGrids = false) const;
 
     /**
      *  Get the start grid index along the given axis.
@@ -177,7 +176,7 @@ public:
      *
      *  @return The start grid index.
      */
-    int getStartIndex(int axisIdx, int gridType) const;
+    int startIndex(int axisIdx, int gridType) const;
 
     /**
      *  Get the end grid index along the given axis.
@@ -187,7 +186,7 @@ public:
      *
      *  @return The end grid index.
      */
-    int getEndIndex(int axisIdx, int gridType) const;
+    int endIndex(int axisIdx, int gridType) const;
 
     /**
      *  Get the start grid index along x axis.
@@ -251,7 +250,7 @@ public:
      *
      *  @return The vertical level index.
      */
-    virtual int getLevelIndex(int loc, int cellIdx) const;
+    virtual int levelIndex(int loc, int cellIdx) const;
 
     virtual void unwrapIndex(int loc, int cellIdx, int gridIdx[3]) const;
 

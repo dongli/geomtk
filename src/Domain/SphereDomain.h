@@ -10,7 +10,7 @@ namespace geomtk {
 // TODO: SphereDomain may still need to be templated for considering
 // CubicSphereCoord.
 class SphereDomain : public Domain<SphereCoord> {
-    double radius;
+    double _radius;
 public:
     enum ProjectionType {
         STEREOGRAPHIC
@@ -21,9 +21,9 @@ public:
     SphereDomain(VertCoordType type);
     virtual ~SphereDomain();
 
-    double getRadius() const { return radius; }
+    double& radius() { return _radius; }
 
-    void setRadius(double radius) { this->radius = radius; }
+    double radius() const { return _radius; }
 
     virtual double calcDistance(const SphereCoord &x,
                                 const SphereCoord &y) const;
@@ -75,7 +75,7 @@ public:
      *
      *  @return The brief.
      */
-    virtual string getBrief() const;
+    virtual string brief() const;
 };
 
 }

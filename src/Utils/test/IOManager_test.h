@@ -40,21 +40,21 @@ TEST_F(IOManagerTest, Input2DMesh) {
 
     gen_2d_tv_data("test.nc");
     mesh->init("test.nc");
-    double dlon = PI2/mesh->getNumGrid(0, FULL);
+    double dlon = PI2/mesh->numGrid(0, FULL);
     for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
-        ASSERT_LE(fabs(mesh->getGridCoordComp(0, FULL, i)-(i-1)*dlon), 1.0e-15);
+        ASSERT_LE(fabs(mesh->gridCoordComp(0, FULL, i)-(i-1)*dlon), 1.0e-15);
     }
     for (int i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
-        ASSERT_LE(fabs(mesh->getGridCoordComp(0, HALF, i)-(i-0.5)*dlon), 1.0e-15);
+        ASSERT_LE(fabs(mesh->gridCoordComp(0, HALF, i)-(i-0.5)*dlon), 1.0e-15);
     }
-    double dlat = M_PI/(mesh->getNumGrid(1, FULL)-1);
+    double dlat = M_PI/(mesh->numGrid(1, FULL)-1);
     for (int j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
-        ASSERT_LE(fabs(mesh->getGridCoordComp(1, FULL, j)+M_PI_2-j*dlat), 1.0e-15);
+        ASSERT_LE(fabs(mesh->gridCoordComp(1, FULL, j)+M_PI_2-j*dlat), 1.0e-15);
     }
     for (int j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
-        ASSERT_LE(fabs(mesh->getGridCoordComp(1, HALF, j)+M_PI_2-(j+0.5)*dlat), 1.0e-15);
+        ASSERT_LE(fabs(mesh->gridCoordComp(1, HALF, j)+M_PI_2-(j+0.5)*dlat), 1.0e-15);
     }
-    ASSERT_LE(fabs(mesh->getGridCoordComp(1, FULL, 9)-M_PI_2), 1.0e-15);
+    ASSERT_LE(fabs(mesh->gridCoordComp(1, FULL, 9)-M_PI_2), 1.0e-15);
     SystemTools::removeFile("test.nc");
 }
 
@@ -68,7 +68,7 @@ TEST_F(IOManagerTest, OutputFrequency) {
     ASSERT_FALSE(dataFile.isActive);
     while (!timeManager.isFinished()) {
         ioManager.isFileActive(fileIdx);
-        double seconds = timeManager.getSeconds();
+        double seconds = timeManager.seconds();
         if (fmod(seconds, 300) == 0) {
             ASSERT_TRUE(dataFile.isActive);
         }
@@ -86,13 +86,13 @@ TEST_F(IOManagerTest, OutputField) {
     f2.create("f2", "test units", "a field on X_FACE location", *mesh, X_FACE, 2, false);
     f3.create("f3", "test units", "a field on Y_FACE location", *mesh, Y_FACE, 2, false);
 
-    for (int i = 0; i < mesh->getTotalNumGrid(f1.getStaggerLocation(), f1.getNumDim()); ++i) {
+    for (int i = 0; i < mesh->totalNumGrid(f1.staggerLocation(), f1.numDim()); ++i) {
         f1(timeIdx, i) = 1;
     }
-    for (int i = 0; i < mesh->getTotalNumGrid(f2.getStaggerLocation(), f2.getNumDim()); ++i) {
+    for (int i = 0; i < mesh->totalNumGrid(f2.staggerLocation(), f2.numDim()); ++i) {
         f2(timeIdx, i) = 2;
     }
-    for (int i = 0; i < mesh->getTotalNumGrid(f3.getStaggerLocation(), f3.getNumDim()); ++i) {
+    for (int i = 0; i < mesh->totalNumGrid(f3.staggerLocation(), f3.numDim()); ++i) {
         f3(timeIdx, i) = 3;
     }
 
@@ -125,12 +125,12 @@ TEST_F(IOManagerTest, OutputField) {
     ret = nc_inq_dimid(fileID, "lon", &lonDimID);
     ASSERT_EQ(NC_NOERR, ret);
 
-    x = new double[mesh->getNumGrid(0, FULL)];
+    x = new double[mesh->numGrid(0, FULL)];
     ret = nc_get_var_double(fileID, lonDimID, x);
     ASSERT_EQ(NC_NOERR, ret);
     for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
         // Note: 'i' starts from 1, so the index of 'x' is 'i-1'.
-        ASSERT_GE(1.0e-15, fabs(mesh->getGridCoordComp(0, FULL, i)/RAD-x[i-1]));
+        ASSERT_GE(1.0e-15, fabs(mesh->gridCoordComp(0, FULL, i)/RAD-x[i-1]));
     }
     delete [] x;
 
@@ -140,11 +140,11 @@ TEST_F(IOManagerTest, OutputField) {
     ret = nc_inq_dimid(fileID, "lat", &latDimID);
     ASSERT_EQ(NC_NOERR, ret);
 
-    x = new double[mesh->getNumGrid(1, FULL)];
+    x = new double[mesh->numGrid(1, FULL)];
     ret = nc_get_var_double(fileID, latDimID, x);
     ASSERT_EQ(NC_NOERR, ret);
     for (int j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
-        ASSERT_GE(1.0e-15, fabs(mesh->getGridCoordComp(1, FULL, j)/RAD-x[j]));
+        ASSERT_GE(1.0e-15, fabs(mesh->gridCoordComp(1, FULL, j)/RAD-x[j]));
     }
     delete [] x;
 
@@ -165,10 +165,10 @@ TEST_F(IOManagerTest, OutputField) {
     ASSERT_EQ(dimIDs[1], latDimID);
     ASSERT_EQ(dimIDs[2], lonDimID);
 
-    x = new double[mesh->getTotalNumGrid(f1.getStaggerLocation(), f1.getNumDim())];
+    x = new double[mesh->totalNumGrid(f1.staggerLocation(), f1.numDim())];
     ret = nc_get_var_double(fileID, varID, x);
     ASSERT_EQ(NC_NOERR, ret);
-    for (int i = 0; i < mesh->getTotalNumGrid(f1.getStaggerLocation(), f1.getNumDim()); ++i) {
+    for (int i = 0; i < mesh->totalNumGrid(f1.staggerLocation(), f1.numDim()); ++i) {
         ASSERT_EQ(x[i], f1(timeIdx, i));
     }
     delete [] x;
@@ -184,7 +184,7 @@ TEST_F(IOManagerTest, OutputField) {
     att = new char[attLen];
     ret = nc_get_att(fileID, varID, "long_name", att);
     ASSERT_EQ(NC_NOERR, ret);
-    ASSERT_STREQ(f1.getLongName().c_str(), att);
+    ASSERT_STREQ(f1.longName().c_str(), att);
     delete [] att;
 
     ret = nc_inq_att(fileID, varID, "units", &xtype, &attLen);
@@ -194,7 +194,7 @@ TEST_F(IOManagerTest, OutputField) {
     att = new char[attLen];
     ret = nc_get_att(fileID, varID, "units", att);
     ASSERT_EQ(NC_NOERR, ret);
-    ASSERT_STREQ(f1.getUnits().c_str(), att);
+    ASSERT_STREQ(f1.units().c_str(), att);
     delete [] att;
 
     ret = nc_inq_varid(fileID, "f2", &varID);
@@ -211,10 +211,10 @@ TEST_F(IOManagerTest, OutputField) {
     ASSERT_EQ(dimIDs[1], latDimID);
     ASSERT_EQ(dimIDs[2], lonBndsDimID);
 
-    x = new double[mesh->getTotalNumGrid(f2.getStaggerLocation(), f2.getNumDim())];
+    x = new double[mesh->totalNumGrid(f2.staggerLocation(), f2.numDim())];
     ret = nc_get_var_double(fileID, varID, x);
     ASSERT_EQ(NC_NOERR, ret);
-    for (int i = 0; i < mesh->getTotalNumGrid(f2.getStaggerLocation(), f2.getNumDim()); ++i) {
+    for (int i = 0; i < mesh->totalNumGrid(f2.staggerLocation(), f2.numDim()); ++i) {
         ASSERT_EQ(x[i], f2(timeIdx, i));
     }
     delete [] x;
@@ -230,7 +230,7 @@ TEST_F(IOManagerTest, OutputField) {
     att = new char[attLen];
     ret = nc_get_att(fileID, varID, "long_name", att);
     ASSERT_EQ(NC_NOERR, ret);
-    ASSERT_STREQ(f2.getLongName().c_str(), att);
+    ASSERT_STREQ(f2.longName().c_str(), att);
     delete [] att;
 
     ret = nc_inq_att(fileID, varID, "units", &xtype, &attLen);
@@ -240,7 +240,7 @@ TEST_F(IOManagerTest, OutputField) {
     att = new char[attLen];
     ret = nc_get_att(fileID, varID, "units", att);
     ASSERT_EQ(NC_NOERR, ret);
-    ASSERT_STREQ(f2.getUnits().c_str(), att);
+    ASSERT_STREQ(f2.units().c_str(), att);
     delete [] att;
 
     ret = nc_inq_varid(fileID, "f3", &varID);
@@ -257,10 +257,10 @@ TEST_F(IOManagerTest, OutputField) {
     ASSERT_EQ(dimIDs[1], latBndsDimID);
     ASSERT_EQ(dimIDs[2], lonDimID);
 
-    x = new double[mesh->getTotalNumGrid(f3.getStaggerLocation(), f3.getNumDim())];
+    x = new double[mesh->totalNumGrid(f3.staggerLocation(), f3.numDim())];
     ret = nc_get_var_double(fileID, varID, x);
     ASSERT_EQ(NC_NOERR, ret);
-    for (int i = 0; i < mesh->getTotalNumGrid(f3.getStaggerLocation(), f3.getNumDim()); ++i) {
+    for (int i = 0; i < mesh->totalNumGrid(f3.staggerLocation(), f3.numDim()); ++i) {
         ASSERT_EQ(x[i], f3(timeIdx, i));
     }
     delete [] x;
@@ -276,7 +276,7 @@ TEST_F(IOManagerTest, OutputField) {
     att = new char[attLen];
     ret = nc_get_att(fileID, varID, "long_name", att);
     ASSERT_EQ(NC_NOERR, ret);
-    ASSERT_STREQ(f3.getLongName().c_str(), att);
+    ASSERT_STREQ(f3.longName().c_str(), att);
     delete [] att;
 
     ret = nc_inq_att(fileID, varID, "units", &xtype, &attLen);
@@ -286,7 +286,7 @@ TEST_F(IOManagerTest, OutputField) {
     att = new char[attLen];
     ret = nc_get_att(fileID, varID, "units", att);
     ASSERT_EQ(NC_NOERR, ret);
-    ASSERT_STREQ(f3.getUnits().c_str(), att);
+    ASSERT_STREQ(f3.units().c_str(), att);
     delete [] att;
 
     ret = nc_close(fileID);

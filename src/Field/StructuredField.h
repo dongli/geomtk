@@ -17,7 +17,7 @@ public:
     typedef StructuredStagger::Location Location;
 protected:
     TimeLevels<field<DataType>, NumTimeLevel> *data;
-    int staggerLocation;
+    int _staggerLocation;
     vector<int> gridTypes;
 public:
     StructuredField();
@@ -26,37 +26,42 @@ public:
     virtual void create(const string &name, const string &units, const string &longName,
                         const MeshType &mesh, int loc, int numDim, bool hasHalfLevel = false);
 
-    const DataType& operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k = 0) const;
+    const DataType&
+    operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k = 0) const;
 
-    DataType& operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k = 0);
+    DataType&
+    operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k = 0);
 
     const DataType& operator()(int i, int j, int k = 0) const;
 
     DataType& operator()(int i, int j, int k = 0);
 
-    const DataType& operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) const;
+    const DataType&
+    operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) const;
 
-    DataType& operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx);
+    DataType&
+    operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx);
 
     const DataType& operator()(int cellIdx) const;
 
     DataType& operator()(int cellIdx);
 
-    StructuredField<MeshType, DataType, NumTimeLevel>& operator=(const StructuredField<MeshType, DataType, NumTimeLevel> &other);
+    StructuredField<MeshType, DataType, NumTimeLevel>&
+    operator=(const StructuredField<MeshType, DataType, NumTimeLevel> &other);
 
-    virtual int getStaggerLocation() const { return staggerLocation; }
+    virtual int staggerLocation() const { return _staggerLocation; }
 
-    virtual int getGridType(int axisIdx) const { return gridTypes[axisIdx]; }
+    virtual int gridType(int axisIdx) const { return gridTypes[axisIdx]; }
 
     template <typename Q = DataType>
     typename enable_if<has_operator_plus<Q>::value || is_arithmetic<Q>::value, void>::type
     applyBndCond(const TimeLevelIndex<NumTimeLevel> &timeIdx, bool updateHalfLevel = false) {
-        int nx = data->getLevel(0).n_rows;
-        int ny = data->getLevel(0).n_cols;
-        int nz = data->getLevel(0).n_slices;
-        const auto &domain = this->mesh->getDomain();
-        field<DataType> &d = data->getLevel(timeIdx);
-        if (domain.getAxisStartBndType(0) == PERIODIC) {
+        int nx = data->level(0).n_rows;
+        int ny = data->level(0).n_cols;
+        int nz = data->level(0).n_slices;
+        const auto &domain = this->mesh().domain();
+        field<DataType> &d = data->level(timeIdx);
+        if (domain.axisStartBndType(0) == PERIODIC) {
             // TODO: Need to modify when doing parallel.
             for (int k = 0; k < nz; ++k) {
                 for (int j = 0; j < ny; ++j) {
@@ -65,7 +70,7 @@ public:
                 }
             }
         }
-        if (domain.getAxisStartBndType(1) == PERIODIC) {
+        if (domain.axisStartBndType(1) == PERIODIC) {
             for (int k = 0; k < nz; ++k) {
                 for (int i = 0; i < nx; ++i) {
                     d(i, 0,    k) = d(i, ny-2, k);
@@ -73,8 +78,8 @@ public:
                 }
             }
         }
-        if (domain.getNumDim() == 3) {
-            if (domain.getAxisStartBndType(2) == PERIODIC) {
+        if (domain.numDim() == 3) {
+            if (domain.axisStartBndType(2) == PERIODIC) {
                 for (int j = 0; j < ny; ++j) {
                     for (int i = 0; i < nx; ++i) {
                         d(i, j, 0   ) = d(i, j, nz-2);
@@ -93,9 +98,9 @@ public:
             for (int k = 0; k < nz; ++k) {
                 for (int j = 0; j < ny; ++j) {
                     for (int i = 0; i < nx; ++i) {
-                        data->getLevel(halfTimeIdx)(i, j, k) =
-                            (data->getLevel(oldTimeIdx)(i, j, k)+
-                             data->getLevel(timeIdx   )(i, j, k))*0.5;
+                        data->level(halfTimeIdx)(i, j, k) =
+                            (data->level(oldTimeIdx)(i, j, k)+
+                             data->level(timeIdx   )(i, j, k))*0.5;
                     }
                 }
             }
@@ -105,12 +110,12 @@ public:
     template <typename Q = DataType>
     typename enable_if<has_operator_plus<Q>::value || is_arithmetic<Q>::value, void>::type
     applyBndCond() {
-        int nx = data->getLevel(0).n_rows;
-        int ny = data->getLevel(0).n_cols;
-        int nz = data->getLevel(0).n_slices;
-        const auto &domain = this->mesh->getDomain();
-        field<DataType> &d = data->getLevel(0);
-        if (domain.getAxisStartBndType(0) == PERIODIC) {
+        int nx = data->level(0).n_rows;
+        int ny = data->level(0).n_cols;
+        int nz = data->level(0).n_slices;
+        const auto &domain = this->mesh().domain();
+        field<DataType> &d = data->level(0);
+        if (domain.axisStartBndType(0) == PERIODIC) {
             // TODO: Need to modify when doing parallel.
             for (int k = 0; k < nz; ++k) {
                 for (int j = 0; j < ny; ++j) {
@@ -119,7 +124,7 @@ public:
                 }
             }
         }
-        if (domain.getAxisStartBndType(1) == PERIODIC) {
+        if (domain.axisStartBndType(1) == PERIODIC) {
             for (int k = 0; k < nz; ++k) {
                 for (int i = 0; i < nx; ++i) {
                     d(i, 0,    k) = d(i, ny-2, k);
@@ -127,8 +132,8 @@ public:
                 }
             }
         }
-        if (domain.getNumDim() == 3) {
-            if (domain.getAxisStartBndType(2) == PERIODIC) {
+        if (domain.numDim() == 3) {
+            if (domain.axisStartBndType(2) == PERIODIC) {
                 for (int j = 0; j < ny; ++j) {
                     for (int i = 0; i < nx; ++i) {
                         d(i, j, 0   ) = d(i, j, nz-2);
@@ -143,7 +148,7 @@ public:
     typename enable_if<is_arithmetic<Q>::value, DataType>::type
     max(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
         DataType res = -999999;
-        for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
+        for (int i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
             if (res < (*this)(timeIdx, i)) {
                 res = (*this)(timeIdx, i);
             }
@@ -155,7 +160,7 @@ public:
     typename enable_if<is_arithmetic<Q>::value, DataType>::type
     max() const {
         DataType res = -999999;
-        for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
+        for (int i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
             if (res < (*this)(i)) {
                 res = (*this)(i);
             }
@@ -167,7 +172,7 @@ public:
     typename enable_if<is_arithmetic<Q>::value, DataType>::type
     min(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
         DataType res = 999999;
-        for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
+        for (int i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
             if (res > (*this)(timeIdx, i)) {
                 res = (*this)(timeIdx, i);
             }
@@ -179,7 +184,7 @@ public:
     typename enable_if<is_arithmetic<Q>::value, DataType>::type
     min() const {
         DataType res = 999999;
-        for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
+        for (int i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
             if (res > (*this)(i)) {
                 res = (*this)(i);
             }
@@ -191,7 +196,7 @@ public:
     typename enable_if<is_arithmetic<Q>::value, DataType>::type
     sum(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
         DataType res = 0;
-        for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
+        for (int i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
             res += (*this)(timeIdx, i);
         }
         return res;
@@ -201,7 +206,7 @@ public:
     typename enable_if<is_arithmetic<Q>::value, DataType>::type
     sum() const {
         DataType res = 0;
-        for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
+        for (int i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
             res += (*this)(i);
         }
         return res;
@@ -210,7 +215,7 @@ public:
     template <typename Q = DataType>
     typename enable_if<is_arithmetic<Q>::value, bool>::type
     hasNan(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
-        for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
+        for (int i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
             if (std::isnan((*this)(timeIdx, i))) {
                 return true;
             }
@@ -221,7 +226,7 @@ public:
     template <typename Q = DataType>
     typename enable_if<is_arithmetic<Q>::value, bool>::type
     hasNan() const {
-        for (int i = 0; i < this->mesh->getTotalNumGrid(staggerLocation, this->getNumDim()); ++i) {
+        for (int i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
             if (std::isnan((*this)(i))) {
                 return true;
             }

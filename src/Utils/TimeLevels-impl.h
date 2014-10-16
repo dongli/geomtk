@@ -16,7 +16,7 @@ TimeLevels<T, N>::~TimeLevels() {
 }
 
 template <typename T, int N>
-int TimeLevels<T, N>::getNumLevel(bool includeHalfLevel) {
+int TimeLevels<T, N>::numLevel(bool includeHalfLevel) {
     if (halfLevel && includeHalfLevel) {
         return N+(N-1);
     } else {

@@ -7,18 +7,18 @@ SphereDomain::SphereDomain() {
 }
 
 SphereDomain::SphereDomain(int numDim) : Domain(numDim) {
-    type = SPHERE_DOMAIN;
+    _type = SPHERE_DOMAIN;
     if (numDim != 2) {
         REPORT_ERROR("Spherical domain dimension should be 2 in this case!");
     }
-    radius = 1.0;
+    _radius = 1.0;
     setAxis(0, "lon", "longitude", "radian_east", 0.0, PERIODIC, 2.0*M_PI, PERIODIC);
     setAxis(1, "lat", "latitude", "radian_north", -M_PI_2, POLE, M_PI_2, POLE);
 }
 
 SphereDomain::SphereDomain(VertCoordType vertCoordType) : Domain(vertCoordType) {
-    type = SPHERE_DOMAIN;
-    radius = 1.0;
+    _type = SPHERE_DOMAIN;
+    _radius = 1.0;
     setAxis(0, "lon", "longitude", "radian_east", 0.0, PERIODIC, 2.0*M_PI, PERIODIC);
     setAxis(1, "lat", "latitude", "radian_north", -M_PI_2, POLE, M_PI_2, POLE);
     switch (vertCoordType) {
@@ -29,9 +29,9 @@ SphereDomain::SphereDomain(VertCoordType vertCoordType) : Domain(vertCoordType) 
             setAxis(2, "lev", "hybrid pressure sigma level", "1", 0.0, RIGID, 1.0, RIGID);
             break;
         case PRESSURE:
-            axisName[2] = "lev";
-            bndTypeStarts[2] = RIGID;
-            bndTypeEnds[2] = RIGID;
+            _axisName[2] = "lev";
+            _bndTypeStarts[2] = RIGID;
+            _bndTypeEnds[2] = RIGID;
             // User should set the vertical pressure levels manually.
             break;
         default:
@@ -46,34 +46,34 @@ SphereDomain::~SphereDomain() {
 double SphereDomain::calcDistance(const SphereCoord &x,
                                   const SphereCoord &y) const {
     double dlon = x(0)-y(0);
-    double tmp1 = x.getSinLat()*y.getSinLat();
-    double tmp2 = x.getCosLat()*y.getCosLat()*cos(dlon);
+    double tmp1 = x.sinLat()*y.sinLat();
+    double tmp2 = x.cosLat()*y.cosLat()*cos(dlon);
     double tmp3 = min(1.0, max(-1.0, tmp1+tmp2));
-    return radius*acos(tmp3);
+    return _radius*acos(tmp3);
 }
 
 double SphereDomain::calcDistance(const SphereCoord &x, double lon,
                                   double lat) const {
     double dlon = x(0)-lon;
-    double tmp1 = x.getSinLat()*sin(lat);
-    double tmp2 = x.getCosLat()*cos(lat)*cos(dlon);
+    double tmp1 = x.sinLat()*sin(lat);
+    double tmp2 = x.cosLat()*cos(lat)*cos(dlon);
     double tmp3 = min(1.0, max(-1.0, tmp1+tmp2));
-    return radius*acos(tmp3);
+    return _radius*acos(tmp3);
 }
 
 double SphereDomain::calcDistance(const SphereCoord &x, double lon,
                                   double sinLat, double cosLat) const {
     double dlon = x(0)-lon;
-    double tmp1 = x.getSinLat()*sinLat;
-    double tmp2 = x.getCosLat()*cosLat*cos(dlon);
+    double tmp1 = x.sinLat()*sinLat;
+    double tmp2 = x.cosLat()*cosLat*cos(dlon);
     double tmp3 = min(1.0, max(-1.0, tmp1+tmp2));
-    return radius*acos(tmp3);
+    return _radius*acos(tmp3);
 }
     
 vec SphereDomain::diffCoord(const SphereCoord &x,
                             const SphereCoord &y) const {
-    vec d(numDim);
-    for (int m = 0; m < numDim; ++m) {
+    vec d(numDim());
+    for (int m = 0; m < numDim(); ++m) {
         d(m) = x(m)-y(m);
     }
     if (fabs(d(0)) > M_PI_2) {
@@ -94,13 +94,13 @@ void SphereDomain::rotate(const SphereCoord &xp, const SphereCoord &xo,
 
     double tmp1, tmp2, tmp3, lon, lat;
 
-    tmp1 = xo.getCosLat()*sinDlon;
-    tmp2 = xo.getCosLat()*xp.getSinLat()*cosDlon-xp.getCosLat()*xo.getSinLat();
+    tmp1 = xo.cosLat()*sinDlon;
+    tmp2 = xo.cosLat()*xp.sinLat()*cosDlon-xp.cosLat()*xo.sinLat();
     lon = atan2(tmp1, tmp2);
     if (lon < 0.0) lon += PI2;
 
-    tmp1 = xo.getSinLat()*xp.getSinLat();
-    tmp2 = xo.getCosLat()*xp.getCosLat()*cosDlon;
+    tmp1 = xo.sinLat()*xp.sinLat();
+    tmp2 = xo.cosLat()*xp.cosLat()*cosDlon;
     tmp3 = tmp1+tmp2;
 #ifndef NDEBUG
     static const double eps = 1.0e-15;
@@ -123,13 +123,13 @@ void SphereDomain::rotate(const SphereCoord &xp, const SphereCoord &xo,
     
     double tmp1, tmp2, tmp3;
     
-    tmp1 = xo.getCosLat()*sinDlon;
-    tmp2 = xo.getCosLat()*xp.getSinLat()*cosDlon-xp.getCosLat()*xo.getSinLat();
+    tmp1 = xo.cosLat()*sinDlon;
+    tmp2 = xo.cosLat()*xp.sinLat()*cosDlon-xp.cosLat()*xo.sinLat();
     lonR = atan2(tmp1, tmp2);
     if (lonR < 0.0) lonR += PI2;
     
-    tmp1 = xo.getSinLat()*xp.getSinLat();
-    tmp2 = xo.getCosLat()*xp.getCosLat()*cosDlon;
+    tmp1 = xo.sinLat()*xp.sinLat();
+    tmp2 = xo.cosLat()*xp.cosLat()*cosDlon;
     tmp3 = tmp1+tmp2;
 #ifndef NDEBUG
     static const double eps = 1.0e-15;
@@ -147,8 +147,8 @@ void SphereDomain::rotateBack(const SphereCoord &xp, SphereCoord &xo,
                               const SphereCoord &xr) const {
     double tmp1, tmp2, tmp3, lon, lat;
     
-    tmp1 = xr.getCosLat()*xr.getSinLon();
-    tmp2 = xr.getSinLat()*xp.getCosLat()+xr.getCosLat()*xr.getCosLon()*xp.getSinLat();
+    tmp1 = xr.cosLat()*xr.sinLon();
+    tmp2 = xr.sinLat()*xp.cosLat()+xr.cosLat()*xr.cosLon()*xp.sinLat();
 #ifndef NDEBUG
     static const double eps = 1.0e-15;
     if (fabs(tmp2) < eps) {
@@ -160,8 +160,8 @@ void SphereDomain::rotateBack(const SphereCoord &xp, SphereCoord &xo,
     if (lon > PI2) lon -= PI2;
     if (lon < 0.0) lon += PI2;
     
-    tmp1 = xr.getSinLat()*xp.getSinLat();
-    tmp2 = xr.getCosLat()*xp.getCosLat()*xr.getCosLon();
+    tmp1 = xr.sinLat()*xp.sinLat();
+    tmp2 = xr.cosLat()*xp.cosLat()*xr.cosLon();
     tmp3 = tmp1-tmp2;
 #ifndef NDEBUG
     if (tmp3 < -1.0 || tmp3 > 1.0) {
@@ -185,7 +185,7 @@ void SphereDomain::rotateBack(const SphereCoord &xp, SphereCoord &xo,
     double cosLatR = cos(latR);
     
     tmp1 = cosLatR*sinLonR;
-    tmp2 = sinLatR*xp.getCosLat()+cosLatR*cosLonR*xp.getSinLat();
+    tmp2 = sinLatR*xp.cosLat()+cosLatR*cosLonR*xp.sinLat();
 #ifndef NDEBUG
     static const double eps = 1.0e-15;
     if (fabs(tmp2) < eps) {
@@ -197,8 +197,8 @@ void SphereDomain::rotateBack(const SphereCoord &xp, SphereCoord &xo,
     if (lon > PI2) lon -= PI2;
     if (lon < 0.0) lon += PI2;
     
-    tmp1 = sinLatR*xp.getSinLat();
-    tmp2 = cosLatR*xp.getCosLat()*cosLonR;
+    tmp1 = sinLatR*xp.sinLat();
+    tmp2 = cosLatR*xp.cosLat()*cosLonR;
     tmp3 = tmp1-tmp2;
 #ifndef NDEBUG
     if (tmp3 < -1.0 || tmp3 > 1.0) {
@@ -221,8 +221,8 @@ void SphereDomain::project(ProjectionType projType, const SphereCoord &xp,
             double sinLon = sin(lon);
             double cosLon = cos(lon);
             double tanLat = tan(lat);
-            xs[0] = radius*cosLon/tanLat;
-            xs[1] = radius*sinLon/tanLat;
+            xs[0] = _radius*cosLon/tanLat;
+            xs[1] = _radius*sinLon/tanLat;
             break;
     }
 }
@@ -234,7 +234,7 @@ void SphereDomain::projectBack(ProjectionType projType, const SphereCoord &xp,
             double lon, lat;
             lon = atan2(xs[1], xs[0]);
             if (lon < 0.0) lon += PI2;
-            lat = atan(radius/sqrt(xs[0]*xs[0]+xs[1]*xs[1]));
+            lat = atan(_radius/sqrt(xs[0]*xs[0]+xs[1]*xs[1]));
 #ifndef NDEBUG
             assert(lat > 0);
 #endif
@@ -243,7 +243,7 @@ void SphereDomain::projectBack(ProjectionType projType, const SphereCoord &xp,
     }
 }
 
-string SphereDomain::getBrief() const {
+string SphereDomain::brief() const {
     static string brief = "sphere domain";
     return brief;
 }

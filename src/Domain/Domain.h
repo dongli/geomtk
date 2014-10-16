@@ -23,21 +23,21 @@ enum BndType {
 template <typename CoordType>
 class Domain {
 protected:
-    DomainType type;
-    int numDim;
-    vector<string> axisName;
-    vector<string> axisLongName;
-    vector<string> axisUnits;
-    vec axisStarts;
-    vec axisEnds;
-    vec axisSpans;
-    BndType *bndTypeStarts;
-    BndType *bndTypeEnds;
+    DomainType _type;
+    int _numDim;
+    vector<string> _axisName;
+    vector<string> _axisLongName;
+    vector<string> _axisUnits;
+    vec _axisStarts;
+    vec _axisEnds;
+    vec _axisSpans;
+    BndType *_bndTypeStarts;
+    BndType *_bndTypeEnds;
     /**
      *  The vertical coordinate is so special that we need an object to handle
      *  it.
      */
-    VertCoord *vertCoord;
+    VertCoord *_vertCoord;
 public:
     Domain();
     Domain(int numDim);
@@ -49,14 +49,14 @@ public:
      *
      *  @return The domain type enum.
      */
-    DomainType getType() const { return type; }
+    DomainType type() const { return _type; }
 
     /**
      *  Return the dimension number of the domain.
      *
      *  @return The dimension number.
      */
-    virtual int getNumDim() const { return numDim; }
+    virtual int numDim() const { return _numDim; }
 
     /**
      *  Set the axis along the specified dimension, including the meta info.
@@ -81,7 +81,7 @@ public:
      *  @param i the dimension index.
      *  @return The axis short name.
      */
-    virtual const string& getAxisName(int i) const { return axisName[i]; }
+    virtual const string& axisName(int i) const { return _axisName[i]; }
 
     /**
      *  Get the axis long name.
@@ -89,7 +89,7 @@ public:
      *  @param i the dimension index.
      *  @return The axis long name.
      */
-    virtual const string& getAxisLongName(int i) const { return axisLongName[i]; }
+    virtual const string& axisLongName(int i) const { return _axisLongName[i]; }
 
     /**
      *  Get the axis coordinate units.
@@ -97,7 +97,7 @@ public:
      *  @param i the dimension index.
      *  @return The axis coordinate units.
      */
-    virtual const string& getAxisUnits(int i) const { return axisUnits[i]; }
+    virtual const string& axisUnits(int i) const { return _axisUnits[i]; }
 
     /**
      *  Get the axis start coordinate value.
@@ -105,7 +105,7 @@ public:
      *  @param i the dimension index.
      *  @return The axis start coordinate value.
      */
-    virtual double getAxisStart(int i) const { return axisStarts(i); }
+    virtual double axisStart(int i) const { return _axisStarts(i); }
 
     /**
      *  Get the axis end coordinate value.
@@ -113,7 +113,7 @@ public:
      *  @param i the dimension index.
      *  @return The axis end coordinate value.
      */
-    virtual double getAxisEnd(int i) const { return axisEnds(i); }
+    virtual double axisEnd(int i) const { return _axisEnds(i); }
 
     /**
      *  Get the axis coordinate span.
@@ -121,7 +121,7 @@ public:
      *  @param i the dimension index.
      *  @return The axis coordinate span.
      */
-    virtual double getAxisSpan(int i) const { return axisSpans(i); }
+    virtual double axisSpan(int i) const { return _axisSpans(i); }
 
     /**
      *  Get the axis start boundary type.
@@ -129,7 +129,7 @@ public:
      *  @param i the dimension index.
      *  @return The axis start boundary type.
      */
-    virtual BndType getAxisStartBndType(int i) const { return bndTypeStarts[i]; }
+    virtual BndType axisStartBndType(int i) const { return _bndTypeStarts[i]; }
 
     /**
      *  Get the axis end boundary type.
@@ -137,14 +137,14 @@ public:
      *  @param i the dimension index.
      *  @return The axis end boundary type.
      */
-    virtual BndType getAxisEndBndType(int i) const { return bndTypeEnds[i]; }
+    virtual BndType axisEndBndType(int i) const { return _bndTypeEnds[i]; }
 
     /**
      *  Return the vertical coordinate object.
      *
      *  @return The vertical coordinate object.
      */
-    VertCoord& getVertCoord() { return *vertCoord; }
+    VertCoord& vertCoord() { return *_vertCoord; }
 
     /**
      *  Constrain the given coordinate if the boundary condition is periodic.
@@ -186,7 +186,7 @@ public:
      *
      *  @return The brief.
      */
-    virtual string getBrief() const;
+    virtual string brief() const;
 };
 
 } // geomtk

@@ -22,7 +22,7 @@ protected:
         mesh = new RLLMesh(*domain);
         regrid = new RLLRegrid(*mesh);
 
-        domain->setRadius(1.0);
+        domain->radius() = 1.0;
 
         mesh->init(5, 5);
     }

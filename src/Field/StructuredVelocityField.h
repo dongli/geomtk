@@ -11,7 +11,6 @@ public:
     typedef StructuredStagger::GridType GridType;
     typedef StructuredStagger::Location Location;
 protected:
-    const MeshType *mesh;
     vector<FieldType> v;
     FieldType div;
     vector<FieldType> vor;
@@ -25,17 +24,17 @@ public:
     virtual void applyBndCond(const TimeLevelIndex<2> &timeIdx,
                               bool updateHalfLevel = false);
 
-    const MeshType& getMesh() const { return v[0].getMesh(); }
+    const MeshType& mesh() const { return v[0].mesh(); }
 
     FieldType& operator()(int compIdx) { return v[compIdx]; }
 
     const FieldType& operator()(int compIdx) const { return v[compIdx]; }
 
-    FieldType& getDivergence() { return div; }
+    FieldType& divergence() { return div; }
 
-    const FieldType& getDivergence() const { return div; }
+    const FieldType& divergence() const { return div; }
 
-    const vector<FieldType>& getVorticity() const { return vor; }
+    const vector<FieldType>& vorticity() const { return vor; }
 
     virtual void calcDivergence(const TimeLevelIndex<2> &timeIdx);
 

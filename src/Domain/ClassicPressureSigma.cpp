@@ -3,15 +3,14 @@
 namespace geomtk {
 
 ClassicPressureSigma::ClassicPressureSigma() {
-    type = CLASSIC_PRESSURE_SIGMA;
+    _type = CLASSIC_PRESSURE_SIGMA;
 }
 
 ClassicPressureSigma::~ClassicPressureSigma() {
 
 }
 
-double ClassicPressureSigma::getPressure(double ps, int k) const {
-
+double ClassicPressureSigma::calcPressure(double ps, int k) const {
 }
 
 }

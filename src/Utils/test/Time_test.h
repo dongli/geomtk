@@ -19,44 +19,44 @@ TEST(Time, Constructor) {
 
 TEST(Time, Operations) {
     Time a;
-    ASSERT_EQ(31, a.getDaysOfMonth(1));
-    ASSERT_EQ(28, a.getDaysOfMonth(2));
-    ASSERT_EQ(31, a.getDaysOfMonth(3));
-    ASSERT_EQ(30, a.getDaysOfMonth(4));
-    ASSERT_EQ(31, a.getDaysOfMonth(5));
-    ASSERT_EQ(30, a.getDaysOfMonth(6));
-    ASSERT_EQ(31, a.getDaysOfMonth(7));
-    ASSERT_EQ(31, a.getDaysOfMonth(8));
-    ASSERT_EQ(30, a.getDaysOfMonth(9));
-    ASSERT_EQ(31, a.getDaysOfMonth(10));
-    ASSERT_EQ(30, a.getDaysOfMonth(11));
-    ASSERT_EQ(31, a.getDaysOfMonth(12));
+    ASSERT_EQ(31, a.daysOfMonth(1));
+    ASSERT_EQ(28, a.daysOfMonth(2));
+    ASSERT_EQ(31, a.daysOfMonth(3));
+    ASSERT_EQ(30, a.daysOfMonth(4));
+    ASSERT_EQ(31, a.daysOfMonth(5));
+    ASSERT_EQ(30, a.daysOfMonth(6));
+    ASSERT_EQ(31, a.daysOfMonth(7));
+    ASSERT_EQ(31, a.daysOfMonth(8));
+    ASSERT_EQ(30, a.daysOfMonth(9));
+    ASSERT_EQ(31, a.daysOfMonth(10));
+    ASSERT_EQ(30, a.daysOfMonth(11));
+    ASSERT_EQ(31, a.daysOfMonth(12));
     
-    ASSERT_EQ(0, a.getDaysBeforeMonth(1));
-    ASSERT_EQ(31, a.getDaysBeforeMonth(2));
-    ASSERT_EQ(59, a.getDaysBeforeMonth(3));
-    ASSERT_EQ(90, a.getDaysBeforeMonth(4));
-    ASSERT_EQ(120, a.getDaysBeforeMonth(5));
-    ASSERT_EQ(151, a.getDaysBeforeMonth(6));
-    ASSERT_EQ(181, a.getDaysBeforeMonth(7));
-    ASSERT_EQ(212, a.getDaysBeforeMonth(8));
-    ASSERT_EQ(243, a.getDaysBeforeMonth(9));
-    ASSERT_EQ(273, a.getDaysBeforeMonth(10));
-    ASSERT_EQ(304, a.getDaysBeforeMonth(11));
-    ASSERT_EQ(334, a.getDaysBeforeMonth(12));
+    ASSERT_EQ(0,   a.daysBeforeMonth(1));
+    ASSERT_EQ(31,  a.daysBeforeMonth(2));
+    ASSERT_EQ(59,  a.daysBeforeMonth(3));
+    ASSERT_EQ(90,  a.daysBeforeMonth(4));
+    ASSERT_EQ(120, a.daysBeforeMonth(5));
+    ASSERT_EQ(151, a.daysBeforeMonth(6));
+    ASSERT_EQ(181, a.daysBeforeMonth(7));
+    ASSERT_EQ(212, a.daysBeforeMonth(8));
+    ASSERT_EQ(243, a.daysBeforeMonth(9));
+    ASSERT_EQ(273, a.daysBeforeMonth(10));
+    ASSERT_EQ(304, a.daysBeforeMonth(11));
+    ASSERT_EQ(334, a.daysBeforeMonth(12));
 
-    ASSERT_EQ(334, a.getDaysAfterMonth(1));
-    ASSERT_EQ(306, a.getDaysAfterMonth(2));
-    ASSERT_EQ(275, a.getDaysAfterMonth(3));
-    ASSERT_EQ(245, a.getDaysAfterMonth(4));
-    ASSERT_EQ(214, a.getDaysAfterMonth(5));
-    ASSERT_EQ(184, a.getDaysAfterMonth(6));
-    ASSERT_EQ(153, a.getDaysAfterMonth(7));
-    ASSERT_EQ(122, a.getDaysAfterMonth(8));
-    ASSERT_EQ(92, a.getDaysAfterMonth(9));
-    ASSERT_EQ(61, a.getDaysAfterMonth(10));
-    ASSERT_EQ(31, a.getDaysAfterMonth(11));
-    ASSERT_EQ(0, a.getDaysAfterMonth(12));
+    ASSERT_EQ(334, a.daysAfterMonth(1));
+    ASSERT_EQ(306, a.daysAfterMonth(2));
+    ASSERT_EQ(275, a.daysAfterMonth(3));
+    ASSERT_EQ(245, a.daysAfterMonth(4));
+    ASSERT_EQ(214, a.daysAfterMonth(5));
+    ASSERT_EQ(184, a.daysAfterMonth(6));
+    ASSERT_EQ(153, a.daysAfterMonth(7));
+    ASSERT_EQ(122, a.daysAfterMonth(8));
+    ASSERT_EQ(92,  a.daysAfterMonth(9));
+    ASSERT_EQ(61,  a.daysAfterMonth(10));
+    ASSERT_EQ(31,  a.daysAfterMonth(11));
+    ASSERT_EQ(0,   a.daysAfterMonth(12));
 
     a.year = 1990;
     a.month = 1;
@@ -68,14 +68,14 @@ TEST(Time, Operations) {
     Time b = a-22*86400;
     
     ASSERT_EQ(a.year-1, b.year);
-    ASSERT_EQ(a.getPrevMonth(), b.month);
+    ASSERT_EQ(a.prevMonth(), b.month);
     ASSERT_EQ(19, b.day);
     ASSERT_EQ(0, b.hour);
     ASSERT_EQ(0, b.minute);
     ASSERT_EQ(a.second, b.second);
 
-    ASSERT_EQ(22*86400, a.getSeconds(b));
-    ASSERT_EQ(-22*86400, b.getSeconds(a));
+    ASSERT_EQ(22*86400,  a.seconds(b));
+    ASSERT_EQ(-22*86400, b.seconds(a));
 }
 
 TEST(Time, Operators) {

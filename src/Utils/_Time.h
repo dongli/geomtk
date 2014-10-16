@@ -31,57 +31,57 @@ public:
 
     virtual void reset();
 
-    double getTOD() const;
+    double tod() const;
 
     /**
      *  This method returns the seconds between this time and other time. The
      *  sign is included to represent the time direction.
      */
-    double getSeconds(const Time &other) const;
+    double seconds(const Time &other) const;
 
-    double getMinutes(const Time &other) const;
+    double minutes(const Time &other) const;
     
-    double getHours(const Time &other) const;
+    double hours(const Time &other) const;
     
-    double getDays(const Time &other) const;
+    double days(const Time &other) const;
 
-    double getMonths(const Time &other) const;
+    double months(const Time &other) const;
 
     /**
      *  This method returns the days included in the given month and year. If
      *  the month and year are not given, use the ones in this object.
      */
-    int getDaysOfMonth(int month = -1, int year = -1) const;
+    int daysOfMonth(int month = -1, int year = -1) const;
     
     /**
      *  This method returns the days before the given month and in the given
      *  year. If the month and year are not given, use the ones in this object.
      */
-    int getDaysBeforeMonth(int month = -1, int year = -1) const;
+    int daysBeforeMonth(int month = -1, int year = -1) const;
     
     /**
      *  This method returns the days after the given month and in the given
      *  year. If the month and year are not given, use the ones in this object.
      */
-    int getDaysAfterMonth(int month = -1, int year = -1) const;
+    int daysAfterMonth(int month = -1, int year = -1) const;
     
     /**
      *  This method returns the days included in the given year. If the year is
      *  not given, use the one in this object.
      */
-    int getDaysOfYear(int year = -1) const;
+    int daysOfYear(int year = -1) const;
     
     /**
      *  This method returns the previous month of the given month. If the month
      *  is not given, use the one in this object.
      */
-    int getPrevMonth(int month = -1) const;
+    int prevMonth(int month = -1) const;
     
     /**
      *  This method returns the next month of the given month. If the month is
      *  not given, use the one in this object.
      */
-    int getNextMonth(int month = -1) const;
+    int nextMonth(int month = -1) const;
 
     const Time operator+(double seconds) const;
 

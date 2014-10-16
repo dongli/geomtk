@@ -18,8 +18,8 @@ class Mesh {
 public:
     typedef DomainType_ DomainType;
 protected:
-    MeshType type;
-    DomainType *domain;
+    MeshType _type;
+    DomainType *_domain;
     field<double> volumes;
     bool set;
 public:
@@ -48,14 +48,14 @@ public:
      *
      *  @param The mesh type.
      */
-    MeshType getType() const { return type; }
+    MeshType type() const { return _type; }
 
     /**
      *  Get the spatial domain.
      *
      *  @return The domain.
      */
-    DomainType& getDomain() const { return *domain; }
+    DomainType& domain() const { return *_domain; }
 
     /**
      *  Get the space coordinate of a grid with given location.
@@ -64,7 +64,7 @@ public:
      *  @param i   the grid index (the cells are arranged as 1D array).
      *  @return The grid space coordinate.
      */
-    virtual const CoordType& getGridCoord(int loc, int i) const = 0;
+    virtual const CoordType& gridCoord(int loc, int i) const = 0;
 
     /**
      *  Set the center grid cell volumes.
@@ -76,7 +76,7 @@ public:
      *
      *  @param i the cell index (the cells are arranged as 1D array).
      */
-    double getCellVolume(int i) const { return volumes(i); };
+    double cellVolume(int i) const { return volumes(i); };
 
     /**
      *  Get the total grid number with given location and dimension number.
@@ -86,7 +86,7 @@ public:
      *
      *  @return The total grid number.
      */
-    virtual int getTotalNumGrid(int loc, int numDim) const = 0;
+    virtual int totalNumGrid(int loc, int numDim) const = 0;
 
     /**
      *  Get the vertical level index.
@@ -96,7 +96,7 @@ public:
      *
      *  @return The vertical level index.
      */
-    virtual int getLevelIndex(int loc, int cellIdx) const = 0;
+    virtual int levelIndex(int loc, int cellIdx) const = 0;
 
     /**
      *  Check if the mesh is set or not.

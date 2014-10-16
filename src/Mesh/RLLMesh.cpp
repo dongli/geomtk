@@ -6,8 +6,8 @@
 namespace geomtk {
 
 RLLMesh::RLLMesh(SphereDomain &domain) : StructuredMesh<SphereDomain, SphereCoord>(domain) {
-    type = RLL_MESH;
-    poleRadius = 18.0*RAD;
+    _type = RLL_MESH;
+    _poleRadius = 18.0*RAD;
 }
 
 RLLMesh::~RLLMesh() {
@@ -80,7 +80,7 @@ void RLLMesh::setGridCoordComps(int axisIdx, int size, const vec &full,
             tanLatHalf(j) = tan(halfCoords[1](j));
         }
     }
-    for (int m = 0; m < this->domain->getNumDim(); ++m) {
+    for (int m = 0; m < this->domain().numDim(); ++m) {
         if (fullCoords[m].size() == 0) {
             return;
         }
@@ -126,7 +126,7 @@ void RLLMesh::setGridCoordComps(int axisIdx, int size, const vec &full) {
             tanLatHalf(j) = tan(halfCoords[1](j));
         }
     }
-    for (int m = 0; m < this->domain->getNumDim(); ++m) {
+    for (int m = 0; m < this->domain().numDim(); ++m) {
         if (fullCoords[m].size() == 0) {
             return;
         }
@@ -139,10 +139,10 @@ void RLLMesh::setCellVolumes() {
         // This is a kluge to avoid index overflow when sin and cos are not set.
         return;
     }
-    volumes.set_size(getNumGrid(0, GridType::FULL),
-                     getNumGrid(1, GridType::FULL),
-                     getNumGrid(2, GridType::FULL));
-    double R2 = domain->getRadius()*domain->getRadius();
+    volumes.set_size(numGrid(0, GridType::FULL),
+                     numGrid(1, GridType::FULL),
+                     numGrid(2, GridType::FULL));
+    double R2 = domain().radius()*domain().radius();
     for (int k = 0; k < volumes.n_slices; ++k) {
         for (int j = 1; j < volumes.n_cols-1; ++j) {
             double dsinLat = sinLatHalf(j)-sinLatHalf(j-1);
@@ -168,7 +168,7 @@ void RLLMesh::setCellVolumes() {
 #endif
 }
 
-double RLLMesh::getCosLon(int gridType, int i) const {
+double RLLMesh::cosLon(int gridType, int i) const {
     switch (gridType) {
         case GridType::FULL:
             return cosLonFull[i];
@@ -179,7 +179,7 @@ double RLLMesh::getCosLon(int gridType, int i) const {
     }
 }
 
-double RLLMesh::getSinLon(int gridType, int i) const {
+double RLLMesh::sinLon(int gridType, int i) const {
     switch (gridType) {
         case GridType::FULL:
             return sinLonFull[i];
@@ -190,7 +190,7 @@ double RLLMesh::getSinLon(int gridType, int i) const {
     }
 }
 
-double RLLMesh::getCosLat(int gridType, int j) const {
+double RLLMesh::cosLat(int gridType, int j) const {
     switch (gridType) {
         case GridType::FULL:
             return cosLatFull[j];
@@ -201,7 +201,7 @@ double RLLMesh::getCosLat(int gridType, int j) const {
     }
 }
 
-double RLLMesh::getSinLat(int gridType, int j) const {
+double RLLMesh::sinLat(int gridType, int j) const {
     switch (gridType) {
         case GridType::FULL:
             return sinLatFull[j];
@@ -212,7 +212,7 @@ double RLLMesh::getSinLat(int gridType, int j) const {
     }
 }
 
-double RLLMesh::getSinLat2(int gridType, int j) const {
+double RLLMesh::sinLat2(int gridType, int j) const {
     switch (gridType) {
         case GridType::FULL:
             return sinLatFull2[j];
@@ -223,7 +223,7 @@ double RLLMesh::getSinLat2(int gridType, int j) const {
     }
 }
 
-double RLLMesh::getTanLat(int gridType, int j) const {
+double RLLMesh::tanLat(int gridType, int j) const {
     switch (gridType) {
         case GridType::FULL:
             return tanLatFull[j];
@@ -237,8 +237,8 @@ double RLLMesh::getTanLat(int gridType, int j) const {
 void RLLMesh::move(const SphereCoord &x0, double dt, const SphereVelocity &v,
                    const RLLMeshIndex &idx, SphereCoord &x1) const {
     if (!idx.isOnPole()) {
-        double dlon = dt*v(0)/domain->getRadius()/cos(x0(1));
-        double dlat = dt*v(1)/domain->getRadius();
+        double dlon = dt*v(0)/domain().radius()/cos(x0(1));
+        double dlat = dt*v(1)/domain().radius();
         double lon = x0(0)+dlon;
         double lat = x0(1)+dlat;
         if (lat > M_PI_2) {
@@ -256,15 +256,15 @@ void RLLMesh::move(const SphereCoord &x0, double dt, const SphereVelocity &v,
         }
         x1.setCoord(lon, lat);
     } else {
-        x1[0] = x0[0]+dt*v[0];
-        x1[1] = x0[1]+dt*v[1];
-        x1.transformFromPS(*domain, idx.getPole());
+        x1.psCoord()[0] = x0.psCoord()[0]+dt*v.psVelocity()[0];
+        x1.psCoord()[1] = x0.psCoord()[1]+dt*v.psVelocity()[1];
+        x1.transformFromPS(domain(), idx.pole());
     }
-    if (domain->getNumDim() == 3) {
+    if (domain().numDim() == 3) {
         double dlev = dt*v(2);
         x1(2) = x0(2)+dlev;
 #ifndef NDEBUG
-        assert(x1(2) >= domain->getAxisStart(2) && x1(2) <= domain->getAxisEnd(2));
+        assert(x1(2) >= domain().axisStart(2) && x1(2) <= domain().axisEnd(2));
 #endif
     }
 }
@@ -273,7 +273,7 @@ void RLLMesh::setGridCoords() {
     StructuredMesh<SphereDomain, SphereCoord>::setGridCoords();
     for (int loc = 0; loc < 5; ++loc) {
         for (int cellIdx = 0; cellIdx < gridCoords[loc].size(); ++cellIdx) {
-            gridCoords[loc][cellIdx].transformToCart(*domain);
+            gridCoords[loc][cellIdx].transformToCart(domain());
         }
     }
 }

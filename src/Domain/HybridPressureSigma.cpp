@@ -3,15 +3,14 @@
 namespace geomtk {
 
 HybridPressureSigma::HybridPressureSigma() {
-    type = HYBRID_PRESSURE_SIGMA;
+    _type = HYBRID_PRESSURE_SIGMA;
 }
 
 HybridPressureSigma::~HybridPressureSigma() {
 
 }
 
-double HybridPressureSigma::getPressure(double ps, int k) const {
-    
+double HybridPressureSigma::calcPressure(double ps, int k) const {
 }
 
 }

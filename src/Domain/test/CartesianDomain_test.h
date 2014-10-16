@@ -22,21 +22,21 @@ protected:
 };
 
 TEST_F(CartesianDomainTest, Basics) {
-    EXPECT_EQ(2, d2->getNumDim());
-    EXPECT_EQ(3, d3->getNumDim());
+    EXPECT_EQ(2, d2->numDim());
+    EXPECT_EQ(3, d3->numDim());
 }
 
 TEST_F(CartesianDomainTest, SetAxis) {
     d2->setAxis(0, "x", "x", "1",  0.0,  OPEN, 1.0, RIGID);
     d2->setAxis(1, "y", "y", "1", -1.0, RIGID, 1.0, RIGID);
-    EXPECT_EQ(0.0, d2->getAxisStart(0));
-    EXPECT_EQ(1.0, d2->getAxisEnd(0));
-    EXPECT_EQ(OPEN, d2->getAxisStartBndType(0));
-    EXPECT_EQ(RIGID, d2->getAxisEndBndType(0));
-    EXPECT_EQ(-1.0, d2->getAxisStart(1));
-    EXPECT_EQ(1.0, d2->getAxisEnd(1));
-    EXPECT_EQ(RIGID, d2->getAxisStartBndType(1));
-    EXPECT_EQ(RIGID, d2->getAxisEndBndType(1));
+    EXPECT_EQ(0.0, d2->axisStart(0));
+    EXPECT_EQ(1.0, d2->axisEnd(0));
+    EXPECT_EQ(OPEN, d2->axisStartBndType(0));
+    EXPECT_EQ(RIGID, d2->axisEndBndType(0));
+    EXPECT_EQ(-1.0, d2->axisStart(1));
+    EXPECT_EQ(1.0, d2->axisEnd(1));
+    EXPECT_EQ(RIGID, d2->axisStartBndType(1));
+    EXPECT_EQ(RIGID, d2->axisEndBndType(1));
 }
 
 TEST_F(CartesianDomainTest, DifferenceCoordinate) {

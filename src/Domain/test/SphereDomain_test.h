@@ -11,7 +11,7 @@ protected:
 
     virtual void SetUp() {
         domain = new SphereDomain(2);
-        domain->setRadius(1.0);
+        domain->radius() = 1;
     }
 
     virtual void TearDown() {
@@ -31,24 +31,24 @@ TEST_F(SphereDomainTest, SphereCoordOperator) {
 
     ASSERT_EQ(a(0), b(0));
     ASSERT_EQ(a(1), b(1));
-    ASSERT_EQ(a[0], b[0]);
-    ASSERT_EQ(a[1], b[1]);
-    ASSERT_EQ(a.getCosLon(), b.getCosLon());
-    ASSERT_EQ(a.getSinLon(), b.getSinLon());
-    ASSERT_EQ(a.getCosLat(), b.getCosLat());
-    ASSERT_EQ(a.getSinLat(), b.getSinLat());
+    ASSERT_EQ(a.psCoord()[0], b.psCoord()[0]);
+    ASSERT_EQ(a.psCoord()[1], b.psCoord()[1]);
+    ASSERT_EQ(a.cosLon(), b.cosLon());
+    ASSERT_EQ(a.sinLon(), b.sinLon());
+    ASSERT_EQ(a.cosLat(), b.cosLat());
+    ASSERT_EQ(a.sinLat(), b.sinLat());
 }
 
 TEST_F(SphereDomainTest, Constructor) {
-    EXPECT_EQ(0.0, domain->getAxisStart(0));
-    EXPECT_EQ(2.0*M_PI, domain->getAxisEnd(0));
-    EXPECT_EQ(PERIODIC, domain->getAxisStartBndType(0));
-    EXPECT_EQ(PERIODIC, domain->getAxisEndBndType(0));
-    EXPECT_EQ(2.0*M_PI, domain->getAxisSpan(0));
-    EXPECT_EQ(-M_PI_2, domain->getAxisStart(1));
-    EXPECT_EQ(M_PI_2, domain->getAxisEnd(1));
-    EXPECT_EQ(POLE, domain->getAxisStartBndType(1));
-    EXPECT_EQ(POLE, domain->getAxisEndBndType(1));
+    EXPECT_EQ(0.0, domain->axisStart(0));
+    EXPECT_EQ(2.0*M_PI, domain->axisEnd(0));
+    EXPECT_EQ(PERIODIC, domain->axisStartBndType(0));
+    EXPECT_EQ(PERIODIC, domain->axisEndBndType(0));
+    EXPECT_EQ(2.0*M_PI, domain->axisSpan(0));
+    EXPECT_EQ(-M_PI_2, domain->axisStart(1));
+    EXPECT_EQ(M_PI_2, domain->axisEnd(1));
+    EXPECT_EQ(POLE, domain->axisStartBndType(1));
+    EXPECT_EQ(POLE, domain->axisEndBndType(1));
 }
 
 TEST_F(SphereDomainTest, CalculateDistance) {

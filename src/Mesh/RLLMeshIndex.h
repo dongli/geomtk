@@ -12,7 +12,7 @@ public:
     typedef RLLStagger::GridType GridType;
     typedef RLLStagger::Location Location;
 protected:
-    Pole pole;
+    Pole _pole;
     bool inPolarCap;
     bool onPole;
     bool moveOnPole;
@@ -29,7 +29,7 @@ public:
      */
     void setMoveOnPole(bool moveOnPole) { this->moveOnPole = moveOnPole; }
 
-    Pole getPole() const { return pole; }
+    Pole pole() const { return _pole; }
 
     bool isInPolarCap() const { return inPolarCap; }
 

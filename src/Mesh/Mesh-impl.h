@@ -5,7 +5,7 @@ namespace geomtk {
 
 template <class DomainType, class CoordType>
 Mesh<DomainType, CoordType>::Mesh(DomainType &domain) {
-    this->domain = &domain;
+    this->_domain = &domain;
     set = false;
 }
 

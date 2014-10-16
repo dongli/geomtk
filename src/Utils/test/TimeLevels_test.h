@@ -62,24 +62,24 @@ TEST(TimeLevelIndex, Reset) {
 
 TEST(TimeLevels, OperatorEqual) {
     TimeLevels<double, 2> a, b;
-    a.getLevel(0) = 1;
-    a.getLevel(1) = 2;
+    a.level(0) = 1;
+    a.level(1) = 2;
     b = a;
-    ASSERT_EQ(a.getLevel(0), b.getLevel(0));
-    ASSERT_EQ(a.getLevel(1), b.getLevel(1));
+    ASSERT_EQ(a.level(0), b.level(0));
+    ASSERT_EQ(a.level(1), b.level(1));
     
     TimeLevels<vector<int>, 2> c, d;
-    c.getLevel(0).push_back(1);
-    c.getLevel(0).push_back(2);
-    c.getLevel(1).push_back(3);
+    c.level(0).push_back(1);
+    c.level(0).push_back(2);
+    c.level(1).push_back(3);
     d = c;
-    ASSERT_EQ(c.getLevel(0).size(), d.getLevel(0).size());
-    ASSERT_EQ(c.getLevel(1).size(), d.getLevel(1).size());
-    for (int i = 0; i < c.getLevel(0).size(); ++i) {
-        ASSERT_EQ(c.getLevel(0)[i], d.getLevel(0)[i]);
+    ASSERT_EQ(c.level(0).size(), d.level(0).size());
+    ASSERT_EQ(c.level(1).size(), d.level(1).size());
+    for (int i = 0; i < c.level(0).size(); ++i) {
+        ASSERT_EQ(c.level(0)[i], d.level(0)[i]);
     }
-    for (int i = 0; i < c.getLevel(1).size(); ++i) {
-        ASSERT_EQ(c.getLevel(1)[i], d.getLevel(1)[i]);
+    for (int i = 0; i < c.level(1).size(); ++i) {
+        ASSERT_EQ(c.level(1)[i], d.level(1)[i]);
     }
 }
 

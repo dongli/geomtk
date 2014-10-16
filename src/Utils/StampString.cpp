@@ -59,11 +59,11 @@ string StampString::run(const Time &time) {
     }
     // check TOD
     if (regex_search(pattern, what, re5DigitTOD)) {
-        stringstream ss; ss << setw(5) << setfill('0') << time.getTOD();
+        stringstream ss; ss << setw(5) << setfill('0') << time.tod();
         res = regex_replace(res, re5DigitTOD, ss.str());
         matched = true;
     } else if (regex_search(pattern, what, reTOD)) {
-        stringstream ss; ss << time.getTOD();
+        stringstream ss; ss << time.tod();
         res = regex_replace(res, reTOD, ss.str());
         matched = true;
     }
@@ -77,7 +77,7 @@ string StampString::run(const Time &time) {
 string StampString::run(const TimeManager &timeManager) {
     string res = pattern;
     smatch what;
-    const Time &time = timeManager.getCurrTime();
+    const Time &time = timeManager.currTime();
     bool matched = false;
     // check year
     if (regex_search(pattern, what, re4DigitYear)) {
@@ -111,18 +111,18 @@ string StampString::run(const TimeManager &timeManager) {
     }
     // check TOD
     if (regex_search(pattern, what, re5DigitTOD)) {
-        stringstream ss; ss << setw(5) << setfill('0') << time.getTOD();
+        stringstream ss; ss << setw(5) << setfill('0') << time.tod();
         res = regex_replace(res, re5DigitTOD, ss.str());
         matched = true;
     } else if (regex_search(pattern, what, reTOD)) {
-        stringstream ss; ss << time.getTOD();
+        stringstream ss; ss << time.tod();
         res = regex_replace(res, reTOD, ss.str());
         matched = true;
     }
     // check step
     if (regex_search(pattern, what, reStep)) {
         int n = stoi(what[1]);
-        stringstream ss; ss << setw(n) << setfill('0') << timeManager.getNumStep();
+        stringstream ss; ss << setw(n) << setfill('0') << timeManager.numStep();
         res = regex_replace(res, reStep, ss.str());
         matched = true;
     }

@@ -34,10 +34,10 @@ public:
                 const RLLField<double, 2> &div,
                 bool updateHalfLevel = false);
 
-    double getOriginalData(int dim, const TimeLevelIndex<2> &timeIdx,
+    double originalData(int dim, const TimeLevelIndex<2> &timeIdx,
                            int i, int k = 0) const;
 
-    double getTransformedData(int dim, const TimeLevelIndex<2> &timeIdx,
+    double transformedData(int dim, const TimeLevelIndex<2> &timeIdx,
                               int i, int k = 0) const;
 
     void print() const;

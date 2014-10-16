@@ -110,14 +110,14 @@ void IOManager<DataFileType>::create(int fileIdx) {
     int ret = nc_create(file.fileName.c_str(), NC_CLOBBER, &file.fileID);
     CHECK_NC_CREATE(ret, file.fileName);
     // define temporal dimension
-    int timeStep = timeManager->getNumStep();
+    int timeStep = timeManager->numStep();
     ret = nc_put_att(file.fileID, NC_GLOBAL, "time_step", NC_INT, 1, &timeStep);
     CHECK_NC_PUT_ATT(ret, file.fileName, "NC_GLOBAL", "time_step");
     ret = nc_def_dim(file.fileID, "time", NC_UNLIMITED, &file.timeDimID);
     CHECK_NC_DEF_DIM(ret, file.fileName, "time");
     ret = nc_def_var(file.fileID, "time", NC_DOUBLE, 1, &file.timeDimID, &file.timeVarID);
     CHECK_NC_DEF_VAR(ret, file.fileName, "time")
-    string units = "days since "+timeManager->getStartTime().s();
+    string units = "days since "+timeManager->startTime().s();
     ret = nc_put_att(file.fileID, file.timeVarID, "units", NC_CHAR,
                      units.length(), units.c_str());
     CHECK_NC_PUT_ATT(ret, file.fileName, "time", "units");
@@ -202,7 +202,7 @@ void IOManager<DataFileType>::output(int fileIdx,
     DataFileType &file = files[fileIdx];
     if (!file.isActive) return;
     // write time
-    double time = timeManager->getDays();
+    double time = timeManager->days();
     size_t index[1] = {0};
     int ret = nc_put_var1(file.fileID, file.timeVarID, index, &time);
     CHECK_NC_PUT_VAR(ret, file.fileName, "time");
@@ -218,7 +218,7 @@ void IOManager<DataFileType>::output(int fileIdx,
     if (!file.isActive) return;
     // write time
     // FIXME: Do we need to write time?
-    double time = timeManager->getDays();
+    double time = timeManager->days();
     size_t index[1] = {0};
     int ret = nc_put_var1(file.fileID, file.timeVarID, index, &time);
     CHECK_NC_PUT_VAR(ret, file.fileName, "time");

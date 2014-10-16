@@ -36,12 +36,12 @@ public:
     int alarmIdx;
     bool isActive;
 protected:
-    MeshType *mesh;
+    MeshType *_mesh;
 public:
-    DataFile(MeshType &mesh) { this->mesh = &mesh; }
+    DataFile(MeshType &mesh) { _mesh = &mesh; }
     virtual ~DataFile() {}
 
-    MeshType& getMesh() { return *mesh; }
+    MeshType& mesh() { return *_mesh; }
 
     virtual void registerField(const string &xtype, int spaceDims,
                                initializer_list<Field<MeshType>*> fields) = 0;

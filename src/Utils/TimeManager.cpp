@@ -3,11 +3,11 @@
 namespace geomtk {
 
 TimeManager::TimeManager() {
-    stepUnit = SECOND;
-    useLeap = false;
-    currTime.useLeap = useLeap;
-    endTime.useLeap = useLeap;
-    numStep = 0;
+    _stepUnit = SECOND;
+    _useLeap = false;
+    _currTime.useLeap = _useLeap;
+    _endTime.useLeap = _useLeap;
+    _numStep = 0;
 }
 
 TimeManager::~TimeManager() {
@@ -16,13 +16,13 @@ TimeManager::~TimeManager() {
 
 void TimeManager::init(const Time &startTime, const Time &endTime,
                        double stepSize) {
-    if (startTime > endTime) {
+    if (_startTime > _endTime) {
         REPORT_ERROR("Start time is less than end time!");
     }
-    this->startTime = startTime;
-    currTime = startTime;
-    this->endTime = endTime;
-    this->stepSize = stepSize;
+    _startTime = startTime;
+    _currTime = startTime;
+    _endTime = endTime;
+    _stepSize = stepSize;
 }
 
 mark_tag tagStepSize(1), tagStepUnit(2);
@@ -30,30 +30,30 @@ sregex reStepSize = (tagStepSize= +_d) >> ' ' >> (tagStepUnit= +_w);
 
 void TimeManager::init(const string &startTime, const string &endTime,
                        const string &stepSize) {
-    this->startTime = startTime;
-    currTime = this->startTime;
-    this->endTime = endTime;
+    _startTime = startTime;
+    _currTime = startTime;
+    _endTime = endTime;
     smatch what;
     if (regex_match(stepSize, what, reStepSize)) {
-        this->stepSize = atoi(what[tagStepSize].str().c_str());
+        _stepSize = atoi(what[tagStepSize].str().c_str());
         if (what[tagStepUnit] == "year" ||
             what[tagStepUnit] == "years") {
-            stepUnit = YEAR;
+            _stepUnit = YEAR;
         } else if (what[tagStepUnit] == "month" ||
             what[tagStepUnit] == "months") {
-            stepUnit = MONTH;
+            _stepUnit = MONTH;
         } else if (what[tagStepUnit] == "day" ||
                    what[tagStepUnit] == "days") {
-            stepUnit = DAY;
+            _stepUnit = DAY;
         } else if (what[tagStepUnit] == "hour" ||
                    what[tagStepUnit] == "hours"){
-            stepUnit = HOUR;
+            _stepUnit = HOUR;
         } else if (what[tagStepUnit] == "minute" ||
                    what[tagStepUnit] == "minutes") {
-            stepUnit = MINUTE;
+            _stepUnit = MINUTE;
         } else if (what[tagStepUnit] == "second" ||
                    what[tagStepUnit] == "seconds") {
-            stepUnit = SECOND;
+            _stepUnit = SECOND;
         } else {
             REPORT_ERROR("Unknown step unit \"" << what[tagStepUnit] << "\"!");
         }
@@ -63,13 +63,13 @@ void TimeManager::init(const string &startTime, const string &endTime,
 }
 
 void TimeManager::reset() {
-    numStep = 0;
-    currTime = startTime;
+    _numStep = 0;
+    _currTime = _startTime;
 }
 
 void TimeManager::reset(int numStep, const Time &currTime) {
-    this->numStep = numStep;
-    this->currTime = currTime;
+    _numStep = numStep;
+    _currTime = currTime;
 }
 
 int TimeManager::addAlarm(TimeStepUnit unit, double freq) {
@@ -84,8 +84,8 @@ int TimeManager::addAlarm(TimeStepUnit unit, double freq) {
     Alarm alarm;
     alarm.unit = unit;
     alarm.freq = freq;
-    alarm.lastTime = currTime;
-    alarm.lastStep = numStep;
+    alarm.lastTime = _currTime;
+    alarm.lastStep = _numStep;
     alarms.push_back(alarm);
     return alarms.size()-1;
 }
@@ -100,23 +100,23 @@ bool TimeManager::checkAlarm(int i) {
     int diffStep = 0;
     switch (alarms[i].unit) {
         case YEAR:
-            diffTime = currTime.year-alarms[i].lastTime.year;
+            diffTime = _currTime.year-alarms[i].lastTime.year;
             break;
         case MONTH:
-            diffTime = currTime.month-alarms[i].lastTime.month;
+            diffTime = _currTime.month-alarms[i].lastTime.month;
             if (diffTime == -11) diffTime = 1;
             break;
         case DAY:
-            diffTime = currTime.getDays(alarms[i].lastTime);
+            diffTime = _currTime.days(alarms[i].lastTime);
             break;
         case HOUR:
-            diffTime = currTime.getHours(alarms[i].lastTime);
+            diffTime = _currTime.hours(alarms[i].lastTime);
             break;
         case MINUTE:
-            diffTime = currTime.getMinutes(alarms[i].lastTime);
+            diffTime = _currTime.minutes(alarms[i].lastTime);
             break;
         case STEP:
-            diffStep = numStep-alarms[i].lastStep;
+            diffStep = _numStep-alarms[i].lastStep;
             break;
         default:
             REPORT_ERROR("Under construction!");
@@ -124,14 +124,14 @@ bool TimeManager::checkAlarm(int i) {
     }
     if (alarms[i].unit == STEP) {
         if (diffStep >= alarms[i].freq || diffStep == 0) {
-            alarms[i].lastStep = numStep;
+            alarms[i].lastStep = _numStep;
             return true;
         } else {
             return false;
         }
     }
     if (diffTime >= alarms[i].freq || diffTime == 0) {
-        alarms[i].lastTime = currTime;
+        alarms[i].lastTime = _currTime;
         return true;
     } else {
         return false;
@@ -139,48 +139,48 @@ bool TimeManager::checkAlarm(int i) {
 }
 
 void TimeManager::advance(bool mute) {
-    numStep++;
-    switch (stepUnit) {
+    _numStep++;
+    switch (_stepUnit) {
         case YEAR:
-            currTime.year += 1;
+            _currTime.year += 1;
             break;
         case MONTH:
-            if (currTime.month != 12) {
-                currTime.month += 1;
+            if (_currTime.month != 12) {
+                _currTime.month += 1;
             } else {
-                currTime.month = 1;
-                currTime.year += 1;
+                _currTime.month = 1;
+                _currTime.year += 1;
             }
             break;
         case DAY:
-            currTime += stepSize*TimeUnit::DAYS;
+            _currTime += _stepSize*TimeUnit::DAYS;
             break;
         case HOUR:
-            currTime += stepSize*TimeUnit::HOURS;
+            _currTime += _stepSize*TimeUnit::HOURS;
             break;
         case MINUTE:
-            currTime += stepSize*TimeUnit::MINUTES;
+            _currTime += _stepSize*TimeUnit::MINUTES;
             break;
         case SECOND:
-            currTime += stepSize;
+            _currTime += _stepSize;
             break;
         default:
             REPORT_ERROR("Invalid time step unit!");
     }
-    if (!mute) REPORT_NOTICE(currTime);
+    if (!mute) REPORT_NOTICE(_currTime);
 }
 
-int TimeManager::getTotalNumStep() const {
+int TimeManager::totalNumStep() const {
     int res;
-    switch (stepUnit) {
+    switch (_stepUnit) {
         case YEAR:
-            res = endTime.year-startTime.year+1;
+            res = _endTime.year-_startTime.year+1;
             break;
         case MONTH:
-            if (endTime.year == startTime.year) {
-                res = endTime.month-startTime.month+1;
+            if (_endTime.year == _startTime.year) {
+                res = _endTime.month-_startTime.month+1;
             } else {
-                res = (endTime.year-startTime.year)*12-startTime.month+1+endTime.month;
+                res = (_endTime.year-_startTime.year)*12-_startTime.month+1+_endTime.month;
             }
             break;
         case DAY:

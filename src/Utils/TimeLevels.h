@@ -29,7 +29,7 @@ public:
      *
      *  @return The time level number.
      */
-    inline int getNumLevel(bool includeHalfLevel = false);
+    inline int numLevel(bool includeHalfLevel = false);
 
     /**
      *  Get the variable on the given time level (relative index).
@@ -38,7 +38,7 @@ public:
      *
      *  @return The variable.
      */
-    const T& getLevel(const TimeLevelIndex<N> &timeIdx) const {
+    const T& level(const TimeLevelIndex<N> &timeIdx) const {
         return data[timeIdx.get()];
     }
 
@@ -49,7 +49,7 @@ public:
      *
      *  @return The variable.
      */
-    T& getLevel(const TimeLevelIndex<N> &timeIdx) {
+    T& level(const TimeLevelIndex<N> &timeIdx) {
         return data[timeIdx.get()];
     }
 
@@ -60,7 +60,7 @@ public:
      *
      *  @return The variable.
      */
-    const T& getLevel(int i) const {
+    const T& level(int i) const {
         return data[i];
     }
 
@@ -71,7 +71,7 @@ public:
      *
      *  @return The variable.
      */
-    T& getLevel(int i) {
+    T& level(int i) {
         return data[i];
     }
 

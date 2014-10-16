@@ -13,7 +13,7 @@ public:
     TerrainFollowing() {}
     virtual ~TerrainFollowing() {}
 
-    virtual double getPressure(double ps, int k) const = 0;
+    virtual double calcPressure(double ps, int k) const = 0;
 };
 
 } // geomtk

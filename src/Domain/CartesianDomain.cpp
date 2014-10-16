@@ -2,14 +2,14 @@
 
 namespace geomtk {
 
-vec CartesianDomain::diffCoord(const SpaceCoord &x,
-                               const SpaceCoord &y) const {
+vec CartesianDomain::
+diffCoord(const SpaceCoord &x, const SpaceCoord &y) const {
     vec res = x()-y();
     double tmp1, tmp2;
-    for (int m = 0; m < numDim; ++m) {
-        if (getAxisStartBndType(m) == PERIODIC) {
+    for (int m = 0; m < numDim(); ++m) {
+        if (axisStartBndType(m) == PERIODIC) {
             tmp1 = fabs(res[m]);
-            tmp2 = getAxisSpan(m)-tmp1;
+            tmp2 = axisSpan(m)-tmp1;
             if (tmp1 > tmp2) {
                 res[m] = res[m] > 0 ? -tmp2 : tmp2;
             }
@@ -18,8 +18,8 @@ vec CartesianDomain::diffCoord(const SpaceCoord &x,
     return res;
 }
 
-double CartesianDomain::calcDistance(const SpaceCoord &x,
-									 const SpaceCoord &y) const {
+double CartesianDomain::
+calcDistance(const SpaceCoord &x, const SpaceCoord &y) const {
     return norm(diffCoord(x, y));
 }
 

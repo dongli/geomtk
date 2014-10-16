@@ -24,11 +24,11 @@ void Time::reset() {
     second = 0;
 }
 
-double Time::getTOD() const {
+double Time::tod() const {
     return hour*TimeUnit::HOURS+minute*TimeUnit::MINUTES+second;
 }
 
-double Time::getSeconds(const Time &other) const {
+double Time::seconds(const Time &other) const {
     double res = 0; int sign = 1;
     const Time *big = this;
     const Time *small = &other;
@@ -57,24 +57,24 @@ double Time::getSeconds(const Time &other) const {
         big = &other; small = this; sign = -1;
     }
     for (int i = small->year+1; i < big->year; ++i) {
-        res += getDaysOfYear(i)*86400;
+        res += daysOfYear(i)*86400;
     }
     bool flag = small->year != big->year;
     if (flag) {
         for (int i = small->month+1; i <= 12; ++i) {
-            res += small->getDaysOfMonth(i)*86400;
+            res += small->daysOfMonth(i)*86400;
         }
         for (int i = 1; i < big->month; ++i) {
-            res += big->getDaysOfMonth(i)*86400;
+            res += big->daysOfMonth(i)*86400;
         }
     } else {
         for (int i = small->month+1; i < big->month; ++i) {
-            res += small->getDaysOfMonth(i)*86400;
+            res += small->daysOfMonth(i)*86400;
         }
     }
     flag = flag || small->month != big->month;
     if (flag) {
-        res += (small->getDaysOfMonth(small->month)-small->day)*86400;
+        res += (small->daysOfMonth(small->month)-small->day)*86400;
         res += (big->day-1)*86400;
     } else {
         if (small->day < big->day) {
@@ -109,19 +109,19 @@ double Time::getSeconds(const Time &other) const {
     return res*sign;
 }
 
-double Time::getMinutes(const Time &other) const {
-    return getSeconds(other)/60;
+double Time::minutes(const Time &other) const {
+    return seconds(other)/60;
 }
 
-double Time::getHours(const Time &other) const {
-    return getSeconds(other)/3600;
+double Time::hours(const Time &other) const {
+    return seconds(other)/3600;
 }
 
-double Time::getDays(const Time &other) const {
-    return getSeconds(other)/86400;
+double Time::days(const Time &other) const {
+    return seconds(other)/86400;
 }
 
-int Time::getDaysOfMonth(int month, int year) const {
+int Time::daysOfMonth(int month, int year) const {
     if (month == -1) {
         month = this->month;
     }
@@ -144,29 +144,29 @@ int Time::getDaysOfMonth(int month, int year) const {
     }
 }
     
-int Time::getDaysBeforeMonth(int month, int year) const {
+int Time::daysBeforeMonth(int month, int year) const {
     if (month == -1) {
         month = this->month;
     }
     int res = 0;
     for (int i = 1; i < month; ++i) {
-        res += getDaysOfMonth(i, year);
+        res += daysOfMonth(i, year);
     }
     return res;
 }
     
-int Time::getDaysAfterMonth(int month, int year) const {
+int Time::daysAfterMonth(int month, int year) const {
     if (month == -1) {
         month = this->month;
     }
     int res = 0;
     for (int i = month+1; i <= 12; ++i) {
-        res += getDaysOfMonth(i, year);
+        res += daysOfMonth(i, year);
     }
     return res;
 }
 
-int Time::getDaysOfYear(int year) const {
+int Time::daysOfYear(int year) const {
     if (useLeap) {
         REPORT_ERROR("Under construction!");
         if (year == -1) {
@@ -177,14 +177,14 @@ int Time::getDaysOfYear(int year) const {
     }
 }
 
-int Time::getPrevMonth(int month) const {
+int Time::prevMonth(int month) const {
     if (month == -1) {
         month = this->month;
     }
     return month == 1 ? 12 : month-1;
 }
     
-int Time::getNextMonth(int month) const {
+int Time::nextMonth(int month) const {
     if (month == -1) {
         month = this->month;
     }
@@ -226,11 +226,11 @@ const Time Time::operator+(double seconds) const {
     // handle day
     remain /= 24; // turn into days
     while (true) {
-        if (remain <= getDaysOfMonth(res.month, res.year)-res.day) {
+        if (remain <= daysOfMonth(res.month, res.year)-res.day) {
             res.day += remain;
             return res;
         }
-        remain -= getDaysOfMonth(res.month, res.year);
+        remain -= daysOfMonth(res.month, res.year);
         res.month++;
         if (res.month == 13) {
             res.month = 1;
@@ -311,7 +311,7 @@ const Time Time::operator-(double seconds) const {
         }
         if (res.month == 1) {
             // day is not enough and borrow one month
-            res.day += getDaysOfMonth(res.month, res.year);
+            res.day += daysOfMonth(res.month, res.year);
             res.month = 12;
             res.year--;
         }
@@ -381,7 +381,7 @@ bool Time::operator==(const Time &other) const {
 bool Time::operator>(const Time &other) const {
     static Time epoch;
     epoch.year = 1970;
-    if (this->getSeconds(epoch) > other.getSeconds(epoch)) {
+    if (this->seconds(epoch) > other.seconds(epoch)) {
         return true;
     } else {
         return false;
@@ -391,7 +391,7 @@ bool Time::operator>(const Time &other) const {
 bool Time::operator>=(const Time &other) const {
     static Time epoch;
     epoch.year = 1970;
-    if (this->getSeconds(epoch) >= other.getSeconds(epoch)) {
+    if (this->seconds(epoch) >= other.seconds(epoch)) {
         return true;
     } else {
         return false;

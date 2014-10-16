@@ -20,8 +20,8 @@ protected:
     vec xt; //>! horizontal coordinate on polar stereographic plane
     // TODO: How to calculate Cartesian coordinate, since the vertical
     //       coordinate may not be height?
-    vec::fixed<3> cartCoord; //>! Cartesian coordinate representation
-    double cosLon, sinLon, cosLat, sinLat;
+    vec::fixed<3> _cartCoord; //>! Cartesian coordinate representation
+    double _cosLon, _sinLon, _cosLat, _sinLat;
 public:
     SphereCoord();
     SphereCoord(int numDim);
@@ -40,32 +40,17 @@ public:
 
     void updateTrigonometricFunctions();
 
-    double getCosLon() const { return cosLon; }
+    double cosLon() const { return _cosLon; }
 
-    double getSinLon() const { return sinLon; }
+    double sinLon() const { return _sinLon; }
 
-    double getCosLat() const { return cosLat; }
+    double cosLat() const { return _cosLat; }
 
-    double getSinLat() const { return sinLat; }
+    double sinLat() const { return _sinLat; }
 
-    /**
-     *  Subscript operator for polar stereographic projected coorinate.
-     *
-     *  @param i the coordinate component index.
-     *
-     *  @return The coordinate componnet.
-     */
-    double operator[](int i) const { return xt(i); }
-    double& operator[](int i) { return xt(i); }
+    const vec& psCoord() const { return xt; }
 
-    /**
-     *  Get the polar stereographic projected coorinate with the vertical
-     *  coordinate component unchanged.
-     *
-     *  @return The polar stereographic projected coorinate.
-     */
-    const vec& getPSCoord() const { return xt; }
-    vec& getPSCoord() { return xt; }
+    vec& psCoord() { return xt; }
 
     SphereCoord& operator=(const SphereCoord& other);
 
@@ -75,7 +60,7 @@ public:
 
     void transformToCart(const SphereDomain &domain);
 
-    virtual const vec& getCartCoord() const { return cartCoord; }
+    virtual const vec& cartCoord() const { return _cartCoord; }
 
     virtual void print() const;
 };

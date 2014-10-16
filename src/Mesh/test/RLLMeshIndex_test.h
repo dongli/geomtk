@@ -20,7 +20,7 @@ protected:
     virtual void SetUp() {
         domain = new SphereDomain(2);
         mesh = new RLLMesh(*domain);
-        mesh->setPoleRadius(0.1*M_PI);
+        mesh->poleRadius() = 0.1*M_PI;
         mesh->init(5, 5);
     }
 
@@ -42,14 +42,14 @@ TEST_F(RLLMeshIndexTest, AssignmentOperator) {
 
     a.onPole = true;
     a.inPolarCap = true;
-    a.pole = NORTH_POLE;
+    a._pole = NORTH_POLE;
     a.moveOnPole = true;
 
     b = a;
 
     ASSERT_EQ(a.onPole, b.onPole);
     ASSERT_EQ(a.inPolarCap, b.inPolarCap);
-    ASSERT_EQ(a.pole, b.pole);
+    ASSERT_EQ(a.pole(), b.pole());
     ASSERT_EQ(a.moveOnPole, b.moveOnPole);
 }
 
@@ -61,8 +61,8 @@ TEST_F(RLLMeshIndexTest, AssignmentOperator) {
 //      -0.375*PI     -0.125*PI      0.125*PI      0.375*PI
 
 TEST_F(RLLMeshIndexTest, Locate) {
-    SphereCoord x(domain->getNumDim());
-    RLLMeshIndex a(domain->getNumDim());
+    SphereCoord x(domain->numDim());
+    RLLMeshIndex a(domain->numDim());
 
     x(0) =  0.9*M_PI;
     x(1) = -0.11*M_PI;
@@ -71,7 +71,7 @@ TEST_F(RLLMeshIndexTest, Locate) {
     ASSERT_EQ(1, a(1, FULL));
     ASSERT_EQ(2, a(0, HALF));
     ASSERT_EQ(1, a(1, HALF));
-    ASSERT_EQ(NOT_POLE, a.getPole());
+    ASSERT_EQ(NOT_POLE, a.pole());
     ASSERT_FALSE(a.isInPolarCap());
     ASSERT_FALSE(a.isOnPole());
 
@@ -92,7 +92,7 @@ TEST_F(RLLMeshIndexTest, Locate) {
     a.locate(*mesh, x);
     ASSERT_EQ(1, a(1, FULL));
     ASSERT_EQ(0, a(1, HALF));
-    ASSERT_EQ(NOT_POLE, a.getPole());
+    ASSERT_EQ(NOT_POLE, a.pole());
     ASSERT_FALSE(a.isInPolarCap());
     ASSERT_FALSE(a.isOnPole());
 
@@ -101,7 +101,7 @@ TEST_F(RLLMeshIndexTest, Locate) {
     a.locate(*mesh, x);
     ASSERT_EQ(0, a(1, FULL));
     ASSERT_EQ(-1, a(1, HALF));
-    ASSERT_EQ(SOUTH_POLE, a.getPole());
+    ASSERT_EQ(SOUTH_POLE, a.pole());
     ASSERT_TRUE(a.isInPolarCap());
     ASSERT_FALSE(a.isOnPole());
 
@@ -110,13 +110,13 @@ TEST_F(RLLMeshIndexTest, Locate) {
     a.locate(*mesh, x);
     ASSERT_EQ(3, a(1, FULL));
     ASSERT_EQ(3, a(1, HALF));
-    ASSERT_EQ(NORTH_POLE, a.getPole());
+    ASSERT_EQ(NORTH_POLE, a.pole());
     ASSERT_TRUE(a.isInPolarCap());
     ASSERT_TRUE(a.isOnPole());
 }
 
 TEST_F(RLLMeshIndexTest, GetIndex) {
-    RLLMeshIndex a(domain->getNumDim());
+    RLLMeshIndex a(domain->numDim());
     int l = 0;
     for (int j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
         for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
