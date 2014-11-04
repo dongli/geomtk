@@ -14,9 +14,9 @@ public:
     SphereVelocity(int numDim);
     virtual ~SphereVelocity();
 
-    const vec::fixed<2> psVelocity() const { return vt; }
+    const vec::fixed<2>& psVelocity() const { return vt; }
 
-    vec::fixed<2> psVelocity() { return vt; }
+    vec::fixed<2>& psVelocity() { return vt; }
 
     SphereVelocity& operator=(const SphereVelocity &other);
 
