@@ -347,6 +347,15 @@ inline string getClassName(const string &str) {
     } \
 }
 
+#define PRINT_USED_TIME(FUNC_CALL) \
+{ \
+    double time1, time2; \
+    time1 = clock(); \
+    FUNC_CALL; \
+    time2 = clock(); \
+    REPORT_NOTICE(geomtk::getFunctionName(#FUNC_CALL) << " uses " << setw(6) << setprecision(2) << (double)(time2-time1)/CLOCKS_PER_SEC << " seconds."); \
+}
+
 // constants
 const double RAD = M_PI/180.0;
 const double PI2 = M_PI*2.0;
