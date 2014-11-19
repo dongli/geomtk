@@ -103,6 +103,7 @@ set (source_directories
     "${PROJECT_SOURCE_DIR}/src/Mesh"
     "${PROJECT_SOURCE_DIR}/src/Field"
     "${PROJECT_SOURCE_DIR}/src/Regrid"
+    "${PROJECT_SOURCE_DIR}/src/Filter"
     "${PROJECT_SOURCE_DIR}/src/Utils"
 )
 

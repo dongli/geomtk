@@ -39,5 +39,9 @@
 #include "Regrid.h"
 #include "RLLRegrid.h"
 #include "CartesianRegrid.h"
+// Filter class hierarchy
+#include "Filter.h"
+#include "StructuredFilter.h"
+#include "RLLFilter.h"
 
 #endif
