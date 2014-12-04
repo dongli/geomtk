@@ -45,7 +45,7 @@ foreach (i RANGE 0 2)
     list (FIND NETCDF_FIND_COMPONENTS ${lang} res)
     if (NOT res EQUAL -1)
         find_program (${lang}_config NAMES ${config_command})
-        if (${lang}_config MATCHES "NOTFOUND")
+        if (${${lang}_config} MATCHES "NOTFOUND")
             foreach (var IN ITEMS "NETCDF_ROOT" "NETCDF_${lang}_ROOT")
                 if (DEFINED ENV{${var}})
                     set (NETCDF_${lang}_ROOT $ENV{${var}})
@@ -59,23 +59,27 @@ foreach (i RANGE 0 2)
             get_filename_component (bin ${${lang}_config} PATH)
             string (REGEX REPLACE "/bin$" "" NETCDF_${lang}_ROOT ${bin})
         endif ()
-        if (DEFINED NETCDF_${lang}_ROOT)
-            list (APPEND NETCDF_${lang}_INCLUDE_DIRS "${NETCDF_${lang}_ROOT}/include")
-            list (APPEND NETCDF_${lang}_LIBRARY_DIRS "${NETCDF_${lang}_ROOT}/lib")
-            if (NETCDF_USE_STATIC)
-                find_library (NETCDF_${lang}_LIBRARIES
-                    NAMES lib${lib}.a
-                    HINTS ${NETCDF_${lang}_LIBRARY_DIRS}
-                )
+        if (EXISTS ${${lang}_config})
+            if (DEFINED NETCDF_${lang}_ROOT)
+                list (APPEND NETCDF_${lang}_INCLUDE_DIRS "${NETCDF_${lang}_ROOT}/include")
+                list (APPEND NETCDF_${lang}_LIBRARY_DIRS "${NETCDF_${lang}_ROOT}/lib")
+                if (NETCDF_USE_STATIC)
+                    find_library (NETCDF_${lang}_LIBRARIES
+                        NAMES lib${lib}.a
+                        HINTS ${NETCDF_${lang}_LIBRARY_DIRS}
+                    )
+                else ()
+                    find_library (NETCDF_${lang}_LIBRARIES
+                        NAMES ${lib}
+                        HINTS ${NETCDF_${lang}_LIBRARY_DIRS}
+                    )
+                endif ()
+                # Get version string.
+                execute_process (COMMAND ${${lang}_config} --version OUTPUT_VARIABLE output)
+                string (REGEX MATCH "[0-9]+.[0-9]+.[0-9]+" NETCDF_${lang}_VERSION_STRING ${output})
             else ()
-                find_library (NETCDF_${lang}_LIBRARIES
-                    NAMES ${lib}
-                    HINTS ${NETCDF_${lang}_LIBRARY_DIRS}
-                )
+                set (NETCDF_LACK_INTERFACE TRUE)
             endif ()
-            # Get version string.
-            execute_process (COMMAND ${${lang}_config} --version OUTPUT_VARIABLE output)
-            string (REGEX MATCH "[0-9]+.[0-9]+.[0-9]+" NETCDF_${lang}_VERSION_STRING ${output})
         else ()
             set (NETCDF_LACK_INTERFACE TRUE)
         endif ()
