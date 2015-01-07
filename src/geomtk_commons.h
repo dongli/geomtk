@@ -39,6 +39,7 @@ using arma::field;
 
 using boost::is_same;
 using boost::variant;
+using boost::any;
 using boost::regex;
 using boost::regex_search;
 using boost::match_results;
@@ -163,7 +164,7 @@ inline string getClassName(const string &str) {
 #ifdef UNIT_TEST
 #define private public
 #define protected public
-#define MUTE
+#define GEOMTK_MUTE
 #endif
 
 // print macros
@@ -176,7 +177,7 @@ inline string getClassName(const string &str) {
     exit(-1); \
 }
 
-#ifndef MUTE
+#ifndef GEOMTK_MUTE
 #define REPORT_NOTICE(MESSAGE) \
 { \
     std::cout << "[Notice]: "; \
@@ -184,12 +185,10 @@ inline string getClassName(const string &str) {
     std::cout << MESSAGE << std::endl; \
 }
 #else
-#define REPORT_NOTICE(MESSAGE) \
-{ \
-}
+#define REPORT_NOTICE(MESSAGE)
 #endif
 
-#ifndef MUTE
+#ifndef GEOMTK_MUTE
 #define REPORT_WARNING(MESSAGE) \
 { \
     std::cerr << "[Warning]: "; \
@@ -197,12 +196,10 @@ inline string getClassName(const string &str) {
     std::cerr << MESSAGE << std::endl; \
 }
 #else
-#define REPORT_WARNING(MESSAGE) \
-{ \
-}
+#define REPORT_WARNING(MESSAGE)
 #endif
 
-#ifndef MUTE
+#ifndef GEOMTK_MUTE
 #define REPORT_ONLINE \
 { \
     std::cout << "[Notice]: "; \
@@ -210,10 +207,10 @@ inline string getClassName(const string &str) {
     std::cout << std::endl; \
 }
 #else
-#undef REPORT_ONLINE
+#define REPORT_ONLINE
 #endif
 
-#ifndef MUTE
+#ifndef GEOMTK_MUTE
 #define REPORT_OFFLINE \
 { \
     std::cout << "[Notice]: "; \
@@ -224,14 +221,10 @@ inline string getClassName(const string &str) {
 #define REPORT_OFFLINE
 #endif
 
-#ifndef MUTE
 #define CHECK_POINT \
 { \
     std::cout << "[Check point]: " << __FILE__ << ": " << __LINE__ << std::endl; \
 }
-#else
-#define CHECK_POINT
-#endif
 
 #define CHECK_NC_OPEN(IERR, FILE_NAME) \
 { \

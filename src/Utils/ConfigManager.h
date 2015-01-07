@@ -9,7 +9,7 @@ class ConfigPack {
 public:
     string filePath;
     string name;
-    map<string, variant<string, double, bool> > keyValues;
+    map<string, any> keyValues;
 };
 
 class ConfigManager {
@@ -18,7 +18,17 @@ public:
     ConfigManager();
     virtual ~ConfigManager();
 
+    /**
+     *  Parse the configuration from a given file.
+     *
+     *  @param filePath the configure file path.
+     *  @param mute     the control boolean.
+     */
     void parse(const string &filePath, bool mute = false);
+
+    template <typename T>
+    void addKeyValue(const string &packName, const string &key,
+                     const T &value);
 
     /**
      *  Check if a key is in a given pack.
@@ -46,43 +56,44 @@ public:
      *  @param key      the key.
      *  @param value    the value.
      */
+    template <typename T>
     void getValue(const string &packName, const string &key,
-                  string &value) const;
-
-    /**
-     *  Get the value of a given key in the given pack.
-     *
-     *  @param packName the pack name.
-     *  @param key      the key.
-     *  @param value    the value.
-     */
-    void getValue(const string &packName, const string &key,
-                  double &value) const;
-
-    /**
-     *  Get the value of a given key in the given pack.
-     *
-     *  @param packName the pack name.
-     *  @param key      the key.
-     *  @param value    the value.
-     */
-    void getValue(const string &packName, const string &key,
-                  int &value) const;
-
-    /**
-     *  Get the value of a given key in the given pack.
-     *
-     *  @param packName the pack name.
-     *  @param key      the key.
-     *  @param value    the value.
-     */
-    void getValue(const string &packName, const string &key,
-                  bool &value) const;
+                  T &value) const;
 
     void print() const;
 private:
     const ConfigPack& getPack(const string &packName) const;
+
+    bool hasPack(const string &packName) const;
 };
+
+template <typename T>
+void ConfigManager::addKeyValue(const string &packName, const string &key,
+                                const T &value) {
+    if (!hasPack(packName)) {
+        ConfigPack pack;
+        pack.name = packName;
+        configPacks.push_back(pack);
+    }
+    any value_ = value;
+    configPacks.back().keyValues[key] = value_;
+}
+
+template <typename T>
+void ConfigManager::getValue(const string &packName, const string &key,
+                             T &value) const {
+    const ConfigPack &pack = getPack(packName);
+    if (pack.keyValues.count(key) == 0) {
+        REPORT_ERROR("No key \"" << key << "\" of pack \"" << pack.name <<
+                     "\" in \"" << pack.filePath << "\"!");
+    }
+    if (pack.keyValues.at(key).type() != typeid(T)) {
+        REPORT_ERROR("Value for key \"" << key << "\" of pack \"" <<
+                     pack.name << "\" in \"" << pack.filePath <<
+                     "\" does not match type " << typeid(T).name() << "!");
+    }
+    value = boost::any_cast<T>(pack.keyValues.at(key));
+}
 
 }
 

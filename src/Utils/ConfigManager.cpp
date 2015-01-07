@@ -102,7 +102,7 @@ bool ConfigManager::hasKey(const string &packName, const string &key) const {
 vector<string> ConfigManager::getKeys(const string &packName) const {
     vector<string> keys;
     const ConfigPack &pack = getPack(packName);
-    map<string, variant<string, double, bool> >::const_iterator keyValue;
+    map<string, any>::const_iterator keyValue;
     for (keyValue = pack.keyValues.begin();
          keyValue != pack.keyValues.end(); ++keyValue) {
         keys.push_back(keyValue->first);
@@ -110,67 +110,26 @@ vector<string> ConfigManager::getKeys(const string &packName) const {
     return keys;
 }
 
-void ConfigManager::getValue(const string &packName, const string &key,
-                             string &value) const {
-    const ConfigPack &pack = getPack(packName);
-    if (pack.keyValues.count(key) == 0) {
-        REPORT_ERROR("No key \"" << key << "\" of pack \"" << pack.name <<
-                     "\" in \"" << pack.filePath << "\"!");
-    }
-    if (pack.keyValues.at(key).which() != 0) {
-        REPORT_ERROR("Key \"" << key << "\" of pack \"" << pack.name <<
-                     "\" in \"" << pack.filePath << "\" is not a string!");
-    }
-    value = boost::get<string>(pack.keyValues.at(key));
-}
-
-void ConfigManager::getValue(const string &packName, const string &key,
-                             double &value) const {
-    const ConfigPack &pack = getPack(packName);
-    if (pack.keyValues.count(key) == 0) {
-        REPORT_ERROR("No key \"" << key << "\" in \"" << pack.filePath << "\"!");
-    }
-    if (pack.keyValues.at(key).which() != 1) {
-        REPORT_ERROR("Key \"" << key << "\" of pack \"" << pack.name <<
-                     "\" in \"" << pack.filePath << "\" is not a numeral!");
-    }
-    value = boost::get<double>(pack.keyValues.at(key));
-}
-
-void ConfigManager::getValue(const string &packName, const string &key,
-                             int &value) const {
-    const ConfigPack &pack = getPack(packName);
-    if (pack.keyValues.count(key) == 0) {
-        REPORT_ERROR("No key \"" << key << "\" in \"" << pack.filePath << "\"!");
-    }
-    if (pack.keyValues.at(key).which() != 1) {
-        REPORT_ERROR("Key \"" << key << "\" of pack \"" << pack.name <<
-                     "\" in \"" << pack.filePath << "\" is not a numeral!");
-    }
-    value = boost::get<double>(pack.keyValues.at(key));
-}
-
-void ConfigManager::getValue(const string &packName, const string &key,
-                             bool &value) const {
-    const ConfigPack &pack = getPack(packName);
-    if (pack.keyValues.count(key) == 0) {
-        REPORT_ERROR("No key \"" << key << "\" in \"" << pack.filePath << "\"!");
-    }
-    if (pack.keyValues.at(key).which() != 2) {
-        REPORT_ERROR("Key \"" << key << "\" of pack \"" << pack.name <<
-                     "\" in \"" << pack.filePath << "\" is not a boolean!");
-    }
-    value = boost::get<bool>(pack.keyValues.at(key));
-}
-
 void ConfigManager::print() const {
     list<ConfigPack>::const_iterator pack;
     for (pack = configPacks.begin(); pack != configPacks.end(); ++pack) {
         cout << "ConfigPack \"" << pack->name << "\":" << endl;
-        map<string, variant<string, double, bool> >::const_iterator keyValue;
+        map<string, any>::const_iterator keyValue;
         for (keyValue = pack->keyValues.begin();
              keyValue != pack->keyValues.end(); ++keyValue) {
-            cout << "  " << keyValue->first << " = " << keyValue->second << endl;
+            cout << "  " << keyValue->first << " = ";
+            if (keyValue->second.type() == typeid(string)) {
+                cout << "\"" << boost::any_cast<string>(keyValue->second) << "\"";
+            } else if (keyValue->second.type() == typeid(double)) {
+                cout << boost::any_cast<double>(keyValue->second);
+            } else if (keyValue->second.type() == typeid(int)) {
+                cout << boost::any_cast<int>(keyValue->second);
+            } else if (keyValue->second.type() == typeid(bool)) {
+                cout << std::boolalpha << boost::any_cast<bool>(keyValue->second);
+            } else {
+                REPORT_ERROR("Unknown type of \"" << keyValue->first << "\"!");
+            }
+            cout << endl;
         }
     }
 }
@@ -183,6 +142,16 @@ const ConfigPack& ConfigManager::getPack(const string &packName) const {
         }
     }
     REPORT_ERROR("Unknown configuration pack \"" << packName << "\"!");
+}
+
+bool ConfigManager::hasPack(const string &packName) const {
+    list<ConfigPack>::const_iterator pack;
+    for (pack = configPacks.begin(); pack != configPacks.end(); ++pack) {
+        if (pack->name == packName) {
+            return true;
+        }
+    }
+    return false;
 }
 
 }
