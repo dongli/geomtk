@@ -5,15 +5,9 @@
 
 namespace geomtk {
 
-class ConfigPack {
-public:
-    string filePath;
-    string name;
-    map<string, any> keyValues;
-};
-
 class ConfigManager {
-    list<ConfigPack> configPacks;
+    string filePath;
+    boost::property_tree::ptree pt;
 public:
     ConfigManager();
     virtual ~ConfigManager();
@@ -27,72 +21,67 @@ public:
     void parse(const string &filePath, bool mute = false);
 
     template <typename T>
-    void addKeyValue(const string &packName, const string &key,
-                     const T &value);
+    void addKeyValue(const string &group, const string &key, const T &value);
 
-    /**
-     *  Check if a key is in a given pack.
-     *
-     *  @param packName the pack name.
-     *  @param key      the key.
-     *
-     *  @return Boolean status.
-     */
-    bool hasKey(const string &packName, const string &key) const;
+    bool hasGroup(const string &group) const;
 
-    /**
-     *  Return all the keys of a given pack.
-     *
-     *  @param packName the pack name.
-     *
-     *  @return The vector of the keys.
-     */
-    vector<string> getKeys(const string &packName) const;
+    vector<string> getGroups() const;
 
-    /**
-     *  Get the value of a given key in the given pack.
-     *
-     *  @param packName the pack name.
-     *  @param key      the key.
-     *  @param value    the value.
-     */
+    bool hasKey(const string &group, const string &key) const;
+
+    vector<string> getKeys(const string &group) const;
+
     template <typename T>
-    void getValue(const string &packName, const string &key,
-                  T &value) const;
+    void getValue(const string &group, const string &key, T &value) const;
+
+    template <typename T>
+    T getValue(const string &group, const string &key) const;
 
     void print() const;
 private:
-    const ConfigPack& getPack(const string &packName) const;
-
-    bool hasPack(const string &packName) const;
+    void printPropertyTree(const boost::property_tree::ptree &pt,
+                           int level = 0) const;
 };
 
 template <typename T>
-void ConfigManager::addKeyValue(const string &packName, const string &key,
+void ConfigManager::addKeyValue(const string &group, const string &key,
                                 const T &value) {
-    if (!hasPack(packName)) {
-        ConfigPack pack;
-        pack.name = packName;
-        configPacks.push_back(pack);
+    if (hasKey(group, key)) {
+        REPORT_ERROR("Already add key \"" << key << "\" in group \"" <<
+                     group << "\"!");
     }
-    any value_ = value;
-    configPacks.back().keyValues[key] = value_;
+    pt.put(group+"."+key, value);
 }
 
 template <typename T>
-void ConfigManager::getValue(const string &packName, const string &key,
+void ConfigManager::getValue(const string &group, const string &key,
                              T &value) const {
-    const ConfigPack &pack = getPack(packName);
-    if (pack.keyValues.count(key) == 0) {
-        REPORT_ERROR("No key \"" << key << "\" of pack \"" << pack.name <<
-                     "\" in \"" << pack.filePath << "\"!");
+    if (!hasGroup(group)) {
+        printPropertyTree(pt);
+        REPORT_ERROR("Configure file \"" << filePath <<
+                     "\" does not have group \"" << group << "\"!");
     }
-    if (pack.keyValues.at(key).type() != typeid(T)) {
-        REPORT_ERROR("Value for key \"" << key << "\" of pack \"" <<
-                     pack.name << "\" in \"" << pack.filePath <<
-                     "\" does not match type " << typeid(T).name() << "!");
+    if (!hasKey(group, key)) {
+        REPORT_ERROR("Configure file \"" << filePath <<
+                     "\" does not have key \"" << key << "\" in group \"" <<
+                     group << "\"!");
     }
-    value = boost::any_cast<T>(pack.keyValues.at(key));
+    value = pt.get<T>(group+"."+key);
+}
+
+template <typename T>
+T ConfigManager::getValue(const string &group, const string &key) const {
+    if (!hasGroup(group)) {
+        printPropertyTree(pt);
+        REPORT_ERROR("Configure file \"" << filePath <<
+                     "\" does not have group \"" << group << "\"!");
+    }
+    if (!hasKey(group, key)) {
+        REPORT_ERROR("Configure file \"" << filePath <<
+                     "\" does not have key \"" << key << "\" in group \"" <<
+                     group << "\"!");
+    }
+    return pt.get<T>(group+"."+key);
 }
 
 }

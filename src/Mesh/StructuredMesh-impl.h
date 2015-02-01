@@ -464,7 +464,6 @@ void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int s
     } else if (this->domain().axisStartBndType(axisIdx) == POLE ||
                this->domain().axisStartBndType(axisIdx) == RIGID ||
                this->domain().axisStartBndType(axisIdx) == OPEN) {
-
         if (fabs(full[0]-this->domain().axisStart(axisIdx)) < 1.0e-14) {
             assert(fabs(full[size-1]-this->domain().axisEnd(axisIdx)) < 1.0e-14);
             half.set_size(size-1);

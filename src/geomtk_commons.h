@@ -9,6 +9,9 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/timer/timer.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 #include <netcdf.h>
 #include <mlpack/methods/range_search/range_search.hpp>
 #include <armadillo>
