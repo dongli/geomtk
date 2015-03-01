@@ -33,6 +33,9 @@ public:
     string run(const Time &time);
     string run(const TimeManager &timeManager);
 
+    static string wildcard(const string &pattern);
+    string wildcard() const;
+
     bool operator==(const StampString &other) const;
     
     friend ostream& operator<<(ostream &os, const StampString &stampString) {

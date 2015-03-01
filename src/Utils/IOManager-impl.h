@@ -17,19 +17,19 @@ void IOManager<DataFileType>::init(TimeManager &timeManager) {
 
 template <class DataFileType>
 int IOManager<DataFileType>::registerInputFile(MeshType &mesh,
-                                               const string &fileName) {
+                                               const string &filePattern) {
     for (int i = 0; i < files.size(); ++i) {
-        if (files[i].ioType == INPUT && files[i].fileName == fileName) {
-            REPORT_ERROR("File with file name " << fileName <<
-                         " has already been registered for input!");
+        if (files[i].ioType == INPUT && files[i].filePattern == filePattern) {
+            REPORT_ERROR("File with file pattern \"" << filePattern <<
+                         "\" has already been registered for input!");
         }
     }
     DataFileType file(mesh);
-    file.fileName = fileName;
+    file.filePattern = filePattern;
     file.ioType = INPUT;
     file.isActive = true;
     files.push_back(file);
-    REPORT_NOTICE("Register input file with name " << fileName << ".");
+    REPORT_NOTICE("Register input file with pattern " << filePattern << ".");
     return files.size()-1;
 }
 
@@ -91,6 +91,7 @@ bool IOManager<DataFileType>::isFileActive(int fileIdx) {
 template <class DataFileType>
 void IOManager<DataFileType>::open(int fileIdx) {
     DataFileType &file = files[fileIdx];
+    file.fileName = file.filePattern.run(*timeManager);
     int ret;
     ret = nc_open(file.fileName.c_str(), NC_NOWRITE, &file.fileID);
     CHECK_NC_OPEN(ret, file.fileName);
@@ -127,23 +128,17 @@ void IOManager<DataFileType>::create(int fileIdx) {
 }
 
 template <class DataFileType>
-void IOManager<DataFileType>::updateTime(int fileIdx, TimeManager &timeManager) {
-    DataFileType &file = files[fileIdx];
-    int timeStep;
-    double timeValue;
-    char units[100];
-    int ret;
-    ret = nc_get_att(file.fileID, NC_GLOBAL, "time_step", &timeStep);
-    CHECK_NC_GET_ATT(ret, file.fileName, "NC_GLOBAL", "time_step");
+Time IOManager<DataFileType>::getTime(int fileIdx) const {
+    Time time;
+    const DataFileType &file = files[fileIdx];
+    int ret; double timeValue; char units[100];
     ret = nc_get_var(file.fileID, file.timeVarID, &timeValue);
     CHECK_NC_GET_VAR(ret, file.fileName, "time");
-    ret = nc_get_att_text(file.fileID, file.timeVarID, "units", units);
+    ret = nc_get_att(file.fileID, file.timeVarID, "units", units);
     CHECK_NC_GET_ATT(ret, file.fileName, "time", "units");
     regex reDays("^days");
     regex reDate("(\\d\\d\\d\\d)-(\\d\\d)-(\\d\\d) (\\d\\d)*:(\\d\\d)*:(\\d\\.\\d*)*");
-    match_results<std::string::const_iterator> what;
-    string tmp = units;
-    Time time;
+    match_results<std::string::const_iterator> what; string tmp = units;
     if (regex_search(tmp, what, reDate)) {
         tmp = what[1]; time.year = atoi(tmp.c_str());
         tmp = what[2]; time.month = atoi(tmp.c_str());
@@ -157,6 +152,49 @@ void IOManager<DataFileType>::updateTime(int fileIdx, TimeManager &timeManager) 
     } else {
         REPORT_ERROR("Unsupported time units!");
     }
+    return time;
+}
+
+template <class DataFileType>
+Time IOManager<DataFileType>::getTime(const string &fileName) const {
+    Time time;
+    int ret, fileID, timeVarID; double timeValue; char units[100];
+    ret = nc_open(fileName.c_str(), NC_NOWRITE, &fileID);
+    CHECK_NC_OPEN(ret, fileName);
+    ret = nc_inq_varid(fileID, "time", &timeVarID);
+    CHECK_NC_INQ_VARID(ret, fileName, "time");
+    ret = nc_get_var(fileID, timeVarID, &timeValue);
+    CHECK_NC_GET_VAR(ret, fileName, "time");
+    ret = nc_get_att(fileID, timeVarID, "units", units);
+    CHECK_NC_GET_ATT(ret, fileName, "time", "units");
+    ret = nc_close(fileID);
+    CHECK_NC_CLOSE(ret, fileName);
+    regex reDays("^days");
+    regex reDate("(\\d\\d\\d\\d)-(\\d\\d)-(\\d\\d) (\\d\\d)*:(\\d\\d)*:(\\d\\.\\d*)*");
+    match_results<std::string::const_iterator> what; string tmp = units;
+    if (regex_search(tmp, what, reDate)) {
+        tmp = what[1]; time.year = atoi(tmp.c_str());
+        tmp = what[2]; time.month = atoi(tmp.c_str());
+        tmp = what[3]; time.day = atoi(tmp.c_str());
+        tmp = what[4]; time.hour = atoi(tmp.c_str());
+        tmp = what[5]; time.minute = atoi(tmp.c_str());
+        tmp = what[6]; time.second = atof(tmp.c_str());
+    }
+    if (regex_search(units, reDays)) {
+        time += timeValue*TimeUnit::DAYS;
+    } else {
+        REPORT_ERROR("Unsupported time units!");
+    }
+    return time;
+}
+
+template <class DataFileType>
+void IOManager<DataFileType>::updateTime(int fileIdx, TimeManager &timeManager) {
+    DataFileType &file = files[fileIdx];
+    int timeStep, ret;
+    ret = nc_get_att(file.fileID, NC_GLOBAL, "time_step", &timeStep);
+    CHECK_NC_GET_ATT(ret, file.fileName, "NC_GLOBAL", "time_step");
+    Time time = getTime(fileIdx);
     timeManager.reset(timeStep, time);
 }
 

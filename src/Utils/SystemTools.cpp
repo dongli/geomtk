@@ -32,28 +32,14 @@ int SystemTools::getNumFiles(const string &fileRoot, const string &filePattern) 
 void SystemTools::getFileNames(const string &fileRoot,
                                const string &filePattern,
                                vector<string> &fileNames) {
-    string cmd = "find "+fileRoot+" -name \""+filePattern+"\"";
-
-    FILE *pipe = popen(cmd.c_str(), "r");
-    if (!pipe) {
-        REPORT_ERROR("Failed to call system command \""+cmd+"\"!");
-    }
-
-    char buffer[128];
-    string result;
-    while(!feof(pipe)) {
-        if(fgets(buffer, 128, pipe) != NULL) {
-            result += buffer;
+    boost::filesystem::path _fileRoot(fileRoot);
+    boost::regex _filePattern(filePattern);
+    boost::filesystem::directory_iterator i(_fileRoot), end;
+    for (; i != end; ++i) {
+        if(!boost::filesystem::is_regular_file(i->status())) continue;
+        if (boost::regex_match(i->path().leaf().string(), _filePattern)) {
+            fileNames.push_back(i->path().leaf().string());
         }
-    }
-
-    pclose(pipe);
-
-    int pos = 0, prev_pos;
-    while(pos < result.length()) {
-        prev_pos = pos;
-        pos = static_cast<int>(result.find("\n", pos))+1;
-        fileNames.push_back(result.substr(prev_pos, pos-1-prev_pos));
     }
 }
 

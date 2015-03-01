@@ -67,9 +67,6 @@ string StampString::run(const Time &time) {
         res = regex_replace(res, reTOD, ss.str());
         matched = true;
     }
-    if (!matched) {
-        REPORT_ERROR("Stamp string \"" << pattern << "\" does not match anything!");
-    }
     return res;
 }
 
@@ -126,12 +123,49 @@ string StampString::run(const TimeManager &timeManager) {
         res = regex_replace(res, reStep, ss.str());
         matched = true;
     }
-    if (!matched) {
-        REPORT_ERROR("Stamp string \"" << pattern << "\" does not match anything!");
+    return res;
+}
+
+string StampString::wildcard(const string &pattern) {
+    string res = pattern;
+    smatch what;
+    // check year
+    if (regex_search(pattern, re4DigitYear)) {
+        res = regex_replace(res, re4DigitYear, "\\d{4}");
+    } else if (regex_search(pattern, re2DigitYear)) {
+        res = regex_replace(res, re2DigitYear, "\\d{2}");
+    }
+    // check month
+    if (regex_search(pattern, re2DigitMonth)) {
+        res = regex_replace(res, re2DigitMonth, "*");
+    } else if (regex_search(pattern, reMonth)) {
+        res = regex_replace(res, reMonth, "*");
+    }
+    // check day
+    if (regex_search(pattern, re2DigitDay)) {
+        res = regex_replace(res, re2DigitDay, "*");
+    } else if (regex_search(pattern, reDay)) {
+        res = regex_replace(res, reDay, "*");
+    }
+    // check TOD
+    if (regex_search(pattern, re5DigitTOD)) {
+        res = regex_replace(res, re5DigitTOD, "*");
+    } else if (regex_search(pattern, reTOD)) {
+        res = regex_replace(res, reTOD, "*");
+    }
+    // check step
+    if (regex_search(pattern, what, reStep)) {
+        int n = stoi(what[1]);
+        stringstream ss; ss << "\\d{" << n << "}";
+        res = regex_replace(res, reStep, ss.str());
     }
     return res;
 }
-    
+
+string StampString::wildcard() const {
+    return StampString::wildcard(pattern);
+}
+
 bool StampString::operator==(const StampString &other) const {
     if (this == &other) {
         return true;

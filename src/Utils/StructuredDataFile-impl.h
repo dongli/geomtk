@@ -662,7 +662,7 @@ void StructuredDataFile<MeshType>::output(const TimeLevelIndex<NumTimeLevel> &ti
             }
         }
         if (!tag) {
-            REPORT_ERROR("Field \"" << field_->name() << "\" is not registered for input!");
+            REPORT_ERROR("Field \"" << field_->name() << "\" is not registered for output!");
         }
     }
 }

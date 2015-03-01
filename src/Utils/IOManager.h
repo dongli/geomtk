@@ -23,7 +23,7 @@ public:
 
     void init(TimeManager &timeManager);
 
-    int registerInputFile(MeshType &mesh, const string &fileName);
+    int registerInputFile(MeshType &mesh, const string &filePattern);
 
     int registerOutputFile(MeshType &mesh,
                            StampString &filePattern,
@@ -40,6 +40,9 @@ public:
     void open(int fileIdx);
 
     void create(int fileIdx);
+
+    Time getTime(int fileIdx) const;
+    Time getTime(const string &fileName) const;
 
     void updateTime(int fileIdx, TimeManager &timeManager);
 
