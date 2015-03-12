@@ -66,7 +66,7 @@ public:
      */
     virtual void init(const string &fileNameH, const string &fileNameV);
 
-    virtual void init(int nx, int ny, int nz = 1);
+    virtual void init(int nx, int ny = 1, int nz = 1);
 
     /**
      *  Set the grid index ranges (start index and end index).
@@ -124,12 +124,12 @@ public:
     /**
      *  Get the space coordinate of a grid with given location.
      *
-     *  @param loc     the grid location.
-     *  @param cellIdx the cell index.
+     *  @param loc the grid location.
+     *  @param i   the cell index or the grid index along x axis in 1D domain.
      *
      *  @return The grid space coordinate.
      */
-    virtual const CoordType& gridCoord(int loc, int cellIdx) const;
+    virtual const CoordType& gridCoord(int loc, int i) const;
 
     /**
      *  Set the cell volumes after grids are set.

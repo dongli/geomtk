@@ -82,6 +82,12 @@ DataFileType& IOManager<DataFileType>::file(int fileIdx) {
 }
 
 template <class DataFileType>
+void IOManager<DataFileType>::registerField(int fileIdx, const string &xtype, int spaceDims,
+                                            initializer_list<Field<MeshType>*> fields) {
+    file(fileIdx).registerField(xtype, spaceDims, fields);
+}
+
+template <class DataFileType>
 bool IOManager<DataFileType>::isFileActive(int fileIdx) {
     DataFileType &file = files[fileIdx];
     file.isActive = timeManager->checkAlarm(file.alarmIdx);
@@ -237,31 +243,53 @@ template <typename DataType, int NumTimeLevel>
 void IOManager<DataFileType>::output(int fileIdx,
                                      const TimeLevelIndex<NumTimeLevel> &timeIdx,
                                      initializer_list<Field<MeshType>*> fields) {
+    int ret, flag = 0;
     DataFileType &file = files[fileIdx];
+    // If the file is not created yet, then create it.
+    ret = nc_inq_format(file.fileID, &flag);
+    if (ret != NC_NOERR) {
+        flag = -999;
+        create(fileIdx);
+    }
     if (!file.isActive) return;
-    // write time
+    // Write time
     double time = timeManager->days();
     size_t index[1] = {0};
-    int ret = nc_put_var1(file.fileID, file.timeVarID, index, &time);
+    ret = nc_put_var1(file.fileID, file.timeVarID, index, &time);
     CHECK_NC_PUT_VAR(ret, file.fileName, "time");
-    // write fields
+    // Write fields
     file.template output<DataType, NumTimeLevel>(timeIdx, fields);
+    // If the file is just created, then close it.
+    if (flag == -999) {
+        close(fileIdx);
+    }
 }
     
 template <class DataFileType>
 template <typename DataType>
 void IOManager<DataFileType>::output(int fileIdx,
                                      initializer_list<Field<MeshType>*> fields) {
+    int ret, flag = 0;
     DataFileType &file = files[fileIdx];
+    // If the file is not created yet, then create it.
+    ret = nc_inq_format(file.fileID, &flag);
+    if (ret != NC_NOERR) {
+        flag = -999;
+        create(fileIdx);
+    }
     if (!file.isActive) return;
-    // write time
+    // Write time
     // FIXME: Do we need to write time?
     double time = timeManager->days();
     size_t index[1] = {0};
-    int ret = nc_put_var1(file.fileID, file.timeVarID, index, &time);
+    ret = nc_put_var1(file.fileID, file.timeVarID, index, &time);
     CHECK_NC_PUT_VAR(ret, file.fileName, "time");
-    // write fields
+    // Write fields
     file.template output<DataType>(fields);
+    // If the file is just created, then close it.
+    if (flag == -999) {
+        close(fileIdx);
+    }
 }
 
 template <class DataFileType>

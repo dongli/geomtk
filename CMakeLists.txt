@@ -116,6 +116,11 @@ if (use_as_submodule)
         ${NETCDF_INCLUDE_DIRS}
         ${Boost_INCLUDE_DIRS}
         ${MLPACK_INCLUDE_DIRS}
+        ${LIBXML2_INCLUDE_DIR}
+        PARENT_SCOPE
+    )
+    set (GEOMTK_LIBRARY_DIRS
+        ${MLPACK_LIBRARY_DIRS}
         PARENT_SCOPE
     )
 endif ()

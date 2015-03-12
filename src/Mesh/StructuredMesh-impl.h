@@ -532,7 +532,11 @@ gridCoordComp(int axisIdx, int gridType, int gridIdx) const {
 template <class DomainType, class CoordType>
 const CoordType& StructuredMesh<DomainType, CoordType>::
 gridCoord(int loc, int i) const {
-    return gridCoords[loc][i];
+    if (this->domain().numDim() != 1) {
+        return gridCoords[loc][i];
+    } else {
+        return gridCoords[loc][wrapIndex(loc, i, 0)];
+    }
 }
 
 template <class DomainType, class CoordType>
@@ -570,11 +574,13 @@ totalNumGrid(int loc, int numDim) const {
         numDim = this->domain().numDim();
     }
 #ifndef NDEBUG
-    assert(numDim > 1 && numDim <= 3);
+    assert(numDim >= 1 && numDim <= 3);
 #endif
     switch (loc) {
         case Location::CENTER:
-            if (numDim == 2) {
+            if (numDim == 1) {
+                return numGrid(0, GridType::FULL);
+            } else if (numDim == 2) {
                 return numGrid(0, GridType::FULL)*
                        numGrid(1, GridType::FULL);
             } else {
@@ -583,7 +589,9 @@ totalNumGrid(int loc, int numDim) const {
                        numGrid(2, GridType::FULL);
             }
         case Location::X_FACE:
-            if (numDim == 2) {
+            if (numDim == 1) {
+                return numGrid(0, GridType::HALF);
+            } else if (numDim == 2) {
                 return numGrid(0, GridType::HALF)*
                        numGrid(1, GridType::FULL);
             } else {
@@ -592,7 +600,9 @@ totalNumGrid(int loc, int numDim) const {
                        numGrid(2, GridType::FULL);
             }
         case Location::Y_FACE:
-            if (numDim == 2) {
+            if (numDim == 1) {
+                return numGrid(0, GridType::FULL);
+            } else if (numDim == 2) {
                 return numGrid(0, GridType::FULL)*
                        numGrid(1, GridType::HALF);
             } else {

@@ -6,6 +6,9 @@
 
 namespace geomtk {
 
+struct CartesianSpaceDimensions : public StructuredSpaceDimensions {
+};
+
 class CartesianDataFile : public StructuredDataFile<CartesianMesh> {
 public:
 	CartesianDataFile(MeshType &mesh) : StructuredDataFile<CartesianMesh>(mesh) {}

@@ -42,9 +42,9 @@ public:
     DataType&
     operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx);
 
-    const DataType& operator()(int cellIdx) const;
+    const DataType& operator()(int i) const;
 
-    DataType& operator()(int cellIdx);
+    DataType& operator()(int i);
 
     StructuredField<MeshType, DataType, NumTimeLevel>&
     operator=(const StructuredField<MeshType, DataType, NumTimeLevel> &other);

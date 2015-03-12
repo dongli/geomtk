@@ -98,9 +98,13 @@ operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) const {
 template <class MeshType, typename DataType, int NumTimeLevel>
 DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) {
-    int gridIdx[3];
-    this->mesh().unwrapIndex(staggerLocation(), cellIdx, gridIdx);
-    return data->level(timeIdx)(gridIdx[0], gridIdx[1], gridIdx[2]);
+    if (this->mesh().domain().numDim() > 1) {
+        int gridIdx[3];
+        this->mesh().unwrapIndex(staggerLocation(), cellIdx, gridIdx);
+        return data->level(timeIdx)(gridIdx[0], gridIdx[1], gridIdx[2]);
+    } else {
+        return data->level(timeIdx)(cellIdx);
+    }
 }
 
 template <class MeshType, typename DataType, int NumTimeLevel>
@@ -113,10 +117,14 @@ operator()(int cellIdx) const {
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
-operator()(int cellIdx) {
-    int gridIdx[3];
-    this->mesh().unwrapIndex(staggerLocation(), cellIdx, gridIdx);
-    return data->level(0)(gridIdx[0], gridIdx[1], gridIdx[2]);
+operator()(int i) {
+    if (this->mesh().domain().numDim() != 1) {
+        int gridIdx[3];
+        this->mesh().unwrapIndex(staggerLocation(), i, gridIdx);
+        return data->level(0)(gridIdx[0], gridIdx[1], gridIdx[2]);
+    } else {
+        return data->level(0)(i);
+    }
 }
 
 template <class MeshType, typename DataType, int NumTimeLevel>

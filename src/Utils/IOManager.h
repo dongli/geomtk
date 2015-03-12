@@ -37,6 +37,9 @@ public:
 
     DataFileType& file(int fileIdx);
 
+    void registerField(int fileIdx, const string &xtype, int spaceDims,
+                       initializer_list<Field<MeshType>*> fields);
+
     void open(int fileIdx);
 
     void create(int fileIdx);
