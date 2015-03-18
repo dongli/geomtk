@@ -64,6 +64,30 @@ create(const string &name, const string &units, const string &longName,
 }
 
 template <class MeshType, typename DataType, int NumTimeLevel>
+const field<DataType>& StructuredField<MeshType, DataType, NumTimeLevel>::
+operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
+    return data->level(timeIdx);
+}
+
+template <class MeshType, typename DataType, int NumTimeLevel>
+field<DataType>& StructuredField<MeshType, DataType, NumTimeLevel>::
+operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx) {
+    return data->level(timeIdx);
+}
+
+template <class MeshType, typename DataType, int NumTimeLevel>
+const field<DataType>& StructuredField<MeshType, DataType, NumTimeLevel>::
+operator()() const {
+    return data->level(0);
+}
+
+template <class MeshType, typename DataType, int NumTimeLevel>
+field<DataType>& StructuredField<MeshType, DataType, NumTimeLevel>::
+operator()() {
+    return data->level(0);
+}
+
+template <class MeshType, typename DataType, int NumTimeLevel>
 const DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k) const {
     return data->level(timeIdx)(i, j, k);

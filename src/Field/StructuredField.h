@@ -26,6 +26,18 @@ public:
     virtual void create(const string &name, const string &units, const string &longName,
                         const MeshType &mesh, int loc, int numDim, bool hasHalfLevel = false);
 
+    const field<DataType>&
+    operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx) const;
+
+    field<DataType>&
+    operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx);
+
+    const field<DataType>&
+    operator()() const;
+
+    field<DataType>&
+    operator()();
+
     const DataType&
     operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k = 0) const;
 
