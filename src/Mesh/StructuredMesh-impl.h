@@ -1,8 +1,9 @@
 namespace geomtk {
 
 template <class DomainType, class CoordType>
-StructuredMesh<DomainType, CoordType>::StructuredMesh(DomainType &domain)
+StructuredMesh<DomainType, CoordType>::StructuredMesh(DomainType &domain, int haloWidth)
         : Mesh<DomainType, CoordType>(domain) {
+    _haloWidth = haloWidth;
     fullIndexRanges.set_size(2, 3);
     halfIndexRanges.set_size(2, 3);
     fullIndexRanges.fill(0);
@@ -90,16 +91,35 @@ setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
             REPORT_ERROR("Full grid size (" << full.size() << ") should " <<
                          "be equal with half grid (" << half.size() << ")!");
         }
-        fullCoords[axisIdx].set_size(size+2);
-        halfCoords[axisIdx].set_size(size+2);
-        fullIntervals[axisIdx].set_size(size+1);
-        halfIntervals[axisIdx].set_size(size+1);
+        fullCoords[axisIdx].set_size(size+2*_haloWidth);
+        halfCoords[axisIdx].set_size(size+2*_haloWidth);
+        fullIntervals[axisIdx].set_size(size+2*_haloWidth-1);
+        halfIntervals[axisIdx].set_size(size+2*_haloWidth-1);
+        // Set halo grids.
+        for (int i = 0; i < _haloWidth; ++i) {
+            fullCoords[axisIdx](i) = full[size-_haloWidth+i]-this->domain().axisSpan(axisIdx);
+            fullCoords[axisIdx](size+_haloWidth+i) = full[i]+this->domain().axisSpan(axisIdx);
+            halfCoords[axisIdx](i) = half[size-_haloWidth+i]-this->domain().axisSpan(axisIdx);
+            halfCoords[axisIdx](size+_haloWidth+i) = half[i]+this->domain().axisSpan(axisIdx);
+        }
+        // Set real grids.
+        for (int i = 0; i < size; ++i) {
+            fullCoords[axisIdx](i+_haloWidth) = full[i];
+            halfCoords[axisIdx](i+_haloWidth) = half[i];
+        }
+        // Set grid intervals.
+        for (int i = 0; i < fullCoords[axisIdx].size()-1; ++i) {
+            fullIntervals[axisIdx](i) = fullCoords[axisIdx](i+1)-fullCoords[axisIdx](i);
+        }
+        for (int i = 0; i < halfCoords[axisIdx].size()-1; ++i) {
+            halfIntervals[axisIdx](i) = halfCoords[axisIdx](i+1)-halfCoords[axisIdx](i);
+        }
         if (fabs(full[0]-this->domain().axisStart(axisIdx)) < 1.0e-14) {
             /*
-             o - full grid   0 - virtual full grid
-             * - half grid   x - virtual half grid
+             o - full real grid   0 - full halo grid
+             * - half real grid   x - half halo grid
              
-             size = 4
+             size = 4, halo width = 1
               _______________________________________
              |                                       |
              |    0         1         2         3    |    4         5
@@ -109,35 +129,19 @@ setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
                        |_______________________________________|
                      start                                    end
              -----------
-            fullIntervals
+            fullInterval
                   -----------
-                 halfIntervals
+                 halfInterval
              */
-            fullCoords[axisIdx](0) = full[0]-this->domain().axisEnd(axisIdx)+full[size-1];
-            halfCoords[axisIdx](0) = half[size-1]-this->domain().axisSpan(axisIdx);
-            for (int i = 0; i < size; ++i) {
-                fullCoords[axisIdx](i+1) = full[i];
-                halfCoords[axisIdx](i+1) = half[i];
-            }
             // Note: Make sure this first full grid coordinate is equal with the
             // axis starting coordinate to ease the following judging.
-            fullCoords[axisIdx](1) = this->domain().axisStart(axisIdx);
-            fullCoords[axisIdx](size+1) = this->domain().axisEnd(axisIdx);
-            halfCoords[axisIdx](size+1) = this->domain().axisSpan(axisIdx)+half[0];
-            for (int i = 0; i < size; ++i) {
-                fullIntervals[axisIdx](i) = fullCoords[axisIdx](i+1)-fullCoords[axisIdx](i);
-            }
-            fullIntervals[axisIdx](size) = fullIntervals[axisIdx](0);
-            for (int i = 1; i < size+1; ++i) {
-                halfIntervals[axisIdx](i) = halfCoords[axisIdx](i)-halfCoords[axisIdx](i-1);
-            }
-            halfIntervals[axisIdx](0) = halfIntervals[axisIdx](size);
+            fullCoords[axisIdx](_haloWidth) = this->domain().axisStart(axisIdx);
         } else if (fabs(half[0]-this->domain().axisStart(axisIdx)) < 1.0e-14) {
             /*
-             o - full grid   0 - virtual full grid
-             * - half grid   x - virtual half grid
+             o - full real grid   0 - full halo grid
+             * - half real grid   x - half halo grid
              
-             size = 4
+             size = 4, halo width = 1
               _______________________________________
              |                                       |
              |    0         1         2         3    |    4         5
@@ -147,29 +151,13 @@ setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
                        |_______________________________________|
                      start                                    end
              -----------
-            fullIntervals
+            fullInterval
                   -----------
-                 halfIntervals
+                 halfInterval
              */
-            fullCoords[axisIdx](0) = full[size-1]-this->domain().axisSpan(axisIdx);
-            halfCoords[axisIdx](0) = half[0]-this->domain().axisEnd(axisIdx)+half[size-1];
-            for (int i = 0; i < size; ++i) {
-                fullCoords[axisIdx](i+1) = full[i];
-                halfCoords[axisIdx](i+1) = half[i];
-            }
             // Note: Make sure this first half grid coordinate is equal with the
             // axis starting coordinate to ease the following judging.
-            halfCoords[axisIdx](1) = this->domain().axisStart(axisIdx);
-            fullCoords[axisIdx](size+1) = this->domain().axisSpan(axisIdx)+full[0];
-            halfCoords[axisIdx](size+1) = this->domain().axisEnd(axisIdx);
-            for (int i = 1; i < size+1; ++i) {
-                fullIntervals[axisIdx](i) = fullCoords[axisIdx](i)-fullCoords[axisIdx](i-1);
-            }
-            fullIntervals[axisIdx](0) = fullIntervals[axisIdx](size);
-            for (int i = 0; i < size; ++i) {
-                halfIntervals[axisIdx](i) = halfCoords[axisIdx](i+1)-halfCoords[axisIdx](i);
-            }
-            halfIntervals[axisIdx](size) = halfIntervals[axisIdx](0);
+            halfCoords[axisIdx](_haloWidth) = this->domain().axisStart(axisIdx);
         } else {
             REPORT_ERROR("Don't know how to handle input grid coordinates "
                          "of dimension " << axisIdx << "!");
@@ -180,8 +168,8 @@ setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
         if (fabs(full[0]-this->domain().axisStart(axisIdx)) < 1.0e-14 &&
             fabs(full[size-1]-this->domain().axisEnd(axisIdx)) < 1.0e-14) {
             /*
-                o - full grid
-                * - half grid
+                o - full real grid
+                * - half real grid
              
                 size = 6
              
@@ -191,10 +179,11 @@ setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
                 |                                                 |
               start                                              end
                 -----------
-               fullIntervals
+               fullInterval
                      -----------
-                    halfIntervals
-             
+                    halfInterval
+                -----
+                placeholder halfInterval
              */
             fullCoords[axisIdx].set_size(size);
             halfCoords[axisIdx].set_size(size-1);
@@ -217,6 +206,7 @@ setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
             for (int i = 1; i < size-1; ++i) {
                 halfIntervals[axisIdx](i) = half[i]-half[i-1];
             }
+            // Set placeholder half intervals.
             halfIntervals[axisIdx](0) = half[0]-this->domain().axisStart(axisIdx);
             halfIntervals[axisIdx](size-1) = this->domain().axisEnd(axisIdx)-half[size-2];
         } else if (fabs(half[0]-this->domain().axisStart(axisIdx)) < 1.0e-14 &&
@@ -233,9 +223,11 @@ setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
                 |                                                 |
               start                                              end
                 -----------
-               halfIntervals
+               halfInterval
                      -----------
-                    fullIntervals
+                    fullInterval
+                -----
+                placeholder fullInterval
              */
             fullCoords[axisIdx].set_size(size);
             halfCoords[axisIdx].set_size(size+1);
@@ -277,10 +269,10 @@ setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
     for (int m = 0; m < this->domain().numDim(); ++m) {
         // Set the default grid index ranges.
         if (this->domain().axisStartBndType(m) == PERIODIC) {
-            fullIndexRanges(0, m) = 1;
-            fullIndexRanges(1, m) = fullCoords[m].size()-2;
-            halfIndexRanges(0, m) = 1;
-            halfIndexRanges(1, m) = halfCoords[m].size()-2;
+            fullIndexRanges(0, m) = _haloWidth;
+            fullIndexRanges(1, m) = fullCoords[m].size()-_haloWidth-1;
+            halfIndexRanges(0, m) = _haloWidth;
+            halfIndexRanges(1, m) = halfCoords[m].size()-_haloWidth-1;
         } else {
             fullIndexRanges(0, m) = 0;
             fullIndexRanges(1, m) = fullCoords[m].size()-1;
@@ -486,12 +478,12 @@ void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int s
 
 template <class DomainType, class CoordType>
 vec StructuredMesh<DomainType, CoordType>::
-gridCoordComps(int axisIdx, int gridType, bool hasVirtualGrids) const {
+gridCoordComps(int axisIdx, int gridType, bool hasHaloGrids) const {
     if (axisIdx >= this->domain().numDim()) {
         REPORT_ERROR("Argument axisIdx (" << axisIdx << ") exceeds domain " <<
                      "dimension (" << this->domain().numDim() << ")!");
     }
-    if (this->domain().axisStartBndType(axisIdx) == PERIODIC && !hasVirtualGrids) {
+    if (this->domain().axisStartBndType(axisIdx) == PERIODIC && !hasHaloGrids) {
         switch (gridType) {
             case GridType::FULL:
                 return fullCoords[axisIdx](span(1, fullCoords[axisIdx].size()-2));
@@ -630,16 +622,16 @@ totalNumGrid(int loc, int numDim) const {
 
 template <class DomainType, class CoordType>
 int StructuredMesh<DomainType, CoordType>::
-numGrid(int axisIdx, int gridType, bool hasVirtualGrids) const {
+numGrid(int axisIdx, int gridType, bool hasHaloGrids) const {
     if (axisIdx >= this->domain().numDim()) {
         return 1;
     }
-    if (this->domain().axisStartBndType(axisIdx) == PERIODIC && !hasVirtualGrids) {
+    if (this->domain().axisStartBndType(axisIdx) == PERIODIC && !hasHaloGrids) {
         switch (gridType) {
             case GridType::FULL:
-                return fullCoords[axisIdx].size()-2;
+                return fullCoords[axisIdx].size()-2*_haloWidth;
             case GridType::HALF:
-                return halfCoords[axisIdx].size()-2;
+                return halfCoords[axisIdx].size()-2*_haloWidth;
             default:
                 REPORT_ERROR("Unknown grid type!");
         }

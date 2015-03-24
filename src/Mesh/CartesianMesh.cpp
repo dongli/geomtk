@@ -9,7 +9,7 @@ void CartesianMesh::setCellVolumes() {
                      numGrid(2, GridType::FULL));
     if (domain().numDim() == 1) {
         for (int i = is(GridType::FULL); i <= ie(GridType::FULL); ++i) {
-            int I = gridStyles[0] == FULL_LEAD ? i-1 : i;
+            int I = gridStyles[0] == FULL_LEAD ? i-haloWidth() : i;
             double dx = gridInterval(0, GridType::HALF, I);
             volumes(I) = dx;
         }

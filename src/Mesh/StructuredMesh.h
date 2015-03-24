@@ -37,6 +37,7 @@ public:
     typedef StructuredStagger::GridType GridType;
     typedef StructuredStagger::Location Location;
 protected:
+    int _haloWidth;
     umat fullIndexRanges;
     umat halfIndexRanges;
     vec *fullCoords;
@@ -47,7 +48,7 @@ protected:
 
     StructuredGridStyle gridStyles[3];
 public:
-    StructuredMesh(DomainType &domain);
+    StructuredMesh(DomainType &domain, int haloWidth = 1);
     virtual ~StructuredMesh();
 
     /**
@@ -67,6 +68,8 @@ public:
     virtual void init(const string &fileNameH, const string &fileNameV);
 
     virtual void init(int nx, int ny = 1, int nz = 1);
+
+    int haloWidth() const { return _haloWidth; }
 
     /**
      *  Set the grid index ranges (start index and end index).
@@ -101,14 +104,14 @@ public:
     /**
      *  Get the grid coordinate component array.
      *
-     *  @param axisIdx         the axis index.
-     *  @param gridType        the grid type (FULL or HALF).
-     *  @param hasVirtualGrids boolean flag of including virtual grids.
+     *  @param axisIdx      the axis index.
+     *  @param gridType     the grid type (FULL or HALF).
+     *  @param hasHaloGrids boolean flag of including virtual grids.
      *
      *  @return The grid coordinate component array.
      */
     vec gridCoordComps(int axisIdx, int gridType,
-                       bool hasVirtualGrids = false) const;
+                       bool hasHaloGrids = false) const;
 
     /**
      *  Get the grid coordinate component at given position.
@@ -160,13 +163,13 @@ public:
     /**
      *  Get the grid number along the given axis.
      *
-     *  @param axisIdx         the axis index.
-     *  @param gridType        the grid type.
-     *  @param hasVirtualGrids boolean flag of including virtual grids.
+     *  @param axisIdx      the axis index.
+     *  @param gridType     the grid type.
+     *  @param hasHaloGrids boolean flag of including virtual grids.
      *
      *  @return The grid number.
      */
-    int numGrid(int axisIdx, int gridType, bool hasVirtualGrids = false) const;
+    int numGrid(int axisIdx, int gridType, bool hasHaloGrids = false) const;
 
     /**
      *  Get the start grid index along the given axis.

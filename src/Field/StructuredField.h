@@ -77,16 +77,20 @@ public:
             // TODO: Need to modify when doing parallel.
             for (int k = 0; k < nz; ++k) {
                 for (int j = 0; j < ny; ++j) {
-                    d(0,    j, k) = d(nx-2, j, k);
-                    d(nx-1, j, k) = d(1,    j, k);
+                    for (int i = 0; i < this->mesh().haloWidth(); ++i) {
+                        d(i, j, k) = d(this->mesh().ie(gridType(0))-this->mesh().haloWidth()+1+i, j, k);
+                        d(this->mesh().ie(gridType(0))+1+i, j, k) = d(this->mesh().is(gridType(0))+i, j, k);
+                    }
                 }
             }
         }
         if (domain.axisStartBndType(1) == PERIODIC) {
             for (int k = 0; k < nz; ++k) {
                 for (int i = 0; i < nx; ++i) {
-                    d(i, 0,    k) = d(i, ny-2, k);
-                    d(i, ny-1, k) = d(i, 1,    k);
+                    for (int j = 0; j < this->mesh().haloWidth(); ++j) {
+                        d(i, j, k) = d(i, this->mesh().ie(gridType(1))-this->mesh().haloWidth()+1+j, k);
+                        d(i, this->mesh().ie(gridType(1))+1+j, k) = d(i, this->mesh().is(gridType(1))+j, k);
+                    }
                 }
             }
         }
@@ -94,8 +98,10 @@ public:
             if (domain.axisStartBndType(2) == PERIODIC) {
                 for (int j = 0; j < ny; ++j) {
                     for (int i = 0; i < nx; ++i) {
-                        d(i, j, 0   ) = d(i, j, nz-2);
-                        d(i, j, nz-1) = d(i, j, 1   );
+                        for (int k = 0; k < this->mesh().haloWidth(); ++k) {
+                            d(i, j, k) = d(i, j, this->mesh().ie(gridType(2))-this->mesh().haloWidth()+1+k);
+                            d(i, j, this->mesh().ie(gridType(2))+1+k) = d(i, j, this->mesh().is(gridType(2))+k);
+                        }
                     }
                 }
             }
@@ -131,16 +137,20 @@ public:
             // TODO: Need to modify when doing parallel.
             for (int k = 0; k < nz; ++k) {
                 for (int j = 0; j < ny; ++j) {
-                    d(0,    j, k) = d(nx-2, j, k);
-                    d(nx-1, j, k) = d(1,    j, k);
+                    for (int i = 0; i < this->mesh().haloWidth(); ++i) {
+                        d(i, j, k) = d(this->mesh().ie(gridType(0))-this->mesh().haloWidth()+1+i, j, k);
+                        d(this->mesh().ie(gridType(0))+1+i, j, k) = d(this->mesh().is(gridType(0))+i, j, k);
+                    }
                 }
             }
         }
         if (domain.axisStartBndType(1) == PERIODIC) {
             for (int k = 0; k < nz; ++k) {
                 for (int i = 0; i < nx; ++i) {
-                    d(i, 0,    k) = d(i, ny-2, k);
-                    d(i, ny-1, k) = d(i, 1,    k);
+                    for (int j = 0; j < this->mesh().haloWidth(); ++j) {
+                        d(i, j, k) = d(i, this->mesh().ie(gridType(1))-this->mesh().haloWidth()+1+j, k);
+                        d(i, this->mesh().ie(gridType(1))+1+j, k) = d(i, this->mesh().is(gridType(1))+j, k);
+                    }
                 }
             }
         }
@@ -148,8 +158,10 @@ public:
             if (domain.axisStartBndType(2) == PERIODIC) {
                 for (int j = 0; j < ny; ++j) {
                     for (int i = 0; i < nx; ++i) {
-                        d(i, j, 0   ) = d(i, j, nz-2);
-                        d(i, j, nz-1) = d(i, j, 1   );
+                        for (int k = 0; k < this->mesh().haloWidth(); ++k) {
+                            d(i, j, k) = d(i, j, this->mesh().ie(gridType(2))-this->mesh().haloWidth()+1+k);
+                            d(i, j, this->mesh().ie(gridType(2))+1+k) = d(i, j, this->mesh().is(gridType(2))+k);
+                        }
                     }
                 }
             }
