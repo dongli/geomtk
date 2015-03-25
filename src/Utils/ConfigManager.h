@@ -32,10 +32,10 @@ public:
     vector<string> getKeys(const string &group) const;
 
     template <typename T>
-    void getValue(const string &group, const string &key, T &value) const;
+    T getValue(const string &group, const string &key) const;
 
     template <typename T>
-    T getValue(const string &group, const string &key) const;
+    T getValue(const string &group, const string &key, const T &defaultValue) const;
 
     void print() const;
 private:
@@ -54,22 +54,6 @@ void ConfigManager::addKeyValue(const string &group, const string &key,
 }
 
 template <typename T>
-void ConfigManager::getValue(const string &group, const string &key,
-                             T &value) const {
-    if (!hasGroup(group)) {
-        printPropertyTree(pt);
-        REPORT_ERROR("Configure file \"" << filePath <<
-                     "\" does not have group \"" << group << "\"!");
-    }
-    if (!hasKey(group, key)) {
-        REPORT_ERROR("Configure file \"" << filePath <<
-                     "\" does not have key \"" << key << "\" in group \"" <<
-                     group << "\"!");
-    }
-    value = pt.get<T>(group+"."+key);
-}
-
-template <typename T>
 T ConfigManager::getValue(const string &group, const string &key) const {
     if (!hasGroup(group)) {
         printPropertyTree(pt);
@@ -80,6 +64,15 @@ T ConfigManager::getValue(const string &group, const string &key) const {
         REPORT_ERROR("Configure file \"" << filePath <<
                      "\" does not have key \"" << key << "\" in group \"" <<
                      group << "\"!");
+    }
+    return pt.get<T>(group+"."+key);
+}
+
+template <typename T>
+T ConfigManager::
+getValue(const string &group, const string &key, const T &defaultValue) const {
+    if (!hasGroup(group) || !hasKey(group, key)) {
+        return defaultValue;
     }
     return pt.get<T>(group+"."+key);
 }

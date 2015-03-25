@@ -3,6 +3,7 @@
 
 #include "geomtk.h"
 
+typedef geomtk::ConfigManager ConfigManager;
 typedef geomtk::SpaceCoord SpaceCoord;
 typedef geomtk::CartesianDomain Domain;
 typedef geomtk::CartesianMesh Mesh;
