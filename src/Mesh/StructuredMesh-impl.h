@@ -479,16 +479,18 @@ void StructuredMesh<DomainType, CoordType>::setGridCoordComps(int axisIdx, int s
 template <class DomainType, class CoordType>
 vec StructuredMesh<DomainType, CoordType>::
 gridCoordComps(int axisIdx, int gridType, bool hasHaloGrids) const {
+#ifndef NDEBUG
     if (axisIdx >= this->domain().numDim()) {
         REPORT_ERROR("Argument axisIdx (" << axisIdx << ") exceeds domain " <<
                      "dimension (" << this->domain().numDim() << ")!");
     }
+#endif
     if (this->domain().axisStartBndType(axisIdx) == PERIODIC && !hasHaloGrids) {
         switch (gridType) {
             case GridType::FULL:
-                return fullCoords[axisIdx](span(1, fullCoords[axisIdx].size()-2));
+                return fullCoords[axisIdx](span(_haloWidth, fullCoords[axisIdx].size()-_haloWidth-1));
             case GridType::HALF:
-                return halfCoords[axisIdx](span(1, halfCoords[axisIdx].size()-2));
+                return halfCoords[axisIdx](span(_haloWidth, halfCoords[axisIdx].size()-_haloWidth-1));
             default:
                 REPORT_ERROR("Unknown grid type!");
         }
@@ -527,8 +529,14 @@ gridCoord(int loc, int i) const {
     if (this->domain().numDim() != 1) {
         return gridCoords[loc][i];
     } else {
-        return gridCoords[loc][wrapIndex(loc, i, 0)];
+        return gridCoords[loc][wrapIndex(loc, i)];
     }
+}
+
+template <class DomainType, class CoordType>
+const CoordType& StructuredMesh<DomainType, CoordType>::
+gridCoord(int loc, int i, int j, int k) const {
+    return gridCoords[loc][wrapIndex(loc, i, j, k)];
 }
 
 template <class DomainType, class CoordType>

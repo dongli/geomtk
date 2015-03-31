@@ -69,7 +69,7 @@ void RLLRegrid::run(RegridMethod method, const TimeLevelIndex<N> &timeIdx,
             double c = f3-f1;
             double d = f1-f2-f3+f4;
             y = a+b*X+c*Y+d*X*Y;
-        } else if (method == TRILINEAR) {
+        } else {
             REPORT_ERROR("Under construction!");
         }
     }

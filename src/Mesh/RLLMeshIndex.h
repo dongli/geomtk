@@ -17,6 +17,7 @@ protected:
     bool onPole;
     bool moveOnPole;
 public:
+    RLLMeshIndex();
     RLLMeshIndex(int numDim);
     virtual ~RLLMeshIndex();
 

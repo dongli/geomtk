@@ -14,8 +14,11 @@ public:
 protected:
     int **indices;
 public:
+    StructuredMeshIndex();
     StructuredMeshIndex(int numDim);
     virtual ~StructuredMeshIndex();
+
+    virtual void setNumDim(int numDim);
 
     /**
      *  Reset the indices to undefined status.

@@ -17,8 +17,11 @@ protected:
     int numDim;
     const MeshType *mesh;
 public:
+    MeshIndex();
     MeshIndex(int numDim);
     virtual ~MeshIndex();
+
+    virtual void setNumDim(int numDim);
 
     virtual MeshIndex& operator=(const MeshIndex &other);
 

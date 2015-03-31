@@ -134,6 +134,8 @@ public:
      */
     virtual const CoordType& gridCoord(int loc, int i) const;
 
+    virtual const CoordType& gridCoord(int loc, int i, int j, int k = 0) const;
+
     /**
      *  Set the cell volumes after grids are set.
      */
@@ -257,7 +259,7 @@ public:
 
     virtual void unwrapIndex(int loc, int cellIdx, int gridIdx[3]) const;
 
-    virtual int wrapIndex(int loc, int i, int j, int k = 0) const;
+    virtual int wrapIndex(int loc, int i, int j = 0, int k = 0) const;
 
     virtual bool isHorizontalGridsSame(const Mesh<DomainType, CoordType> &other) const;
 protected:

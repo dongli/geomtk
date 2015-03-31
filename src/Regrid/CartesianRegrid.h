@@ -39,6 +39,9 @@ void CartesianRegrid::run(RegridMethod method, const TimeLevelIndex<N> &timeIdx,
         idx = idx_;
     }
     if (method == BILINEAR) {
+#ifndef NDEBUG
+        assert(mesh().domain().numDim() == 2);
+#endif
         int i1, i2, i3, i4, j1, j2, j3, j4;
         i1 = (*idx)(0, f.gridType(0));
         i2 = i1+1; i3 = i1; i4 = i2;
@@ -66,7 +69,71 @@ void CartesianRegrid::run(RegridMethod method, const TimeLevelIndex<N> &timeIdx,
         double c = f3-f1;
         double d = f1-f2-f3+f4;
         y = a+b*X+c*Y+d*X*Y;
-    } else if (method == TRILINEAR) {
+    } else if (method == BIQUADRATIC || method == BICUBIC) {
+        // Use Lagrangian polynomial interpolation without derivatives.
+#ifndef NDEBUG
+        assert(mesh().domain().numDim() == 2);
+#endif
+        int n;
+        if (method == BIQUADRATIC) {
+            n = 3;
+        } else if (method == BICUBIC) {
+            n = 4;
+        }
+        int i[n], j[n];
+        i[0] = (*idx)(0, f.gridType(0))-n/2+1;
+        j[0] = (*idx)(1, f.gridType(1))-n/2+1;
+        for (int l = 1; l < n; ++l) {
+            i[l] = i[l-1]+1;
+            j[l] = j[l-1]+1;
+        }
+        // if (method == BICUBIC) {
+        //     cout << -n/2+1 << endl;
+        //     cout << mesh().haloWidth() << endl;
+        //     cout << mesh().ie(GridType::FULL) << endl;
+        //     cout << mesh().gridCoordComp(0, f.gridType(0), mesh().ie(GridType::FULL)+1) << endl;
+        //     cout << mesh().gridCoordComp(0, f.gridType(0), mesh().ie(GridType::FULL)+2) << endl;
+        //     idx->print();
+        //     cout << i[0] << " " << i[1] << " " << i[2] << " " << i[3] << endl;
+        //     cout << j[0] << " " << j[1] << " " << j[2] << " " << j[3] << endl;
+        //     cout << setw(10) << setprecision(5) << mesh().gridCoordComp(0, f.gridType(0), (*idx)(0, f.gridType(0))) << endl;
+        //     cout << setw(10) << setprecision(5) << x(0) << endl;
+        //     cout << setw(10) << setprecision(5) << mesh().gridCoordComp(0, f.gridType(0), (*idx)(0, f.gridType(0))+1) << endl;
+        //     cout << setw(10) << setprecision(5) << mesh().gridCoordComp(1, f.gridType(1), (*idx)(1, f.gridType(1))) << endl;
+        //     cout << setw(10) << setprecision(5) << x(1) << endl;
+        //     cout << setw(10) << setprecision(5) << mesh().gridCoordComp(1, f.gridType(1), (*idx)(1, f.gridType(1))+1) << endl;
+        // }
+#ifndef NDEBUG
+        for (int m = 0; m < 2; ++m) {
+            if (mesh().domain().axisStartBndType(m) != PERIODIC &&
+                (i[0] == mesh().is(f.gridType(m))-1 ||
+                 i[n-1] == mesh().ie(f.gridType(m))+1)) {
+                idx->print();
+                REPORT_ERROR("Point is out of range!");
+            }
+        }
+#endif
+        double wx[n], wy[n];
+        for (int l0 = 0; l0 < n; ++l0) {
+            double x0 = mesh().gridCoordComp(0, f.gridType(0), i[l0]);
+            double y0 = mesh().gridCoordComp(1, f.gridType(1), j[l0]);
+            wx[l0] = 1; wy[l0] = 1;
+            for (int l1 = 0; l1 < n; ++l1) {
+                if (l0 != l1) {
+                    double x1 = mesh().gridCoordComp(0, f.gridType(0), i[l1]);
+                    double y1 = mesh().gridCoordComp(1, f.gridType(1), j[l1]);
+                    wx[l0] *= (x(0)-x1)/(x0-x1);
+                    wy[l0] *= (x(1)-y1)/(y0-y1);
+                }
+            }
+        }
+        y = 0;
+        for (int l0 = 0; l0 < n; ++l0) {
+            for (int l1 = 0; l1 < n; ++l1) {
+                y += wx[l0]*wy[l1]*f(timeIdx, i[l0], j[l1]);
+            }
+        }
+    } else {
         REPORT_ERROR("Under construction!");
     }
     if (idx_ == NULL) {

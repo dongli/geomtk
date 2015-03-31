@@ -1,22 +1,36 @@
 namespace geomtk {
 
 template <class MeshType, class CoordType>
+StructuredMeshIndex<MeshType, CoordType>::StructuredMeshIndex()
+        : MeshIndex<MeshType, CoordType>() {
+    indices = NULL;
+}
+
+template <class MeshType, class CoordType>
 StructuredMeshIndex<MeshType, CoordType>::StructuredMeshIndex(int numDim)
         : MeshIndex<MeshType, CoordType>(numDim) {
+    setNumDim(numDim);
+}
+
+template <class MeshType, class CoordType>
+StructuredMeshIndex<MeshType, CoordType>::~StructuredMeshIndex() {
+    if (indices) {
+        for (int i = 0; i < 3; ++i) {
+            delete [] indices[i];
+        }
+        delete [] indices;
+    }
+}
+
+template <class MeshType, class CoordType>
+void StructuredMeshIndex<MeshType, CoordType>::setNumDim(int numDim) {
+    MeshIndex<MeshType, CoordType>::setNumDim(numDim);
     // NOTE: Index is 3D no matter the dimension size of domain.
     indices = new int*[3];
     for (int i = 0; i < 3; ++i) {
         indices[i] = new int[2];
     }
     reset();
-}
-
-template <class MeshType, class CoordType>
-StructuredMeshIndex<MeshType, CoordType>::~StructuredMeshIndex() {
-    for (int i = 0; i < 3; ++i) {
-        delete [] indices[i];
-    }
-    delete [] indices;
 }
 
 template <class MeshType, class CoordType>

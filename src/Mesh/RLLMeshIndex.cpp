@@ -2,6 +2,9 @@
 
 namespace geomtk {
 
+RLLMeshIndex::RLLMeshIndex() : StructuredMeshIndex<RLLMesh, SphereCoord>() {
+}
+
 RLLMeshIndex::RLLMeshIndex(int numDim) : StructuredMeshIndex<RLLMesh, SphereCoord>(numDim) {
     reset();
 }

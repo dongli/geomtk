@@ -353,8 +353,9 @@ inline string getClassName(const string &str) {
 }
 
 // constants
-const double RAD = M_PI/180.0;
-const double PI2 = M_PI*2.0;
+const double PI = M_PI;
+const double RAD = PI/180.0;
+const double PI2 = PI*2.0;
 
 }
 

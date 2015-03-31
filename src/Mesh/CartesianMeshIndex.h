@@ -8,6 +8,7 @@ namespace geomtk {
 
 class CartesianMeshIndex : public StructuredMeshIndex<CartesianMesh, SpaceCoord> {
 public:
+    CartesianMeshIndex() : StructuredMeshIndex<CartesianMesh, SpaceCoord>() {}
 	CartesianMeshIndex(int numDim) : StructuredMeshIndex<CartesianMesh, SpaceCoord>(numDim) {}
 	virtual ~CartesianMeshIndex() {}
 };
