@@ -70,6 +70,7 @@ void CartesianRegrid::run(RegridMethod method, const TimeLevelIndex<N> &timeIdx,
         double d = f1-f2-f3+f4;
         y = a+b*X+c*Y+d*X*Y;
     } else if (method == BIQUADRATIC || method == BICUBIC) {
+        // TODO: Merge the above BILINEAR into here.
         // Use Lagrangian polynomial interpolation without derivatives.
 #ifndef NDEBUG
         assert(mesh().domain().numDim() == 2);
@@ -87,22 +88,6 @@ void CartesianRegrid::run(RegridMethod method, const TimeLevelIndex<N> &timeIdx,
             i[l] = i[l-1]+1;
             j[l] = j[l-1]+1;
         }
-        // if (method == BICUBIC) {
-        //     cout << -n/2+1 << endl;
-        //     cout << mesh().haloWidth() << endl;
-        //     cout << mesh().ie(GridType::FULL) << endl;
-        //     cout << mesh().gridCoordComp(0, f.gridType(0), mesh().ie(GridType::FULL)+1) << endl;
-        //     cout << mesh().gridCoordComp(0, f.gridType(0), mesh().ie(GridType::FULL)+2) << endl;
-        //     idx->print();
-        //     cout << i[0] << " " << i[1] << " " << i[2] << " " << i[3] << endl;
-        //     cout << j[0] << " " << j[1] << " " << j[2] << " " << j[3] << endl;
-        //     cout << setw(10) << setprecision(5) << mesh().gridCoordComp(0, f.gridType(0), (*idx)(0, f.gridType(0))) << endl;
-        //     cout << setw(10) << setprecision(5) << x(0) << endl;
-        //     cout << setw(10) << setprecision(5) << mesh().gridCoordComp(0, f.gridType(0), (*idx)(0, f.gridType(0))+1) << endl;
-        //     cout << setw(10) << setprecision(5) << mesh().gridCoordComp(1, f.gridType(1), (*idx)(1, f.gridType(1))) << endl;
-        //     cout << setw(10) << setprecision(5) << x(1) << endl;
-        //     cout << setw(10) << setprecision(5) << mesh().gridCoordComp(1, f.gridType(1), (*idx)(1, f.gridType(1))+1) << endl;
-        // }
 #ifndef NDEBUG
         for (int m = 0; m < 2; ++m) {
             if (mesh().domain().axisStartBndType(m) != PERIODIC &&
