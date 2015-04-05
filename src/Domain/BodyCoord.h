@@ -10,6 +10,7 @@ namespace geomtk {
  */
 class BodyCoord : public SpaceCoord {
 public:
+    BodyCoord() : SpaceCoord() {}
     BodyCoord(int numDim) : SpaceCoord(numDim) {}
     virtual ~BodyCoord() {}
 };

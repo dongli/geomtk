@@ -99,6 +99,7 @@ endif ()
 # Set the source directory structure.
 set (source_directories
     "${PROJECT_SOURCE_DIR}/src"
+    "${PROJECT_SOURCE_DIR}/src/geomtk"
     "${PROJECT_SOURCE_DIR}/src/Domain"
     "${PROJECT_SOURCE_DIR}/src/Mesh"
     "${PROJECT_SOURCE_DIR}/src/Field"
