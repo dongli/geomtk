@@ -1,19 +1,20 @@
 namespace geomtk {
 
 template <class MeshType, class CoordType>
-StructuredMeshIndex<MeshType, CoordType>::StructuredMeshIndex()
-        : MeshIndex<MeshType, CoordType>() {
+StructuredMeshIndex<MeshType, CoordType>::
+StructuredMeshIndex() : MeshIndex<MeshType, CoordType>() {
     indices = NULL;
 }
 
 template <class MeshType, class CoordType>
-StructuredMeshIndex<MeshType, CoordType>::StructuredMeshIndex(int numDim)
-        : MeshIndex<MeshType, CoordType>(numDim) {
+StructuredMeshIndex<MeshType, CoordType>::
+StructuredMeshIndex(int numDim) : MeshIndex<MeshType, CoordType>(numDim) {
     setNumDim(numDim);
 }
 
 template <class MeshType, class CoordType>
-StructuredMeshIndex<MeshType, CoordType>::~StructuredMeshIndex() {
+StructuredMeshIndex<MeshType, CoordType>::
+~StructuredMeshIndex() {
     if (indices) {
         for (int i = 0; i < 3; ++i) {
             delete [] indices[i];
@@ -23,7 +24,8 @@ StructuredMeshIndex<MeshType, CoordType>::~StructuredMeshIndex() {
 }
 
 template <class MeshType, class CoordType>
-void StructuredMeshIndex<MeshType, CoordType>::setNumDim(int numDim) {
+void StructuredMeshIndex<MeshType, CoordType>::
+setNumDim(int numDim) {
     MeshIndex<MeshType, CoordType>::setNumDim(numDim);
     // NOTE: Index is 3D no matter the dimension size of domain.
     indices = new int*[3];
@@ -34,7 +36,8 @@ void StructuredMeshIndex<MeshType, CoordType>::setNumDim(int numDim) {
 }
 
 template <class MeshType, class CoordType>
-void StructuredMeshIndex<MeshType, CoordType>::reset() {
+void StructuredMeshIndex<MeshType, CoordType>::
+reset() {
     for (int m = 0; m < this->numDim; ++m) {
         indices[m][GridType::FULL] = UNDEFINED_MESH_INDEX;
         indices[m][GridType::HALF] = UNDEFINED_MESH_INDEX;
@@ -47,12 +50,14 @@ void StructuredMeshIndex<MeshType, CoordType>::reset() {
 }
 
 template <class MeshType, class CoordType>
-int StructuredMeshIndex<MeshType, CoordType>::operator()(int axisIdx, int gridType) const {
+int StructuredMeshIndex<MeshType, CoordType>::
+operator()(int axisIdx, int gridType) const {
     return indices[axisIdx][gridType];
 }
 
 template <class MeshType, class CoordType>
-int& StructuredMeshIndex<MeshType, CoordType>::operator()(int axisIdx, int gridType) {
+int& StructuredMeshIndex<MeshType, CoordType>::
+operator()(int axisIdx, int gridType) {
     return indices[axisIdx][gridType];
 }
 
@@ -319,7 +324,8 @@ getIndex(const MeshType &mesh, int loc) const {
 }
 
 template <class MeshType, class CoordType>
-void StructuredMeshIndex<MeshType, CoordType>::print() const {
+void StructuredMeshIndex<MeshType, CoordType>::
+print() const {
     cout << "Center indices:";
     for (int m = 0; m < 3; ++m) {
         cout << setw(10) << indices[m][GridType::FULL];

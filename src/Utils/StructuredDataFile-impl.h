@@ -1,7 +1,8 @@
 namespace geomtk {
 
 template <class MeshType>
-StructuredDataFile<MeshType>::StructuredDataFile(MeshType &mesh) : DataFile<MeshType>(mesh) {
+StructuredDataFile<MeshType>::
+StructuredDataFile(MeshType &mesh) : DataFile<MeshType>(mesh) {
     fullDimIDs.resize(mesh.domain().numDim());
     fullVarIDs.resize(mesh.domain().numDim());
     halfDimIDs.resize(mesh.domain().numDim());
@@ -10,7 +11,8 @@ StructuredDataFile<MeshType>::StructuredDataFile(MeshType &mesh) : DataFile<Mesh
 }
 
 template <class MeshType>
-void StructuredDataFile<MeshType>::open(const TimeManager &timeManager) {
+void StructuredDataFile<MeshType>::
+open(const TimeManager &timeManager) {
     const auto &domain = this->mesh().domain();
     int ret;
     // inquire full dimensions
@@ -48,7 +50,8 @@ void StructuredDataFile<MeshType>::open(const TimeManager &timeManager) {
 }
 
 template <class MeshType>
-void StructuredDataFile<MeshType>::create(const TimeManager &timeManager) {
+void StructuredDataFile<MeshType>::
+create(const TimeManager &timeManager) {
     const auto &domain = this->mesh().domain();
     string name, longName, units;
     int ret;
@@ -227,22 +230,26 @@ void StructuredDataFile<MeshType>::create(const TimeManager &timeManager) {
 }
 
 template <class MeshType>
-void StructuredDataFile<MeshType>::inputGrids() {
+void StructuredDataFile<MeshType>::
+inputGrids() {
     REPORT_ERROR("Under construction!");
 }
 
 template <class MeshType>
-void StructuredDataFile<MeshType>::inputHorizontalGrids() {
+void StructuredDataFile<MeshType>::
+inputHorizontalGrids() {
     REPORT_ERROR("Under construction!");
 }
 
 template <class MeshType>
-void StructuredDataFile<MeshType>::inputVerticalGrids() {
+void StructuredDataFile<MeshType>::
+inputVerticalGrids() {
     REPORT_ERROR("Under construction!");
 }
 
 template <class MeshType>
-void StructuredDataFile<MeshType>::outputGrids() {
+void StructuredDataFile<MeshType>::
+outputGrids() {
     const auto &domain = this->mesh().domain();
     int ret;
     // write units
@@ -269,8 +276,9 @@ void StructuredDataFile<MeshType>::outputGrids() {
 }
 
 template <class MeshType>
-void StructuredDataFile<MeshType>::registerField(const string &xtype, int spaceDims,
-                                                 initializer_list<Field<MeshType>*> fields) {
+void StructuredDataFile<MeshType>::
+registerField(const string &xtype, int spaceDims,
+              initializer_list<Field<MeshType>*> fields) {
     for (auto field : fields) {
         FieldInfo<MeshType> info;
         info.field = field;
@@ -289,7 +297,8 @@ void StructuredDataFile<MeshType>::registerField(const string &xtype, int spaceD
 }
 
 template <class MeshType>
-void StructuredDataFile<MeshType>::removeField(initializer_list<Field<MeshType>*> fields) {
+void StructuredDataFile<MeshType>::
+removeField(initializer_list<Field<MeshType>*> fields) {
     for (auto field : fields) {
         int i;
         for (i = 0; i < this->fieldInfos.size(); ++i) {
@@ -299,15 +308,18 @@ void StructuredDataFile<MeshType>::removeField(initializer_list<Field<MeshType>*
             }
         }
         if (i == this->fieldInfos.size()) {
-            REPORT_ERROR("Field \"" << field->name() << "\" is not in the file \"" << this->fileName << "\"!");
+            REPORT_ERROR("Field \"" << field->name() <<
+                         "\" is not in the file \"" <<
+                         this->fileName << "\"!");
         }
     }
 }
 
 template <class MeshType>
 template <typename DataType, int NumTimeLevel>
-void StructuredDataFile<MeshType>::input(const TimeLevelIndex<NumTimeLevel> &timeIdx,
-                               			 initializer_list<Field<MeshType>*> fields) {
+void StructuredDataFile<MeshType>::
+input(const TimeLevelIndex<NumTimeLevel> &timeIdx,
+      initializer_list<Field<MeshType>*> fields) {
     typedef StructuredField<MeshType, DataType, NumTimeLevel> FieldType;
     int ret;
     for (auto field_ : fields) {
@@ -357,7 +369,8 @@ void StructuredDataFile<MeshType>::input(const TimeLevelIndex<NumTimeLevel> &tim
 
 template <class MeshType>
 template <typename DataType>
-void StructuredDataFile<MeshType>::input(initializer_list<Field<MeshType>*> fields) {
+void StructuredDataFile<MeshType>::
+input(initializer_list<Field<MeshType>*> fields) {
     typedef StructuredField<MeshType, DataType, 1> FieldType;
     int ret;
     for (auto field_ : fields) {
@@ -406,8 +419,9 @@ void StructuredDataFile<MeshType>::input(initializer_list<Field<MeshType>*> fiel
 
 template <class MeshType>
 template <typename DataType, int NumTimeLevel>
-void StructuredDataFile<MeshType>::input(const TimeLevelIndex<NumTimeLevel> &timeIdx,
-                                         int timeCounter, initializer_list<Field<MeshType>*> fields) {
+void StructuredDataFile<MeshType>::
+input(const TimeLevelIndex<NumTimeLevel> &timeIdx,
+      int timeCounter, initializer_list<Field<MeshType>*> fields) {
     typedef StructuredField<MeshType, DataType, NumTimeLevel> FieldType;
     int ret;
     for (auto field_ : fields) {
@@ -513,7 +527,8 @@ void StructuredDataFile<MeshType>::input(const TimeLevelIndex<NumTimeLevel> &tim
 
 template <class MeshType>
 template <typename DataType>
-void StructuredDataFile<MeshType>::input(int timeCounter, initializer_list<Field<MeshType>*> fields) {
+void StructuredDataFile<MeshType>::
+input(int timeCounter, initializer_list<Field<MeshType>*> fields) {
     typedef StructuredField<MeshType, DataType, 1> FieldType;
     int ret;
     for (auto field_ : fields) {
@@ -619,8 +634,9 @@ void StructuredDataFile<MeshType>::input(int timeCounter, initializer_list<Field
 
 template <class MeshType>
 template <typename DataType, int NumTimeLevel>
-void StructuredDataFile<MeshType>::output(const TimeLevelIndex<NumTimeLevel> &timeIdx,
-                                		  initializer_list<Field<MeshType>*> fields) {
+void StructuredDataFile<MeshType>::
+output(const TimeLevelIndex<NumTimeLevel> &timeIdx,
+       initializer_list<Field<MeshType>*> fields) {
     typedef StructuredField<MeshType, DataType, NumTimeLevel> FieldType;
     int ret;
     for (auto field_ : fields) {
@@ -669,7 +685,8 @@ void StructuredDataFile<MeshType>::output(const TimeLevelIndex<NumTimeLevel> &ti
 
 template <class MeshType>
 template <typename DataType>
-void StructuredDataFile<MeshType>::output(initializer_list<Field<MeshType>*> fields) {
+void StructuredDataFile<MeshType>::
+output(initializer_list<Field<MeshType>*> fields) {
     typedef StructuredField<MeshType, DataType, 1> FieldType;
     int ret;
     for (auto field_ : fields) {

@@ -1,5 +1,5 @@
-#ifndef __Geomtk_BodyCoord__
-#define __Geomtk_BodyCoord__
+#ifndef __GEOMTK_BodyCoord__
+#define __GEOMTK_BodyCoord__
 
 #include "SpaceCoord.h"
 
@@ -13,8 +13,8 @@ public:
     BodyCoord() : SpaceCoord() {}
     BodyCoord(int numDim) : SpaceCoord(numDim) {}
     virtual ~BodyCoord() {}
-};
+}; // BodyCoord
 
 } // geomtk
 
-#endif // __Geomtk_BodyCoord__
+#endif // __GEOMTK_BodyCoord__

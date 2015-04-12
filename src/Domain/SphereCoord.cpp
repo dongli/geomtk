@@ -113,7 +113,8 @@ void SphereCoord::transformFromPS(const SphereDomain &domain, Pole pole) {
     updateTrigonometricFunctions();
 }
 
-void SphereCoord::transformToCart(const SphereDomain &domain) {
+void SphereCoord::
+transformToCart(const SphereDomain &domain) {
     _cartCoord[0] = domain.radius()*_cosLat*_cosLon;
     _cartCoord[1] = domain.radius()*_cosLat*_sinLon;
     _cartCoord[2] = domain.radius()*_sinLat;

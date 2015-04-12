@@ -18,23 +18,32 @@ public:
     StructuredMeshIndex(int numDim);
     virtual ~StructuredMeshIndex();
 
-    virtual void setNumDim(int numDim);
+    virtual void
+    setNumDim(int numDim);
 
     /**
      *  Reset the indices to undefined status.
      */
-    virtual void reset();
+    virtual void
+    reset();
 
-    virtual int operator()(int axisIdx, int gridType) const;
-    virtual int& operator()(int axisIdx, int gridType);
+    virtual int
+    operator()(int axisIdx, int gridType) const;
 
-    virtual StructuredMeshIndex& operator=(const StructuredMeshIndex &other);
+    virtual int&
+    operator()(int axisIdx, int gridType);
 
-    virtual void locate(const MeshType &mesh, const CoordType &x);
+    virtual StructuredMeshIndex&
+    operator=(const StructuredMeshIndex &other);
 
-    virtual int getIndex(const MeshType &mesh, int loc) const;
+    virtual void
+    locate(const MeshType &mesh, const CoordType &x);
 
-    virtual void print() const;
+    virtual int
+    getIndex(const MeshType &mesh, int loc) const;
+
+    virtual void
+    print() const;
 };
 
 } // geomtk

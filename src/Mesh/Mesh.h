@@ -1,5 +1,5 @@
-#ifndef __Geomtk_Mesh__
-#define __Geomtk_Mesh__
+#ifndef __GEOMTK_Mesh__
+#define __GEOMTK_Mesh__
 
 #include "geomtk_commons.h"
 #include "Domain.h"
@@ -31,7 +31,8 @@ public:
      *
      *  @param fileName the grid file name.
      */
-    virtual void init(const string &fileName) = 0;
+    virtual void
+    init(const string &fileName) = 0;
 
     /**
      *  Read grids from one file for horizontal grids and one file for vertical
@@ -40,7 +41,8 @@ public:
      *  @param fileNameH the horizontal grid file name.
      *  @param fileNameV the vertical grid file name.
      */
-    virtual void init(const string &fileNameH, const string &fileNameV) = 0;
+    virtual void
+    init(const string &fileNameH, const string &fileNameV) = 0;
 
     /**
      *  Get the mesh type (see enum MeshType), then you can cast the mesh to
@@ -48,14 +50,20 @@ public:
      *
      *  @param The mesh type.
      */
-    MeshType type() const { return _type; }
+    MeshType
+    type() const {
+        return _type;
+    }
 
     /**
      *  Get the spatial domain.
      *
      *  @return The domain.
      */
-    DomainType& domain() const { return *_domain; }
+    DomainType&
+    domain() const {
+        return *_domain;
+    }
 
     /**
      *  Get the space coordinate of a grid with given location.
@@ -64,19 +72,24 @@ public:
      *  @param i   the grid index (the cells are arranged as 1D array).
      *  @return The grid space coordinate.
      */
-    virtual const CoordType& gridCoord(int loc, int i) const = 0;
+    virtual const CoordType&
+    gridCoord(int loc, int i) const = 0;
 
     /**
      *  Set the center grid cell volumes.
      */
-    virtual void setCellVolumes() = 0;
+    virtual void
+    setCellVolumes() = 0;
 
     /**
      *  Get the cell volume.
      *
      *  @param i the cell index (the cells are arranged as 1D array).
      */
-    double cellVolume(int i) const { return volumes(i); };
+    double
+    cellVolume(int i) const {
+        return volumes(i);
+    };
 
     /**
      *  Get the total grid number with given location and dimension number.
@@ -86,7 +99,8 @@ public:
      *
      *  @return The total grid number.
      */
-    virtual int totalNumGrid(int loc, int numDim) const = 0;
+    virtual int
+    totalNumGrid(int loc, int numDim) const = 0;
 
     /**
      *  Get the vertical level index.
@@ -96,25 +110,30 @@ public:
      *
      *  @return The vertical level index.
      */
-    virtual int levelIndex(int loc, int cellIdx) const = 0;
+    virtual int
+    levelIndex(int loc, int cellIdx) const = 0;
 
     /**
      *  Check if the mesh is set or not.
      *
      *  @return The boolean status.
      */
-    bool isSet() const { return set; }
+    bool
+    isSet() const {
+        return set;
+    }
 
     /**
      *  Check if the mesh is the same as the other one.
      *
      *  @return The boolean status.
      */
-    virtual bool isHorizontalGridsSame(const Mesh<DomainType, CoordType> &other) const = 0;
-};
+    virtual bool
+    isHorizontalGridsSame(const Mesh<DomainType, CoordType> &other) const = 0;
+}; // Mesh
 
 } // geomtk
 
 #include "Mesh-impl.h"
 
-#endif // __Geomtk_Mesh__
+#endif // __GEOMTK_Mesh__

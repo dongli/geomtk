@@ -1,5 +1,5 @@
-#ifndef __Geomtk_SpaceCoord__
-#define __Geomtk_SpaceCoord__
+#ifndef __GEOMTK_SpaceCoord__
+#define __GEOMTK_SpaceCoord__
 
 #include "geomtk_commons.h"
 
@@ -17,23 +17,40 @@ public:
     SpaceCoord(const SpaceCoord &other);
     virtual ~SpaceCoord();
 
-    virtual void setNumDim(int numDim);
+    virtual void
+    setNumDim(int numDim);
 
-    virtual void setCoord(double x, double y);
+    virtual void
+    setCoord(double x, double y);
 
-    virtual void setCoord(double x, double y, double z);
+    virtual void
+    setCoord(double x, double y, double z);
 
-    virtual void setCoordComp(int dim, double comp);
+    virtual void
+    setCoordComp(int dim, double comp);
 
-    virtual SpaceCoord& operator=(const SpaceCoord &other);
+    virtual SpaceCoord&
+    operator=(const SpaceCoord &other);
 
-    virtual double operator()(int i) const { return coord(i); }
+    virtual double
+    operator()(int i) const {
+        return coord(i);
+    }
 
-    virtual double& operator()(int i) { return coord(i); }
+    virtual double&
+    operator()(int i) {
+        return coord(i);
+    }
 
-    virtual const vec& operator()() const { return coord; }
+    virtual const vec&
+    operator()() const {
+        return coord;
+    }
 
-    virtual vec& operator()() { return coord; }
+    virtual vec&
+    operator()() {
+        return coord;
+    }
 
     /**
      *  This method return the Cartesian coordinate, in this case it is `coord`,
@@ -41,11 +58,20 @@ public:
      *
      *  @return The Cartesian coordinate vector.
      */
-    virtual const vec& cartCoord() const { return coord; }
+    virtual const vec&
+    cartCoord() const {
+        return coord;
+    }
 
-    virtual void print() const;
-};
+    virtual vec&
+    cartCoord() {
+        return coord;
+    }
+
+    virtual void
+    print() const;
+}; // SpaceCoord
 
 } // geomtk
 
-#endif // __Geomtk_SpaceCoord__
+#endif // __GEOMTK_SpaceCoord__

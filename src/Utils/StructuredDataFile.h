@@ -1,5 +1,5 @@
-#ifndef __Geomtk_StructuredDataFile__
-#define __Geomtk_StructuredDataFile__
+#ifndef __GEOMTK_StructuredDataFile__
+#define __GEOMTK_StructuredDataFile__
 
 #include "DataFile.h"
 #include "StructuredField.h"
@@ -29,47 +29,61 @@ public:
     StructuredDataFile(MeshType &mesh);
     virtual ~StructuredDataFile() {}
 
-    virtual void registerField(const string &xtype, int spaceDims,
-                               initializer_list<Field<MeshType>*> fields);
+    virtual void
+    registerField(const string &xtype, int spaceDims,
+                  initializer_list<Field<MeshType>*> fields);
     
-    virtual void removeField(initializer_list<Field<MeshType>*> fields);
+    virtual void
+    removeField(initializer_list<Field<MeshType>*> fields);
 
-    virtual void open(const TimeManager &timeManager);
+    virtual void
+    open(const TimeManager &timeManager);
 
-    virtual void create(const TimeManager &timeManager);
+    virtual void
+    create(const TimeManager &timeManager);
 
-    virtual void inputGrids();
+    virtual void
+    inputGrids();
 
-    virtual void inputHorizontalGrids();
+    virtual void
+    inputHorizontalGrids();
 
-    virtual void inputVerticalGrids();
+    virtual void
+    inputVerticalGrids();
 
-    virtual void outputGrids();
-
-    template <typename DataType, int NumTimeLevel>
-    void input(const TimeLevelIndex<NumTimeLevel> &timeIdx,
-               initializer_list<Field<MeshType>*> fields);
-
-    template <typename DataType>
-    void input(initializer_list<Field<MeshType>*> fields);
-
-    template <typename DataType, int NumTimeLevel>
-    void input(const TimeLevelIndex<NumTimeLevel> &timeIdx, int timeCounter,
-               initializer_list<Field<MeshType>*> fields);
-
-    template <typename DataType>
-    void input(int timeCounter, initializer_list<Field<MeshType>*> fields);
+    virtual void
+    outputGrids();
 
     template <typename DataType, int NumTimeLevel>
-    void output(const TimeLevelIndex<NumTimeLevel> &timeIdx,
-                initializer_list<Field<MeshType>*> fields);
+    void
+    input(const TimeLevelIndex<NumTimeLevel> &timeIdx,
+          initializer_list<Field<MeshType>*> fields);
 
     template <typename DataType>
-    void output(initializer_list<Field<MeshType>*> fields);
-};
+    void
+    input(initializer_list<Field<MeshType>*> fields);
+
+    template <typename DataType, int NumTimeLevel>
+    void
+    input(const TimeLevelIndex<NumTimeLevel> &timeIdx, int timeCounter,
+          initializer_list<Field<MeshType>*> fields);
+
+    template <typename DataType>
+    void
+    input(int timeCounter, initializer_list<Field<MeshType>*> fields);
+
+    template <typename DataType, int NumTimeLevel>
+    void
+    output(const TimeLevelIndex<NumTimeLevel> &timeIdx,
+           initializer_list<Field<MeshType>*> fields);
+
+    template <typename DataType>
+    void
+    output(initializer_list<Field<MeshType>*> fields);
+}; // StructuredDataFile
 
 } // geomtk
 
 #include "StructuredDataFile-impl.h"
 
-#endif // __Geomtk_StructuredDataFile__
+#endif // __GEOMTK_StructuredDataFile__

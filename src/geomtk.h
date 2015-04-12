@@ -17,6 +17,7 @@
 #include "SystemTools.h"
 #include "IOManager.h"
 #include "ConfigManager.h"
+#include "Numerics.h"
 // Domain class hierarchy
 #include "Domain.h"
 #include "SphereDomain.h"

@@ -175,6 +175,7 @@ endif ()
 
 # Define testing target
 add_subdirectory ("${PROJECT_SOURCE_DIR}/external/gtest-1.7.0")
+include_directories (${gtest_SOURCE_DIR} ${gtest_SOURCE_DIR}/include)
 
 foreach (dir ${source_directories})
     if (EXISTS "${dir}/test")
@@ -183,7 +184,6 @@ foreach (dir ${source_directories})
         list (APPEND test_headers ${tmp1})
     endif (EXISTS "${dir}/test")
 endforeach ()
-include_directories (${gtest_SOURCE_DIR} ${gtest_SOURCE_DIR}/include)
 
 add_executable (test_geomtk
     ${test_headers}
