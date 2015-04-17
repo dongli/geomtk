@@ -65,7 +65,7 @@ if (DEFINED ENV{BOOST_ROOT})
     set (CMAKE_FIND_PREFIX_PATH $ENV{BOOST_ROOT})
 endif ()
 find_package (Boost 1.55.0 REQUIRED
-    COMPONENTS regex filesystem system timer
+    COMPONENTS regex filesystem system timer date_time
 )
 if (NOT Boost_FOUND)
     message (FATAL_ERROR
@@ -106,6 +106,7 @@ set (source_directories
     "${PROJECT_SOURCE_DIR}/src/Regrid"
     "${PROJECT_SOURCE_DIR}/src/Filter"
     "${PROJECT_SOURCE_DIR}/src/Utils"
+    "${PROJECT_SOURCE_DIR}/src/Interface"
 )
 
 # Record the source directories and library include directories for upper project.

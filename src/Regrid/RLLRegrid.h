@@ -15,6 +15,7 @@ public:
     typedef RLLStagger::Location Location;
 protected:
 public:
+    RLLRegrid();
     RLLRegrid(const RLLMesh &mesh);
     virtual ~RLLRegrid();
 

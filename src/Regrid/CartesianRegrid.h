@@ -14,6 +14,7 @@ public:
     typedef CartesianStagger::Location Location;
 protected:
 public:
+    CartesianRegrid();
     CartesianRegrid(const CartesianMesh &mesh);
     virtual ~CartesianRegrid();
 

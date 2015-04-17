@@ -12,6 +12,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
 #include <netcdf.h>
 #include <mlpack/methods/range_search/range_search.hpp>
 #include <armadillo>

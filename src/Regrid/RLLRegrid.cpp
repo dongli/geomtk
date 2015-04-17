@@ -2,15 +2,22 @@
 
 namespace geomtk {
 
-RLLRegrid::RLLRegrid(const RLLMesh &mesh) : Regrid<RLLMesh, SphereCoord>(mesh) {
+RLLRegrid::
+RLLRegrid() : Regrid<RLLMesh, SphereCoord>() {
 }
 
-RLLRegrid::~RLLRegrid() {
+RLLRegrid::
+RLLRegrid(const RLLMesh &mesh) : Regrid<RLLMesh, SphereCoord>(mesh) {
 }
 
-void RLLRegrid::run(RegridMethod method, const TimeLevelIndex<2> &timeIdx,
-                    const RLLVelocityField &f, const SphereCoord &x,
-                    SphereVelocity &y, RLLMeshIndex *idx_) {
+RLLRegrid::
+~RLLRegrid() {
+}
+
+void RLLRegrid::
+run(RegridMethod method, const TimeLevelIndex<2> &timeIdx,
+    const RLLVelocityField &f, const SphereCoord &x,
+    SphereVelocity &y, RLLMeshIndex *idx_) {
     RLLMeshIndex *idx;
     if (idx_ == NULL) {
         idx = new RLLMeshIndex(mesh().domain().numDim());

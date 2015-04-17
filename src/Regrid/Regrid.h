@@ -20,14 +20,26 @@ enum RegridMethod {
 template <class MeshType, class CoordType>
 class Regrid {
 protected:
-    const MeshType *_mesh;
+    static const MeshType *_mesh;
 public:
-    Regrid(const MeshType &mesh) { _mesh = &mesh; }
+    Regrid() {}
+    Regrid(const MeshType &mesh) {
+        _mesh = &mesh;
+    }
     virtual ~Regrid() {}
 
-    const MeshType& mesh() const { return *_mesh; }
+    const MeshType&
+    mesh() const {
+        return *_mesh;
+    }
 
-    static RegridMethod methodFromString(const string &method) {
+    static void
+    init(const MeshType &mesh) {
+        _mesh = &mesh;
+    }
+
+    static RegridMethod
+    methodFromString(const string &method) {
         if (method == "bilinear") {
             return BILINEAR;
         } else if (method == "biquadratic") {
@@ -39,6 +51,9 @@ public:
         }
     }
 };
+
+template <class MeshType, class CoordType>
+const MeshType* Regrid<MeshType, CoordType>::_mesh;
 
 }
 

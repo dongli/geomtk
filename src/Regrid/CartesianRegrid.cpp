@@ -2,16 +2,21 @@
 
 namespace geomtk {
 
-CartesianRegrid::CartesianRegrid(const CartesianMesh &mesh)
-    : Regrid<CartesianMesh, SpaceCoord>(mesh) {
+CartesianRegrid::
+CartesianRegrid() : Regrid<CartesianMesh, SpaceCoord>() {
+}
+
+CartesianRegrid::
+CartesianRegrid(const CartesianMesh &mesh) : Regrid<CartesianMesh, SpaceCoord>(mesh) {
 }
 
 CartesianRegrid::~CartesianRegrid() {
 }
 
-void CartesianRegrid::run(RegridMethod method, const TimeLevelIndex<2> &timeIdx,
-                          const CartesianVelocityField &f, const SpaceCoord &x,
-                          Velocity &y, CartesianMeshIndex *idx_) {
+void CartesianRegrid::
+run(RegridMethod method, const TimeLevelIndex<2> &timeIdx,
+    const CartesianVelocityField &f, const SpaceCoord &x,
+    Velocity &y, CartesianMeshIndex *idx_) {
     CartesianMeshIndex *idx;
     if (idx_ == NULL) {
         idx = new CartesianMeshIndex(mesh().domain().numDim());

@@ -44,5 +44,8 @@
 #include "Filter.h"
 #include "StructuredFilter.h"
 #include "RLLFilter.h"
+ // Interfaces
+#include "AdvectionManagerInterface.h"
+#include "AdvectionTestInterface.h"
 
 #endif
