@@ -24,6 +24,10 @@ public:
 
     virtual void
     output(const TimeLevelIndex<NumTimeLevel> &timeIdx, int ncId) = 0;
+
+    virtual double
+    density(const TimeLevelIndex<2> &timeIdx,
+            int tracerIdx, int cellIdx) const = 0;
 }; // AdvectionManagerInterface
 
 } // geomtk

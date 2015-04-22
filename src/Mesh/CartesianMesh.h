@@ -1,5 +1,5 @@
-#ifndef __Geomtk_CartesianMesh__
-#define __Geomtk_CartesianMesh__
+#ifndef __GEOMTK_CartesianMesh__
+#define __GEOMTK_CartesianMesh__
 
 #include "StructuredMesh.h"
 #include "CartesianDomain.h"
@@ -23,18 +23,35 @@ public:
     }
     virtual ~CartesianMesh() {}
 
-    virtual void setCellVolumes();
+    virtual void
+    init(const string &filePath);
 
-    int nx(int gridType, bool hasHaloGrids = false) const { return numGrid(0, gridType, hasHaloGrids); }
+    virtual void
+    init(int nx, int ny, int nz = 1);
 
-    int ny(int gridType, bool hasHaloGrids = false) const { return numGrid(1, gridType, hasHaloGrids); }
+    virtual void
+    setCellVolumes();
 
-    int nz(int gridType, bool hasHaloGrids = false) const { return numGrid(2, gridType, hasHaloGrids); }
+    int
+    nx(int gridType, bool hasHaloGrids = false) const {
+        return numGrid(0, gridType, hasHaloGrids);
+    }
 
-    void move(const SpaceCoord &x0, double dt, const Velocity &v,
-              const CartesianMeshIndex &idx, SpaceCoord &x1) const;
-};
+    int
+    ny(int gridType, bool hasHaloGrids = false) const {
+        return numGrid(1, gridType, hasHaloGrids);
+    }
+
+    int
+    nz(int gridType, bool hasHaloGrids = false) const {
+        return numGrid(2, gridType, hasHaloGrids);
+    }
+
+    void
+    move(const SpaceCoord &x0, double dt, const Velocity &v,
+         const CartesianMeshIndex &idx, SpaceCoord &x1) const;
+}; // CartesianMesh
 
 } // geomtk
 
-#endif // __Geomtk_CartesianMesh__
+#endif // __GEOMTK_CartesianMesh__

@@ -1,5 +1,5 @@
-#ifndef __Geomtk_StampString__
-#define __Geomtk_StampString__
+#ifndef __GEOMTK_StampString__
+#define __GEOMTK_StampString__
 
 #include "geomtk_commons.h"
 #include "TimeManager.h"
@@ -28,22 +28,33 @@ public:
     StampString(const string &pattern);
     virtual ~StampString();
 
-    void init(const string &pattern) { this->pattern = pattern; }
+    void
+    init(const string &pattern) {
+        this->pattern = pattern;
+    }
 
-    string run(const Time &time);
-    string run(const TimeManager &timeManager);
+    string
+    run(const Time &time) const;
 
-    static string wildcard(const string &pattern);
-    string wildcard() const;
+    string
+    run(const TimeManager &timeManager) const;
 
-    bool operator==(const StampString &other) const;
+    static string
+    wildcard(const string &pattern);
+
+    string
+    wildcard() const;
+
+    bool
+    operator==(const StampString &other) const;
     
-    friend ostream& operator<<(ostream &os, const StampString &stampString) {
+    friend ostream&
+    operator<<(ostream &os, const StampString &stampString) {
         os << stampString.pattern;
         return os;
     }
-};
+}; // StampString
 
-}
+} // geomtk
 
-#endif
+#endif // __GEOMTK_StampString__

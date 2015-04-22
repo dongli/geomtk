@@ -6,17 +6,18 @@
 namespace geomtk {
 
 template <int NumTimeLevel, class DomainType, class MeshType, 
-          class IOManager, class VelocityFieldType>
+          class FieldType, class VelocityFieldType, class IOManager>
 class AdvectionTestInterface {
 public:
     typedef AdvectionManagerInterface<NumTimeLevel, DomainType, MeshType, VelocityFieldType> AdvectionManager;
 protected:
     DomainType *_domain;
     MeshType *_mesh;
-    TimeManager *timeManager;
+    TimeManager _timeManager;
     IOManager io;
-    int outputFileIdx;
+    int outputIdx;
     VelocityFieldType velocityField;
+    vector<FieldType> densities;
     Time _startTime;
     Time _endTime;
     double _stepSize;
@@ -40,6 +41,11 @@ public:
         return *_mesh;
     }
 
+    virtual const TimeManager&
+    timeManager() const {
+        return _timeManager;
+    }
+
     const Time&
     startTime() const {
         return _startTime;
@@ -56,7 +62,8 @@ public:
     }
 
     virtual void
-    init(const ConfigManager &configManager, TimeManager &timeManager) = 0;
+    init(const ConfigManager &configManager,
+         AdvectionManager &advectionManager) = 0;
 
     virtual void
     setInitialCondition(AdvectionManager &advectionManager) = 0;

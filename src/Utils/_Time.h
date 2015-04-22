@@ -16,6 +16,27 @@ enum TimeStepUnit {
     YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, STEP
 };
 
+static TimeStepUnit
+timeStepUnitFromString(const string &timeStepUnit) {
+    if (timeStepUnit == "year") {
+        return YEAR;
+    } else if (timeStepUnit == "month") {
+        return MONTH;
+    } else if (timeStepUnit == "day") {
+        return DAY;
+    } else if (timeStepUnit == "hour") {
+        return HOUR;
+    } else if (timeStepUnit == "minute") {
+        return MINUTE;
+    } else if (timeStepUnit == "second") {
+        return SECOND;
+    } else if (timeStepUnit == "step") {
+        return STEP;
+    } else {
+        REPORT_ERROR("Invalid time step unit \"" << timeStepUnit << "\"!");
+    }
+}
+
 /**
  *  This class describes the time point.
  */

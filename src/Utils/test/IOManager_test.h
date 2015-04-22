@@ -63,7 +63,7 @@ TEST_F(IOManagerTest, OutputFrequency) {
     mesh = new RLLMesh(*domain);
     mesh->init(10, 10);
 
-    int fileIdx = ioManager.registerOutputFile(*mesh, filePattern, MINUTE, 5);
+    int fileIdx = ioManager.addOutputFile(*mesh, filePattern, MINUTE, 5);
     RLLDataFile &dataFile = ioManager.files[fileIdx];
     ASSERT_FALSE(dataFile.isActive);
     while (!timeManager.isFinished()) {
@@ -96,37 +96,37 @@ TEST_F(IOManagerTest, OutputField) {
         f3(timeIdx, i) = 3;
     }
 
-    int fileIdx = ioManager.registerOutputFile(*mesh, filePattern, STEP, 1);
-    ioManager.file(fileIdx).registerField("double", RLLSpaceDimensions::FULL_DIMENSION, {&f1, &f2, &f3});
+    int fileIdx = ioManager.addOutputFile(*mesh, filePattern, STEP, 1);
+    ioManager.file(fileIdx).addField("double", RLLSpaceDimensions::FULL_DIMENSION, {&f1, &f2, &f3});
     ioManager.create(fileIdx);
     ioManager.output<double, 2>(fileIdx, timeIdx, {&f1, &f2});
     ioManager.output<double, 2>(fileIdx, timeIdx, {&f3});
     ioManager.close(fileIdx);
 
-    int fileID, unlimDimID, timeDimID;
+    int fileId, unlimDimID, timeDimId;
     int lonDimID, lonBndsDimID, latDimID, latBndsDimID;
-    int varID, numDim, dimIDs[3], numAtt, ret;
+    int varId, numDim, dimIDs[3], numAtt, ret;
     nc_type xtype;
     double *x;
     size_t attLen;
     char *att;
 
-    ret = nc_open("test-output.00000.nc", NC_NOWRITE, &fileID);
+    ret = nc_open("test-output.00000.nc", NC_NOWRITE, &fileId);
     ASSERT_EQ(NC_NOERR, ret);
 
-    ret = nc_inq_unlimdim(fileID, &unlimDimID);
+    ret = nc_inq_unlimdim(fileId, &unlimDimID);
     ASSERT_EQ(NC_NOERR, ret);
 
-    ret = nc_inq_dimid(fileID, "time", &timeDimID);
+    ret = nc_inq_dimid(fileId, "time", &timeDimId);
     ASSERT_EQ(NC_NOERR, ret);
 
-    ASSERT_EQ(timeDimID, unlimDimID);
+    ASSERT_EQ(timeDimId, unlimDimID);
 
-    ret = nc_inq_dimid(fileID, "lon", &lonDimID);
+    ret = nc_inq_dimid(fileId, "lon", &lonDimID);
     ASSERT_EQ(NC_NOERR, ret);
 
     x = new double[mesh->numGrid(0, FULL)];
-    ret = nc_get_var_double(fileID, lonDimID, x);
+    ret = nc_get_var_double(fileId, lonDimID, x);
     ASSERT_EQ(NC_NOERR, ret);
     for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
         // Note: 'i' starts from 1, so the index of 'x' is 'i-1'.
@@ -134,162 +134,162 @@ TEST_F(IOManagerTest, OutputField) {
     }
     delete [] x;
 
-    ret = nc_inq_dimid(fileID, "lon_bnds", &lonBndsDimID);
+    ret = nc_inq_dimid(fileId, "lon_bnds", &lonBndsDimID);
     ASSERT_EQ(NC_NOERR, ret);
 
-    ret = nc_inq_dimid(fileID, "lat", &latDimID);
+    ret = nc_inq_dimid(fileId, "lat", &latDimID);
     ASSERT_EQ(NC_NOERR, ret);
 
     x = new double[mesh->numGrid(1, FULL)];
-    ret = nc_get_var_double(fileID, latDimID, x);
+    ret = nc_get_var_double(fileId, latDimID, x);
     ASSERT_EQ(NC_NOERR, ret);
     for (int j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
         ASSERT_GE(1.0e-15, fabs(mesh->gridCoordComp(1, FULL, j)/RAD-x[j]));
     }
     delete [] x;
 
-    ret = nc_inq_dimid(fileID, "lat_bnds", &latBndsDimID);
+    ret = nc_inq_dimid(fileId, "lat_bnds", &latBndsDimID);
     ASSERT_EQ(NC_NOERR, ret);
 
-    ret = nc_inq_varid(fileID, "f1", &varID);
+    ret = nc_inq_varid(fileId, "f1", &varId);
     ASSERT_EQ(NC_NOERR, ret);
 
-    ret = nc_inq_varndims(fileID, varID, &numDim);
+    ret = nc_inq_varndims(fileId, varId, &numDim);
     ASSERT_EQ(NC_NOERR, ret);
     ASSERT_EQ(3, numDim);
 
-    ret = nc_inq_vardimid(fileID, varID, dimIDs);
+    ret = nc_inq_vardimid(fileId, varId, dimIDs);
     ASSERT_EQ(NC_NOERR, ret);
 
-    ASSERT_EQ(dimIDs[0], timeDimID);
+    ASSERT_EQ(dimIDs[0], timeDimId);
     ASSERT_EQ(dimIDs[1], latDimID);
     ASSERT_EQ(dimIDs[2], lonDimID);
 
     x = new double[mesh->totalNumGrid(f1.staggerLocation(), f1.numDim())];
-    ret = nc_get_var_double(fileID, varID, x);
+    ret = nc_get_var_double(fileId, varId, x);
     ASSERT_EQ(NC_NOERR, ret);
     for (int i = 0; i < mesh->totalNumGrid(f1.staggerLocation(), f1.numDim()); ++i) {
         ASSERT_EQ(x[i], f1(timeIdx, i));
     }
     delete [] x;
 
-    ret = nc_inq_varnatts(fileID, varID, &numAtt);
+    ret = nc_inq_varnatts(fileId, varId, &numAtt);
     ASSERT_EQ(NC_NOERR, ret);
     ASSERT_EQ(2, numAtt);
 
-    ret = nc_inq_att(fileID, varID, "long_name", &xtype, &attLen);
+    ret = nc_inq_att(fileId, varId, "long_name", &xtype, &attLen);
     ASSERT_EQ(NC_NOERR, ret);
     ASSERT_EQ(NC_CHAR, xtype);
 
     att = new char[attLen];
-    ret = nc_get_att(fileID, varID, "long_name", att);
+    ret = nc_get_att(fileId, varId, "long_name", att);
     ASSERT_EQ(NC_NOERR, ret);
     ASSERT_STREQ(f1.longName().c_str(), att);
     delete [] att;
 
-    ret = nc_inq_att(fileID, varID, "units", &xtype, &attLen);
+    ret = nc_inq_att(fileId, varId, "units", &xtype, &attLen);
     ASSERT_EQ(NC_NOERR, ret);
     ASSERT_EQ(NC_CHAR, xtype);
 
     att = new char[attLen];
-    ret = nc_get_att(fileID, varID, "units", att);
+    ret = nc_get_att(fileId, varId, "units", att);
     ASSERT_EQ(NC_NOERR, ret);
     ASSERT_STREQ(f1.units().c_str(), att);
     delete [] att;
 
-    ret = nc_inq_varid(fileID, "f2", &varID);
+    ret = nc_inq_varid(fileId, "f2", &varId);
     ASSERT_EQ(NC_NOERR, ret);
 
-    ret = nc_inq_varndims(fileID, varID, &numDim);
+    ret = nc_inq_varndims(fileId, varId, &numDim);
     ASSERT_EQ(NC_NOERR, ret);
     ASSERT_EQ(3, numDim);
 
-    ret = nc_inq_vardimid(fileID, varID, dimIDs);
+    ret = nc_inq_vardimid(fileId, varId, dimIDs);
     ASSERT_EQ(NC_NOERR, ret);
 
-    ASSERT_EQ(dimIDs[0], timeDimID);
+    ASSERT_EQ(dimIDs[0], timeDimId);
     ASSERT_EQ(dimIDs[1], latDimID);
     ASSERT_EQ(dimIDs[2], lonBndsDimID);
 
     x = new double[mesh->totalNumGrid(f2.staggerLocation(), f2.numDim())];
-    ret = nc_get_var_double(fileID, varID, x);
+    ret = nc_get_var_double(fileId, varId, x);
     ASSERT_EQ(NC_NOERR, ret);
     for (int i = 0; i < mesh->totalNumGrid(f2.staggerLocation(), f2.numDim()); ++i) {
         ASSERT_EQ(x[i], f2(timeIdx, i));
     }
     delete [] x;
 
-    ret = nc_inq_varnatts(fileID, varID, &numAtt);
+    ret = nc_inq_varnatts(fileId, varId, &numAtt);
     ASSERT_EQ(NC_NOERR, ret);
     ASSERT_EQ(2, numAtt);
 
-    ret = nc_inq_att(fileID, varID, "long_name", &xtype, &attLen);
+    ret = nc_inq_att(fileId, varId, "long_name", &xtype, &attLen);
     ASSERT_EQ(NC_NOERR, ret);
     ASSERT_EQ(NC_CHAR, xtype);
 
     att = new char[attLen];
-    ret = nc_get_att(fileID, varID, "long_name", att);
+    ret = nc_get_att(fileId, varId, "long_name", att);
     ASSERT_EQ(NC_NOERR, ret);
     ASSERT_STREQ(f2.longName().c_str(), att);
     delete [] att;
 
-    ret = nc_inq_att(fileID, varID, "units", &xtype, &attLen);
+    ret = nc_inq_att(fileId, varId, "units", &xtype, &attLen);
     ASSERT_EQ(NC_NOERR, ret);
     ASSERT_EQ(NC_CHAR, xtype);
 
     att = new char[attLen];
-    ret = nc_get_att(fileID, varID, "units", att);
+    ret = nc_get_att(fileId, varId, "units", att);
     ASSERT_EQ(NC_NOERR, ret);
     ASSERT_STREQ(f2.units().c_str(), att);
     delete [] att;
 
-    ret = nc_inq_varid(fileID, "f3", &varID);
+    ret = nc_inq_varid(fileId, "f3", &varId);
     ASSERT_EQ(NC_NOERR, ret);
 
-    ret = nc_inq_varndims(fileID, varID, &numDim);
+    ret = nc_inq_varndims(fileId, varId, &numDim);
     ASSERT_EQ(NC_NOERR, ret);
     ASSERT_EQ(3, numDim);
 
-    ret = nc_inq_vardimid(fileID, varID, dimIDs);
+    ret = nc_inq_vardimid(fileId, varId, dimIDs);
     ASSERT_EQ(NC_NOERR, ret);
 
-    ASSERT_EQ(dimIDs[0], timeDimID);
+    ASSERT_EQ(dimIDs[0], timeDimId);
     ASSERT_EQ(dimIDs[1], latBndsDimID);
     ASSERT_EQ(dimIDs[2], lonDimID);
 
     x = new double[mesh->totalNumGrid(f3.staggerLocation(), f3.numDim())];
-    ret = nc_get_var_double(fileID, varID, x);
+    ret = nc_get_var_double(fileId, varId, x);
     ASSERT_EQ(NC_NOERR, ret);
     for (int i = 0; i < mesh->totalNumGrid(f3.staggerLocation(), f3.numDim()); ++i) {
         ASSERT_EQ(x[i], f3(timeIdx, i));
     }
     delete [] x;
 
-    ret = nc_inq_varnatts(fileID, varID, &numAtt);
+    ret = nc_inq_varnatts(fileId, varId, &numAtt);
     ASSERT_EQ(NC_NOERR, ret);
     ASSERT_EQ(2, numAtt);
 
-    ret = nc_inq_att(fileID, varID, "long_name", &xtype, &attLen);
+    ret = nc_inq_att(fileId, varId, "long_name", &xtype, &attLen);
     ASSERT_EQ(NC_NOERR, ret);
     ASSERT_EQ(NC_CHAR, xtype);
 
     att = new char[attLen];
-    ret = nc_get_att(fileID, varID, "long_name", att);
+    ret = nc_get_att(fileId, varId, "long_name", att);
     ASSERT_EQ(NC_NOERR, ret);
     ASSERT_STREQ(f3.longName().c_str(), att);
     delete [] att;
 
-    ret = nc_inq_att(fileID, varID, "units", &xtype, &attLen);
+    ret = nc_inq_att(fileId, varId, "units", &xtype, &attLen);
     ASSERT_EQ(NC_NOERR, ret);
     ASSERT_EQ(NC_CHAR, xtype);
 
     att = new char[attLen];
-    ret = nc_get_att(fileID, varID, "units", att);
+    ret = nc_get_att(fileId, varId, "units", att);
     ASSERT_EQ(NC_NOERR, ret);
     ASSERT_STREQ(f3.units().c_str(), att);
     delete [] att;
 
-    ret = nc_close(fileID);
+    ret = nc_close(fileId);
 
     SystemTools::removeFile("test-output.00000.nc");
 }

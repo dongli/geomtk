@@ -53,17 +53,20 @@ public:
     RLLVelocityField();
     virtual ~RLLVelocityField();
 
-    void applyBndCond(const TimeLevelIndex<2> &timeIdx,
-                      bool updateHalfLevel = false);
+    void
+    applyBndCond(const TimeLevelIndex<2> &timeIdx, bool updateHalfLevel = false);
 
-    virtual void create(const RLLMesh &mesh, bool useStagger,
-                        bool hasHalfLevel = false);
+    virtual void
+    create(const RLLMesh &mesh, bool useStagger, bool hasHalfLevel = false);
 
-    const PolarRing& getPolarRing(Pole pole) const { return rings[pole]; }
+    const PolarRing&
+    getPolarRing(Pole pole) const { return rings[pole]; }
 
-    virtual void calcDivergence(const TimeLevelIndex<2> &timeIdx);
+    virtual void
+    calcDivergence(const TimeLevelIndex<2> &timeIdx);
 
-    virtual void calcVorticity(const TimeLevelIndex<2> &timeIdx);
+    virtual void
+    calcVorticity(const TimeLevelIndex<2> &timeIdx);
 };
 
 } // geomtk

@@ -12,66 +12,84 @@ namespace geomtk {
  */
 template <class DataFileType>
 class IOManager {
+public:
+    typedef typename DataFileType::MeshType MeshType;
 private:
     TimeManager *timeManager;
     vector<DataFileType> files;
 public:
-    typedef typename DataFileType::MeshType MeshType;
-
     IOManager();
     virtual ~IOManager();
 
-    void init(TimeManager &timeManager);
+    void
+    init(TimeManager &timeManager);
 
-    int registerInputFile(MeshType &mesh, const string &filePattern);
+    int
+    addInputFile(MeshType &mesh, const string &filePattern);
 
-    int registerOutputFile(MeshType &mesh,
-                           StampString &filePattern,
-                           TimeStepUnit freqUnit, double freq);
+    int
+    addOutputFile(MeshType &mesh, StampString &filePattern,
+                  TimeStepUnit freqUnit, double freq);
 
-    int registerOutputFile(MeshType &mesh,
-                           const string &filePattern,
-                           TimeStepUnit freqUnit, double freq);
+    int
+    addOutputFile(MeshType &mesh, const string &filePattern,
+                  TimeStepUnit freqUnit, double freq);
 
-    void removeFile(int fileIdx);
+    void
+    removeFile(int fileIdx);
 
-    DataFileType& file(int fileIdx);
+    DataFileType&
+    file(int fileIdx);
 
-    void registerField(int fileIdx, const string &xtype, int spaceDims,
-                       initializer_list<Field<MeshType>*> fields);
+    void
+    addField(int fileIdx, const string &xtype, int spaceDims,
+             initializer_list<Field<MeshType>*> fields);
 
-    void open(int fileIdx);
+    void
+    open(int fileIdx);
 
-    void create(int fileIdx);
+    void
+    create(int fileIdx);
 
-    Time getTime(int fileIdx) const;
-    Time getTime(const string &fileName) const;
+    Time
+    getTime(int fileIdx) const;
 
-    void updateTime(int fileIdx, TimeManager &timeManager);
+    Time
+    getTime(const string &filePath) const;
+
+    void
+    updateTime(int fileIdx, TimeManager &timeManager);
 
     template <typename DataType, int NumTimeLevel>
-    void input(int fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
-               initializer_list<Field<MeshType>*> fields);
+    void
+    input(int fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
+          initializer_list<Field<MeshType>*> fields);
 
     template <typename DataType>
-    void input(int fileIdx, initializer_list<Field<MeshType>*> fields);
+    void
+    input(int fileIdx, initializer_list<Field<MeshType>*> fields);
 
     template <typename DataType, int NumTimeLevel>
-    void input(int fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
-               int timeCounter, initializer_list<Field<MeshType>*> fields);
+    void
+    input(int fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
+          int timeCounter, initializer_list<Field<MeshType>*> fields);
 
     template <typename DataType>
-    void input(int fileIdx, int timeCounter,
-               initializer_list<Field<MeshType>*> fields);
+    void
+    input(int fileIdx, int timeCounter,
+          initializer_list<Field<MeshType>*> fields);
 
     template <typename DataType, int NumTimeLevel>
-    void output(int fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
-               initializer_list<Field<MeshType>*> fields);
+    void
+    output(int fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
+           initializer_list<Field<MeshType>*> fields);
     
     template <typename DataType>
-    void output(int fileIdx, initializer_list<Field<MeshType>*> fields);
+    void
+    output(int fileIdx, initializer_list<Field<MeshType>*> fields);
 
-    void close(int fileIdx);
+    void
+    close(int fileIdx);
 
     /**
      *  Check if file is active for input or output.
@@ -80,8 +98,9 @@ public:
      *
      *  @return The boolean result.
      */
-    bool isFileActive(int fileIdx);
-};
+    bool
+    isFileActive(int fileIdx);
+}; // IOManager
 
 } // geomtk
 

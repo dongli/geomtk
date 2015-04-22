@@ -11,8 +11,15 @@ struct CartesianSpaceDimensions : public StructuredSpaceDimensions {
 
 class CartesianDataFile : public StructuredDataFile<CartesianMesh> {
 public:
-	CartesianDataFile(MeshType &mesh) : StructuredDataFile<CartesianMesh>(mesh) {}
+	CartesianDataFile(MeshType &mesh, TimeManager &timeManager)
+        : StructuredDataFile<CartesianMesh>(mesh, timeManager) {}
 	virtual ~CartesianDataFile() {}
+
+    virtual void
+    inputHorizontalMesh();
+
+    virtual void
+    inputVerticalMesh();
 };
 
 } // geomtk

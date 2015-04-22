@@ -2,11 +2,14 @@
 
 namespace geomtk {
 
-SphereDomain::SphereDomain() {
+SphereDomain::
+SphereDomain() {
     SphereDomain(2);
 }
 
-SphereDomain::SphereDomain(int numDim) : Domain(numDim) {
+SphereDomain::
+SphereDomain(int numDim)
+: Domain(numDim) {
     _type = SPHERE_DOMAIN;
     if (numDim != 2) {
         REPORT_ERROR("Spherical domain dimension should be 2 in this case!");
@@ -16,7 +19,9 @@ SphereDomain::SphereDomain(int numDim) : Domain(numDim) {
     setAxis(1, "lat", "latitude", "radian_north", -M_PI_2, POLE, M_PI_2, POLE);
 }
 
-SphereDomain::SphereDomain(VertCoordType vertCoordType) : Domain(vertCoordType) {
+SphereDomain::
+SphereDomain(VertCoordType vertCoordType)
+: Domain(vertCoordType) {
     _type = SPHERE_DOMAIN;
     _radius = 1.0;
     setAxis(0, "lon", "longitude", "radian_east", 0.0, PERIODIC, 2.0*M_PI, PERIODIC);
@@ -40,11 +45,17 @@ SphereDomain::SphereDomain(VertCoordType vertCoordType) : Domain(vertCoordType) 
     }
 }
 
-SphereDomain::~SphereDomain() {
+SphereDomain::
+~SphereDomain() {
 }
 
-double SphereDomain::calcDistance(const SphereCoord &x,
-                                  const SphereCoord &y) const {
+void SphereDomain::
+init(const string &filePath) {
+    REPORT_ERROR("Under construction!");
+}
+
+double SphereDomain::
+calcDistance(const SphereCoord &x, const SphereCoord &y) const {
     double dlon = x(0)-y(0);
     double tmp1 = x.sinLat()*y.sinLat();
     double tmp2 = x.cosLat()*y.cosLat()*cos(dlon);
@@ -52,8 +63,8 @@ double SphereDomain::calcDistance(const SphereCoord &x,
     return _radius*acos(tmp3);
 }
 
-double SphereDomain::calcDistance(const SphereCoord &x, double lon,
-                                  double lat) const {
+double SphereDomain::
+calcDistance(const SphereCoord &x, double lon, double lat) const {
     double dlon = x(0)-lon;
     double tmp1 = x.sinLat()*sin(lat);
     double tmp2 = x.cosLat()*cos(lat)*cos(dlon);
@@ -61,8 +72,8 @@ double SphereDomain::calcDistance(const SphereCoord &x, double lon,
     return _radius*acos(tmp3);
 }
 
-double SphereDomain::calcDistance(const SphereCoord &x, double lon,
-                                  double sinLat, double cosLat) const {
+double SphereDomain::
+calcDistance(const SphereCoord &x, double lon, double sinLat, double cosLat) const {
     double dlon = x(0)-lon;
     double tmp1 = x.sinLat()*sinLat;
     double tmp2 = x.cosLat()*cosLat*cos(dlon);
@@ -70,8 +81,8 @@ double SphereDomain::calcDistance(const SphereCoord &x, double lon,
     return _radius*acos(tmp3);
 }
     
-vec SphereDomain::diffCoord(const SphereCoord &x,
-                            const SphereCoord &y) const {
+vec SphereDomain::
+diffCoord(const SphereCoord &x, const SphereCoord &y) const {
     vec d(numDim());
     for (int m = 0; m < numDim(); ++m) {
         d(m) = x(m)-y(m);
@@ -86,8 +97,8 @@ vec SphereDomain::diffCoord(const SphereCoord &x,
     return d;
 }
 
-void SphereDomain::rotate(const SphereCoord &xp, const SphereCoord &xo,
-                          SphereCoord &xr) const {
+void SphereDomain::
+rotate(const SphereCoord &xp, const SphereCoord &xo, SphereCoord &xr) const {
     double dlon = xo(0)-xp(0);
     double cosDlon = cos(dlon);
     double sinDlon = sin(dlon);
@@ -115,8 +126,8 @@ void SphereDomain::rotate(const SphereCoord &xp, const SphereCoord &xo,
     xr.setCoord(lon, lat);
 }
 
-void SphereDomain::rotate(const SphereCoord &xp, const SphereCoord &xo,
-                          double &lonR, double &latR) const {
+void SphereDomain::
+rotate(const SphereCoord &xp, const SphereCoord &xo, double &lonR, double &latR) const {
     double dlon = xo(0)-xp(0);
     double cosDlon = cos(dlon);
     double sinDlon = sin(dlon);
@@ -143,8 +154,8 @@ void SphereDomain::rotate(const SphereCoord &xp, const SphereCoord &xo,
     latR = asin(tmp3);
 }
 
-void SphereDomain::rotateBack(const SphereCoord &xp, SphereCoord &xo,
-                              const SphereCoord &xr) const {
+void SphereDomain::
+rotateBack(const SphereCoord &xp, SphereCoord &xo, const SphereCoord &xr) const {
     double tmp1, tmp2, tmp3, lon, lat;
     
     tmp1 = xr.cosLat()*xr.sinLon();
@@ -175,8 +186,8 @@ void SphereDomain::rotateBack(const SphereCoord &xp, SphereCoord &xo,
     xo.setCoord(lon, lat);
 }
     
-void SphereDomain::rotateBack(const SphereCoord &xp, SphereCoord &xo,
-                              double lonR, double latR) const {
+void SphereDomain::
+rotateBack(const SphereCoord &xp, SphereCoord &xo, double lonR, double latR) const {
     double tmp1, tmp2, tmp3, lon, lat;
     
     double sinLonR = sin(lonR);
@@ -212,8 +223,8 @@ void SphereDomain::rotateBack(const SphereCoord &xp, SphereCoord &xo,
     xo.setCoord(lon, lat);
 }
 
-void SphereDomain::project(ProjectionType projType, const SphereCoord &xp,
-                           const SphereCoord &xo, vec &xs) const {
+void SphereDomain::
+project(ProjectionType projType, const SphereCoord &xp, const SphereCoord &xo, vec &xs) const {
     switch (projType) {
         case STEREOGRAPHIC:
             double lon, lat;
@@ -227,8 +238,8 @@ void SphereDomain::project(ProjectionType projType, const SphereCoord &xp,
     }
 }
  
-void SphereDomain::projectBack(ProjectionType projType, const SphereCoord &xp,
-                               SphereCoord &xo, const vec &xs) const {
+void SphereDomain::
+projectBack(ProjectionType projType, const SphereCoord &xp, SphereCoord &xo, const vec &xs) const {
     switch (projType) {
         case STEREOGRAPHIC:
             double lon, lat;
@@ -243,7 +254,8 @@ void SphereDomain::projectBack(ProjectionType projType, const SphereCoord &xp,
     }
 }
 
-string SphereDomain::brief() const {
+string SphereDomain::
+brief() const {
     static string brief = "sphere domain";
     return brief;
 }

@@ -2,7 +2,8 @@ namespace geomtk {
 
 template <class MeshType>
 StructuredDataFile<MeshType>::
-StructuredDataFile(MeshType &mesh) : DataFile<MeshType>(mesh) {
+StructuredDataFile(MeshType &mesh, TimeManager &timeManager)
+: DataFile<MeshType>(mesh, timeManager) {
     fullDimIDs.resize(mesh.domain().numDim());
     fullVarIDs.resize(mesh.domain().numDim());
     halfDimIDs.resize(mesh.domain().numDim());
@@ -17,13 +18,13 @@ open(const TimeManager &timeManager) {
     int ret;
     // inquire full dimensions
     for (int m = 0; m < domain.numDim(); ++m) {
-        ret = nc_inq_dimid(this->fileID, domain.axisName(m).c_str(), &fullDimIDs[m]);
-        CHECK_NC_INQ_DIMID(ret, this->fileName, domain.axisName(m));
+        ret = nc_inq_dimid(this->fileId, domain.axisName(m).c_str(), &fullDimIDs[m]);
+        CHECK_NC_INQ_DIMID(ret, this->filePath, domain.axisName(m));
         if (this->mesh().isSet()) {
             // check if mesh is matched with file
             size_t len;
-            ret = nc_inq_dimlen(this->fileID, fullDimIDs[m], &len);
-            CHECK_NC_INQ_DIMLEN(ret, this->fileName, domain.axisName(m));
+            ret = nc_inq_dimlen(this->fileId, fullDimIDs[m], &len);
+            CHECK_NC_INQ_DIMLEN(ret, this->filePath, domain.axisName(m));
             if (len != this->mesh().numGrid(m, StructuredStagger::GridType::FULL)) {
                 REPORT_ERROR("Dimension " << domain.axisName(m) <<
                              " length (" << len << " - " <<
@@ -31,23 +32,23 @@ open(const TimeManager &timeManager) {
                              << ") does not match!");
             }
         }
-        ret = nc_inq_varid(this->fileID, domain.axisName(m).c_str(), &fullVarIDs[m]);
-        CHECK_NC_INQ_VARID(ret, this->fileName, domain.axisName(m));
+        ret = nc_inq_varid(this->fileId, domain.axisName(m).c_str(), &fullVarIDs[m]);
+        CHECK_NC_INQ_VARID(ret, this->filePath, domain.axisName(m));
     }
     // check if the bounds are in 2D format
-    ret = nc_inq_dimid(this->fileID, "bnds", &bndsDimID);
+    ret = nc_inq_dimid(this->fileId, "bnds", &bndsDimID);
     if (ret == NC_NOERR) {
         bnds2D = true;
     }
     // inquire fields
     for (int i = 0; i < this->fieldInfos.size(); ++i) {
         string name = this->fieldInfos[i].field->name();
-        ret = nc_inq_varid(this->fileID, name.c_str(), &this->fieldInfos[i].varID);
-        CHECK_NC_INQ_VARID(ret, this->fileName, name);
-        ret = nc_inq_vartype(this->fileID, this->fieldInfos[i].varID, &this->fieldInfos[i].xtype);
-        CHECK_NC_INQ_VARTYPE(ret, this->fileName, name);
+        ret = nc_inq_varid(this->fileId, name.c_str(), &this->fieldInfos[i].varId);
+        CHECK_NC_INQ_VARID(ret, this->filePath, name);
+        ret = nc_inq_vartype(this->fileId, this->fieldInfos[i].varId, &this->fieldInfos[i].xtype);
+        CHECK_NC_INQ_VARTYPE(ret, this->filePath, name);
     }
-}
+} // open
 
 template <class MeshType>
 void StructuredDataFile<MeshType>::
@@ -60,23 +61,23 @@ create(const TimeManager &timeManager) {
         name = domain.axisName(m);
         longName = domain.axisLongName(m);
         // full grids
-        ret = nc_def_dim(this->fileID, name.c_str(),
+        ret = nc_def_dim(this->fileId, name.c_str(),
                          this->mesh().numGrid(m, GridType::FULL), &fullDimIDs[m]);
-        CHECK_NC_DEF_DIM(ret, this->fileName, name);
-        ret = nc_def_var(this->fileID, name.c_str(), NC_DOUBLE, 1,
+        CHECK_NC_DEF_DIM(ret, this->filePath, name);
+        ret = nc_def_var(this->fileId, name.c_str(), NC_DOUBLE, 1,
                          &fullDimIDs[m], &fullVarIDs[m]);
-        CHECK_NC_DEF_VAR(ret, this->fileName, name);
-        ret = nc_put_att(this->fileID, fullVarIDs[m], "long_name", NC_CHAR,
+        CHECK_NC_DEF_VAR(ret, this->filePath, name);
+        ret = nc_put_att(this->fileId, fullVarIDs[m], "long_name", NC_CHAR,
                          longName.length(), longName.c_str());
-        CHECK_NC_PUT_ATT(ret, this->fileName, name, "long_name");
+        CHECK_NC_PUT_ATT(ret, this->filePath, name, "long_name");
         // half grids
         name += "_bnds";
-        ret = nc_def_dim(this->fileID, name.c_str(),
+        ret = nc_def_dim(this->fileId, name.c_str(),
                          this->mesh().numGrid(m, GridType::HALF), &halfDimIDs[m]);
-        CHECK_NC_DEF_DIM(ret, this->fileName, name);
-        ret = nc_def_var(this->fileID, name.c_str(), NC_DOUBLE, 1,
+        CHECK_NC_DEF_DIM(ret, this->filePath, name);
+        ret = nc_def_var(this->fileId, name.c_str(), NC_DOUBLE, 1,
                          &halfDimIDs[m], &halfVarIDs[m]);
-        CHECK_NC_DEF_VAR(ret, this->fileName, name);
+        CHECK_NC_DEF_VAR(ret, this->filePath, name);
     }
     // define fields
     for (int i = 0; i < this->fieldInfos.size(); ++i) {
@@ -90,7 +91,7 @@ create(const TimeManager &timeManager) {
                 switch (this->fieldInfos[i].spaceDims) {
                     case SpaceDimensions::FULL_DIMENSION:
                         dimIDs.resize(domain.numDim()+1);
-                        dimIDs[0] = this->timeDimID;
+                        dimIDs[0] = this->timeDimId;
                         for (int m = domain.numDim()-1; m >= 0; --m) {
                             dimIDs[l++] = fullDimIDs[m];
                         }
@@ -112,7 +113,7 @@ create(const TimeManager &timeManager) {
                 switch (this->fieldInfos[i].spaceDims) {
                     case SpaceDimensions::FULL_DIMENSION:
                         dimIDs.resize(domain.numDim()+1);
-                        dimIDs[0] = this->timeDimID;
+                        dimIDs[0] = this->timeDimId;
                         for (int m = domain.numDim()-1; m >= 0; --m) {
                             if (m == 0) {
                                 dimIDs[l++] = halfDimIDs[m];
@@ -138,7 +139,7 @@ create(const TimeManager &timeManager) {
                 switch (this->fieldInfos[i].spaceDims) {
                     case SpaceDimensions::FULL_DIMENSION:
                         dimIDs.resize(domain.numDim()+1);
-                        dimIDs[0] = this->timeDimID;
+                        dimIDs[0] = this->timeDimId;
                         for (int m = domain.numDim()-1; m >= 0; --m) {
                             if (m == 1) {
                                 dimIDs[l++] = halfDimIDs[m];
@@ -164,7 +165,7 @@ create(const TimeManager &timeManager) {
                 switch (this->fieldInfos[i].spaceDims) {
                     case SpaceDimensions::FULL_DIMENSION:
                         dimIDs.resize(domain.numDim()+1);
-                        dimIDs[0] = this->timeDimID;
+                        dimIDs[0] = this->timeDimId;
                         for (int m = domain.numDim()-1; m >= 0; --m) {
                             if (m == 2) {
                                 dimIDs[l++] = halfDimIDs[m];
@@ -190,7 +191,7 @@ create(const TimeManager &timeManager) {
                 switch (this->fieldInfos[i].spaceDims) {
                     case SpaceDimensions::FULL_DIMENSION:
                         dimIDs.resize(domain.numDim()+1);
-                        dimIDs[0] = this->timeDimID;
+                        dimIDs[0] = this->timeDimId;
                         for (int m = domain.numDim()-1; m >= 0; --m) {
                             if (m == 0 || m == 1) {
                                 dimIDs[l++] = halfDimIDs[m];
@@ -215,69 +216,69 @@ create(const TimeManager &timeManager) {
             default:
                 REPORT_ERROR("Unknown stagger location!");
         }
-        ret = nc_def_var(this->fileID, name.c_str(), this->fieldInfos[i].xtype,
-                         dimIDs.size(), &dimIDs[0], &this->fieldInfos[i].varID);
-        CHECK_NC_DEF_VAR(ret, this->fileName, name);
-        ret = nc_put_att(this->fileID, this->fieldInfos[i].varID, "long_name", NC_CHAR,
+        ret = nc_def_var(this->fileId, name.c_str(), this->fieldInfos[i].xtype,
+                         dimIDs.size(), &dimIDs[0], &this->fieldInfos[i].varId);
+        CHECK_NC_DEF_VAR(ret, this->filePath, name);
+        ret = nc_put_att(this->fileId, this->fieldInfos[i].varId, "long_name", NC_CHAR,
                          longName.length(), longName.c_str());
-        CHECK_NC_PUT_ATT(ret, this->fileName, name, "long_name");
-        ret = nc_put_att(this->fileID, this->fieldInfos[i].varID, "units", NC_CHAR,
+        CHECK_NC_PUT_ATT(ret, this->filePath, name, "long_name");
+        ret = nc_put_att(this->fileId, this->fieldInfos[i].varId, "units", NC_CHAR,
                          units.length(), units.c_str());
-        CHECK_NC_PUT_ATT(ret, this->fileName, name, "units");
+        CHECK_NC_PUT_ATT(ret, this->filePath, name, "units");
     }
-    // turn off define mode
-    ret = nc_enddef(this->fileID);
-}
+    ret = nc_enddef(this->fileId);
+} // create
 
 template <class MeshType>
 void StructuredDataFile<MeshType>::
-inputGrids() {
-    REPORT_ERROR("Under construction!");
-}
+inputMesh() {
+    inputHorizontalMesh();
+    inputVerticalMesh();
+} // inputMesh
 
 template <class MeshType>
 void StructuredDataFile<MeshType>::
-inputHorizontalGrids() {
-    REPORT_ERROR("Under construction!");
-}
+inputHorizontalMesh() {
+    REPORT_ERROR("Data file derived from StructuredDataFile should implement inputHorizontalMesh method!");
+} // inputHorizontalMesh
 
 template <class MeshType>
 void StructuredDataFile<MeshType>::
-inputVerticalGrids() {
-    REPORT_ERROR("Under construction!");
-}
+inputVerticalMesh() {
+    REPORT_ERROR("Data file derived from StructuredDataFile should implement inputVerticalMesh method!");
+} // inputVerticalMesh
 
 template <class MeshType>
 void StructuredDataFile<MeshType>::
-outputGrids() {
+outputMesh() {
     const auto &domain = this->mesh().domain();
     int ret;
     // write units
-    ret = nc_redef(this->fileID);
+    ret = nc_redef(this->fileId);
     for (int m = 0; m < domain.numDim(); ++m) {
         string units = domain.axisUnits(m);
-        ret = nc_put_att(this->fileID, fullVarIDs[m], "units", NC_CHAR,
+        ret = nc_put_att(this->fileId, fullVarIDs[m], "units", NC_CHAR,
                          units.length(), units.c_str());
-        CHECK_NC_PUT_ATT(ret, this->fileName, domain.axisName(m), "units");
-        ret = nc_put_att(this->fileID, halfVarIDs[m], "units", NC_CHAR,
+        CHECK_NC_PUT_ATT(ret, this->filePath, domain.axisName(m), "units");
+        ret = nc_put_att(this->fileId, halfVarIDs[m], "units", NC_CHAR,
                          units.length(), units.c_str());
-        CHECK_NC_PUT_ATT(ret, this->fileName, domain.axisName(m)+"_bnds", "units");
+        CHECK_NC_PUT_ATT(ret, this->filePath, domain.axisName(m)+"_bnds", "units");
     }
-    ret = nc_enddef(this->fileID);
+    ret = nc_enddef(this->fileId);
     // write spatial grids
     for (int m = 0; m < domain.numDim(); ++m) {
-        ret = nc_put_var(this->fileID, fullVarIDs[m],
+        ret = nc_put_var(this->fileId, fullVarIDs[m],
                          this->mesh().gridCoordComps(m, GridType::FULL).memptr());
-        CHECK_NC_PUT_VAR(ret, this->fileName, domain.axisName(m));
-        ret = nc_put_var(this->fileID, halfVarIDs[m],
+        CHECK_NC_PUT_VAR(ret, this->filePath, domain.axisName(m));
+        ret = nc_put_var(this->fileId, halfVarIDs[m],
                          this->mesh().gridCoordComps(m, GridType::HALF).memptr());
-        CHECK_NC_PUT_VAR(ret, this->fileName, domain.axisName(m)+"_bnds");
+        CHECK_NC_PUT_VAR(ret, this->filePath, domain.axisName(m)+"_bnds");
     }
-}
+} // outputMesh
 
 template <class MeshType>
 void StructuredDataFile<MeshType>::
-registerField(const string &xtype, int spaceDims,
+addField(const string &xtype, int spaceDims,
               initializer_list<Field<MeshType>*> fields) {
     for (auto field : fields) {
         FieldInfo<MeshType> info;
@@ -294,7 +295,7 @@ registerField(const string &xtype, int spaceDims,
         info.spaceDims = spaceDims;
         this->fieldInfos.push_back(info);
     }
-}
+} // addField
 
 template <class MeshType>
 void StructuredDataFile<MeshType>::
@@ -310,10 +311,10 @@ removeField(initializer_list<Field<MeshType>*> fields) {
         if (i == this->fieldInfos.size()) {
             REPORT_ERROR("Field \"" << field->name() <<
                          "\" is not in the file \"" <<
-                         this->fileName << "\"!");
+                         this->filePath << "\"!");
         }
     }
-}
+} // removeField
 
 template <class MeshType>
 template <typename DataType, int NumTimeLevel>
@@ -335,24 +336,24 @@ input(const TimeLevelIndex<NumTimeLevel> &timeIdx,
                 // TODO: Try to eliminiate the following duplicates.
                 if (info.xtype == NC_DOUBLE) {
                     double *x = new double[n];
-                    ret = nc_get_var_double(this->fileID, info.varID, x);
-                    CHECK_NC_GET_VAR(ret, this->fileName, field->name());
+                    ret = nc_get_var_double(this->fileId, info.varId, x);
+                    CHECK_NC_GET_VAR(ret, this->filePath, field->name());
                     for (int k = 0; k < n; ++k) {
                         (*field)(timeIdx, k) = x[k];
                     }
                     delete [] x;
                 } else if (info.xtype == NC_FLOAT) {
                     float *x = new float[n];
-                    ret = nc_get_var_float(this->fileID, info.varID, x);
-                    CHECK_NC_GET_VAR(ret, this->fileName, field->name());
+                    ret = nc_get_var_float(this->fileId, info.varId, x);
+                    CHECK_NC_GET_VAR(ret, this->filePath, field->name());
                     for (int k = 0; k < n; ++k) {
                         (*field)(timeIdx, k) = x[k];
                     }
                     delete [] x;
                 } else if (info.xtype == NC_INT) {
                     int *x = new int[n];
-                    ret = nc_get_var_int(this->fileID, info.varID, x);
-                    CHECK_NC_GET_VAR(ret, this->fileName, field->name());
+                    ret = nc_get_var_int(this->fileId, info.varId, x);
+                    CHECK_NC_GET_VAR(ret, this->filePath, field->name());
                     for (int k = 0; k < n; ++k) {
                         (*field)(timeIdx, k) = x[k];
                     }
@@ -362,10 +363,10 @@ input(const TimeLevelIndex<NumTimeLevel> &timeIdx,
             }
         }
         if (!tag) {
-            REPORT_ERROR("Field \"" << field_->name() << "\" is not registered for input!");
+            REPORT_ERROR("Field \"" << field_->name() << "\" is not added for input!");
         }
     }
-}
+} // input
 
 template <class MeshType>
 template <typename DataType>
@@ -385,24 +386,24 @@ input(initializer_list<Field<MeshType>*> fields) {
                 int n = this->mesh().totalNumGrid(field->staggerLocation(), field->numDim());
                 if (info.xtype == NC_DOUBLE) {
                     double *x = new double[n];
-                    ret = nc_get_var_double(this->fileID, info.varID, x);
-                    CHECK_NC_GET_VAR(ret, this->fileName, field->name());
+                    ret = nc_get_var_double(this->fileId, info.varId, x);
+                    CHECK_NC_GET_VAR(ret, this->filePath, field->name());
                     for (int k = 0; k < n; ++k) {
                         (*field)(k) = x[k];
                     }
                     delete [] x;
                 } else if (info.xtype == NC_FLOAT) {
                     float *x = new float[n];
-                    ret = nc_get_var_float(this->fileID, info.varID, x);
-                    CHECK_NC_GET_VAR(ret, this->fileName, field->name());
+                    ret = nc_get_var_float(this->fileId, info.varId, x);
+                    CHECK_NC_GET_VAR(ret, this->filePath, field->name());
                     for (int k = 0; k < n; ++k) {
                         (*field)(k) = x[k];
                     }
                     delete [] x;
                 } else if (info.xtype == NC_INT) {
                     int *x = new int[n];
-                    ret = nc_get_var_int(this->fileID, info.varID, x);
-                    CHECK_NC_GET_VAR(ret, this->fileName, field->name());
+                    ret = nc_get_var_int(this->fileId, info.varId, x);
+                    CHECK_NC_GET_VAR(ret, this->filePath, field->name());
                     for (int k = 0; k < n; ++k) {
                         (*field)(k) = x[k];
                     }
@@ -412,10 +413,10 @@ input(initializer_list<Field<MeshType>*> fields) {
             }
         }
         if (!tag) {
-            REPORT_ERROR("Field \"" << field_->name() << "\" is not registered for input!");
+            REPORT_ERROR("Field \"" << field_->name() << "\" is not added for input!");
         }
     }
-}
+} // input
 
 template <class MeshType>
 template <typename DataType, int NumTimeLevel>
@@ -493,24 +494,24 @@ input(const TimeLevelIndex<NumTimeLevel> &timeIdx,
                 }
                 if (info.xtype == NC_DOUBLE) {
                     double *x = new double[n];
-                    ret = nc_get_vara_double(this->fileID, info.varID, start, count, x);
-                    CHECK_NC_GET_VAR(ret, this->fileName, field->name());
+                    ret = nc_get_vara_double(this->fileId, info.varId, start, count, x);
+                    CHECK_NC_GET_VAR(ret, this->filePath, field->name());
                     for (int k = 0; k < n; ++k) {
                         (*field)(timeIdx, k) = x[k];
                     }
                     delete [] x;
                 } else if (info.xtype == NC_FLOAT) {
                     float *x = new float[n];
-                    ret = nc_get_vara_float(this->fileID, info.varID, start, count, x);
-                    CHECK_NC_GET_VAR(ret, this->fileName, field->name());
+                    ret = nc_get_vara_float(this->fileId, info.varId, start, count, x);
+                    CHECK_NC_GET_VAR(ret, this->filePath, field->name());
                     for (int k = 0; k < n; ++k) {
                         (*field)(timeIdx, k) = x[k];
                     }
                     delete [] x;
                 } else if (info.xtype == NC_INT) {
                     int *x = new int[n];
-                    ret = nc_get_vara_int(this->fileID, info.varID, start, count, x);
-                    CHECK_NC_GET_VAR(ret, this->fileName, field->name());
+                    ret = nc_get_vara_int(this->fileId, info.varId, start, count, x);
+                    CHECK_NC_GET_VAR(ret, this->filePath, field->name());
                     for (int k = 0; k < n; ++k) {
                         (*field)(timeIdx, k) = x[k];
                     }
@@ -520,10 +521,10 @@ input(const TimeLevelIndex<NumTimeLevel> &timeIdx,
             }
         }
         if (!tag) {
-            REPORT_ERROR("Field \"" << field_->name() << "\" is not registered for input!");
+            REPORT_ERROR("Field \"" << field_->name() << "\" is not added for input!");
         }
     }
-}
+} // input
 
 template <class MeshType>
 template <typename DataType>
@@ -600,24 +601,24 @@ input(int timeCounter, initializer_list<Field<MeshType>*> fields) {
                 }
                 if (info.xtype == NC_DOUBLE) {
                     double *x = new double[n];
-                    ret = nc_get_vara_double(this->fileID, info.varID, start, count, x);
-                    CHECK_NC_GET_VAR(ret, this->fileName, field->name());
+                    ret = nc_get_vara_double(this->fileId, info.varId, start, count, x);
+                    CHECK_NC_GET_VAR(ret, this->filePath, field->name());
                     for (int k = 0; k < n; ++k) {
                         (*field)(k) = x[k];
                     }
                     delete [] x;
                 } else if (info.xtype == NC_FLOAT) {
                     float *x = new float[n];
-                    ret = nc_get_vara_float(this->fileID, info.varID, start, count, x);
-                    CHECK_NC_GET_VAR(ret, this->fileName, field->name());
+                    ret = nc_get_vara_float(this->fileId, info.varId, start, count, x);
+                    CHECK_NC_GET_VAR(ret, this->filePath, field->name());
                     for (int k = 0; k < n; ++k) {
                         (*field)(k) = x[k];
                     }
                     delete [] x;
                 } else if (info.xtype == NC_INT) {
                     int *x = new int[n];
-                    ret = nc_get_vara_int(this->fileID, info.varID, start, count, x);
-                    CHECK_NC_GET_VAR(ret, this->fileName, field->name());
+                    ret = nc_get_vara_int(this->fileId, info.varId, start, count, x);
+                    CHECK_NC_GET_VAR(ret, this->filePath, field->name());
                     for (int k = 0; k < n; ++k) {
                         (*field)(k) = x[k];
                     }
@@ -627,10 +628,10 @@ input(int timeCounter, initializer_list<Field<MeshType>*> fields) {
             }
         }
         if (!tag) {
-            REPORT_ERROR("Field \"" << field_->name() << "\" is not registered for input!");
+            REPORT_ERROR("Field \"" << field_->name() << "\" is not added for input!");
         }
     }
-}
+} // input
 
 template <class MeshType>
 template <typename DataType, int NumTimeLevel>
@@ -654,34 +655,34 @@ output(const TimeLevelIndex<NumTimeLevel> &timeIdx,
                     for (int k = 0; k < n; ++k) {
                         x[k] = (*field)(timeIdx, k);
                     }
-                    ret = nc_put_var_double(this->fileID, info.varID, x);
-                    CHECK_NC_PUT_VAR(ret, this->fileName, field->name());
+                    ret = nc_put_var_double(this->fileId, info.varId, x);
+                    CHECK_NC_PUT_VAR(ret, this->filePath, field->name());
                     delete [] x;
                 } else if (info.xtype == NC_FLOAT) {
                     float *x = new float[n];
                     for (int k = 0; k < n; ++k) {
                         x[k] = (*field)(timeIdx, k);
                     }
-                    ret = nc_put_var_float(this->fileID, info.varID, x);
-                    CHECK_NC_PUT_VAR(ret, this->fileName, field->name());
+                    ret = nc_put_var_float(this->fileId, info.varId, x);
+                    CHECK_NC_PUT_VAR(ret, this->filePath, field->name());
                     delete [] x;
                 } else if (info.xtype == NC_INT) {
                     int *x = new int[n];
                     for (int k = 0; k < n; ++k) {
                         x[k] = (*field)(timeIdx, k);
                     }
-                    ret = nc_put_var_int(this->fileID, info.varID, x);
-                    CHECK_NC_PUT_VAR(ret, this->fileName, field->name());
+                    ret = nc_put_var_int(this->fileId, info.varId, x);
+                    CHECK_NC_PUT_VAR(ret, this->filePath, field->name());
                     delete [] x;
                 }
                 break;
             }
         }
         if (!tag) {
-            REPORT_ERROR("Field \"" << field_->name() << "\" is not registered for output!");
+            REPORT_ERROR("Field \"" << field_->name() << "\" is not added for output!");
         }
     }
-}
+} // output
 
 template <class MeshType>
 template <typename DataType>
@@ -704,33 +705,33 @@ output(initializer_list<Field<MeshType>*> fields) {
                     for (int k = 0; k < n; ++k) {
                         x[k] = (*field)(k);
                     }
-                    ret = nc_put_var_double(this->fileID, info.varID, x);
-                    CHECK_NC_PUT_VAR(ret, this->fileName, field->name());
+                    ret = nc_put_var_double(this->fileId, info.varId, x);
+                    CHECK_NC_PUT_VAR(ret, this->filePath, field->name());
                     delete [] x;
                 } else if (info.xtype == NC_FLOAT) {
                     float *x = new float[n];
                     for (int k = 0; k < n; ++k) {
                         x[k] = (*field)(k);
                     }
-                    ret = nc_put_var_float(this->fileID, info.varID, x);
-                    CHECK_NC_PUT_VAR(ret, this->fileName, field->name());
+                    ret = nc_put_var_float(this->fileId, info.varId, x);
+                    CHECK_NC_PUT_VAR(ret, this->filePath, field->name());
                     delete [] x;
                 } else if (info.xtype == NC_INT) {
                     int *x = new int[n];
                     for (int k = 0; k < n; ++k) {
                         x[k] = (*field)(k);
                     }
-                    ret = nc_put_var_int(this->fileID, info.varID, x);
-                    CHECK_NC_PUT_VAR(ret, this->fileName, field->name());
+                    ret = nc_put_var_int(this->fileId, info.varId, x);
+                    CHECK_NC_PUT_VAR(ret, this->filePath, field->name());
                     delete [] x;
                 }
                 break;
             }
         }
         if (!tag) {
-            REPORT_ERROR("Field \"" << field_->name() << "\" is not registered for input!");
+            REPORT_ERROR("Field \"" << field_->name() << "\" is not added for input!");
         }
     }
-}
+} // output
 
 } // geomtk

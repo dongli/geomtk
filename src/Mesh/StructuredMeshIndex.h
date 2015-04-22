@@ -1,5 +1,5 @@
-#ifndef __Geomtk_StructuredMeshIndex__
-#define __Geomtk_StructuredMeshIndex__
+#ifndef __GEOMTK_StructuredMeshIndex__
+#define __GEOMTK_StructuredMeshIndex__
 
 #include "MeshIndex.h"
 #include "StructuredMesh.h"
@@ -42,12 +42,15 @@ public:
     virtual int
     getIndex(const MeshType &mesh, int loc) const;
 
+    virtual bool
+    isValid() const;
+
     virtual void
     print() const;
-};
+}; // StructuredMeshIndex
 
 } // geomtk
 
 #include "StructuredMeshIndex-impl.h"
 
-#endif // __Geomtk_StructuredMeshIndex__
+#endif // __GEOMTK_StructuredMeshIndex__

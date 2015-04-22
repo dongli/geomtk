@@ -1,8 +1,9 @@
 namespace geomtk {
 
 template <class DomainType, class CoordType>
-StructuredMesh<DomainType, CoordType>::StructuredMesh(DomainType &domain, int haloWidth)
-        : Mesh<DomainType, CoordType>(domain) {
+StructuredMesh<DomainType, CoordType>::
+StructuredMesh(DomainType &domain, int haloWidth)
+: Mesh<DomainType, CoordType>(domain) {
     _haloWidth = haloWidth;
     fullIndexRanges.set_size(2, 3);
     halfIndexRanges.set_size(2, 3);
@@ -15,7 +16,8 @@ StructuredMesh<DomainType, CoordType>::StructuredMesh(DomainType &domain, int ha
 }
 
 template <class DomainType, class CoordType>
-StructuredMesh<DomainType, CoordType>::~StructuredMesh() {
+StructuredMesh<DomainType, CoordType>::
+~StructuredMesh() {
     delete [] fullCoords;
     delete [] halfCoords;
     delete [] fullIntervals;
@@ -23,17 +25,20 @@ StructuredMesh<DomainType, CoordType>::~StructuredMesh() {
 }
 
 template <class DomainType, class CoordType>
-void StructuredMesh<DomainType, CoordType>::init(const string &fileName) {
+void StructuredMesh<DomainType, CoordType>::
+init(const string &filePath) {
     setGridCoords();
 }
 
 template <class DomainType, class CoordType>
-void StructuredMesh<DomainType, CoordType>::init(const string &fileNameH, const string &fileNameV) {
+void StructuredMesh<DomainType, CoordType>::
+init(const string &filePathH, const string &filePathV) {
     setGridCoords();
 }
 
 template <class DomainType, class CoordType>
-void StructuredMesh<DomainType, CoordType>::init(int nx, int ny, int nz) {
+void StructuredMesh<DomainType, CoordType>::
+init(int nx, int ny, int nz) {
     vec full, half;
     int n[3] = {nx, ny, nz};
     double dx;
@@ -546,24 +551,14 @@ gridInterval(int axisIdx, int gridType, int gridIdx) const {
         REPORT_ERROR("Argument axisIdx (" << axisIdx << ") exceeds domain " <<
                      "dimension (" << this->domain().numDim() << ")!");
     }
-    if (this->domain().axisStartBndType(axisIdx) == PERIODIC) {
-        switch (gridType) {
-            case GridType::FULL:
-                return fullIntervals[axisIdx](gridIdx+1);
-            case GridType::HALF:
-                return halfIntervals[axisIdx](gridIdx+1);
-            default:
-                REPORT_ERROR("Unknown grid type!");
-        }
-    } else {
-        switch (gridType) {
-            case GridType::FULL:
-                return fullIntervals[axisIdx](gridIdx);
-            case GridType::HALF:
-                return halfIntervals[axisIdx](gridIdx);
-            default:
-                REPORT_ERROR("Unknown grid type!");
-        }
+    // TODO: Check this out!
+    switch (gridType) {
+        case GridType::FULL:
+            return fullIntervals[axisIdx](gridIdx);
+        case GridType::HALF:
+            return halfIntervals[axisIdx](gridIdx);
+        default:
+            REPORT_ERROR("Unknown grid type!");
     }
 }
 
@@ -626,7 +621,7 @@ totalNumGrid(int loc, int numDim) const {
         default:
             REPORT_ERROR("Unknown stagger location!");
     }
-}
+} // totalNumGrid
 
 template <class DomainType, class CoordType>
 int StructuredMesh<DomainType, CoordType>::
@@ -653,7 +648,7 @@ numGrid(int axisIdx, int gridType, bool hasHaloGrids) const {
                 REPORT_ERROR("Unknown grid type!");
         }
     }
-}
+} // numGrid
 
 template <class DomainType, class CoordType>
 void StructuredMesh<DomainType, CoordType>::
@@ -708,7 +703,7 @@ unwrapIndex(int loc, int cellIdx, int gridIdx[3]) const {
         default:
             REPORT_ERROR("Unknown stagger location!");
     }
-}
+} // unwrapIndex
 
 template <class DomainType, class CoordType>
 int StructuredMesh<DomainType, CoordType>::
@@ -753,10 +748,11 @@ wrapIndex(int loc, int i, int j, int k) const {
     res += nx*j;
     res += i;
     return res;
-}
+} // wrapIndex
 
 template <class DomainType, class CoordType>
-void StructuredMesh<DomainType, CoordType>::setGridCoords() {
+void StructuredMesh<DomainType, CoordType>::
+setGridCoords() {
     // Store the coordinates of each grid point for convenience.
     int gridIdx[3];
     for (int loc = 0; loc < 5; ++loc) {
@@ -775,6 +771,6 @@ void StructuredMesh<DomainType, CoordType>::setGridCoords() {
             }
         }
     }
-}
+} // setGridCoords
 
 } // geomtk

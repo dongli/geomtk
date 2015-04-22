@@ -26,12 +26,12 @@ protected:
     bool bnds2D;
     int bndsDimID;
 public:
-    StructuredDataFile(MeshType &mesh);
+    StructuredDataFile(MeshType &mesh, TimeManager &timeManager);
     virtual ~StructuredDataFile() {}
 
     virtual void
-    registerField(const string &xtype, int spaceDims,
-                  initializer_list<Field<MeshType>*> fields);
+    addField(const string &xtype, int spaceDims,
+             initializer_list<Field<MeshType>*> fields);
     
     virtual void
     removeField(initializer_list<Field<MeshType>*> fields);
@@ -43,16 +43,16 @@ public:
     create(const TimeManager &timeManager);
 
     virtual void
-    inputGrids();
+    inputMesh();
 
     virtual void
-    inputHorizontalGrids();
+    inputHorizontalMesh();
 
     virtual void
-    inputVerticalGrids();
+    inputVerticalMesh();
 
     virtual void
-    outputGrids();
+    outputMesh();
 
     template <typename DataType, int NumTimeLevel>
     void

@@ -11,40 +11,41 @@ IOManager<DataFileType>::~IOManager() {
 }
 
 template <class DataFileType>
-void IOManager<DataFileType>::init(TimeManager &timeManager) {
+void IOManager<DataFileType>::
+init(TimeManager &timeManager) {
     this->timeManager = &timeManager;
-}
+} // init
 
 template <class DataFileType>
-int IOManager<DataFileType>::registerInputFile(MeshType &mesh,
-                                               const string &filePattern) {
+int IOManager<DataFileType>::
+addInputFile(MeshType &mesh, const string &filePattern) {
     for (int i = 0; i < files.size(); ++i) {
         if (files[i].ioType == INPUT && files[i].filePattern == filePattern) {
             REPORT_ERROR("File with file pattern \"" << filePattern <<
-                         "\" has already been registered for input!");
+                         "\" has already been added for input!");
         }
     }
-    DataFileType file(mesh);
+    DataFileType file(mesh, *timeManager);
     file.filePattern = filePattern;
     file.ioType = INPUT;
     file.isActive = true;
     files.push_back(file);
     REPORT_NOTICE("Register input file with pattern " << filePattern << ".");
     return files.size()-1;
-}
+} // addInputFile
 
 template <class DataFileType>
-int IOManager<DataFileType>::registerOutputFile(typename DataFileType::MeshType &mesh,
-                                                StampString &filePattern,
-                                                TimeStepUnit freqUnit, double freq) {
+int IOManager<DataFileType>::
+addOutputFile(typename DataFileType::MeshType &mesh, StampString &filePattern,
+              TimeStepUnit freqUnit, double freq) {
     for (int i = 0; i < files.size(); ++i) {
         if (files[i].ioType == OUTPUT && files[i].filePattern == filePattern) {
             REPORT_ERROR("File with pattern \"" << filePattern <<
-                         "\" has already been registered for output!");
+                         "\" has already been added for output!");
         }
     }
     // add an alarm for output
-    DataFileType file(mesh);
+    DataFileType file(mesh, *timeManager);
     file.filePattern = filePattern;
     file.ioType = OUTPUT;
     file.freqUnit = freqUnit;
@@ -55,93 +56,100 @@ int IOManager<DataFileType>::registerOutputFile(typename DataFileType::MeshType 
     files.push_back(file);
     REPORT_NOTICE("Register output file with pattern " << filePattern << ".");
     return files.size()-1;
-}
+} // addOutputFile
 
 template <class DataFileType>
-int IOManager<DataFileType>::registerOutputFile(typename DataFileType::MeshType &mesh,
-                                                const string &filePattern,
-                                                TimeStepUnit freqUnit, double freq) {
+int IOManager<DataFileType>::
+addOutputFile(typename DataFileType::MeshType &mesh, const string &filePattern,
+              TimeStepUnit freqUnit, double freq) {
     StampString tmp(filePattern);
-    return registerOutputFile(mesh, tmp, freqUnit, freq);
-}
+    return addOutputFile(mesh, tmp, freqUnit, freq);
+} // addOutputFile
 
 template <class DataFileType>
-void IOManager<DataFileType>::removeFile(int fileIdx) {
+void IOManager<DataFileType>::
+removeFile(int fileIdx) {
     if (fileIdx < 0 || fileIdx >= files.size()) {
         REPORT_ERROR("File index is out of range!");
     }
     files.erase(files.begin()+fileIdx);
-}
+} // removeFile
 
 template <class DataFileType>
-DataFileType& IOManager<DataFileType>::file(int fileIdx) {
+DataFileType& IOManager<DataFileType>::
+file(int fileIdx) {
     if (fileIdx < 0 || fileIdx >= files.size()) {
         REPORT_ERROR("File index is out of range!");
     }
     return files[fileIdx];
-}
+} // file
 
 template <class DataFileType>
-void IOManager<DataFileType>::registerField(int fileIdx, const string &xtype, int spaceDims,
-                                            initializer_list<Field<MeshType>*> fields) {
-    file(fileIdx).registerField(xtype, spaceDims, fields);
-}
+void IOManager<DataFileType>::
+addField(int fileIdx, const string &xtype, int spaceDims,
+         initializer_list<Field<MeshType>*> fields) {
+    file(fileIdx).addField(xtype, spaceDims, fields);
+} // addField
 
 template <class DataFileType>
-bool IOManager<DataFileType>::isFileActive(int fileIdx) {
+bool IOManager<DataFileType>::
+isFileActive(int fileIdx) {
     DataFileType &file = files[fileIdx];
     file.isActive = timeManager->checkAlarm(file.alarmIdx);
     return file.isActive;
-}
+} // isFileActive
 
 template <class DataFileType>
-void IOManager<DataFileType>::open(int fileIdx) {
+void IOManager<DataFileType>::
+open(int fileIdx) {
     DataFileType &file = files[fileIdx];
-    file.fileName = file.filePattern.run(*timeManager);
+    file.filePath = file.filePattern.run(*timeManager);
     int ret;
-    ret = nc_open(file.fileName.c_str(), NC_NOWRITE, &file.fileID);
-    CHECK_NC_OPEN(ret, file.fileName);
-    ret = nc_inq_varid(file.fileID, "time", &file.timeVarID);
+    ret = nc_open(file.filePath.c_str(), NC_NOWRITE, &file.fileId);
+    CHECK_NC_OPEN(ret, file.filePath);
+    ret = nc_inq_varid(file.fileId, "time", &file.timeVarId);
     if (ret != NC_NOERR) {
-        file.timeVarID = -999;
+        file.timeVarId = -999;
     }
     // let concrete data file class open the rest data file
     file.open(*timeManager);
-}
+} // open
     
 template <class DataFileType>
-void IOManager<DataFileType>::create(int fileIdx) {
+void IOManager<DataFileType>::
+create(int fileIdx) {
     DataFileType &file = files[fileIdx];
     if (!isFileActive(fileIdx)) return;
-    file.fileName = file.filePattern.run(*timeManager);
-    int ret = nc_create(file.fileName.c_str(), NC_CLOBBER, &file.fileID);
-    CHECK_NC_CREATE(ret, file.fileName);
+    file.filePath = file.filePattern.run(*timeManager);
+    int ret = nc_create(file.filePath.c_str(), NC_CLOBBER, &file.fileId);
+    CHECK_NC_CREATE(ret, file.filePath);
     // define temporal dimension
     int timeStep = timeManager->numStep();
-    ret = nc_put_att(file.fileID, NC_GLOBAL, "time_step", NC_INT, 1, &timeStep);
-    CHECK_NC_PUT_ATT(ret, file.fileName, "NC_GLOBAL", "time_step");
-    ret = nc_def_dim(file.fileID, "time", NC_UNLIMITED, &file.timeDimID);
-    CHECK_NC_DEF_DIM(ret, file.fileName, "time");
-    ret = nc_def_var(file.fileID, "time", NC_DOUBLE, 1, &file.timeDimID, &file.timeVarID);
-    CHECK_NC_DEF_VAR(ret, file.fileName, "time")
+    ret = nc_put_att(file.fileId, NC_GLOBAL, "time_step", NC_INT, 1, &timeStep);
+    CHECK_NC_PUT_ATT(ret, file.filePath, "NC_GLOBAL", "time_step");
+    ret = nc_def_dim(file.fileId, "time", NC_UNLIMITED, &file.timeDimId);
+    CHECK_NC_DEF_DIM(ret, file.filePath, "time");
+    ret = nc_def_var(file.fileId, "time", NC_DOUBLE, 1, &file.timeDimId, &file.timeVarId);
+    CHECK_NC_DEF_VAR(ret, file.filePath, "time")
     string units = "days since "+timeManager->startTime().s();
-    ret = nc_put_att(file.fileID, file.timeVarID, "units", NC_CHAR,
+    ret = nc_put_att(file.fileId, file.timeVarId, "units", NC_CHAR,
                      units.length(), units.c_str());
-    CHECK_NC_PUT_ATT(ret, file.fileName, "time", "units");
+    CHECK_NC_PUT_ATT(ret, file.filePath, "time", "units");
     // let concrete data file class create the rest data file
     file.create(*timeManager);
-    file.outputGrids();
-}
+    file.outputMesh();
+} // create
 
 template <class DataFileType>
-Time IOManager<DataFileType>::getTime(int fileIdx) const {
+Time IOManager<DataFileType>::
+getTime(int fileIdx) const {
     Time time;
     const DataFileType &file = files[fileIdx];
     int ret; double timeValue; char units[100];
-    ret = nc_get_var(file.fileID, file.timeVarID, &timeValue);
-    CHECK_NC_GET_VAR(ret, file.fileName, "time");
-    ret = nc_get_att(file.fileID, file.timeVarID, "units", units);
-    CHECK_NC_GET_ATT(ret, file.fileName, "time", "units");
+    ret = nc_get_var(file.fileId, file.timeVarId, &timeValue);
+    CHECK_NC_GET_VAR(ret, file.filePath, "time");
+    ret = nc_get_att(file.fileId, file.timeVarId, "units", units);
+    CHECK_NC_GET_ATT(ret, file.filePath, "time", "units");
     regex reDays("^days");
     regex reDate("(\\d\\d\\d\\d)-(\\d\\d)-(\\d\\d) (\\d\\d)*:(\\d\\d)*:(\\d\\.\\d*)*");
     match_results<std::string::const_iterator> what; string tmp = units;
@@ -159,22 +167,23 @@ Time IOManager<DataFileType>::getTime(int fileIdx) const {
         REPORT_ERROR("Unsupported time units!");
     }
     return time;
-}
+} // getTime
 
 template <class DataFileType>
-Time IOManager<DataFileType>::getTime(const string &fileName) const {
+Time IOManager<DataFileType>::
+getTime(const string &filePath) const {
     Time time;
-    int ret, fileID, timeVarID; double timeValue; char units[100];
-    ret = nc_open(fileName.c_str(), NC_NOWRITE, &fileID);
-    CHECK_NC_OPEN(ret, fileName);
-    ret = nc_inq_varid(fileID, "time", &timeVarID);
-    CHECK_NC_INQ_VARID(ret, fileName, "time");
-    ret = nc_get_var(fileID, timeVarID, &timeValue);
-    CHECK_NC_GET_VAR(ret, fileName, "time");
-    ret = nc_get_att(fileID, timeVarID, "units", units);
-    CHECK_NC_GET_ATT(ret, fileName, "time", "units");
-    ret = nc_close(fileID);
-    CHECK_NC_CLOSE(ret, fileName);
+    int ret, fileId, timeVarId; double timeValue; char units[100];
+    ret = nc_open(filePath.c_str(), NC_NOWRITE, &fileId);
+    CHECK_NC_OPEN(ret, filePath);
+    ret = nc_inq_varid(fileId, "time", &timeVarId);
+    CHECK_NC_INQ_VARID(ret, filePath, "time");
+    ret = nc_get_var(fileId, timeVarId, &timeValue);
+    CHECK_NC_GET_VAR(ret, filePath, "time");
+    ret = nc_get_att(fileId, timeVarId, "units", units);
+    CHECK_NC_GET_ATT(ret, filePath, "time", "units");
+    ret = nc_close(fileId);
+    CHECK_NC_CLOSE(ret, filePath);
     regex reDays("^days");
     regex reDate("(\\d\\d\\d\\d)-(\\d\\d)-(\\d\\d) (\\d\\d)*:(\\d\\d)*:(\\d\\.\\d*)*");
     match_results<std::string::const_iterator> what; string tmp = units;
@@ -192,61 +201,62 @@ Time IOManager<DataFileType>::getTime(const string &fileName) const {
         REPORT_ERROR("Unsupported time units!");
     }
     return time;
-}
+} // getTime
 
 template <class DataFileType>
-void IOManager<DataFileType>::updateTime(int fileIdx, TimeManager &timeManager) {
+void IOManager<DataFileType>::
+updateTime(int fileIdx, TimeManager &timeManager) {
     DataFileType &file = files[fileIdx];
     int timeStep, ret;
-    ret = nc_get_att(file.fileID, NC_GLOBAL, "time_step", &timeStep);
-    CHECK_NC_GET_ATT(ret, file.fileName, "NC_GLOBAL", "time_step");
+    ret = nc_get_att(file.fileId, NC_GLOBAL, "time_step", &timeStep);
+    CHECK_NC_GET_ATT(ret, file.filePath, "NC_GLOBAL", "time_step");
     Time time = getTime(fileIdx);
     timeManager.reset(timeStep, time);
-}
+} // updateTime
 
 template <class DataFileType>
 template <typename DataType, int NumTimeLevel>
-void IOManager<DataFileType>::input(int fileIdx,
-                                    const TimeLevelIndex<NumTimeLevel> &timeIdx,
-                                    initializer_list<Field<MeshType>*> fields) {
+void IOManager<DataFileType>::
+input(int fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
+      initializer_list<Field<MeshType>*> fields) {
     DataFileType &file = files[fileIdx];
     file.template input<DataType, NumTimeLevel>(timeIdx, fields);
-}
+} // input
 
 template <class DataFileType>
 template <typename DataType>
-void IOManager<DataFileType>::input(int fileIdx, initializer_list<Field<MeshType>*> fields) {
+void IOManager<DataFileType>::
+input(int fileIdx, initializer_list<Field<MeshType>*> fields) {
     DataFileType &file = files[fileIdx];
     file.template input<DataType>(fields);
-}
+} // input
 
 template <class DataFileType>
 template <typename DataType, int NumTimeLevel>
-void IOManager<DataFileType>::input(int fileIdx,
-                                    const TimeLevelIndex<NumTimeLevel> &timeIdx,
-                                    int timeCounter,
-                                    initializer_list<Field<MeshType>*> fields) {
+void IOManager<DataFileType>::
+input(int fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx, int timeCounter,
+      initializer_list<Field<MeshType>*> fields) {
     DataFileType &file = files[fileIdx];
     file.template input<DataType, NumTimeLevel>(timeIdx, timeCounter, fields);
-}
+} // input
 
 template <class DataFileType>
 template <typename DataType>
-void IOManager<DataFileType>::input(int fileIdx, int timeCounter,
-                                    initializer_list<Field<MeshType>*> fields) {
+void IOManager<DataFileType>::
+input(int fileIdx, int timeCounter, initializer_list<Field<MeshType>*> fields) {
     DataFileType &file = files[fileIdx];
     file.template input<DataType>(timeCounter, fields);
-}
+} // input
 
 template <class DataFileType>
 template <typename DataType, int NumTimeLevel>
-void IOManager<DataFileType>::output(int fileIdx,
-                                     const TimeLevelIndex<NumTimeLevel> &timeIdx,
-                                     initializer_list<Field<MeshType>*> fields) {
+void IOManager<DataFileType>::
+output(int fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
+       initializer_list<Field<MeshType>*> fields) {
     int ret, flag = 0;
     DataFileType &file = files[fileIdx];
     // If the file is not created yet, then create it.
-    ret = nc_inq_format(file.fileID, &flag);
+    ret = nc_inq_format(file.fileId, &flag);
     if (ret != NC_NOERR) {
         flag = -999;
         create(fileIdx);
@@ -255,24 +265,24 @@ void IOManager<DataFileType>::output(int fileIdx,
     // Write time
     double time = timeManager->days();
     size_t index[1] = {0};
-    ret = nc_put_var1(file.fileID, file.timeVarID, index, &time);
-    CHECK_NC_PUT_VAR(ret, file.fileName, "time");
+    ret = nc_put_var1(file.fileId, file.timeVarId, index, &time);
+    CHECK_NC_PUT_VAR(ret, file.filePath, "time");
     // Write fields
     file.template output<DataType, NumTimeLevel>(timeIdx, fields);
     // If the file is just created, then close it.
     if (flag == -999) {
         close(fileIdx);
     }
-}
+} // output
     
 template <class DataFileType>
 template <typename DataType>
-void IOManager<DataFileType>::output(int fileIdx,
-                                     initializer_list<Field<MeshType>*> fields) {
+void IOManager<DataFileType>::
+output(int fileIdx, initializer_list<Field<MeshType>*> fields) {
     int ret, flag = 0;
     DataFileType &file = files[fileIdx];
     // If the file is not created yet, then create it.
-    ret = nc_inq_format(file.fileID, &flag);
+    ret = nc_inq_format(file.fileId, &flag);
     if (ret != NC_NOERR) {
         flag = -999;
         create(fileIdx);
@@ -282,22 +292,23 @@ void IOManager<DataFileType>::output(int fileIdx,
     // FIXME: Do we need to write time?
     double time = timeManager->days();
     size_t index[1] = {0};
-    ret = nc_put_var1(file.fileID, file.timeVarID, index, &time);
-    CHECK_NC_PUT_VAR(ret, file.fileName, "time");
+    ret = nc_put_var1(file.fileId, file.timeVarId, index, &time);
+    CHECK_NC_PUT_VAR(ret, file.filePath, "time");
     // Write fields
     file.template output<DataType>(fields);
     // If the file is just created, then close it.
     if (flag == -999) {
         close(fileIdx);
     }
-}
+} // output
 
 template <class DataFileType>
-void IOManager<DataFileType>::close(int fileIdx) {
+void IOManager<DataFileType>::
+close(int fileIdx) {
     DataFileType &file = files[fileIdx];
     if (!file.isActive) return;
-    CHECK_NC_CLOSE(nc_close(file.fileID), file.fileName);
+    CHECK_NC_CLOSE(nc_close(file.fileId), file.filePath);
     file.isActive = false;
-}
+} // close
 
-}
+} // geomtk

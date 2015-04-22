@@ -33,7 +33,7 @@ setNumDim(int numDim) {
         indices[i] = new int[2];
     }
     reset();
-}
+} // setNumDim
 
 template <class MeshType, class CoordType>
 void StructuredMeshIndex<MeshType, CoordType>::
@@ -47,19 +47,19 @@ reset() {
         indices[m][GridType::FULL] = 0;
         indices[m][GridType::HALF] = 0;
     }
-}
+} // reset
 
 template <class MeshType, class CoordType>
 int StructuredMeshIndex<MeshType, CoordType>::
 operator()(int axisIdx, int gridType) const {
     return indices[axisIdx][gridType];
-}
+} // operator()
 
 template <class MeshType, class CoordType>
 int& StructuredMeshIndex<MeshType, CoordType>::
 operator()(int axisIdx, int gridType) {
     return indices[axisIdx][gridType];
-}
+} // operator()
 
 template <class MeshType, class CoordType>
 StructuredMeshIndex<MeshType, CoordType>& StructuredMeshIndex<MeshType, CoordType>::
@@ -73,7 +73,7 @@ operator=(const StructuredMeshIndex<MeshType, CoordType> &other) {
         }
     }
     return *this;
-}
+} // operator=
 
 // TODO: Could we use the searching results by using MLPACK?
 template <class MeshType, class CoordType>
@@ -292,7 +292,7 @@ locate(const MeshType &mesh, const CoordType &x) {
         assert(indices[m][GridType::HALF] != UNDEFINED_MESH_INDEX);
 #endif
     }
-}
+} // locate
 
 template <class MeshType, class CoordType>
 int StructuredMeshIndex<MeshType, CoordType>::
@@ -321,7 +321,17 @@ getIndex(const MeshType &mesh, int loc) const {
         default:
             REPORT_ERROR("Unsupported stagger location!");
     }
-}
+} // getIndex
+
+template <class MeshType, class CoordType>
+bool StructuredMeshIndex<MeshType, CoordType>::
+isValid() const {
+    if (indices[0][GridType::FULL] == UNDEFINED_MESH_INDEX) {
+        return false;
+    } else {
+        return true;
+    }
+} // isValid
 
 template <class MeshType, class CoordType>
 void StructuredMeshIndex<MeshType, CoordType>::
@@ -336,6 +346,6 @@ print() const {
         cout << setw(10) << indices[m][GridType::HALF];
     }
     cout << endl;
-}
+} // print
 
 } // geomtk

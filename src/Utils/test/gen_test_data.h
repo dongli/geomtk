@@ -3,51 +3,51 @@
 
 void gen_2d_tv_data(const string &filePath)
 {
-    int fileID, lonDimID, lonVarID, latDimID, latVarID, timeDimID, timeVarID;
-    int varID, dimIDs[3];
+    int fileId, lonDimID, lonVarID, latDimID, latVarID, timeDimId, timeVarId;
+    int varId, dimIDs[3];
     int ret;
 
     int numLon = 10, numLat = 10;
     double lon[numLon], lat[numLat];
     float x[numLat][numLon];
 
-    ret = nc_create(filePath.c_str(), NC_CLOBBER, &fileID);
+    ret = nc_create(filePath.c_str(), NC_CLOBBER, &fileId);
 
-    ret = nc_def_dim(fileID, "lon", numLon, &lonDimID);
+    ret = nc_def_dim(fileId, "lon", numLon, &lonDimID);
 
-    ret = nc_def_var(fileID, "lon", NC_DOUBLE, 1, &lonDimID, &lonVarID);
+    ret = nc_def_var(fileId, "lon", NC_DOUBLE, 1, &lonDimID, &lonVarID);
 
-    ret = nc_put_att(fileID, lonVarID, "long_name", NC_CHAR, 9, "longitude");
+    ret = nc_put_att(fileId, lonVarID, "long_name", NC_CHAR, 9, "longitude");
 
-    ret = nc_put_att(fileID, lonVarID, "units", NC_CHAR, 13, "degree_east");
+    ret = nc_put_att(fileId, lonVarID, "units", NC_CHAR, 13, "degree_east");
 
-    ret = nc_def_dim(fileID, "lat", numLat, &latDimID);
+    ret = nc_def_dim(fileId, "lat", numLat, &latDimID);
 
-    ret = nc_def_var(fileID, "lat", NC_DOUBLE, 1, &latDimID, &latVarID);
+    ret = nc_def_var(fileId, "lat", NC_DOUBLE, 1, &latDimID, &latVarID);
 
-    ret = nc_put_att(fileID, latVarID, "long_name", NC_CHAR, 8, "latitude");
+    ret = nc_put_att(fileId, latVarID, "long_name", NC_CHAR, 8, "latitude");
 
-    ret = nc_put_att(fileID, latVarID, "units", NC_CHAR, 12, "degree_north");
+    ret = nc_put_att(fileId, latVarID, "units", NC_CHAR, 12, "degree_north");
 
-    ret = nc_def_dim(fileID, "time", NC_UNLIMITED, &timeDimID);
+    ret = nc_def_dim(fileId, "time", NC_UNLIMITED, &timeDimId);
 
-    ret = nc_def_var(fileID, "time", NC_INT, 1, &timeDimID, &timeVarID);
+    ret = nc_def_var(fileId, "time", NC_INT, 1, &timeDimId, &timeVarId);
 
-    ret = nc_put_att(fileID, timeVarID, "long_name", NC_CHAR, 4, "time");
+    ret = nc_put_att(fileId, timeVarId, "long_name", NC_CHAR, 4, "time");
 
-    ret = nc_put_att(fileID, timeVarID, "units", NC_CHAR, 33, "minutes since 0001-01-01 00:00:00");
+    ret = nc_put_att(fileId, timeVarId, "units", NC_CHAR, 33, "minutes since 0001-01-01 00:00:00");
 
-    dimIDs[0] = timeDimID;
+    dimIDs[0] = timeDimId;
     dimIDs[1] = latDimID;
     dimIDs[2] = lonDimID;
 
-    ret = nc_def_var(fileID, "x", NC_FLOAT, 3, dimIDs, &varID);
+    ret = nc_def_var(fileId, "x", NC_FLOAT, 3, dimIDs, &varId);
 
-    ret = nc_put_att(fileID, varID, "long_name", NC_CHAR, 13, "test variable");
+    ret = nc_put_att(fileId, varId, "long_name", NC_CHAR, 13, "test variable");
 
-    ret = nc_put_att(fileID, varID, "units", NC_CHAR, 1, "1");
+    ret = nc_put_att(fileId, varId, "units", NC_CHAR, 1, "1");
 
-    ret = nc_enddef(fileID);
+    ret = nc_enddef(fileId);
 
     double dlon = 360/numLon;
     for (int i = 0; i < numLon; ++i) {
@@ -63,18 +63,18 @@ void gen_2d_tv_data(const string &filePath)
         }
     }
 
-    ret = nc_put_var(fileID, lonVarID, lon);
+    ret = nc_put_var(fileId, lonVarID, lon);
 
-    ret = nc_put_var(fileID, latVarID, lat);
+    ret = nc_put_var(fileId, latVarID, lat);
 
     int time = 0;
     size_t index[1] = {0};
 
-    ret = nc_put_var1(fileID, timeVarID, index, &time);
+    ret = nc_put_var1(fileId, timeVarId, index, &time);
 
-    ret = nc_put_var(fileID, varID, &x[0][0]);
+    ret = nc_put_var(fileId, varId, &x[0][0]);
 
-    ret = nc_close(fileID);
+    ret = nc_close(fileId);
 }
 
 #endif // __Geomtk_GenTestData__

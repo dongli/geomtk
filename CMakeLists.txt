@@ -42,7 +42,7 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 if (DEFINED ENV{ARMADILLO_ROOT})
     message ("@@ Use user provided library Armadillo.")
     message ("@@ ARMADILLO_ROOT = $ENV{ARMADILLO_ROOT}")
-    find_package (Armadillo HINTS $ENV{ARMADILLO_ROOT})
+    find_package (Armadillo REQUIRED)
 else ()
     find_package (Armadillo)
     if (NOT ARMADILLO_FOUND)
@@ -62,7 +62,6 @@ include_directories (${HDF5_INCLUDE_DIRS})
 if (DEFINED ENV{BOOST_ROOT})
     message ("@@ Use user provided library Boost.")
     message ("@@ BOOST_ROOT = $ENV{BOOST_ROOT}")
-    set (CMAKE_FIND_PREFIX_PATH $ENV{BOOST_ROOT})
 endif ()
 find_package (Boost 1.55.0 REQUIRED
     COMPONENTS regex filesystem system timer date_time
@@ -194,7 +193,6 @@ set_target_properties (test_geomtk
     PROPERTIES COMPILE_FLAGS "-DUNIT_TEST"
 )
 target_link_libraries (test_geomtk
-    ${NETCDF_LIBRARIES}
     gtest gtest_main
     geomtk
 )

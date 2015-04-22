@@ -21,19 +21,30 @@ public:
     SphereDomain(VertCoordType type);
     virtual ~SphereDomain();
 
-    double& radius() { return _radius; }
+    virtual void
+    init(const string &filePath);
 
-    double radius() const { return _radius; }
+    double&
+    radius() {
+        return _radius;
+    }
 
-    virtual double calcDistance(const SphereCoord &x,
-                                const SphereCoord &y) const;
+    double
+    radius() const {
+        return _radius;
+    }
 
-    double calcDistance(const SphereCoord &x, double lon, double lat) const;
+    virtual double
+    calcDistance(const SphereCoord &x, const SphereCoord &y) const;
 
-    double calcDistance(const SphereCoord &x, double lon, double sinLat,
-                        double cosLat) const;
+    double
+    calcDistance(const SphereCoord &x, double lon, double lat) const;
 
-    virtual vec diffCoord(const SphereCoord &x, const SphereCoord &y) const;
+    double
+    calcDistance(const SphereCoord &x, double lon, double sinLat, double cosLat) const;
+
+    virtual vec
+    diffCoord(const SphereCoord &x, const SphereCoord &y) const;
 
     /**
      *  Transform the given space coordinate 'xo' into a rotated spherical
@@ -44,11 +55,11 @@ public:
      *  @param xo the original space coordinate.
      *  @param xr the transformed space coordinate.
      */
-    void rotate(const SphereCoord &xp, const SphereCoord &xo,
-                SphereCoord &xr) const;
+    void
+    rotate(const SphereCoord &xp, const SphereCoord &xo, SphereCoord &xr) const;
     
-    void rotate(const SphereCoord &xp, const SphereCoord &xo,
-                double &lonR, double &latR) const;
+    void
+    rotate(const SphereCoord &xp, const SphereCoord &xo, double &lonR, double &latR) const;
 
     /**
      *  Transform the rotated coordinate back to original spherical coordinate
@@ -58,24 +69,25 @@ public:
      *  @param xo the original space coordinate.
      *  @param xr the transformed space coordinate.
      */
-    void rotateBack(const SphereCoord &xp, SphereCoord &xo,
-                    const SphereCoord &xr) const;
+    void
+    rotateBack(const SphereCoord &xp, SphereCoord &xo, const SphereCoord &xr) const;
     
-    void rotateBack(const SphereCoord &xp, SphereCoord &xo,
-                    double lonR, double latR) const;
+    void
+    rotateBack(const SphereCoord &xp, SphereCoord &xo, double lonR, double latR) const;
 
-    void project(ProjectionType projType, const SphereCoord &xp,
-                 const SphereCoord &xo, vec &xs) const;
+    void
+    project(ProjectionType projType, const SphereCoord &xp, const SphereCoord &xo, vec &xs) const;
     
-    void projectBack(ProjectionType projType, const SphereCoord &xp,
-                     SphereCoord &xo, const vec &xs) const;
+    void
+    projectBack(ProjectionType projType, const SphereCoord &xp, SphereCoord &xo, const vec &xs) const;
 
     /**
      *  Get a brief about the domain.
      *
      *  @return The brief.
      */
-    virtual string brief() const;
+    virtual string
+    brief() const;
 };
 
 }

@@ -13,6 +13,12 @@ public:
     CartesianVelocityField()
         : StructuredVelocityField<CartesianMesh, CartesianField<double, 2>>() {}
     virtual ~CartesianVelocityField() {}
+
+    virtual void
+    calcDivergence(const TimeLevelIndex<2> &timeIdx);
+
+    virtual void
+    calcVorticity(const TimeLevelIndex<2> &timeIdx);
 };
 
 } // geomtk

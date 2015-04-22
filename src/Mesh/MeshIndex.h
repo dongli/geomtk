@@ -1,5 +1,5 @@
-#ifndef __Geomtk_MeshIndex__
-#define __Geomtk_MeshIndex__
+#ifndef __GEOMTK_MeshIndex__
+#define __GEOMTK_MeshIndex__
 
 #include "geomtk_commons.h"
 #include "Mesh.h"
@@ -21,22 +21,30 @@ public:
     MeshIndex(int numDim);
     virtual ~MeshIndex();
 
-    virtual void setNumDim(int numDim);
+    virtual void
+    setNumDim(int numDim);
 
-    virtual MeshIndex& operator=(const MeshIndex &other);
+    virtual MeshIndex&
+    operator=(const MeshIndex &other);
 
     /**
      *  Locate the given space coordinate in the mesh.
      */
-    virtual void locate(const MeshType &mesh, const CoordType &x) = 0;
+    virtual void
+    locate(const MeshType &mesh, const CoordType &x) = 0;
 
-    virtual int getIndex(const MeshType &mesh, int loc) const = 0;
+    virtual int
+    getIndex(const MeshType &mesh, int loc) const = 0;
 
-    virtual void print() const = 0;
-};
+    virtual bool
+    isValid() const = 0;
+
+    virtual void
+    print() const = 0;
+}; // MeshIndex
 
 } // geomtk
 
 #include "MeshIndex-impl.h"
 
-#endif // __Geomtk_MeshIndex__
+#endif // __GEOMTK_MeshIndex__

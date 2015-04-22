@@ -13,36 +13,39 @@ RLLMesh::RLLMesh(SphereDomain &domain) : StructuredMesh<SphereDomain, SphereCoor
 RLLMesh::~RLLMesh() {
 }
 
-void RLLMesh::init(const string &fileName) {
+void RLLMesh::
+init(const string &filePath) {
     IOManager<RLLDataFile> io;
-    int fileIdx = io.registerInputFile(*this, fileName);
+    int fileIdx = io.addInputFile(*this, filePath);
     io.open(fileIdx);
-    io.file(fileIdx).inputGrids();
+    io.file(fileIdx).inputMesh();
     io.close(fileIdx);
-    StructuredMesh<SphereDomain, SphereCoord>::init(fileName);
+    StructuredMesh<SphereDomain, SphereCoord>::init(filePath);
     set = true;
-}
+} // init
 
-void RLLMesh::init(const string &fileNameH, const string &fileNameV) {
+void RLLMesh::
+init(const string &filePathH, const string &filePathV) {
     IOManager<RLLDataFile> io;
-    int fileIdx = io.registerInputFile(*this, fileNameH);
+    int fileIdx = io.addInputFile(*this, filePathH);
     io.open(fileIdx);
-    io.file(fileIdx).inputHorizontalGrids();
+    io.file(fileIdx).inputHorizontalMesh();
     io.close(fileIdx);
-    fileIdx = io.registerInputFile(*this, fileNameV);
+    fileIdx = io.addInputFile(*this, filePathV);
     io.open(fileIdx);
-    io.file(fileIdx).inputVerticalGrids();
+    io.file(fileIdx).inputVerticalMesh();
     io.close(fileIdx);
-    StructuredMesh<SphereDomain, SphereCoord>::init(fileNameH, fileNameV);
+    StructuredMesh<SphereDomain, SphereCoord>::init(filePathH, filePathV);
     set = true;
-}
+} // init
 
-void RLLMesh::init(int nx, int ny, int nz) {
+void RLLMesh::
+init(int nx, int ny, int nz) {
     StructuredMesh<SphereDomain, SphereCoord>::init(nx, ny, nz);
-}
+} // init
 
-void RLLMesh::setGridCoordComps(int axisIdx, int size, const vec &full,
-                                const vec &half) {
+void RLLMesh::
+setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
     StructuredMesh<SphereDomain, SphereCoord>::
     setGridCoordComps(axisIdx, size, full, half);
     if (axisIdx == 0) {
@@ -86,9 +89,10 @@ void RLLMesh::setGridCoordComps(int axisIdx, int size, const vec &full,
         }
     }
     setCellVolumes();
-}
+} // setGridCoords
 
-void RLLMesh::setGridCoordComps(int axisIdx, int size, const vec &full) {
+void RLLMesh::
+setGridCoordComps(int axisIdx, int size, const vec &full) {
     StructuredMesh<SphereDomain, SphereCoord>::
     setGridCoordComps(axisIdx, size, full);
     if (axisIdx == 0) {
@@ -132,9 +136,10 @@ void RLLMesh::setGridCoordComps(int axisIdx, int size, const vec &full) {
         }
     }
     setCellVolumes();
-}
+} // setGridCoordComps
 
-void RLLMesh::setCellVolumes() {
+void RLLMesh::
+setCellVolumes() {
     if (sinLatHalf.size() == 0) {
         // This is a kluge to avoid index overflow when sin and cos are not set.
         return;
@@ -166,9 +171,10 @@ void RLLMesh::setCellVolumes() {
     }
     assert(fabs(totalArea/R2-4*M_PI) < 1.0e-10);
 #endif
-}
+} // setCellVolumes
 
-double RLLMesh::cosLon(int gridType, int i) const {
+double RLLMesh::
+cosLon(int gridType, int i) const {
     switch (gridType) {
         case GridType::FULL:
             return cosLonFull[i];
@@ -177,9 +183,10 @@ double RLLMesh::cosLon(int gridType, int i) const {
         default:
             REPORT_ERROR("Unknown grid type!");
     }
-}
+} // cosLon
 
-double RLLMesh::sinLon(int gridType, int i) const {
+double RLLMesh::
+sinLon(int gridType, int i) const {
     switch (gridType) {
         case GridType::FULL:
             return sinLonFull[i];
@@ -188,9 +195,10 @@ double RLLMesh::sinLon(int gridType, int i) const {
         default:
             REPORT_ERROR("Unknown grid type!");
     }
-}
+} // sinLon
 
-double RLLMesh::cosLat(int gridType, int j) const {
+double RLLMesh::
+cosLat(int gridType, int j) const {
     switch (gridType) {
         case GridType::FULL:
             return cosLatFull[j];
@@ -199,9 +207,10 @@ double RLLMesh::cosLat(int gridType, int j) const {
         default:
             REPORT_ERROR("Unknown grid type!");
     }
-}
+} cosLat
 
-double RLLMesh::sinLat(int gridType, int j) const {
+double RLLMesh::
+sinLat(int gridType, int j) const {
     switch (gridType) {
         case GridType::FULL:
             return sinLatFull[j];
@@ -210,9 +219,10 @@ double RLLMesh::sinLat(int gridType, int j) const {
         default:
             REPORT_ERROR("Unknown grid type!");
     }
-}
+} // sinLat
 
-double RLLMesh::sinLat2(int gridType, int j) const {
+double RLLMesh::
+sinLat2(int gridType, int j) const {
     switch (gridType) {
         case GridType::FULL:
             return sinLatFull2[j];
@@ -221,9 +231,10 @@ double RLLMesh::sinLat2(int gridType, int j) const {
         default:
             REPORT_ERROR("Unknown grid type!");
     }
-}
+} // sinLat2
 
-double RLLMesh::tanLat(int gridType, int j) const {
+double RLLMesh::
+tanLat(int gridType, int j) const {
     switch (gridType) {
         case GridType::FULL:
             return tanLatFull[j];
@@ -232,10 +243,11 @@ double RLLMesh::tanLat(int gridType, int j) const {
         default:
             REPORT_ERROR("Unknown grid type!");
     }
-}
+} // tanLat
 
-void RLLMesh::move(const SphereCoord &x0, double dt, const SphereVelocity &v,
-                   const RLLMeshIndex &idx, SphereCoord &x1) const {
+void RLLMesh::
+move(const SphereCoord &x0, double dt, const SphereVelocity &v,
+     const RLLMeshIndex &idx, SphereCoord &x1) const {
     if (!idx.isOnPole()) {
         double dlon = dt*v(0)/domain().radius()/cos(x0(1));
         double dlat = dt*v(1)/domain().radius();
@@ -267,15 +279,16 @@ void RLLMesh::move(const SphereCoord &x0, double dt, const SphereVelocity &v,
         assert(x1(2) >= domain().axisStart(2) && x1(2) <= domain().axisEnd(2));
 #endif
     }
-}
+} // move
 
-void RLLMesh::setGridCoords() {
+void RLLMesh::
+setGridCoords() {
     StructuredMesh<SphereDomain, SphereCoord>::setGridCoords();
     for (int loc = 0; loc < 5; ++loc) {
         for (int cellIdx = 0; cellIdx < gridCoords[loc].size(); ++cellIdx) {
             gridCoords[loc][cellIdx].transformToCart(domain());
         }
     }
-}
+} // setGridCoords
 
 } // geomtk

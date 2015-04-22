@@ -1,5 +1,5 @@
-#ifndef __Geomtk_StructuredMesh__
-#define __Geomtk_StructuredMesh__
+#ifndef __GEOMTK_StructuredMesh__
+#define __GEOMTK_StructuredMesh__
 
 #include "Mesh.h"
 
@@ -54,9 +54,10 @@ public:
     /**
      *  Read grids from file.
      *
-     *  @param fileName the grid file name.
+     *  @param filePath the grid file name.
      */
-    virtual void init(const string &fileName);
+    virtual void
+    init(const string &filePath);
 
     /**
      *  Read grids from one file for horizontal grids and one file for vertical
@@ -65,11 +66,16 @@ public:
      *  @param fileNameH the horizontal grid file name.
      *  @param fileNameV the vertical grid file name.
      */
-    virtual void init(const string &fileNameH, const string &fileNameV);
+    virtual void
+    init(const string &filePathH, const string &filePathV);
 
-    virtual void init(int nx, int ny = 1, int nz = 1);
+    virtual void
+    init(int nx, int ny = 1, int nz = 1);
 
-    int haloWidth() const { return _haloWidth; }
+    int
+    haloWidth() const {
+        return _haloWidth;
+    }
 
     /**
      *  Set the grid index ranges (start index and end index).
@@ -79,7 +85,8 @@ public:
      *  @param start    the start index.
      *  @param end      the end index.
      */
-    void setGridIndexRange(int axisIdx, int gridType, int start, int end);
+    void
+    setGridIndexRange(int axisIdx, int gridType, int start, int end);
 
     /**
      *  Set the grid coordinate components.
@@ -89,8 +96,8 @@ public:
      *  @param full    the full grid coordinate component array.
      *  @param half    the half grid coordinate component array.
      */
-    virtual void setGridCoordComps(int axisIdx, int size, const vec &full,
-                                   const vec &half);
+    virtual void
+    setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half);
 
     /**
      *  Set the grid coordinate components.
@@ -99,7 +106,8 @@ public:
      *  @param size    the grid size.
      *  @param full    the full grid coordinate component array.
      */
-    virtual void setGridCoordComps(int axisIdx, int size, const vec &full);
+    virtual void
+    setGridCoordComps(int axisIdx, int size, const vec &full);
 
     /**
      *  Get the grid coordinate component array.
@@ -110,8 +118,8 @@ public:
      *
      *  @return The grid coordinate component array.
      */
-    vec gridCoordComps(int axisIdx, int gridType,
-                       bool hasHaloGrids = false) const;
+    vec
+    gridCoordComps(int axisIdx, int gridType, bool hasHaloGrids = false) const;
 
     /**
      *  Get the grid coordinate component at given position.
@@ -122,7 +130,8 @@ public:
      *
      *  @return The grid coordinate component.
      */
-    double gridCoordComp(int axisIdx, int gridType, int gridIdx) const;
+    double
+    gridCoordComp(int axisIdx, int gridType, int gridIdx) const;
 
     /**
      *  Get the space coordinate of a grid with given location.
@@ -132,14 +141,17 @@ public:
      *
      *  @return The grid space coordinate.
      */
-    virtual const CoordType& gridCoord(int loc, int i) const;
+    virtual const CoordType&
+    gridCoord(int loc, int i) const;
 
-    virtual const CoordType& gridCoord(int loc, int i, int j, int k = 0) const;
+    virtual const CoordType&
+    gridCoord(int loc, int i, int j, int k = 0) const;
 
     /**
      *  Set the cell volumes after grids are set.
      */
-    virtual void setCellVolumes() = 0;
+    virtual void
+    setCellVolumes() = 0;
 
     /**
      *  Get the grid interval.
@@ -150,7 +162,8 @@ public:
      *
      *  @return The grid interval.
      */
-    double gridInterval(int axisIdx, int gridType, int gridIdx) const;
+    double
+    gridInterval(int axisIdx, int gridType, int gridIdx) const;
 
     /**
      *  Get the total grid number on given location (e.g. CENTER).
@@ -160,7 +173,8 @@ public:
      *
      *  @return The total grid number.
      */
-    virtual int totalNumGrid(int loc, int numDim = -1) const;
+    virtual int
+    totalNumGrid(int loc, int numDim = -1) const;
 
     /**
      *  Get the grid number along the given axis.
@@ -171,7 +185,8 @@ public:
      *
      *  @return The grid number.
      */
-    int numGrid(int axisIdx, int gridType, bool hasHaloGrids = false) const;
+    int
+    numGrid(int axisIdx, int gridType, bool hasHaloGrids = false) const;
 
     /**
      *  Get the start grid index along the given axis.
@@ -181,7 +196,8 @@ public:
      *
      *  @return The start grid index.
      */
-    int startIndex(int axisIdx, int gridType) const;
+    int
+    startIndex(int axisIdx, int gridType) const;
 
     /**
      *  Get the end grid index along the given axis.
@@ -191,7 +207,8 @@ public:
      *
      *  @return The end grid index.
      */
-    int endIndex(int axisIdx, int gridType) const;
+    int
+    endIndex(int axisIdx, int gridType) const;
 
     /**
      *  Get the start grid index along x axis.
@@ -200,7 +217,8 @@ public:
      *
      *  @return The start grid index along x axis.
      */
-    int is(int gridType) const;
+    int
+    is(int gridType) const;
 
     /**
      *  Get the end grid index along x axis.
@@ -209,7 +227,8 @@ public:
      *
      *  @return The end grid index along x axis.
      */
-    int ie(int gridType) const;
+    int
+    ie(int gridType) const;
 
     /**
      *  Get the start grid index along y axis.
@@ -218,7 +237,8 @@ public:
      *
      *  @return The start grid index along x axis.
      */
-    int js(int gridType) const;
+    int
+    js(int gridType) const;
 
     /**
      *  Get the end grid index along y axis.
@@ -227,7 +247,8 @@ public:
      *
      *  @return The end grid index along y axis.
      */
-    int je(int gridType) const;
+    int
+    je(int gridType) const;
 
     /**
      *  Get the start grid index along z axis.
@@ -236,7 +257,8 @@ public:
      *
      *  @return The start grid index along z axis.
      */
-    int ks(int gridType) const;
+    int
+    ks(int gridType) const;
 
     /**
      *  Get the end grid index along z axis.
@@ -245,7 +267,8 @@ public:
      *
      *  @return The end grid index along z axis.
      */
-    int ke(int gridType) const;
+    int
+    ke(int gridType) const;
 
     /**
      *  Get the vertical level index.
@@ -255,19 +278,24 @@ public:
      *
      *  @return The vertical level index.
      */
-    virtual int levelIndex(int loc, int cellIdx) const;
+    virtual int
+    levelIndex(int loc, int cellIdx) const;
 
-    virtual void unwrapIndex(int loc, int cellIdx, int gridIdx[3]) const;
+    virtual void
+    unwrapIndex(int loc, int cellIdx, int gridIdx[3]) const;
 
-    virtual int wrapIndex(int loc, int i, int j = 0, int k = 0) const;
+    virtual int
+    wrapIndex(int loc, int i, int j = 0, int k = 0) const;
 
-    virtual bool isHorizontalGridsSame(const Mesh<DomainType, CoordType> &other) const;
+    virtual bool
+    isHorizontalGridsSame(const Mesh<DomainType, CoordType> &other) const;
 protected:
-    virtual void setGridCoords();
-};
+    virtual void
+    setGridCoords();
+}; // StructuredMesh
 
 } // geomtk
 
 #include "StructuredMesh-impl.h"
 
-#endif // __Geomtk_StructuredMesh__
+#endif // __GEOMTK_StructuredMesh__

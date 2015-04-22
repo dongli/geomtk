@@ -9,19 +9,22 @@ namespace geomtk {
 struct RLLSpaceDimensions : public StructuredSpaceDimensions {
 };
 
-class RLLDataFile : public StructuredDataFile<RLLMesh> {
+class RLLDataFile
+: public StructuredDataFile<RLLMesh> {
 public:
-    RLLDataFile(MeshType &mesh) : StructuredDataFile<RLLMesh>(mesh) {}
+    RLLDataFile(MeshType &mesh, TimeManager &timeManager)
+        : StructuredDataFile<RLLMesh>(mesh, timeManager) {}
     virtual ~RLLDataFile() {}
 
-    virtual void inputGrids();
+    virtual void
+    inputHorizontalMesh();
 
-    virtual void inputHorizontalGrids();
+    virtual void
+    inputVerticalMesh();
 
-    virtual void inputVerticalGrids();
-
-    virtual void outputGrids();
-};
+    virtual void
+    outputMesh();
+}; // RLLDataFile
 
 } // geomtk
 

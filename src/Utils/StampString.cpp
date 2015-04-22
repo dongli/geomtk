@@ -12,18 +12,22 @@ sregex StampString::re5DigitTOD = sregex::compile("%T");
 sregex StampString::reTOD = sregex::compile("%t");
 sregex StampString::reStep = sregex::compile("%(\\d)s");
 
-StampString::StampString() {
+StampString::
+StampString() {
     pattern = "";
 }
 
-StampString::StampString(const string &pattern) {
+StampString::
+StampString(const string &pattern) {
     this->pattern = pattern;
 }
 
-StampString::~StampString() {
+StampString::
+~StampString() {
 }
 
-string StampString::run(const Time &time) {
+string StampString::
+run(const Time &time) const {
     string res = pattern;
     smatch what;
     bool matched = false;
@@ -68,10 +72,10 @@ string StampString::run(const Time &time) {
         matched = true;
     }
     return res;
-}
+} // run
 
-// test.gamil.h0.%Y-%M.nc
-string StampString::run(const TimeManager &timeManager) {
+string StampString::
+run(const TimeManager &timeManager) const {
     string res = pattern;
     smatch what;
     const Time &time = timeManager.currTime();
@@ -124,9 +128,10 @@ string StampString::run(const TimeManager &timeManager) {
         matched = true;
     }
     return res;
-}
+} // run
 
-string StampString::wildcard(const string &pattern) {
+string StampString::
+wildcard(const string &pattern) {
     string res = pattern;
     smatch what;
     // check year
@@ -160,13 +165,15 @@ string StampString::wildcard(const string &pattern) {
         res = regex_replace(res, reStep, ss.str());
     }
     return res;
-}
+} // wildcard
 
-string StampString::wildcard() const {
+string StampString::
+wildcard() const {
     return StampString::wildcard(pattern);
-}
+} // wildcard
 
-bool StampString::operator==(const StampString &other) const {
+bool StampString::
+operator==(const StampString &other) const {
     if (this == &other) {
         return true;
     }
@@ -175,6 +182,6 @@ bool StampString::operator==(const StampString &other) const {
     } else {
         return false;
     }
-}
+} // operator==
 
-}
+} // geomtk

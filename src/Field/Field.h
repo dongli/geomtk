@@ -1,5 +1,5 @@
-#ifndef __Geomtk_Field__
-#define __Geomtk_Field__
+#ifndef __GEOMTK_Field__
+#define __GEOMTK_Field__
 
 #include "geomtk_commons.h"
 #include "Mesh.h"
@@ -28,34 +28,63 @@ public:
     Field();
     virtual ~Field() {}
 
-    void create(const string &name, const string &units, const string &longName,
-                const MeshType &mesh, int numDim, bool hasHalfLevel = false);
+    void
+    create(const string &name, const string &units, const string &longName,
+           const MeshType &mesh, int numDim, bool hasHalfLevel = false);
 
-    bool isCreated() const { return createTag; }
+    bool
+    isCreated() const {
+        return createTag;
+    }
 
-    void setName(const string &name) { _name = name; }
+    void
+    setName(const string &name) {
+        _name = name;
+    }
 
-    void setLongName(const string &longName) { _longName = longName; }
+    void setLongName(const string &longName) {
+        _longName = longName;
+    }
 
-    void setUnits(const string &units) { _units = units; }
+    void
+    setUnits(const string &units) {
+        _units = units;
+    }
 
-    const string& name() const { return _name; }
+    const string&
+    name() const {
+        return _name;
+    }
 
-    const string& longName() const { return _longName; }
+    const string&
+    longName() const {
+        return _longName;
+    }
 
-    const string& units() const { return _units; }
+    const string&
+    units() const {
+        return _units;
+    }
 
-    int numDim() const { return _numDim; }
+    int
+    numDim() const {
+        return _numDim;
+    }
 
-    const MeshType& mesh() const { return *_mesh; }
+    const MeshType&
+    mesh() const {
+        return *_mesh;
+    }
 
-    Field& operator=(const Field &other);
+    Field&
+    operator=(const Field &other);
 
-    virtual int staggerLocation() const = 0;
-};
+    virtual int
+    staggerLocation() const = 0;
+}; // Field
 
 } // geomtk
 
 #include "Field-impl.h"
 
-#endif // __Geomtk_Field__
+#endif // __GEOMTK_Field__

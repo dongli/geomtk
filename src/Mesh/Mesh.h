@@ -29,10 +29,10 @@ public:
     /**
      *  Read grids from file.
      *
-     *  @param fileName the grid file name.
+     *  @param filePath the grid file name.
      */
     virtual void
-    init(const string &fileName) = 0;
+    init(const string &filePath) = 0;
 
     /**
      *  Read grids from one file for horizontal grids and one file for vertical

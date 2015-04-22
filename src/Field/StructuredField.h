@@ -23,8 +23,9 @@ public:
     StructuredField();
     virtual ~StructuredField();
 
-    virtual void create(const string &name, const string &units, const string &longName,
-                        const MeshType &mesh, int loc, int numDim, bool hasHalfLevel = false);
+    virtual void
+    create(const string &name, const string &units, const string &longName,
+           const MeshType &mesh, int loc, int numDim, bool hasHalfLevel = false);
 
     const field<DataType>&
     operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx) const;

@@ -105,41 +105,45 @@ setAxis(int dim, const string &name, const string &longName,
     _axisEnds(dim) = end;
     _bndTypeEnds[dim] = bndTypeEnd;
     _axisSpans(dim) = end-start;
-}
+} // setAxis
 
 template <typename CoordType>
-string Domain<CoordType>::brief() const {
+string Domain<CoordType>::
+brief() const {
     static string brief = "normal domain";
     return brief;
-}
+} // brief
 
 template <typename CoordType>
-void Domain<CoordType>::constrain(CoordType &x) const {
+bool Domain<CoordType>::
+isValid(CoordType &x) const {
     for (int m = 0; m < _numDim; ++m) {
         if (x(m) < axisStart(m)) {
             if (axisStartBndType(m) == PERIODIC) {
                 x(m) += axisSpan(m);
             } else {
-                REPORT_ERROR("Coordinate is out of range!");
+                return false;
             }
         } else if (x(m) > axisEnd(m)) {
             if (axisStartBndType(m) == PERIODIC) {
                 x(m) -= axisSpan(m);
             } else {
-                REPORT_ERROR("Coordinate is out of range!");
+                return false;
             }
         }
     }
-}
+    return true;
+} // isValid
 
 template <typename CoordType>
-bool Domain<CoordType>::isValid(const CoordType &x) const {
+bool Domain<CoordType>::
+isValid(const CoordType &x) const {
     for (int m = 0; m < _numDim; ++m) {
         if (x(m) < axisStart(m) || x(m) > axisEnd(m)) {
             return false;
         }
     }
     return true;
-}
+} // isValid
 
 } // geomtk
