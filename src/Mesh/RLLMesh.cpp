@@ -207,7 +207,7 @@ cosLat(int gridType, int j) const {
         default:
             REPORT_ERROR("Unknown grid type!");
     }
-} cosLat
+} // cosLat
 
 double RLLMesh::
 sinLat(int gridType, int j) const {
