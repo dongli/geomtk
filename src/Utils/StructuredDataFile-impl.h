@@ -17,7 +17,7 @@ open(const TimeManager &timeManager) {
     const auto &domain = this->mesh().domain();
     int ret;
     // inquire full dimensions
-    for (int m = 0; m < domain.numDim(); ++m) {
+    for (uword m = 0; m < domain.numDim(); ++m) {
         ret = nc_inq_dimid(this->fileId, domain.axisName(m).c_str(), &fullDimIDs[m]);
         CHECK_NC_INQ_DIMID(ret, this->filePath, domain.axisName(m));
         if (this->mesh().isSet()) {
@@ -41,7 +41,7 @@ open(const TimeManager &timeManager) {
         bnds2D = true;
     }
     // inquire fields
-    for (int i = 0; i < this->fieldInfos.size(); ++i) {
+    for (uword i = 0; i < this->fieldInfos.size(); ++i) {
         string name = this->fieldInfos[i].field->name();
         ret = nc_inq_varid(this->fileId, name.c_str(), &this->fieldInfos[i].varId);
         CHECK_NC_INQ_VARID(ret, this->filePath, name);
@@ -57,7 +57,7 @@ create(const TimeManager &timeManager) {
     string name, longName, units;
     int ret;
     // define spatial dimensions and their coordinate variables
-    for (int m = 0; m < domain.numDim(); ++m) {
+    for (uword m = 0; m < domain.numDim(); ++m) {
         name = domain.axisName(m);
         longName = domain.axisLongName(m);
         // full grids
@@ -80,7 +80,7 @@ create(const TimeManager &timeManager) {
         CHECK_NC_DEF_VAR(ret, this->filePath, name);
     }
     // define fields
-    for (int i = 0; i < this->fieldInfos.size(); ++i) {
+    for (uword i = 0; i < this->fieldInfos.size(); ++i) {
         name = this->fieldInfos[i].field->name();
         longName = this->fieldInfos[i].field->longName();
         units = this->fieldInfos[i].field->units();
@@ -255,7 +255,7 @@ outputMesh() {
     int ret;
     // write units
     ret = nc_redef(this->fileId);
-    for (int m = 0; m < domain.numDim(); ++m) {
+    for (uword m = 0; m < domain.numDim(); ++m) {
         string units = domain.axisUnits(m);
         ret = nc_put_att(this->fileId, fullVarIDs[m], "units", NC_CHAR,
                          units.length(), units.c_str());
@@ -266,7 +266,7 @@ outputMesh() {
     }
     ret = nc_enddef(this->fileId);
     // write spatial grids
-    for (int m = 0; m < domain.numDim(); ++m) {
+    for (uword m = 0; m < domain.numDim(); ++m) {
         ret = nc_put_var(this->fileId, fullVarIDs[m],
                          this->mesh().gridCoordComps(m, GridType::FULL).memptr());
         CHECK_NC_PUT_VAR(ret, this->filePath, domain.axisName(m));
@@ -301,7 +301,7 @@ template <class MeshType>
 void StructuredDataFile<MeshType>::
 removeField(initializer_list<Field<MeshType>*> fields) {
     for (auto field : fields) {
-        int i;
+        uword i;
         for (i = 0; i < this->fieldInfos.size(); ++i) {
             if (this->fieldInfos[i].field == field) {
                 this->fieldInfos.erase(this->fieldInfos.begin()+i);

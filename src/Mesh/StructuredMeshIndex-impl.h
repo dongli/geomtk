@@ -8,15 +8,15 @@ StructuredMeshIndex() : MeshIndex<MeshType, CoordType>() {
 
 template <class MeshType, class CoordType>
 StructuredMeshIndex<MeshType, CoordType>::
-StructuredMeshIndex(int numDim) : MeshIndex<MeshType, CoordType>(numDim) {
-    setNumDim(numDim);
+StructuredMeshIndex(uword numDim) : MeshIndex<MeshType, CoordType>(numDim) {
+    init(numDim);
 }
 
 template <class MeshType, class CoordType>
 StructuredMeshIndex<MeshType, CoordType>::
 ~StructuredMeshIndex() {
     if (indices) {
-        for (int i = 0; i < 3; ++i) {
+        for (uword i = 0; i < 3; ++i) {
             delete [] indices[i];
         }
         delete [] indices;
@@ -25,20 +25,20 @@ StructuredMeshIndex<MeshType, CoordType>::
 
 template <class MeshType, class CoordType>
 void StructuredMeshIndex<MeshType, CoordType>::
-setNumDim(int numDim) {
-    MeshIndex<MeshType, CoordType>::setNumDim(numDim);
+init(uword numDim) {
+    MeshIndex<MeshType, CoordType>::init(numDim);
     // NOTE: Index is 3D no matter the dimension size of domain.
     indices = new int*[3];
-    for (int i = 0; i < 3; ++i) {
+    for (uword i = 0; i < 3; ++i) {
         indices[i] = new int[2];
     }
     reset();
-} // setNumDim
+} // init
 
 template <class MeshType, class CoordType>
 void StructuredMeshIndex<MeshType, CoordType>::
 reset() {
-    for (int m = 0; m < this->numDim; ++m) {
+    for (uword m = 0; m < this->numDim; ++m) {
         indices[m][GridType::FULL] = UNDEFINED_MESH_INDEX;
         indices[m][GridType::HALF] = UNDEFINED_MESH_INDEX;
     }
@@ -51,13 +51,13 @@ reset() {
 
 template <class MeshType, class CoordType>
 int StructuredMeshIndex<MeshType, CoordType>::
-operator()(int axisIdx, int gridType) const {
+operator()(uword axisIdx, int gridType) const {
     return indices[axisIdx][gridType];
 } // operator()
 
 template <class MeshType, class CoordType>
 int& StructuredMeshIndex<MeshType, CoordType>::
-operator()(int axisIdx, int gridType) {
+operator()(uword axisIdx, int gridType) {
     return indices[axisIdx][gridType];
 } // operator()
 
@@ -66,8 +66,8 @@ StructuredMeshIndex<MeshType, CoordType>& StructuredMeshIndex<MeshType, CoordTyp
 operator=(const StructuredMeshIndex<MeshType, CoordType> &other) {
     MeshIndex<MeshType, CoordType>::operator=(other);
     if (this != &other) {
-        for (int m = 0; m < 3; ++m) {
-            for (int i = 0; i < 2; ++i) {
+        for (uword m = 0; m < 3; ++m) {
+            for (uword i = 0; i < 2; ++i) {
                 indices[m][i] = other.indices[m][i];
             }
         }
@@ -83,11 +83,11 @@ locate(const MeshType &mesh, const CoordType &x) {
 #ifndef NDEBUG
     assert(domain.isValid(x));
 #endif
-    for (int m = 0; m < domain.numDim(); ++m) {
+    for (uword m = 0; m < domain.numDim(); ++m) {
         // #####################################################################
         if (indices[m][GridType::FULL] == UNDEFINED_MESH_INDEX) {
             if (domain.axisStartBndType(m) == PERIODIC) {
-                for (int i = mesh.startIndex(m, GridType::FULL);
+                for (uword i = mesh.startIndex(m, GridType::FULL);
                      i <= mesh.endIndex(m, GridType::FULL); ++i) {
                     if (x(m) >= mesh.gridCoordComp(m, GridType::FULL, i) &&
                         x(m) <= mesh.gridCoordComp(m, GridType::FULL, i+1)) {
@@ -106,7 +106,7 @@ locate(const MeshType &mesh, const CoordType &x) {
             }
             // =================================================================
             else if (mesh.gridCoordComp(m, GridType::FULL, 0) == domain.axisStart(m)) {
-                for (int i = mesh.startIndex(m, GridType::FULL);
+                for (uword i = mesh.startIndex(m, GridType::FULL);
                      i < mesh.endIndex(m, GridType::FULL); ++i) {
                     if (x(m) >= mesh.gridCoordComp(m, GridType::FULL, i) &&
                         x(m) <= mesh.gridCoordComp(m, GridType::FULL, i+1)) {
@@ -126,8 +126,8 @@ locate(const MeshType &mesh, const CoordType &x) {
                         continue;
                     }
                 }
-                int i1 = max(indices[m][GridType::FULL]-2, mesh.startIndex(m, GridType::FULL));
-                int i2 = min(indices[m][GridType::FULL]+2, mesh.endIndex(m, GridType::FULL));
+                int i1 = max(indices[m][GridType::FULL]-2, static_cast<int>(mesh.startIndex(m, GridType::FULL)));
+                int i2 = min(indices[m][GridType::FULL]+2, static_cast<int>(mesh.endIndex(m, GridType::FULL)));
                 for (int i = i1; i < i2; ++i) {
                     if (x(m) >= mesh.gridCoordComp(m, GridType::HALF, i) &&
                         x(m) <= mesh.gridCoordComp(m, GridType::HALF, i+1)) {
@@ -138,8 +138,8 @@ locate(const MeshType &mesh, const CoordType &x) {
             }
             // =================================================================
             else {
-                for (int i = mesh.startIndex(m, GridType::HALF);
-                     i < mesh.endIndex(m, GridType::HALF); ++i) {
+                for (int i = static_cast<int>(mesh.startIndex(m, GridType::HALF));
+                     i < static_cast<int>(mesh.endIndex(m, GridType::HALF)); ++i) {
                     if (x(m) >= mesh.gridCoordComp(m, GridType::HALF, i) &&
                         x(m) <= mesh.gridCoordComp(m, GridType::HALF, i+1)) {
                         indices[m][GridType::HALF] = i;
@@ -155,8 +155,8 @@ locate(const MeshType &mesh, const CoordType &x) {
                     indices[m][GridType::FULL] = mesh.numGrid(m, GridType::FULL)-1;
                     continue;
                 }
-                int i1 = max(indices[m][GridType::HALF]-2, mesh.startIndex(m, GridType::HALF));
-                int i2 = min(indices[m][GridType::HALF]+2, mesh.endIndex(m, GridType::HALF));
+                int i1 = max(indices[m][GridType::HALF]-2, static_cast<int>(mesh.startIndex(m, GridType::HALF)));
+                int i2 = min(indices[m][GridType::HALF]+2, static_cast<int>(mesh.endIndex(m, GridType::HALF)));
                 for (int i = i1; i < i2; ++i) {
                     if (x(m) >= mesh.gridCoordComp(m, GridType::FULL, i) &&
                         x(m) <= mesh.gridCoordComp(m, GridType::FULL, i+1)) {
@@ -172,7 +172,7 @@ locate(const MeshType &mesh, const CoordType &x) {
                 if (x(m) < mesh.gridCoordComp(m, GridType::FULL,
                                               indices[m][GridType::FULL])) {
                     for (int i = indices[m][GridType::FULL]-1;
-                         i >= mesh.startIndex(m, GridType::FULL); --i) {
+                         i >= static_cast<int>(mesh.startIndex(m, GridType::FULL)); --i) {
                         if (x(m) >= mesh.gridCoordComp(m, GridType::FULL, i) &&
                             x(m) <= mesh.gridCoordComp(m, GridType::FULL, i+1)) {
                             indices[m][GridType::FULL] = i;
@@ -182,7 +182,7 @@ locate(const MeshType &mesh, const CoordType &x) {
                 } else if (x(m) > mesh.gridCoordComp(m, GridType::FULL,
                                                      indices[m][GridType::FULL]+1)) {
                     for (int i = indices[m][GridType::FULL]+1;
-                         i <= mesh.endIndex(m, GridType::FULL); ++i) {
+                         i <= static_cast<int>(mesh.endIndex(m, GridType::FULL)); ++i) {
                         if (x(m) >= mesh.gridCoordComp(m, GridType::FULL, i) &&
                             x(m) <= mesh.gridCoordComp(m, GridType::FULL, i+1)) {
                             indices[m][GridType::FULL] = i;
@@ -204,7 +204,7 @@ locate(const MeshType &mesh, const CoordType &x) {
                 if (x(m) < mesh.gridCoordComp(m, GridType::FULL,
                                               indices[m][GridType::FULL])) {
                     for (int i = indices[m][GridType::FULL]-1;
-                         i >= mesh.startIndex(m, GridType::FULL); --i) {
+                         i >= static_cast<int>(mesh.startIndex(m, GridType::FULL)); --i) {
                         if (x(m) >= mesh.gridCoordComp(m, GridType::FULL, i) &&
                             x(m) <= mesh.gridCoordComp(m, GridType::FULL, i+1)) {
                             indices[m][GridType::FULL] = i;
@@ -214,7 +214,7 @@ locate(const MeshType &mesh, const CoordType &x) {
                 } else if (x(m) > mesh.gridCoordComp(m, GridType::FULL,
                                                      indices[m][GridType::FULL]+1)) {
                     for (int i = indices[m][GridType::FULL]+1;
-                         i <= mesh.endIndex(m, GridType::FULL); ++i) {
+                         i <= static_cast<int>(mesh.endIndex(m, GridType::FULL)); ++i) {
                         if (x(m) >= mesh.gridCoordComp(m, GridType::FULL, i) &&
                             x(m) <= mesh.gridCoordComp(m, GridType::FULL, i+1)) {
                             indices[m][GridType::FULL] = i;
@@ -234,8 +234,8 @@ locate(const MeshType &mesh, const CoordType &x) {
                         continue;
                     }
                 }
-                int i1 = max(indices[m][GridType::FULL]-2, mesh.startIndex(m, GridType::FULL));
-                int i2 = min(indices[m][GridType::FULL]+2, mesh.endIndex(m, GridType::FULL));
+                int i1 = max(indices[m][GridType::FULL]-2, static_cast<int>(mesh.startIndex(m, GridType::FULL)));
+                int i2 = min(indices[m][GridType::FULL]+2, static_cast<int>(mesh.endIndex(m, GridType::FULL)));
                 for (int i = i1; i < i2; ++i) {
                     if (x(m) >= mesh.gridCoordComp(m, GridType::HALF, i) &&
                         x(m) <= mesh.gridCoordComp(m, GridType::HALF, i+1)) {
@@ -249,7 +249,7 @@ locate(const MeshType &mesh, const CoordType &x) {
                 if (x(m) < mesh.gridCoordComp(m, GridType::HALF,
                                               indices[m][GridType::HALF])) {
                     for (int i = indices[m][GridType::HALF]-1;
-                         i >= mesh.startIndex(m, GridType::HALF); --i) {
+                         i >= static_cast<int>(mesh.startIndex(m, GridType::HALF)); --i) {
                         if (x(m) >= mesh.gridCoordComp(m, GridType::HALF, i) &&
                             x(m) <= mesh.gridCoordComp(m, GridType::HALF, i+1)) {
                             indices[m][GridType::HALF] = i;
@@ -259,7 +259,7 @@ locate(const MeshType &mesh, const CoordType &x) {
                 } else if (x(m) > mesh.gridCoordComp(m, GridType::HALF,
                                                      indices[m][GridType::HALF]+1)) {
                     for (int i = indices[m][GridType::HALF]+1;
-                         i <= mesh.endIndex(m, GridType::HALF); ++i) {
+                         i <= static_cast<int>(mesh.endIndex(m, GridType::HALF)); ++i) {
                         if (x(m) >= mesh.gridCoordComp(m, GridType::HALF, i) &&
                             x(m) <= mesh.gridCoordComp(m, GridType::HALF, i+1)) {
                             indices[m][GridType::HALF] = i;
@@ -276,8 +276,8 @@ locate(const MeshType &mesh, const CoordType &x) {
                         indices[m][GridType::FULL] = mesh.numGrid(m, GridType::FULL)-1;
                         continue;
                     }
-                int i1 = max(indices[m][GridType::HALF]-2, mesh.startIndex(m, GridType::HALF));
-                int i2 = min(indices[m][GridType::HALF]+2, mesh.endIndex(m, GridType::HALF));
+                int i1 = max(indices[m][GridType::HALF]-2, static_cast<int>(mesh.startIndex(m, GridType::HALF)));
+                int i2 = min(indices[m][GridType::HALF]+2, static_cast<int>(mesh.endIndex(m, GridType::HALF)));
                 for (int i = i1; i < i2; ++i) {
                     if (x(m) >= mesh.gridCoordComp(m, GridType::FULL, i) &&
                         x(m) <= mesh.gridCoordComp(m, GridType::FULL, i+1)) {
@@ -295,33 +295,92 @@ locate(const MeshType &mesh, const CoordType &x) {
 } // locate
 
 template <class MeshType, class CoordType>
-int StructuredMeshIndex<MeshType, CoordType>::
-getIndex(const MeshType &mesh, int loc) const {
-    switch (loc) {
-        case Location::CENTER:
-            return mesh.wrapIndex(loc, indices[0][GridType::FULL],
-                                  indices[1][GridType::FULL],
-                                  indices[2][GridType::FULL]);
-        case Location::X_FACE:
-            return mesh.wrapIndex(loc, indices[0][GridType::HALF],
-                                  indices[1][GridType::FULL],
-                                  indices[2][GridType::FULL]);
-        case Location::Y_FACE:
-            return mesh.wrapIndex(loc, indices[0][GridType::FULL],
-                                  indices[1][GridType::HALF],
-                                  indices[2][GridType::FULL]);
-        case Location::XY_VERTEX:
-            return mesh.wrapIndex(loc, indices[0][GridType::HALF],
-                                  indices[1][GridType::HALF],
-                                  indices[2][GridType::FULL]);
-        case Location::Z_FACE:
-            return mesh.wrapIndex(loc, indices[0][GridType::FULL],
-                                  indices[1][GridType::FULL],
-                                  indices[2][GridType::HALF]);
+uword StructuredMeshIndex<MeshType, CoordType>::
+cellIndex(const MeshType &mesh, int loc) const {
+    int i, j, k;
+    switch (mesh.domain().numDim()) {
+        case 1:
+            switch (loc) {
+                case Location::CENTER:
+                    i = mesh.gridStyle(0) == FULL_LEAD ? indices[0][GridType::HALF]+1 : indices[0][GridType::HALF];
+                    return mesh.wrapIndex(Location::VERTEX, i);
+                case Location::VERTEX:
+                    i = mesh.gridStyle(0) == HALF_LEAD ? indices[0][GridType::FULL]+1 : indices[0][GridType::FULL];
+                    return mesh.wrapIndex(Location::CENTER, i);
+                default:
+                    REPORT_ERROR("Unsupported stagger location!");
+            }
+        case 2:
+            switch (loc) {
+                case Location::CENTER:
+                    i = mesh.gridStyle(0) == FULL_LEAD ? indices[0][GridType::HALF]+1 : indices[0][GridType::HALF];
+                    j = mesh.gridStyle(1) == FULL_LEAD ? indices[1][GridType::HALF]+1 : indices[1][GridType::HALF];
+                    return mesh.wrapIndex(Location::VERTEX, i, j);
+                case Location::VERTEX:
+                case Location::XY_VERTEX:
+                    i = mesh.gridStyle(0) == HALF_LEAD ? indices[0][GridType::FULL]+1 : indices[0][GridType::FULL];
+                    j = mesh.gridStyle(1) == HALF_LEAD ? indices[1][GridType::FULL]+1 : indices[1][GridType::FULL];
+                    return mesh.wrapIndex(Location::CENTER, i, j);
+                case Location::X_FACE:
+                    i = mesh.gridStyle(0) == HALF_LEAD ? indices[0][GridType::FULL]+1 : indices[0][GridType::FULL];
+                    j = mesh.gridStyle(1) == FULL_LEAD ? indices[1][GridType::HALF]+1 : indices[1][GridType::HALF];
+                    return mesh.wrapIndex(Location::Y_FACE, i, j);
+                case Location::Y_FACE:
+                    i = mesh.gridStyle(0) == FULL_LEAD ? indices[0][GridType::HALF]+1 : indices[0][GridType::HALF];
+                    j = mesh.gridStyle(1) == HALF_LEAD ? indices[1][GridType::FULL]+1 : indices[1][GridType::FULL];
+                    return mesh.wrapIndex(Location::X_FACE, i, j);
+                default:
+                    REPORT_ERROR("Unsupported stagger location!");
+            }
+        case 3:
+            switch (loc) {
+                case Location::CENTER:
+                    i = mesh.gridStyle(0) == FULL_LEAD ? indices[0][GridType::HALF]+1 : indices[0][GridType::HALF];
+                    j = mesh.gridStyle(1) == FULL_LEAD ? indices[1][GridType::HALF]+1 : indices[1][GridType::HALF];
+                    k = mesh.gridStyle(2) == FULL_LEAD ? indices[2][GridType::HALF]+1 : indices[2][GridType::HALF];
+                    return mesh.wrapIndex(Location::VERTEX, i, j, k);
+                case Location::VERTEX:
+                    i = mesh.gridStyle(0) == HALF_LEAD ? indices[0][GridType::FULL]+1 : indices[0][GridType::FULL];
+                    j = mesh.gridStyle(1) == HALF_LEAD ? indices[1][GridType::FULL]+1 : indices[1][GridType::FULL];
+                    k = mesh.gridStyle(2) == HALF_LEAD ? indices[2][GridType::FULL]+1 : indices[2][GridType::FULL];
+                    return mesh.wrapIndex(Location::CENTER, i, j, k);
+                case Location::X_FACE:
+                    i = mesh.gridStyle(0) == HALF_LEAD ? indices[0][GridType::FULL]+1 : indices[0][GridType::FULL];
+                    j = mesh.gridStyle(1) == FULL_LEAD ? indices[1][GridType::HALF]+1 : indices[1][GridType::HALF];
+                    k = mesh.gridStyle(2) == FULL_LEAD ? indices[2][GridType::HALF]+1 : indices[2][GridType::HALF];
+                    return mesh.wrapIndex(Location::YZ_VERTEX, i, j, k);
+                case Location::Y_FACE:
+                    i = mesh.gridStyle(0) == FULL_LEAD ? indices[0][GridType::HALF]+1 : indices[0][GridType::HALF];
+                    j = mesh.gridStyle(1) == HALF_LEAD ? indices[1][GridType::FULL]+1 : indices[1][GridType::FULL];
+                    k = mesh.gridStyle(2) == FULL_LEAD ? indices[2][GridType::HALF]+1 : indices[2][GridType::HALF];
+                    return mesh.wrapIndex(Location::XZ_VERTEX, i, j, k);
+                case Location::Z_FACE:
+                    i = mesh.gridStyle(0) == FULL_LEAD ? indices[0][GridType::HALF]+1 : indices[0][GridType::HALF];
+                    j = mesh.gridStyle(1) == FULL_LEAD ? indices[1][GridType::HALF]+1 : indices[1][GridType::HALF];
+                    k = mesh.gridStyle(2) == HALF_LEAD ? indices[2][GridType::FULL]+1 : indices[2][GridType::FULL];
+                    return mesh.wrapIndex(Location::XY_VERTEX, i, j, k);
+                case Location::XY_VERTEX:
+                    i = mesh.gridStyle(0) == HALF_LEAD ? indices[0][GridType::FULL]+1 : indices[0][GridType::FULL];
+                    j = mesh.gridStyle(1) == HALF_LEAD ? indices[1][GridType::FULL]+1 : indices[1][GridType::FULL];
+                    k = mesh.gridStyle(2) == FULL_LEAD ? indices[2][GridType::HALF]+1 : indices[2][GridType::HALF];
+                    return mesh.wrapIndex(Location::Z_FACE, i, j, k);
+                case Location::XZ_VERTEX:
+                    i = mesh.gridStyle(0) == HALF_LEAD ? indices[0][GridType::FULL]+1 : indices[0][GridType::FULL];
+                    j = mesh.gridStyle(1) == FULL_LEAD ? indices[1][GridType::HALF]+1 : indices[1][GridType::HALF];
+                    k = mesh.gridStyle(2) == HALF_LEAD ? indices[2][GridType::FULL]+1 : indices[2][GridType::FULL];
+                    return mesh.wrapIndex(Location::Y_FACE, i, j, k);
+                case Location::YZ_VERTEX:
+                    i = mesh.gridStyle(0) == FULL_LEAD ? indices[0][GridType::HALF]+1 : indices[0][GridType::HALF];
+                    j = mesh.gridStyle(1) == HALF_LEAD ? indices[1][GridType::FULL]+1 : indices[1][GridType::FULL];
+                    k = mesh.gridStyle(2) == HALF_LEAD ? indices[2][GridType::FULL]+1 : indices[2][GridType::FULL];
+                    return mesh.wrapIndex(Location::X_FACE, i, j, k);
+                default:
+                    REPORT_ERROR("Unsupported stagger location!");
+            }
         default:
-            REPORT_ERROR("Unsupported stagger location!");
+            REPORT_ERROR("Incorrect domain dimension!");
     }
-} // getIndex
+} // cellIndex
 
 template <class MeshType, class CoordType>
 bool StructuredMeshIndex<MeshType, CoordType>::

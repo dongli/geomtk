@@ -40,12 +40,12 @@ init(const string &filePathH, const string &filePathV) {
 } // init
 
 void RLLMesh::
-init(int nx, int ny, int nz) {
+init(uword nx, uword ny, uword nz) {
     StructuredMesh<SphereDomain, SphereCoord>::init(nx, ny, nz);
 } // init
 
 void RLLMesh::
-setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
+setGridCoordComps(uword axisIdx, uword size, const vec &full, const vec &half) {
     StructuredMesh<SphereDomain, SphereCoord>::
     setGridCoordComps(axisIdx, size, full, half);
     if (axisIdx == 0) {
@@ -53,11 +53,11 @@ setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
         sinLonFull.set_size(fullCoords[0].size());
         cosLonHalf.set_size(halfCoords[0].size());
         sinLonHalf.set_size(halfCoords[0].size());
-        for (int i = 0; i < fullCoords[0].size(); ++i) {
+        for (uword i = 0; i < fullCoords[0].size(); ++i) {
             cosLonFull(i) = cos(fullCoords[0](i));
             sinLonFull(i) = sin(fullCoords[0](i));
         }
-        for (int i = 0; i < halfCoords[0].size(); ++i) {
+        for (uword i = 0; i < halfCoords[0].size(); ++i) {
             cosLonHalf(i) = cos(halfCoords[0](i));
             sinLonHalf(i) = sin(halfCoords[0](i));
         }
@@ -70,20 +70,20 @@ setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
         sinLatHalf2.set_size(halfCoords[1].size());
         tanLatFull.set_size(fullCoords[1].size());
         tanLatHalf.set_size(halfCoords[1].size());
-        for (int j = 0; j < fullCoords[1].size(); ++j) {
+        for (uword j = 0; j < fullCoords[1].size(); ++j) {
             cosLatFull(j) = cos(fullCoords[1](j));
             sinLatFull(j) = sin(fullCoords[1](j));
             sinLatFull2(j) = sinLatFull(j)*sinLatFull(j);
             tanLatFull(j) = tan(fullCoords[1](j));
         }
-        for (int j = 0; j < halfCoords[1].size(); ++j) {
+        for (uword j = 0; j < halfCoords[1].size(); ++j) {
             cosLatHalf(j) = cos(halfCoords[1](j));
             sinLatHalf(j) = sin(halfCoords[1](j));
             sinLatHalf2(j) = sinLatHalf(j)*sinLatHalf(j);
             tanLatHalf(j) = tan(halfCoords[1](j));
         }
     }
-    for (int m = 0; m < this->domain().numDim(); ++m) {
+    for (uword m = 0; m < this->domain().numDim(); ++m) {
         if (fullCoords[m].size() == 0) {
             return;
         }
@@ -92,7 +92,7 @@ setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half) {
 } // setGridCoords
 
 void RLLMesh::
-setGridCoordComps(int axisIdx, int size, const vec &full) {
+setGridCoordComps(uword axisIdx, uword size, const vec &full) {
     StructuredMesh<SphereDomain, SphereCoord>::
     setGridCoordComps(axisIdx, size, full);
     if (axisIdx == 0) {
@@ -100,11 +100,11 @@ setGridCoordComps(int axisIdx, int size, const vec &full) {
         sinLonFull.set_size(fullCoords[0].size());
         cosLonHalf.set_size(halfCoords[0].size());
         sinLonHalf.set_size(halfCoords[0].size());
-        for (int i = 0; i < fullCoords[0].size(); ++i) {
+        for (uword i = 0; i < fullCoords[0].size(); ++i) {
             cosLonFull(i) = cos(fullCoords[0](i));
             sinLonFull(i) = sin(fullCoords[0](i));
         }
-        for (int i = 0; i < halfCoords[0].size(); ++i) {
+        for (uword i = 0; i < halfCoords[0].size(); ++i) {
             cosLonHalf(i) = cos(halfCoords[0](i));
             sinLonHalf(i) = sin(halfCoords[0](i));
         }
@@ -117,20 +117,20 @@ setGridCoordComps(int axisIdx, int size, const vec &full) {
         sinLatHalf2.set_size(halfCoords[1].size());
         tanLatFull.set_size(fullCoords[1].size());
         tanLatHalf.set_size(halfCoords[1].size());
-        for (int j = 0; j < fullCoords[1].size(); ++j) {
+        for (uword j = 0; j < fullCoords[1].size(); ++j) {
             cosLatFull(j) = cos(fullCoords[1](j));
             sinLatFull(j) = sin(fullCoords[1](j));
             sinLatFull2(j) = sinLatFull(j)*sinLatFull(j);
             tanLatFull(j) = tan(fullCoords[1](j));
         }
-        for (int j = 0; j < halfCoords[1].size(); ++j) {
+        for (uword j = 0; j < halfCoords[1].size(); ++j) {
             cosLatHalf(j) = cos(halfCoords[1](j));
             sinLatHalf(j) = sin(halfCoords[1](j));
             sinLatHalf2(j) = sinLatHalf(j)*sinLatHalf(j);
             tanLatHalf(j) = tan(halfCoords[1](j));
         }
     }
-    for (int m = 0; m < this->domain().numDim(); ++m) {
+    for (uword m = 0; m < this->domain().numDim(); ++m) {
         if (fullCoords[m].size() == 0) {
             return;
         }
@@ -148,14 +148,14 @@ setCellVolumes() {
                      numGrid(1, GridType::FULL),
                      numGrid(2, GridType::FULL));
     double R2 = domain().radius()*domain().radius();
-    for (int k = 0; k < volumes.n_slices; ++k) {
-        for (int j = 1; j < volumes.n_cols-1; ++j) {
+    for (uword k = 0; k < volumes.n_slices; ++k) {
+        for (uword j = 1; j < volumes.n_cols-1; ++j) {
             double dsinLat = sinLatHalf(j)-sinLatHalf(j-1);
-            for (int i = 0; i < volumes.n_rows; ++i) {
+            for (uword i = 0; i < volumes.n_rows; ++i) {
                 volumes(i, j, k) = R2*halfIntervals[0](i)*dsinLat;
             }
         }
-        for (int i = 0; i < volumes.n_rows; ++i) {
+        for (uword i = 0; i < volumes.n_rows; ++i) {
             volumes(i, 0, k) = R2*halfIntervals[0](i)*
                 (sinLatHalf(0)+1.0);
             volumes(i, volumes.n_cols-1, k) = R2*halfIntervals[0](i)*
@@ -164,8 +164,8 @@ setCellVolumes() {
     }
 #ifndef NDEBUG
     double totalArea = 0.0;
-    for (int j = 0; j < volumes.n_cols; ++j) {
-        for (int i = 0; i < volumes.n_rows; ++i) {
+    for (uword j = 0; j < volumes.n_cols; ++j) {
+        for (uword i = 0; i < volumes.n_rows; ++i) {
             totalArea += volumes(i, j, 0);
         }
     }
@@ -285,7 +285,7 @@ void RLLMesh::
 setGridCoords() {
     StructuredMesh<SphereDomain, SphereCoord>::setGridCoords();
     for (int loc = 0; loc < 5; ++loc) {
-        for (int cellIdx = 0; cellIdx < gridCoords[loc].size(); ++cellIdx) {
+        for (uword cellIdx = 0; cellIdx < gridCoords[loc].size(); ++cellIdx) {
             gridCoords[loc][cellIdx].transformToCart(domain());
         }
     }

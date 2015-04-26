@@ -1,5 +1,5 @@
-#ifndef __Geomtk_RLLField__
-#define __Geomtk_RLLField__
+#ifndef __GEOMTK_RLLField__
+#define __GEOMTK_RLLField__
 
 #include "StructuredField.h"
 #include "RLLMesh.h"
@@ -13,9 +13,9 @@ public:
 
     RLLField() {}
     virtual ~RLLField() {}
-};
+}; // RLLField
 
 } // geomtk
 
-#endif // __Geomtk_RLLField__
+#endif // __GEOMTK_RLLField__
 

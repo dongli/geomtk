@@ -1,5 +1,5 @@
-#ifndef __Geomtk_IOManager_test__
-#define __Geomtk_IOManager_test__
+#ifndef __GEOMTK_IOManager_test__
+#define __GEOMTK_IOManager_test__
 
 #include "geomtk.h"
 #include "gen_test_data.h"
@@ -41,17 +41,17 @@ TEST_F(IOManagerTest, Input2DMesh) {
     gen_2d_tv_data("test.nc");
     mesh->init("test.nc");
     double dlon = PI2/mesh->numGrid(0, FULL);
-    for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+    for (uword i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
         ASSERT_LE(fabs(mesh->gridCoordComp(0, FULL, i)-(i-1)*dlon), 1.0e-15);
     }
-    for (int i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
+    for (uword i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
         ASSERT_LE(fabs(mesh->gridCoordComp(0, HALF, i)-(i-0.5)*dlon), 1.0e-15);
     }
     double dlat = M_PI/(mesh->numGrid(1, FULL)-1);
-    for (int j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+    for (uword j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
         ASSERT_LE(fabs(mesh->gridCoordComp(1, FULL, j)+M_PI_2-j*dlat), 1.0e-15);
     }
-    for (int j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
+    for (uword j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
         ASSERT_LE(fabs(mesh->gridCoordComp(1, HALF, j)+M_PI_2-(j+0.5)*dlat), 1.0e-15);
     }
     ASSERT_LE(fabs(mesh->gridCoordComp(1, FULL, 9)-M_PI_2), 1.0e-15);
@@ -86,13 +86,13 @@ TEST_F(IOManagerTest, OutputField) {
     f2.create("f2", "test units", "a field on X_FACE location", *mesh, X_FACE, 2, false);
     f3.create("f3", "test units", "a field on Y_FACE location", *mesh, Y_FACE, 2, false);
 
-    for (int i = 0; i < mesh->totalNumGrid(f1.staggerLocation(), f1.numDim()); ++i) {
+    for (uword i = 0; i < mesh->totalNumGrid(f1.staggerLocation(), f1.numDim()); ++i) {
         f1(timeIdx, i) = 1;
     }
-    for (int i = 0; i < mesh->totalNumGrid(f2.staggerLocation(), f2.numDim()); ++i) {
+    for (uword i = 0; i < mesh->totalNumGrid(f2.staggerLocation(), f2.numDim()); ++i) {
         f2(timeIdx, i) = 2;
     }
-    for (int i = 0; i < mesh->totalNumGrid(f3.staggerLocation(), f3.numDim()); ++i) {
+    for (uword i = 0; i < mesh->totalNumGrid(f3.staggerLocation(), f3.numDim()); ++i) {
         f3(timeIdx, i) = 3;
     }
 
@@ -128,7 +128,7 @@ TEST_F(IOManagerTest, OutputField) {
     x = new double[mesh->numGrid(0, FULL)];
     ret = nc_get_var_double(fileId, lonDimID, x);
     ASSERT_EQ(NC_NOERR, ret);
-    for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+    for (uword i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
         // Note: 'i' starts from 1, so the index of 'x' is 'i-1'.
         ASSERT_GE(1.0e-15, fabs(mesh->gridCoordComp(0, FULL, i)/RAD-x[i-1]));
     }
@@ -143,7 +143,7 @@ TEST_F(IOManagerTest, OutputField) {
     x = new double[mesh->numGrid(1, FULL)];
     ret = nc_get_var_double(fileId, latDimID, x);
     ASSERT_EQ(NC_NOERR, ret);
-    for (int j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+    for (uword j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
         ASSERT_GE(1.0e-15, fabs(mesh->gridCoordComp(1, FULL, j)/RAD-x[j]));
     }
     delete [] x;
@@ -168,7 +168,7 @@ TEST_F(IOManagerTest, OutputField) {
     x = new double[mesh->totalNumGrid(f1.staggerLocation(), f1.numDim())];
     ret = nc_get_var_double(fileId, varId, x);
     ASSERT_EQ(NC_NOERR, ret);
-    for (int i = 0; i < mesh->totalNumGrid(f1.staggerLocation(), f1.numDim()); ++i) {
+    for (uword i = 0; i < mesh->totalNumGrid(f1.staggerLocation(), f1.numDim()); ++i) {
         ASSERT_EQ(x[i], f1(timeIdx, i));
     }
     delete [] x;
@@ -214,7 +214,7 @@ TEST_F(IOManagerTest, OutputField) {
     x = new double[mesh->totalNumGrid(f2.staggerLocation(), f2.numDim())];
     ret = nc_get_var_double(fileId, varId, x);
     ASSERT_EQ(NC_NOERR, ret);
-    for (int i = 0; i < mesh->totalNumGrid(f2.staggerLocation(), f2.numDim()); ++i) {
+    for (uword i = 0; i < mesh->totalNumGrid(f2.staggerLocation(), f2.numDim()); ++i) {
         ASSERT_EQ(x[i], f2(timeIdx, i));
     }
     delete [] x;
@@ -260,7 +260,7 @@ TEST_F(IOManagerTest, OutputField) {
     x = new double[mesh->totalNumGrid(f3.staggerLocation(), f3.numDim())];
     ret = nc_get_var_double(fileId, varId, x);
     ASSERT_EQ(NC_NOERR, ret);
-    for (int i = 0; i < mesh->totalNumGrid(f3.staggerLocation(), f3.numDim()); ++i) {
+    for (uword i = 0; i < mesh->totalNumGrid(f3.staggerLocation(), f3.numDim()); ++i) {
         ASSERT_EQ(x[i], f3(timeIdx, i));
     }
     delete [] x;
@@ -294,4 +294,4 @@ TEST_F(IOManagerTest, OutputField) {
     SystemTools::removeFile("test-output.00000.nc");
 }
 
-#endif // __Geomtk_IOManager_test__
+#endif // __GEOMTK_IOManager_test__

@@ -2,25 +2,29 @@
 
 namespace geomtk {
 
-RLLMeshIndex::RLLMeshIndex() : StructuredMeshIndex<RLLMesh, SphereCoord>() {
+RLLMeshIndex::RLLMeshIndex()
+: StructuredMeshIndex<RLLMesh, SphereCoord>() {
 }
 
-RLLMeshIndex::RLLMeshIndex(int numDim) : StructuredMeshIndex<RLLMesh, SphereCoord>(numDim) {
+RLLMeshIndex::RLLMeshIndex(uword numDim)
+: StructuredMeshIndex<RLLMesh, SphereCoord>(numDim) {
     reset();
 }
 
 RLLMeshIndex::~RLLMeshIndex() {
 }
 
-void RLLMeshIndex::reset() {
+void RLLMeshIndex::
+reset() {
     StructuredMeshIndex<RLLMesh, SphereCoord>::reset();
     _pole = NOT_POLE;
     inPolarCap = false;
     onPole = false;
     moveOnPole = false;
-}
+} // reset
 
-RLLMeshIndex& RLLMeshIndex::operator=(const RLLMeshIndex &other) {
+RLLMeshIndex& RLLMeshIndex::
+operator=(const RLLMeshIndex &other) {
     StructuredMeshIndex<RLLMesh, SphereCoord>::operator=(other);
     if (this != &other) {
         _pole = other._pole;
@@ -29,16 +33,17 @@ RLLMeshIndex& RLLMeshIndex::operator=(const RLLMeshIndex &other) {
         moveOnPole = other.moveOnPole;
     }
     return *this;
-}
+} // operator=
 
-void RLLMeshIndex::locate(const RLLMesh &mesh_, const SphereCoord &x) {
+void RLLMeshIndex::
+locate(const RLLMesh &mesh_, const SphereCoord &x) {
     StructuredMeshIndex<RLLMesh, SphereCoord>::locate(mesh_, x);
     const RLLMesh &mesh = static_cast<const RLLMesh&>(mesh_);
     if (indices[1][GridType::FULL] == 0) {
         _pole = SOUTH_POLE;
         inPolarCap = true;
     } else if (indices[1][GridType::FULL] ==
-               mesh.numGrid(1, GridType::FULL)-2) {
+               static_cast<int>(mesh.numGrid(1, GridType::FULL))-2) {
         _pole = NORTH_POLE;
         inPolarCap = true;
     } else {
@@ -52,9 +57,10 @@ void RLLMeshIndex::locate(const RLLMesh &mesh_, const SphereCoord &x) {
     } else {
         onPole = false;
     }
-}
+} // locate
 
-void RLLMeshIndex::print() const {
+void RLLMeshIndex::
+print() const {
     StructuredMeshIndex<RLLMesh, SphereCoord>::print();
     cout << "inPolarCap: " << inPolarCap << endl;
     cout << "onPole: " << onPole << endl;
@@ -67,6 +73,6 @@ void RLLMeshIndex::print() const {
         cout << "NOT_POLE" << endl;
     }
     cout << "moveOnPole: " << moveOnPole << endl;
-}
+} // print
 
 } // geomtk

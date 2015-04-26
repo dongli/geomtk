@@ -1,5 +1,5 @@
-#ifndef __Geomtk_PeriodicCartesainMesh_test__
-#define __Geomtk_PeriodicCartesainMesh_test__
+#ifndef __GEOMTK_PeriodicCartesainMesh_test__
+#define __GEOMTK_PeriodicCartesainMesh_test__
 
 #include "geomtk.h"
 
@@ -10,6 +10,13 @@ protected:
     const int FULL = StructuredStagger::GridType::FULL;
     const int HALF = StructuredStagger::GridType::HALF;
     const int CENTER = StructuredStagger::Location::CENTER;
+    const int VERTEX = StructuredStagger::Location::VERTEX;
+    const int X_FACE = StructuredStagger::Location::X_FACE;
+    const int Y_FACE = StructuredStagger::Location::Y_FACE;
+    const int Z_FACE = StructuredStagger::Location::Z_FACE;
+    const int XY_VERTEX = StructuredStagger::Location::XY_VERTEX;
+    const int XZ_VERTEX = StructuredStagger::Location::XZ_VERTEX;
+    const int YZ_VERTEX = StructuredStagger::Location::YZ_VERTEX;
 
     CartesianDomain *domain;
     CartesianMesh *mesh;
@@ -76,10 +83,66 @@ TEST_F(PeriodicCartesianMeshTest, Basic) {
 
 TEST_F(PeriodicCartesianMeshTest, IndexWrapping) {
     int l = 0;
-    for (int k = mesh->ks(FULL); k <= mesh->ke(FULL); ++k) {
-        for (int j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
-            for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+    for (auto k = mesh->ks(FULL); k <= mesh->ke(FULL); ++k) {
+        for (auto j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+            for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
                 ASSERT_EQ(l++, mesh->wrapIndex(CENTER, i, j, k));
+            }
+        }
+    }
+    l = 0;
+    for (auto k = mesh->ks(HALF); k <= mesh->ke(HALF); ++k) {
+        for (auto j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
+            for (auto i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
+                ASSERT_EQ(l++, mesh->wrapIndex(VERTEX, i, j, k));
+            }
+        }
+    }
+    l = 0;
+    for (auto k = mesh->ks(FULL); k <= mesh->ke(FULL); ++k) {
+        for (auto j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+            for (auto i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
+                ASSERT_EQ(l++, mesh->wrapIndex(X_FACE, i, j, k));
+            }
+        }
+    }
+    l = 0;
+    for (auto k = mesh->ks(FULL); k <= mesh->ke(FULL); ++k) {
+        for (auto j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
+            for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+                ASSERT_EQ(l++, mesh->wrapIndex(Y_FACE, i, j, k));
+            }
+        }
+    }
+    l = 0;
+    for (auto k = mesh->ks(HALF); k <= mesh->ke(HALF); ++k) {
+        for (auto j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+            for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+                ASSERT_EQ(l++, mesh->wrapIndex(Z_FACE, i, j, k));
+            }
+        }
+    }
+    l = 0;
+    for (auto k = mesh->ks(FULL); k <= mesh->ke(FULL); ++k) {
+        for (auto j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
+            for (auto i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
+                ASSERT_EQ(l++, mesh->wrapIndex(XY_VERTEX, i, j, k));
+            }
+        }
+    }
+    l = 0;
+    for (auto k = mesh->ks(HALF); k <= mesh->ke(HALF); ++k) {
+        for (auto j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+            for (auto i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
+                ASSERT_EQ(l++, mesh->wrapIndex(XZ_VERTEX, i, j, k));
+            }
+        }
+    }
+    l = 0;
+    for (auto k = mesh->ks(HALF); k <= mesh->ke(HALF); ++k) {
+        for (auto j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
+            for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+                ASSERT_EQ(l++, mesh->wrapIndex(YZ_VERTEX, i, j, k));
             }
         }
     }
@@ -106,4 +169,4 @@ TEST_F(PeriodicCartesianMeshTest, Move) {
     ASSERT_GT(1.0e-15, fabs(x1(2)-0.0));
 }
 
-#endif // __Geomtk_PeriodicCartesainMesh_test__
+#endif // __GEOMTK_PeriodicCartesainMesh_test__

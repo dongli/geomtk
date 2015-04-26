@@ -1,5 +1,5 @@
-#ifndef __Geomtk_TimeLevels__
-#define __Geomtk_TimeLevels__
+#ifndef __GEOMTK_TimeLevels__
+#define __GEOMTK_TimeLevels__
 
 #include "geomtk_commons.h"
 #include "TimeLevelIndex.h"
@@ -119,4 +119,4 @@ public:
 
 #include "TimeLevels-impl.h"
 
-#endif // __Geomtk_TimeLevels__
+#endif // __GEOMTK_TimeLevels__

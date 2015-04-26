@@ -55,7 +55,7 @@ operator=(const SpaceCoord &other) {
 void SpaceCoord::
 print() const {
     cout << "Coordinate:";
-    for (int i = 0; i < coord.size(); ++i) {
+    for (uword i = 0; i < coord.size(); ++i) {
         cout << setw(20) << setprecision(10) << coord(i);
     }
     cout << endl;

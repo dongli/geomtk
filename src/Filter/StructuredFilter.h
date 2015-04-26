@@ -1,5 +1,5 @@
-#ifndef __Geomtk_StructuredFilter__
-#define __Geomtk_StructuredFilter__
+#ifndef __GEOMTK_StructuredFilter__
+#define __GEOMTK_StructuredFilter__
 
 #include "Filter.h"
 
@@ -19,10 +19,10 @@ public:
 private:
     template <class FieldType, int N>
     void runNinePointSmoothing(const TimeLevelIndex<N> &timeIdx, FieldType &field);
-};
+}; // StructuredFilter
 
 } // geomtk
 
 #include "StructuredFilter-impl.h"
 
-#endif // __Geomtk_StructuredFilter__
+#endif // __GEOMTK_StructuredFilter__

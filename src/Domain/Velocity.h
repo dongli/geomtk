@@ -1,5 +1,5 @@
-#ifndef __Geomtk_Velocity__
-#define __Geomtk_Velocity__
+#ifndef __GEOMTK_Velocity__
+#define __GEOMTK_Velocity__
 
 #include "geomtk_commons.h"
 
@@ -16,27 +16,44 @@ public:
     Velocity(int numDim);
     virtual ~Velocity();
 
-    virtual void setNumDim(int numDim);
+    virtual void
+    setNumDim(int numDim);
 
-    double operator()(int i) const { return v(i); }
+    double
+    operator()(int i) const {
+        return v(i);
+    }
 
-    double& operator()(int i) { return v(i); }
+    double&
+    operator()(int i) {
+        return v(i);
+    }
 
-    const vec& operator()() const { return v; }
+    const vec&
+    operator()() const {
+        return v;
+    }
 
-    vec& operator()() { return v; }
+    vec& operator()() {
+        return v;
+    }
 
-    const Velocity operator+(const Velocity &other) const;
+    const Velocity
+    operator+(const Velocity &other) const;
 
-    const Velocity operator-(const Velocity &other) const;
+    const Velocity
+    operator-(const Velocity &other) const;
 
-    const Velocity operator*(double scale) const;
+    const Velocity
+    operator*(double scale) const;
 
-    const Velocity operator/(double scale) const;
+    const Velocity
+    operator/(double scale) const;
 
-    virtual void print() const;
-};
+    virtual void
+    print() const;
+}; // Velocity
 
 } // geomtk
 
-#endif // __Geomtk_Velocity__
+#endif // __GEOMTK_Velocity__

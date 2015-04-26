@@ -1,5 +1,5 @@
-#ifndef __Geomtk_CartesianField__
-#define __Geomtk_CartesianField__
+#ifndef __GEOMTK_CartesianField__
+#define __GEOMTK_CartesianField__
 
 #include "StructuredField.h"
 #include "CartesianMesh.h"
@@ -17,8 +17,8 @@ public:
 
     CartesianField() {}
     virtual ~CartesianField() {}
-};
+}; // CartesianField
 
 } // geomtk
 
-#endif // __Geomtk_CartesianField__
+#endif // __GEOMTK_CartesianField__

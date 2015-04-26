@@ -1,5 +1,5 @@
-#ifndef __Geomtk_SpaceCoord_test__
-#define __Geomtk_SpaceCoord_test__
+#ifndef __GEOMTK_SpaceCoord_test__
+#define __GEOMTK_SpaceCoord_test__
 
 #include "SpaceCoord.h"
 
@@ -15,4 +15,4 @@ TEST(SpaceCoord, CopyConstructor) {
     ASSERT_EQ(x(1), y(1));
 }
 
-#endif // __Geomtk_SpaceCoord_test__
+#endif // __GEOMTK_SpaceCoord_test__

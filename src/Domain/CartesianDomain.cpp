@@ -17,9 +17,9 @@ init(const string &filePath) {
         string domainType = what[1];
         assert(domainType == "Cartesian");
         string numDim = what[2];
-        assert(_numDim == atoi(numDim.c_str()));
+        assert(_numDim == static_cast<uword>(atoi(numDim.c_str())));
         char axisName[10];
-        for (int m = 0; m < _numDim; ++m) {
+        for (uword m = 0; m < _numDim; ++m) {
             if (m == 0) {
                 sprintf(axisName, "%s", "x");
             } else if (m == 1) {
@@ -60,7 +60,7 @@ vec CartesianDomain::
 diffCoord(const SpaceCoord &x, const SpaceCoord &y) const {
     vec res = x()-y();
     double tmp1, tmp2;
-    for (int m = 0; m < numDim(); ++m) {
+    for (uword m = 0; m < numDim(); ++m) {
         if (axisStartBndType(m) == PERIODIC) {
             tmp1 = fabs(res[m]);
             tmp2 = axisSpan(m)-tmp1;

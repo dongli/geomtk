@@ -1,5 +1,5 @@
-#ifndef __Geomtk_SphereDomain_test__
-#define __Geomtk_SphereDomain_test__
+#ifndef __GEOMTK_SphereDomain_test__
+#define __GEOMTK_SphereDomain_test__
 
 #include "SphereDomain.h"
 
@@ -70,4 +70,4 @@ TEST_F(SphereDomainTest, TransformPS) {
     ASSERT_EQ(lat, x(1));
 }
 
-#endif
+#endif // __GEOMTK_SphereDomain_test__

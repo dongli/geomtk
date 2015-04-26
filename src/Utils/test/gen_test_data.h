@@ -1,5 +1,5 @@
-#ifndef __Geomtk_GenTestData__
-#define __Geomtk_GenTestData__
+#ifndef __GEOMTK_GenTestData__
+#define __GEOMTK_GenTestData__
 
 void gen_2d_tv_data(const string &filePath)
 {
@@ -77,4 +77,4 @@ void gen_2d_tv_data(const string &filePath)
     ret = nc_close(fileId);
 }
 
-#endif // __Geomtk_GenTestData__
+#endif // __GEOMTK_GenTestData__

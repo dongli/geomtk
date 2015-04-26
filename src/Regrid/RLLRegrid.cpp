@@ -38,7 +38,8 @@ run(RegridMethod method, const TimeLevelIndex<2> &timeIdx,
         y.psVelocity()[1] = 0.0;
         bool match = false;
         double W = 0.0;
-        for (int i = 0; i < mesh().numGrid(0, RLLStagger::GridType::FULL); ++i) {
+        for (uword i = mesh().is(RLLStagger::GridType::FULL);
+             i <= mesh().ie(RLLStagger::GridType::FULL); ++i) {
             double d = domain.calcDistance(x, mesh().gridCoordComp(0, RLLStagger::GridType::FULL, i),
                                            sinLat, cosLat);
             if (d < eps) {

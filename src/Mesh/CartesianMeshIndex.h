@@ -1,5 +1,5 @@
-#ifndef __Geomtk_CartesianMeshIndex__
-#define __Geomtk_CartesianMeshIndex__
+#ifndef __GEOMTK_CartesianMeshIndex__
+#define __GEOMTK_CartesianMeshIndex__
 
 #include "StructuredMeshIndex.h"
 #include "CartesianMesh.h"
@@ -15,4 +15,4 @@ public:
 
 } // geomtk
 
-#endif // __Geomtk_CartesianMeshIndex__
+#endif // __GEOMTK_CartesianMeshIndex__

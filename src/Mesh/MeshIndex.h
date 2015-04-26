@@ -14,15 +14,15 @@ namespace geomtk {
 template <class MeshType, class CoordType>
 class MeshIndex {
 protected:
-    int numDim;
+    uword numDim;
     const MeshType *mesh;
 public:
     MeshIndex();
-    MeshIndex(int numDim);
+    MeshIndex(uword numDim);
     virtual ~MeshIndex();
 
     virtual void
-    setNumDim(int numDim);
+    init(uword numDim);
 
     virtual MeshIndex&
     operator=(const MeshIndex &other);
@@ -33,8 +33,8 @@ public:
     virtual void
     locate(const MeshType &mesh, const CoordType &x) = 0;
 
-    virtual int
-    getIndex(const MeshType &mesh, int loc) const = 0;
+    virtual uword
+    cellIndex(const MeshType &mesh, int loc) const = 0;
 
     virtual bool
     isValid() const = 0;

@@ -1,5 +1,5 @@
-#ifndef __GEOMTK_RLL_SPHERE__
-#define __GEOMTK_RLL_SPHERE__
+#ifndef __GEOMTK_RLLSphere__
+#define __GEOMTK_RLLSphere__
 
 #include "geomtk.h"
 
@@ -39,4 +39,4 @@ using geomtk::PI;
 using geomtk::PI2;
 using geomtk::RAD;
 
-#endif
+#endif // __GEOMTK_RLLSphere__

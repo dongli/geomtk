@@ -1,5 +1,5 @@
-#ifndef __Geomtk_SphereCoord__
-#define __Geomtk_SphereCoord__
+#ifndef __GEOMTK_SphereCoord__
+#define __GEOMTK_SphereCoord__
 
 #include "SpaceCoord.h"
 
@@ -104,4 +104,4 @@ public:
 
 } // geomtk
 
-#endif // __Geomtk_SphereCoord__
+#endif // __GEOMTK_SphereCoord__

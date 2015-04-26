@@ -1,5 +1,5 @@
-#ifndef __Geomtk_SphereVelocity__
-#define __Geomtk_SphereVelocity__
+#ifndef __GEOMTK_SphereVelocity__
+#define __GEOMTK_SphereVelocity__
 
 #include "Velocity.h"
 #include "SphereCoord.h"
@@ -53,8 +53,8 @@ public:
      void transformFromPS(const SphereCoord &x);
 
     virtual void print() const;
-};
+}; // SphereVelocity
 
 } // geomtk
 
-#endif // __Geomtk_SphereVelocity__
+#endif // __GEOMTK_SphereVelocity__

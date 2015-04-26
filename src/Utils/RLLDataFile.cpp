@@ -40,7 +40,7 @@ inputHorizontalMesh() {
             ret = nc_get_var(fileId, varId, half2d.memptr());
             CHECK_NC_GET_VAR(ret, filePath, name);
             vec half(len);
-            for (int i = 0; i < len; ++i) {
+            for (size_t i = 0; i < len; ++i) {
                 half[i] = half2d(1, i);
             }
             half *= RAD;
@@ -72,7 +72,7 @@ inputVerticalMesh() {
         ret = nc_inq_varid(fileId, "ilev", &varId);
         if (ret != NC_NOERR) {
             vertCoord.halfSigma[0] = 0;
-            for (int k = 1; k < len; ++k) {
+            for (size_t k = 1; k < len; ++k) {
                 vertCoord.halfSigma[k] = (vertCoord.fullSigma[k-1]+vertCoord.fullSigma[k])*0.5;
             }
             vertCoord.halfSigma[len] = 1;
@@ -118,7 +118,7 @@ outputMesh() {
     int ret;
     // write units
     ret = nc_redef(fileId);
-    for (int m = 0; m < domain.numDim(); ++m) {
+    for (uword m = 0; m < domain.numDim(); ++m) {
         string units = domain.axisUnits(m);
         if (m == 0) {
 #ifndef NDEBUG
@@ -140,7 +140,7 @@ outputMesh() {
     }
     ret = nc_enddef(fileId);
     // write spatial grids
-    for (int m = 0; m < domain.numDim(); ++m) {
+    for (uword m = 0; m < domain.numDim(); ++m) {
         if (m == 0 || m == 1) {
             vec x = mesh().gridCoordComps(m, GridType::FULL)/RAD;
             ret = nc_put_var(fileId, fullVarIDs[m], x.memptr());

@@ -1,5 +1,5 @@
-#ifndef __Geomtk_Time_test__
-#define __Geomtk_Time_test__
+#ifndef __GEOMTK_Time_test__
+#define __GEOMTK_Time_test__
 
 #include "TimeManager.h"
 
@@ -112,8 +112,8 @@ TEST(Time, Operators) {
     ASSERT_EQ(a.month, c.month);
     ASSERT_EQ(a.day, c.day);
     ASSERT_EQ(a.hour, c.hour);
-    ASSERT_NEAR(c.minute, a.minute+6, 1.0e-12);
-    ASSERT_NEAR(c.second, a.second+40, 1.0e-12);
+    ASSERT_NEAR(c.minute, a.minute+6, 1.0e-9);
+    ASSERT_NEAR(c.second, a.second+40, 1.0e-9);
 
     c = a+86400*52;
     ASSERT_EQ(a.year, c.year);
@@ -121,7 +121,7 @@ TEST(Time, Operators) {
     ASSERT_EQ(3, c.day);
     ASSERT_EQ(0, c.hour);
     ASSERT_EQ(0, c.minute);
-    ASSERT_NEAR(c.second, a.second, 1.0e-12);
+    ASSERT_NEAR(c.second, a.second, 1.0e-9);
 
     c = a+60*31+40;
     ASSERT_EQ(a.year, c.year);
@@ -129,7 +129,7 @@ TEST(Time, Operators) {
     ASSERT_EQ(a.day, c.day);
     ASSERT_EQ(a.hour, c.hour);
     ASSERT_EQ(a.minute+31, c.minute);
-    ASSERT_NEAR(c.second, a.second+40, 1.0e-12);
+    ASSERT_NEAR(c.second, a.second+40, 1.0e-9);
 
     Time d;
     d = "1979-01-01 10200";

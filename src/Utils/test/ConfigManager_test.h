@@ -1,5 +1,5 @@
-#ifndef __Geomtk_ConfigManager_test__
-#define __Geomtk_ConfigManager_test__
+#ifndef __GEOMTK_ConfigManager_test__
+#define __GEOMTK_ConfigManager_test__
 
 #include "geomtk.h"
 
@@ -45,4 +45,4 @@ TEST_F(ConfigManagerTest, Parse) {
     SystemTools::removeFile("test.config");
 }
 
-#endif
+#endif // __GEOMTK_ConfigManager_test__

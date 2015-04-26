@@ -1,5 +1,5 @@
-#ifndef __Geomtk_RLLFilter__
-#define __Geomtk_RLLFilter__
+#ifndef __GEOMTK_RLLFilter__
+#define __GEOMTK_RLLFilter__
 
 #include "StructuredFilter.h"
 
@@ -15,4 +15,4 @@ public:
 
 } // geomtk
 
-#endif // __Geomtk_RLLFilter__
+#endif // __GEOMTK_RLLFilter__

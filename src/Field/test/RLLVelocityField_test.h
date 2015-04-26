@@ -1,5 +1,5 @@
-#ifndef __RLLVelocityField_test__
-#define __RLLVelocityField_test__
+#ifndef __GEOMTK_RLLVelocityField_test__
+#define __GEOMTK_RLLVelocityField_test__
 
 #include "RLLVelocityField.h"
 
@@ -38,19 +38,19 @@ TEST_F(RLLVelocityFieldTest, Basics) {
 }
 
 TEST_F(RLLVelocityFieldTest, RingVelocity) {
-    for (int j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
-        for (int i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
+    for (auto j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+        for (auto i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
             v(0)(timeIdx, i, j) = 5.0;
         }
     }
-    for (int j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
-        for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+    for (auto j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
+        for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
             v(1)(timeIdx, i, j) = 5.0;
         }
     }
     v.applyBndCond(timeIdx);
-    for (int m = 0; m < domain->numDim(); ++m) {
-        for (int l = 0; l < 2; ++l) {
+    for (uword m = 0; m < domain->numDim(); ++m) {
+        for (auto l = 0; l < 2; ++l) {
             ASSERT_LE(fabs(v.rings[l].originalData(m, timeIdx, mesh->is(FULL)-1)-
                            v.rings[l].originalData(m, timeIdx, mesh->ie(FULL))), 1.0e-14);
             ASSERT_LE(fabs(v.rings[l].originalData(m, timeIdx, mesh->ie(FULL)+1)-
@@ -62,9 +62,9 @@ TEST_F(RLLVelocityFieldTest, RingVelocity) {
         }
     }
     // Check original velocity on the rings.
-    for (int l = 0; l < 2; ++l) {
-        int j = l == 0 ? mesh->js(FULL)+1 : mesh->je(FULL)-1;
-        for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+    for (auto l = 0; l < 2; ++l) {
+        auto j = l == 0 ? mesh->js(FULL)+1 : mesh->je(FULL)-1;
+        for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
             ASSERT_EQ(v.rings[l].originalData(0, timeIdx, i),
                       (v(0)(timeIdx, i, j)+v(0)(timeIdx, i-1, j))*0.5);
             ASSERT_EQ(v.rings[l].originalData(1, timeIdx, i),
@@ -72,9 +72,9 @@ TEST_F(RLLVelocityFieldTest, RingVelocity) {
         }
     }
     // Check transformed velocity on the rings.
-    for (int l = 0; l < 2; ++l) {
-        int j = l == 0 ? mesh->js(FULL)+1 : mesh->je(FULL)-1;
-        for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+    for (auto l = 0; l < 2; ++l) {
+        auto j = l == 0 ? mesh->js(FULL)+1 : mesh->je(FULL)-1;
+        for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
             const SphereCoord &x = mesh->gridCoord(CENTER, mesh->wrapIndex(CENTER, i, j));
             SphereVelocity u(2);
             u = v.rings[l].vr(i, 0)->level(timeIdx);
@@ -93,4 +93,4 @@ TEST_F(RLLVelocityFieldTest, Vorticity) {
     ASSERT_TRUE(false);
 }
 
-#endif
+#endif // __GEOMTK_RLLVelocityField_test__

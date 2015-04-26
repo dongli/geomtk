@@ -1,5 +1,5 @@
-#ifndef __Geomtk_CartesianDataFile__
-#define __Geomtk_CartesianDataFile__
+#ifndef __GEOMTK_CartesianDataFile__
+#define __GEOMTK_CartesianDataFile__
 
 #include "StructuredDataFile.h"
 #include "CartesianField.h"
@@ -24,4 +24,4 @@ public:
 
 } // geomtk
 
-#endif // __Geomtk_CartesianDataFile__
+#endif // __GEOMTK_CartesianDataFile__

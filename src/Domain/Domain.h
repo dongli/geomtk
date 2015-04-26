@@ -39,7 +39,7 @@ template <typename CoordType>
 class Domain {
 protected:
     DomainType _type;
-    int _numDim;
+    uword _numDim;
     vector<string> _axisName;
     vector<string> _axisLongName;
     vector<string> _axisUnits;
@@ -55,7 +55,7 @@ protected:
     VertCoord *_vertCoord;
 public:
     Domain();
-    Domain(int numDim);
+    Domain(uword numDim);
     Domain(VertCoordType type);
     virtual ~Domain();
 
@@ -77,7 +77,7 @@ public:
      *
      *  @return The dimension number.
      */
-    virtual int
+    virtual uword
     numDim() const {
         return _numDim;
     }
@@ -95,48 +95,48 @@ public:
      *  @param bndTypeEnd   the boundary type of the axis end.
      */
     virtual void
-    setAxis(int axisIdx, const string &axisName,
+    setAxis(uword axisIdx, const string &axisName,
             const string &axisLongName, const string &axisUnits,
             double start, BndType bndTypeStart,
             double end, BndType bndTypeEnd);
 
     virtual const string&
-    axisName(int i) const {
+    axisName(uword i) const {
         return _axisName[i];
     }
 
     virtual const string&
-    axisLongName(int i) const {
+    axisLongName(uword i) const {
         return _axisLongName[i];
     }
 
     virtual const string&
-    axisUnits(int i) const {
+    axisUnits(uword i) const {
         return _axisUnits[i];
     }
 
     virtual double
-    axisStart(int i) const {
+    axisStart(uword i) const {
         return _axisStarts(i);
     }
 
     virtual double
-    axisEnd(int i) const {
+    axisEnd(uword i) const {
         return _axisEnds(i);
     }
 
     virtual double
-    axisSpan(int i) const {
+    axisSpan(uword i) const {
         return _axisSpans(i);
     }
 
     virtual BndType
-    axisStartBndType(int i) const {
+    axisStartBndType(uword i) const {
         return _bndTypeStarts[i];
     }
 
     virtual BndType
-    axisEndBndType(int i) const {
+    axisEndBndType(uword i) const {
         return _bndTypeEnds[i];
     }
 

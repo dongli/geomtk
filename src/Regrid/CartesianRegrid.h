@@ -1,5 +1,5 @@
-#ifndef __Geomtk_CartesianRegrid__
-#define __Geomtk_CartesianRegrid__
+#ifndef __GEOMTK_CartesianRegrid__
+#define __GEOMTK_CartesianRegrid__
 
 #include "Regrid.h"
 #include "CartesianMeshIndex.h"
@@ -49,7 +49,7 @@ void CartesianRegrid::run(RegridMethod method, const TimeLevelIndex<N> &timeIdx,
         j1 = (*idx)(1, f.gridType(1));
         j2 = j1; j3 = j1+1; j4 = j3;
         if (f.gridType(1) == GridType::HALF &&
-            (j1 == -1 || j3 == mesh().numGrid(1, GridType::HALF))) {
+            (j1 == -1 || j3 == static_cast<int>(mesh().numGrid(1, GridType::HALF)))) {
             REPORT_ERROR("Check this error!");
         }
         double x1 = mesh().gridCoordComp(0, f.gridType(0), i1);
@@ -76,7 +76,7 @@ void CartesianRegrid::run(RegridMethod method, const TimeLevelIndex<N> &timeIdx,
 #ifndef NDEBUG
         assert(mesh().domain().numDim() == 2);
 #endif
-        int n;
+        int n = -1;
         if (method == BIQUADRATIC) {
             n = 3;
         } else if (method == BICUBIC) {
@@ -92,8 +92,8 @@ void CartesianRegrid::run(RegridMethod method, const TimeLevelIndex<N> &timeIdx,
 #ifndef NDEBUG
         for (int m = 0; m < 2; ++m) {
             if (mesh().domain().axisStartBndType(m) != PERIODIC &&
-                (i[0] == mesh().is(f.gridType(m))-1 ||
-                 i[n-1] == mesh().ie(f.gridType(m))+1)) {
+                (i[0] == static_cast<int>(mesh().is(f.gridType(m)))-1 ||
+                 i[n-1] == static_cast<int>(mesh().ie(f.gridType(m)))+1)) {
                 idx->print();
                 REPORT_ERROR("Point is out of range!");
             }
@@ -129,4 +129,4 @@ void CartesianRegrid::run(RegridMethod method, const TimeLevelIndex<N> &timeIdx,
 
 } // geomtk
 
-#endif // __Geomtk_CartesianRegrid__
+#endif // __GEOMTK_CartesianRegrid__

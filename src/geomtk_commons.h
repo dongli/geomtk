@@ -40,6 +40,8 @@ using arma::uvec;
 using arma::umat;
 using arma::span;
 using arma::field;
+using arma::uword;
+using arma::Mat;
 
 using boost::is_same;
 using boost::variant;

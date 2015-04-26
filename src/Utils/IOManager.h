@@ -1,5 +1,5 @@
-#ifndef __Geomtk_IOManager__
-#define __Geomtk_IOManager__
+#ifndef __GEOMTK_IOManager__
+#define __GEOMTK_IOManager__
 
 #include "CartesianDataFile.h"
 #include "RLLDataFile.h"
@@ -36,60 +36,60 @@ public:
                   TimeStepUnit freqUnit, double freq);
 
     void
-    removeFile(int fileIdx);
+    removeFile(uword fileIdx);
 
     DataFileType&
-    file(int fileIdx);
+    file(uword fileIdx);
 
     void
-    addField(int fileIdx, const string &xtype, int spaceDims,
+    addField(uword fileIdx, const string &xtype, int spaceDims,
              initializer_list<Field<MeshType>*> fields);
 
     void
-    open(int fileIdx);
+    open(uword fileIdx);
 
     void
-    create(int fileIdx);
+    create(uword fileIdx);
 
     Time
-    getTime(int fileIdx) const;
+    getTime(uword fileIdx) const;
 
     Time
     getTime(const string &filePath) const;
 
     void
-    updateTime(int fileIdx, TimeManager &timeManager);
+    updateTime(uword fileIdx, TimeManager &timeManager);
 
     template <typename DataType, int NumTimeLevel>
     void
-    input(int fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
+    input(uword fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
           initializer_list<Field<MeshType>*> fields);
 
     template <typename DataType>
     void
-    input(int fileIdx, initializer_list<Field<MeshType>*> fields);
+    input(uword fileIdx, initializer_list<Field<MeshType>*> fields);
 
     template <typename DataType, int NumTimeLevel>
     void
-    input(int fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
+    input(uword fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
           int timeCounter, initializer_list<Field<MeshType>*> fields);
 
     template <typename DataType>
     void
-    input(int fileIdx, int timeCounter,
+    input(uword fileIdx, int timeCounter,
           initializer_list<Field<MeshType>*> fields);
 
     template <typename DataType, int NumTimeLevel>
     void
-    output(int fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
+    output(uword fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
            initializer_list<Field<MeshType>*> fields);
     
     template <typename DataType>
     void
-    output(int fileIdx, initializer_list<Field<MeshType>*> fields);
+    output(uword fileIdx, initializer_list<Field<MeshType>*> fields);
 
     void
-    close(int fileIdx);
+    close(uword fileIdx);
 
     /**
      *  Check if file is active for input or output.
@@ -99,11 +99,11 @@ public:
      *  @return The boolean result.
      */
     bool
-    isFileActive(int fileIdx);
+    isFileActive(uword fileIdx);
 }; // IOManager
 
 } // geomtk
 
 #include "IOManager-impl.h"
 
-#endif // __Geomtk_IOManager__
+#endif // __GEOMTK_IOManager__

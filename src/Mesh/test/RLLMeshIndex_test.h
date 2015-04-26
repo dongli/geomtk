@@ -1,5 +1,5 @@
-#ifndef __RLLMeshIndex_test__
-#define __RLLMeshIndex_test__
+#ifndef __GEOMTK_RLLMeshIndex_test__
+#define __GEOMTK_RLLMeshIndex_test__
 
 #include "RLLMeshIndex.h"
 
@@ -13,6 +13,7 @@ protected:
     const int X_FACE = RLLStagger::Location::X_FACE;
     const int Y_FACE = RLLStagger::Location::Y_FACE;
     const int XY_VERTEX = RLLStagger::Location::XY_VERTEX;
+    const int VERTEX = RLLStagger::Location::VERTEX;
 
     SphereDomain *domain;
     RLLMesh *mesh;
@@ -115,40 +116,53 @@ TEST_F(RLLMeshIndexTest, Locate) {
     ASSERT_TRUE(a.isOnPole());
 }
 
-TEST_F(RLLMeshIndexTest, GetIndex) {
+TEST_F(RLLMeshIndexTest, GetCellIndex) {
     RLLMeshIndex a(domain->numDim());
     int l = 0;
-    for (int j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
-        for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
-            a(0, FULL) = i;
-            a(1, FULL) = j;
-            ASSERT_EQ(l++, a.getIndex(*mesh, CENTER));
+    for (auto j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+        for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+            a.reset();
+            a.locate(*mesh, mesh->gridCoord(CENTER, l));
+            ASSERT_EQ(l, a.cellIndex(*mesh, CENTER));
+            l++;
         }
     }
     l = 0;
-    for (int j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
-        for (int i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
-            a(0, HALF) = i;
-            a(1, FULL) = j;
-            ASSERT_EQ(l++, a.getIndex(*mesh, X_FACE));
+    for (auto j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+        for (auto i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
+            a.reset();
+            a.locate(*mesh, mesh->gridCoord(X_FACE, l));
+            ASSERT_EQ(l, a.cellIndex(*mesh, X_FACE));
+            l++;
         }
     }
     l = 0;
-    for (int j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
-        for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
-            a(0, FULL) = i;
-            a(1, HALF) = j;
-            ASSERT_EQ(l++, a.getIndex(*mesh, Y_FACE));
+    for (auto j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
+        for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+            a.reset();
+            a.locate(*mesh, mesh->gridCoord(Y_FACE, l));
+            ASSERT_EQ(l, a.cellIndex(*mesh, Y_FACE));
+            l++;
         }
     }
     l = 0;
-    for (int j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
-        for (int i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
-            a(0, HALF) = i;
-            a(1, HALF) = j;
-            ASSERT_EQ(l++, a.getIndex(*mesh, XY_VERTEX));
+    for (auto j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
+        for (auto i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
+            a.reset();
+            a.locate(*mesh, mesh->gridCoord(XY_VERTEX, l));
+            ASSERT_EQ(l, a.cellIndex(*mesh, XY_VERTEX));
+            l++;
+        }
+    }
+    l = 0;
+    for (auto j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
+        for (auto i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
+            a.reset();
+            a.locate(*mesh, mesh->gridCoord(VERTEX, l));
+            ASSERT_EQ(l, a.cellIndex(*mesh, VERTEX));
+            l++;
         }
     }
 }
 
-#endif
+#endif // __GEOMTK_RLLMeshIndex_test__

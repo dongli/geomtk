@@ -1,5 +1,5 @@
-#ifndef __Geomtk_CartesianVelocityField__
-#define __Geomtk_CartesianVelocityField__
+#ifndef __GEOMTK_CartesianVelocityField__
+#define __GEOMTK_CartesianVelocityField__
 
 #include "StructuredVelocityField.h"
 #include "CartesianMesh.h"
@@ -23,4 +23,4 @@ public:
 
 } // geomtk
 
-#endif // __Geomtk_CartesianVelocityField__
+#endif // __GEOMTK_CartesianVelocityField__

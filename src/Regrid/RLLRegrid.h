@@ -1,5 +1,5 @@
-#ifndef __Geomtk_RLLRegrid__
-#define __Geomtk_RLLRegrid__
+#ifndef __GEOMTK_RLLRegrid__
+#define __GEOMTK_RLLRegrid__
 
 #include "Regrid.h"
 #include "RLLMesh.h"
@@ -27,10 +27,10 @@ public:
     void run(RegridMethod method, const TimeLevelIndex<2> &timeIdx,
              const RLLVelocityField &f, const SphereCoord &x, SphereVelocity &y,
              RLLMeshIndex *idx = NULL);
-};
+}; // RLLRegrid
 
 } // geomtk
 
 #include "RLLRegrid-impl.h"
 
-#endif // __Geomtk_RLLRegrid__
+#endif // __GEOMTK_RLLRegrid__

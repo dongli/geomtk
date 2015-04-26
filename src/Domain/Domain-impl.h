@@ -16,7 +16,7 @@ Domain<CoordType>::Domain() {
     _axisSpans.resize(_numDim);
     _bndTypeStarts = new BndType[_numDim];
     _bndTypeEnds = new BndType[_numDim];
-    for (int i = 0; i < _numDim; ++i) {
+    for (uword i = 0; i < _numDim; ++i) {
         _bndTypeStarts[i] = INVALID;
         _bndTypeEnds[i] = INVALID;
     }
@@ -24,7 +24,7 @@ Domain<CoordType>::Domain() {
 }
 
 template <typename CoordType>
-Domain<CoordType>::Domain(int numDim) {
+Domain<CoordType>::Domain(uword numDim) {
     _type = CARTESIAN_DOMAIN;
     this->_numDim = numDim;
     _axisName.resize(_numDim);
@@ -33,9 +33,9 @@ Domain<CoordType>::Domain(int numDim) {
     _axisStarts.resize(_numDim);
     _axisEnds.resize(_numDim);
     _axisSpans.resize(_numDim);
-    _bndTypeStarts = new BndType[_numDim];
-    _bndTypeEnds = new BndType[_numDim];
-    for (int i = 0; i < _numDim; ++i) {
+    _bndTypeStarts = new BndType[3];
+    _bndTypeEnds = new BndType[3];
+    for (uword i = 0; i < 3; ++i) {
         _bndTypeStarts[i] = INVALID;
         _bndTypeEnds[i] = INVALID;
     }
@@ -54,7 +54,7 @@ Domain<CoordType>::Domain(VertCoordType vertCoordType) {
     _axisSpans.resize(_numDim);
     _bndTypeStarts = new BndType[_numDim];
     _bndTypeEnds = new BndType[_numDim];
-    for (int i = 0; i < _numDim; ++i) {
+    for (uword i = 0; i < _numDim; ++i) {
         _bndTypeStarts[i] = INVALID;
         _bndTypeEnds[i] = INVALID;
     }
@@ -82,7 +82,7 @@ Domain<CoordType>::~Domain() {
 
 template <typename CoordType>
 void Domain<CoordType>::
-setAxis(int dim, const string &name, const string &longName,
+setAxis(uword dim, const string &name, const string &longName,
         const string &units, double start, BndType bndTypeStart,
         double end, BndType bndTypeEnd) {
     // sanity check
@@ -117,28 +117,29 @@ brief() const {
 template <typename CoordType>
 bool Domain<CoordType>::
 isValid(CoordType &x) const {
-    for (int m = 0; m < _numDim; ++m) {
+    bool res = true;
+    for (uword m = 0; m < _numDim; ++m) {
         if (x(m) < axisStart(m)) {
             if (axisStartBndType(m) == PERIODIC) {
                 x(m) += axisSpan(m);
             } else {
-                return false;
+                res = false;
             }
         } else if (x(m) > axisEnd(m)) {
             if (axisStartBndType(m) == PERIODIC) {
                 x(m) -= axisSpan(m);
             } else {
-                return false;
+                res = false;
             }
         }
     }
-    return true;
+    return res;
 } // isValid
 
 template <typename CoordType>
 bool Domain<CoordType>::
 isValid(const CoordType &x) const {
-    for (int m = 0; m < _numDim; ++m) {
+    for (uword m = 0; m < _numDim; ++m) {
         if (x(m) < axisStart(m) || x(m) > axisEnd(m)) {
             return false;
         }

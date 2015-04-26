@@ -1,5 +1,5 @@
-#ifndef __Geomtk_StructuredField__
-#define __Geomtk_StructuredField__
+#ifndef __GEOMTK_StructuredField__
+#define __GEOMTK_StructuredField__
 
 #include "Field.h"
 #include "StructuredMesh.h"
@@ -78,7 +78,7 @@ public:
             // TODO: Need to modify when doing parallel.
             for (int k = 0; k < nz; ++k) {
                 for (int j = 0; j < ny; ++j) {
-                    for (int i = 0; i < this->mesh().haloWidth(); ++i) {
+                    for (uword i = 0; i < this->mesh().haloWidth(); ++i) {
                         d(i, j, k) = d(this->mesh().ie(gridType(0))-this->mesh().haloWidth()+1+i, j, k);
                         d(this->mesh().ie(gridType(0))+1+i, j, k) = d(this->mesh().is(gridType(0))+i, j, k);
                     }
@@ -88,7 +88,7 @@ public:
         if (domain.axisStartBndType(1) == PERIODIC) {
             for (int k = 0; k < nz; ++k) {
                 for (int i = 0; i < nx; ++i) {
-                    for (int j = 0; j < this->mesh().haloWidth(); ++j) {
+                    for (uword j = 0; j < this->mesh().haloWidth(); ++j) {
                         d(i, j, k) = d(i, this->mesh().ie(gridType(1))-this->mesh().haloWidth()+1+j, k);
                         d(i, this->mesh().ie(gridType(1))+1+j, k) = d(i, this->mesh().is(gridType(1))+j, k);
                     }
@@ -99,7 +99,7 @@ public:
             if (domain.axisStartBndType(2) == PERIODIC) {
                 for (int j = 0; j < ny; ++j) {
                     for (int i = 0; i < nx; ++i) {
-                        for (int k = 0; k < this->mesh().haloWidth(); ++k) {
+                        for (uword k = 0; k < this->mesh().haloWidth(); ++k) {
                             d(i, j, k) = d(i, j, this->mesh().ie(gridType(2))-this->mesh().haloWidth()+1+k);
                             d(i, j, this->mesh().ie(gridType(2))+1+k) = d(i, j, this->mesh().is(gridType(2))+k);
                         }
@@ -173,7 +173,7 @@ public:
     typename enable_if<is_arithmetic<Q>::value, DataType>::type
     max(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
         DataType res = -999999;
-        for (int i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
+        for (uword i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
             if (res < (*this)(timeIdx, i)) {
                 res = (*this)(timeIdx, i);
             }
@@ -185,7 +185,7 @@ public:
     typename enable_if<is_arithmetic<Q>::value, DataType>::type
     max() const {
         DataType res = -999999;
-        for (int i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
+        for (uword i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
             if (res < (*this)(i)) {
                 res = (*this)(i);
             }
@@ -197,7 +197,7 @@ public:
     typename enable_if<is_arithmetic<Q>::value, DataType>::type
     min(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
         DataType res = 999999;
-        for (int i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
+        for (uword i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
             if (res > (*this)(timeIdx, i)) {
                 res = (*this)(timeIdx, i);
             }
@@ -209,7 +209,7 @@ public:
     typename enable_if<is_arithmetic<Q>::value, DataType>::type
     min() const {
         DataType res = 999999;
-        for (int i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
+        for (uword i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
             if (res > (*this)(i)) {
                 res = (*this)(i);
             }
@@ -221,7 +221,7 @@ public:
     typename enable_if<is_arithmetic<Q>::value, DataType>::type
     sum(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
         DataType res = 0;
-        for (int i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
+        for (uword i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
             res += (*this)(timeIdx, i);
         }
         return res;
@@ -231,7 +231,7 @@ public:
     typename enable_if<is_arithmetic<Q>::value, DataType>::type
     sum() const {
         DataType res = 0;
-        for (int i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
+        for (uword i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
             res += (*this)(i);
         }
         return res;
@@ -240,7 +240,7 @@ public:
     template <typename Q = DataType>
     typename enable_if<is_arithmetic<Q>::value, bool>::type
     hasNan(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
-        for (int i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
+        for (uword i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
             if (std::isnan((*this)(timeIdx, i))) {
                 return true;
             }
@@ -251,17 +251,17 @@ public:
     template <typename Q = DataType>
     typename enable_if<is_arithmetic<Q>::value, bool>::type
     hasNan() const {
-        for (int i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
+        for (uword i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
             if (std::isnan((*this)(i))) {
                 return true;
             }
         }
         return false;
     }
-};
+}; // StructuredField
 
 } // geomtk
 
 #include "StructuredField-impl.h"
 
-#endif // __Geomtk_StructuredField__
+#endif // __GEOMTK_StructuredField__

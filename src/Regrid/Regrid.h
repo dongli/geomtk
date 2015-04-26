@@ -1,5 +1,5 @@
-#ifndef __Geomtk_Regrid__
-#define __Geomtk_Regrid__
+#ifndef __GEOMTK_Regrid__
+#define __GEOMTK_Regrid__
 
 #include "geomtk_commons.h"
 #include "Mesh.h"
@@ -50,11 +50,11 @@ public:
             REPORT_ERROR("Unknown regrid method \"" << method << "\"!");
         }
     }
-};
+}; // Regrid
 
 template <class MeshType, class CoordType>
 const MeshType* Regrid<MeshType, CoordType>::_mesh;
 
-}
+} // geomtk
 
-#endif
+#endif // __GEOMTK_Regrid__

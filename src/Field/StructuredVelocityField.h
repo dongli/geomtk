@@ -1,5 +1,5 @@
-#ifndef __Geomtk_StructuredVelocityField__
-#define __Geomtk_StructuredVelocityField__
+#ifndef __GEOMTK_StructuredVelocityField__
+#define __GEOMTK_StructuredVelocityField__
 
 #include "StructuredField.h"
 
@@ -67,4 +67,4 @@ public:
 
 #include "StructuredVelocityField-impl.h"
 
-#endif // __Geomtk_StructuredVelocityField__
+#endif // __GEOMTK_StructuredVelocityField__

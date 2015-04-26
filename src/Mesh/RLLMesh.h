@@ -36,7 +36,7 @@ public:
     init(const string &filePathH, const string &filePathV);
 
     virtual void
-    init(int nx, int ny, int nz = 1);
+    init(uword nx, uword ny, uword nz = 1);
 
     double&
     poleRadius() {
@@ -49,10 +49,11 @@ public:
     }
 
     virtual void
-    setGridCoordComps(int axisIdx, int size, const vec &full);
+    setGridCoordComps(uword axisIdx, uword size, const vec &full);
 
     virtual void
-    setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half);
+    setGridCoordComps(uword axisIdx, uword size,
+                      const vec &full, const vec &half);
 
     virtual void
     setCellVolumes();

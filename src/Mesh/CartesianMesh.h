@@ -17,7 +17,7 @@ public:
     typedef CartesianStagger::GridType GridType;
     typedef CartesianStagger::Location Location;
 public:
-    CartesianMesh(CartesianDomain &domain, int haloWidth = 1)
+    CartesianMesh(CartesianDomain &domain, uword haloWidth = 1)
             : StructuredMesh<CartesianDomain, SpaceCoord>(domain, haloWidth) {
         this->_type = CARTESIAN_MESH;
     }
@@ -27,7 +27,7 @@ public:
     init(const string &filePath);
 
     virtual void
-    init(int nx, int ny, int nz = 1);
+    init(uword nx, uword ny, uword nz = 1);
 
     virtual void
     setCellVolumes();

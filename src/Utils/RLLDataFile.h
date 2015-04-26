@@ -1,5 +1,5 @@
-#ifndef __Geomtk_RLLDataFile__
-#define __Geomtk_RLLDataFile__
+#ifndef __GEOMTK_RLLDataFile__
+#define __GEOMTK_RLLDataFile__
 
 #include "StructuredDataFile.h"
 #include "RLLField.h"
@@ -28,4 +28,4 @@ public:
 
 } // geomtk
 
-#endif // __Geomtk_RLLDataFile__
+#endif // __GEOMTK_RLLDataFile__

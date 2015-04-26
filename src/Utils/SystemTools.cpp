@@ -20,7 +20,7 @@ int SystemTools::getNumFiles(const string &fileRoot, const string &filePattern) 
 
     pclose(pipe);
 
-    int numFile = 0, pos = 0;
+    uword numFile = 0, pos = 0;
     while(pos < result.length()) {
         pos = static_cast<int>(result.find("\n", pos))+1;
         numFile++;

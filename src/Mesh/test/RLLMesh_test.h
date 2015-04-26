@@ -1,5 +1,5 @@
-#ifndef __RLLMesh_test__
-#define __RLLMesh_test__
+#ifndef __GEOMTK_RLLMesh_test__
+#define __GEOMTK_RLLMesh_test__
 
 #include "geomtk.h"
 
@@ -10,10 +10,13 @@ protected:
     const int FULL = RLLStagger::GridType::FULL;
     const int HALF = RLLStagger::GridType::HALF;
     const int CENTER = RLLStagger::Location::CENTER;
+    const int VERTEX = RLLStagger::Location::VERTEX;
     const int X_FACE = RLLStagger::Location::X_FACE;
     const int Y_FACE = RLLStagger::Location::Y_FACE;
-    const int XY_VERTEX = RLLStagger::Location::XY_VERTEX;
     const int Z_FACE = RLLStagger::Location::Z_FACE;
+    const int XY_VERTEX = RLLStagger::Location::XY_VERTEX;
+    const int XZ_VERTEX = RLLStagger::Location::XZ_VERTEX;
+    const int YZ_VERTEX = RLLStagger::Location::YZ_VERTEX;
 
     SphereDomain *domain;
     RLLMesh *mesh;
@@ -31,6 +34,8 @@ protected:
 };
 
 TEST_F(RLLMeshTest, Basics) {
+    ASSERT_EQ(FULL_LEAD, mesh->gridStyle(0));
+    ASSERT_EQ(FULL_LEAD, mesh->gridStyle(1));
     ASSERT_EQ(10, mesh->numGrid(0, FULL));
     ASSERT_EQ(12, mesh->numGrid(0, FULL, true));
     ASSERT_EQ(10, mesh->numGrid(0, HALF));
@@ -59,16 +64,67 @@ TEST_F(RLLMeshTest, IndexRanges) {
 }
 
 TEST_F(RLLMeshTest, IndexWrapping) {
-    int l = 0;
-    for (int k = mesh->ks(FULL); k <= mesh->ke(FULL); ++k) {
-        for (int j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
-            for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+    int I, J, K, l = 0;
+    for (auto k = mesh->ks(FULL); k <= mesh->ke(FULL); ++k) {
+        for (auto j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+            for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
                 ASSERT_EQ(l, mesh->wrapIndex(CENTER, i, j, k));
-                int gridIdx[3];
-                mesh->unwrapIndex(CENTER, l, gridIdx);
-                ASSERT_EQ(i, gridIdx[0]);
-                ASSERT_EQ(j, gridIdx[1]);
-                ASSERT_EQ(k, gridIdx[2]);
+                mesh->unwrapIndex(CENTER, l, I, J, K);
+                ASSERT_EQ(i, I);
+                ASSERT_EQ(j, J);
+                ASSERT_EQ(k, K);
+                l++;
+            }
+        }
+    }
+    l = 0;
+    for (auto k = mesh->ks(HALF); k <= mesh->ke(HALF); ++k) {
+        for (auto j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
+            for (auto i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
+                ASSERT_EQ(l, mesh->wrapIndex(VERTEX, i, j, k));
+                mesh->unwrapIndex(VERTEX, l, I, J, K);
+                ASSERT_EQ(i, I);
+                ASSERT_EQ(j, J);
+                ASSERT_EQ(k, K);
+                l++;
+            }
+        }
+    }
+    l = 0;
+    for (auto k = mesh->ks(FULL); k <= mesh->ke(FULL); ++k) {
+        for (auto j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+            for (auto i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
+                ASSERT_EQ(l, mesh->wrapIndex(X_FACE, i, j, k));
+                mesh->unwrapIndex(X_FACE, l, I, J, K);
+                ASSERT_EQ(i, I);
+                ASSERT_EQ(j, J);
+                ASSERT_EQ(k, K);
+                l++;
+            }
+        }
+    }
+    l = 0;
+    for (auto k = mesh->ks(FULL); k <= mesh->ke(FULL); ++k) {
+        for (auto j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
+            for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+                ASSERT_EQ(l, mesh->wrapIndex(Y_FACE, i, j, k));
+                mesh->unwrapIndex(Y_FACE, l, I, J, K);
+                ASSERT_EQ(i, I);
+                ASSERT_EQ(j, J);
+                ASSERT_EQ(k, K);
+                l++;
+            }
+        }
+    }
+    l = 0;
+    for (auto k = mesh->ks(HALF); k <= mesh->ke(HALF); ++k) {
+        for (auto j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+            for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+                ASSERT_EQ(l, mesh->wrapIndex(Z_FACE, i, j, k));
+                mesh->unwrapIndex(Z_FACE, l, I, J, K);
+                ASSERT_EQ(i, I);
+                ASSERT_EQ(j, J);
+                ASSERT_EQ(k, K);
                 l++;
             }
         }
@@ -76,27 +132,27 @@ TEST_F(RLLMeshTest, IndexWrapping) {
 }
 
 TEST_F(RLLMeshTest, GridCoords) {
-    int gridIdx[3];
+    int I, J, K;
     for (int loc = 0; loc < 5; ++loc) {
         ASSERT_EQ(mesh->totalNumGrid(loc, domain->numDim()),
                   mesh->gridCoords[loc].size());
-        for (int i = 0; i < mesh->totalNumGrid(loc, 3); ++i) {
+        for (uword i = 0; i < mesh->totalNumGrid(loc, 3); ++i) {
             const SphereCoord &x = mesh->gridCoord(loc, i);
-            mesh->unwrapIndex(loc, i, gridIdx);
+            mesh->unwrapIndex(loc, i, I, J, K);
             if (loc == CENTER || loc == Y_FACE || loc == Z_FACE) {
-                ASSERT_EQ(mesh->gridCoordComp(0, FULL, gridIdx[0]), x(0));
+                ASSERT_EQ(mesh->gridCoordComp(0, FULL, I), x(0));
             } else if (loc == X_FACE || loc == XY_VERTEX) {
-                ASSERT_EQ(mesh->gridCoordComp(0, HALF, gridIdx[0]), x(0));
+                ASSERT_EQ(mesh->gridCoordComp(0, HALF, I), x(0));
             }
             if (loc == CENTER || loc == X_FACE || loc == Z_FACE) {
-                ASSERT_EQ(mesh->gridCoordComp(1, FULL, gridIdx[1]), x(1));
+                ASSERT_EQ(mesh->gridCoordComp(1, FULL, J), x(1));
             } else if (loc == Y_FACE || loc == XY_VERTEX) {
-                ASSERT_EQ(mesh->gridCoordComp(1, HALF, gridIdx[1]), x(1));
+                ASSERT_EQ(mesh->gridCoordComp(1, HALF, J), x(1));
             }
             if (loc == CENTER || loc == X_FACE || loc == Y_FACE || loc == XY_VERTEX) {
-                ASSERT_EQ(mesh->gridCoordComp(2, FULL, gridIdx[2]), x(2));
+                ASSERT_EQ(mesh->gridCoordComp(2, FULL, K), x(2));
             } else if (loc == Z_FACE) {
-                ASSERT_EQ(mesh->gridCoordComp(2, HALF, gridIdx[2]), x(2));
+                ASSERT_EQ(mesh->gridCoordComp(2, HALF, K), x(2));
             }
             ASSERT_EQ(sin(x(0)), x.sinLon());
             ASSERT_EQ(cos(x(0)), x.cosLon());
@@ -109,24 +165,24 @@ TEST_F(RLLMeshTest, GridCoords) {
 TEST_F(RLLMeshTest, CosSinTan) {
     // check cosine and sine
     vec lonFull = mesh->gridCoordComps(0, FULL, true);
-    for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+    for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
         ASSERT_EQ(cos(lonFull(i)), mesh->cosLon(FULL, i));
         ASSERT_EQ(sin(lonFull(i)), mesh->sinLon(FULL, i));
     }
     vec lonHalf = mesh->gridCoordComps(0, HALF, true);
-    for (int i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
+    for (auto i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
         ASSERT_EQ(cos(lonHalf(i)), mesh->cosLon(HALF, i));
         ASSERT_EQ(sin(lonHalf(i)), mesh->sinLon(HALF, i));
     }
     vec latFull = mesh->gridCoordComps(1, FULL, true);
-    for (int j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+    for (auto j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
         ASSERT_EQ(cos(latFull(j)), mesh->cosLat(FULL, j));
         ASSERT_EQ(sin(latFull(j)), mesh->sinLat(FULL, j));
         ASSERT_EQ(pow(sin(latFull(j)), 2), mesh->sinLat2(FULL, j));
         ASSERT_EQ(tan(latFull(j)), mesh->tanLat(FULL, j));
     }
     vec latHalf = mesh->gridCoordComps(1, HALF, true);
-    for (int j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
+    for (auto j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
         ASSERT_EQ(cos(latHalf(j)), mesh->cosLat(HALF, j));
         ASSERT_EQ(sin(latHalf(j)), mesh->sinLat(HALF, j));
         ASSERT_EQ(pow(sin(latHalf(j)), 2), mesh->sinLat2(HALF, j));
@@ -175,10 +231,10 @@ TEST_F(RLLMeshTest, Move) {
 TEST_F(RLLMeshTest, CellVolume) {
     mesh->setCellVolumes();
     double totalVolume = 0.0;
-    for (int i = 0; i < mesh->totalNumGrid(CENTER, 2); ++i) {
+    for (uword i = 0; i < mesh->totalNumGrid(CENTER, 2); ++i) {
         totalVolume += mesh->cellVolume(i);
     }
     ASSERT_GT(1.0e-13, fabs(4*M_PI*domain->radius()*domain->radius()-totalVolume));
 }
 
-#endif
+#endif // __GEOMTK_RLLMesh_test__

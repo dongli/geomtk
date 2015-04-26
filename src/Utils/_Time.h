@@ -1,5 +1,5 @@
-#ifndef __Geomtk_Time__
-#define __Geomtk_Time__
+#ifndef __GEOMTK_Time__
+#define __GEOMTK_Time__
 
 #include "geomtk_commons.h"
 
@@ -136,4 +136,4 @@ public:
 
 } // geomtk
 
-#endif // __Geomtk_Time__
+#endif // __GEOMTK_Time__

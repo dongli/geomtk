@@ -1,5 +1,5 @@
-#ifndef __Geomtk_ConfigManager__
-#define __Geomtk_ConfigManager__
+#ifndef __GEOMTK_ConfigManager__
+#define __GEOMTK_ConfigManager__
 
 #include "geomtk_commons.h"
 
@@ -79,4 +79,4 @@ getValue(const string &group, const string &key, const T &defaultValue) const {
 
 }
 
-#endif // __Geomtk_ConfigManager__
+#endif // __GEOMTK_ConfigManager__

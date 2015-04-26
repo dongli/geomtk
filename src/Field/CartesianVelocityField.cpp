@@ -8,8 +8,8 @@ calcDivergence(const TimeLevelIndex<2> &timeIdx) {
     case 2:
         if (v[0].staggerLocation() == Location::CENTER &&
             v[1].staggerLocation() == Location::CENTER) {
-            for (int j = mesh().js(GridType::FULL); j <= mesh().je(GridType::FULL); ++j) {
-                for (int i = mesh().is(GridType::FULL); i <= mesh().ie(GridType::FULL); ++i) {
+            for (uword j = mesh().js(GridType::FULL); j <= mesh().je(GridType::FULL); ++j) {
+                for (uword i = mesh().is(GridType::FULL); i <= mesh().ie(GridType::FULL); ++i) {
                     double u1 = v[0](timeIdx, i-1, j);
                     double u2 = v[0](timeIdx, i+1, j);
                     double dx = (mesh().gridInterval(0, GridType::FULL, i-1)+
@@ -25,8 +25,8 @@ calcDivergence(const TimeLevelIndex<2> &timeIdx) {
             }
         } else if (v[0].staggerLocation() == Location::X_FACE &&
                    v[1].staggerLocation() == Location::Y_FACE) {
-            for (int j = mesh().js(GridType::FULL); j <= mesh().je(GridType::FULL); ++j) {
-                for (int i = mesh().is(GridType::FULL); i <= mesh().ie(GridType::FULL); ++i) {
+            for (uword j = mesh().js(GridType::FULL); j <= mesh().je(GridType::FULL); ++j) {
+                for (uword i = mesh().is(GridType::FULL); i <= mesh().ie(GridType::FULL); ++i) {
                     double u1 = v[0](timeIdx, i-1, j);
                     double u2 = v[0](timeIdx, i, j);
                     double dx = mesh().gridInterval(0, GridType::HALF, i);
@@ -45,9 +45,9 @@ calcDivergence(const TimeLevelIndex<2> &timeIdx) {
         if (v[0].staggerLocation() == Location::CENTER &&
             v[1].staggerLocation() == Location::CENTER &&
             v[2].staggerLocation() == Location::CENTER) {
-            for (int k = mesh().ks(GridType::FULL); k <= mesh().ks(GridType::FULL); ++k) {
-                for (int j = mesh().js(GridType::FULL); j <= mesh().je(GridType::FULL); ++j) {
-                    for (int i = mesh().is(GridType::FULL); i <= mesh().ie(GridType::FULL); ++i) {
+            for (uword k = mesh().ks(GridType::FULL); k <= mesh().ks(GridType::FULL); ++k) {
+                for (uword j = mesh().js(GridType::FULL); j <= mesh().je(GridType::FULL); ++j) {
+                    for (uword i = mesh().is(GridType::FULL); i <= mesh().ie(GridType::FULL); ++i) {
                         double u1 = v[0](timeIdx, i-1, j, k);
                         double u2 = v[0](timeIdx, i+1, j, k);
                         double dx = (mesh().gridInterval(0, GridType::FULL, i-1)+
@@ -70,9 +70,9 @@ calcDivergence(const TimeLevelIndex<2> &timeIdx) {
         } else if (v[0].staggerLocation() == Location::X_FACE &&
                    v[1].staggerLocation() == Location::Y_FACE &&
                    v[2].staggerLocation() == Location::Z_FACE) {
-            for (int k = mesh().ks(GridType::FULL); k <= mesh().ks(GridType::FULL); ++k) {
-                for (int j = mesh().js(GridType::FULL); j <= mesh().je(GridType::FULL); ++j) {
-                    for (int i = mesh().is(GridType::FULL); i <= mesh().ie(GridType::FULL); ++i) {
+            for (uword k = mesh().ks(GridType::FULL); k <= mesh().ks(GridType::FULL); ++k) {
+                for (uword j = mesh().js(GridType::FULL); j <= mesh().je(GridType::FULL); ++j) {
+                    for (uword i = mesh().is(GridType::FULL); i <= mesh().ie(GridType::FULL); ++i) {
                         double u1 = v[0](timeIdx, i-1, j, k);
                         double u2 = v[0](timeIdx, i,   j, k);
                         double dx = mesh().gridInterval(0, GridType::HALF, i);
@@ -106,8 +106,8 @@ calcVorticity(const TimeLevelIndex<2> &timeIdx) {
                 mesh().domain().axisStartBndType(1) == PERIODIC) {
                 if (v[0].staggerLocation() == Location::CENTER &&
                     v[1].staggerLocation() == Location::CENTER) {
-                    for (int j = mesh().js(GridType::FULL); j <= mesh().je(GridType::FULL); ++j) {
-                        for (int i = mesh().is(GridType::FULL); i <= mesh().ie(GridType::FULL); ++i) {
+                    for (uword j = mesh().js(GridType::FULL); j <= mesh().je(GridType::FULL); ++j) {
+                        for (uword i = mesh().is(GridType::FULL); i <= mesh().ie(GridType::FULL); ++i) {
                             double v1 = v[1](timeIdx, i-1, j);
                             double v2 = v[1](timeIdx, i, j);
                             double dx = (mesh().gridInterval(0, GridType::FULL, i-1)+
@@ -123,8 +123,8 @@ calcVorticity(const TimeLevelIndex<2> &timeIdx) {
                     }
                 } else if (v[0].staggerLocation() == Location::X_FACE &&
                            v[1].staggerLocation() == Location::Y_FACE) {
-                    for (int j = mesh().js(GridType::FULL); j <= mesh().je(GridType::FULL); ++j) {
-                        for (int i = mesh().is(GridType::FULL); i <= mesh().ie(GridType::FULL); ++i) {
+                    for (uword j = mesh().js(GridType::FULL); j <= mesh().je(GridType::FULL); ++j) {
+                        for (uword i = mesh().is(GridType::FULL); i <= mesh().ie(GridType::FULL); ++i) {
                             double v1 = v[1](timeIdx, i-1, j-1);
                             double v2 = v[1](timeIdx, i-1, j );
                             double v3 = v[1](timeIdx, i+1, j-1);

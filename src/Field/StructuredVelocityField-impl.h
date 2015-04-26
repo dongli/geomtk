@@ -37,13 +37,13 @@ create(const MeshType &mesh, bool useStagger, bool hasHalfLevel) {
 template <typename MeshType, typename FieldType>
 void StructuredVelocityField<MeshType, FieldType>::
 applyBndCond(const TimeLevelIndex<2> &timeIdx, bool updateHalfLevel) {
-    for (int m = 0; m < v.size(); ++m) {
+    for (uword m = 0; m < v.size(); ++m) {
         v[m].applyBndCond(timeIdx, updateHalfLevel);
     }
     calcDivergence(timeIdx);
     div.applyBndCond(timeIdx, updateHalfLevel);
     calcVorticity(timeIdx);
-    for (int m = 0; m < vor.size(); ++m) {
+    for (uword m = 0; m < vor.size(); ++m) {
         vor[m].applyBndCond(timeIdx);
     }
 } // applyBndCond

@@ -69,7 +69,11 @@ public:
     setInitialCondition(AdvectionManager &advectionManager) = 0;
 
     virtual void
-    advanceDynamics(AdvectionManager &advectionManager) = 0;
+    advanceDynamics(const TimeLevelIndex<NumTimeLevel> &timeIdx,
+                    AdvectionManager &advectionManager) {
+        advectionManager.advance(stepSize(), timeIdx, velocityField);
+        _timeManager.advance();
+    }
 
     virtual void
     output(const TimeLevelIndex<NumTimeLevel> &timeIdx,

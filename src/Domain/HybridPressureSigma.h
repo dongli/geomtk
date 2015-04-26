@@ -1,5 +1,5 @@
-#ifndef __Geomtk_HybridPressureSigma__
-#define __Geomtk_HybridPressureSigma__
+#ifndef __GEOMTK_HybridPressureSigma__
+#define __GEOMTK_HybridPressureSigma__
 
 #include "geomtk_commons.h"
 #include "TerrainFollowing.h"
@@ -24,9 +24,10 @@ public:
     HybridPressureSigma();
     virtual ~HybridPressureSigma();
 
-    virtual double calcPressure(double ps, int k) const;
-};
+    virtual double
+    calcPressure(double ps, int k) const;
+}; // HybridPressureSigma
 
-}
+} // geomtk
 
-#endif
+#endif // __GEOMTK_HybridPressureSigma__

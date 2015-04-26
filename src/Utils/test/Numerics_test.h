@@ -10,11 +10,11 @@ class NumericsTest : public ::testing::Test {
 };
 
 TEST_F(NumericsTest, Factors) {
-    vector<int> factors = Numerics::factors(102);
+    vector<uword> factors = Numerics::factors(102);
     ASSERT_EQ(factors.size(), 3);
     ASSERT_EQ(factors[0], 2);
     ASSERT_EQ(factors[1], 3);
     ASSERT_EQ(factors[2], 17);
 }
 
-#endif
+#endif // __GEOMTK_Numerics_test__

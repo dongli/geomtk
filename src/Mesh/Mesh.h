@@ -99,8 +99,8 @@ public:
      *
      *  @return The total grid number.
      */
-    virtual int
-    totalNumGrid(int loc, int numDim) const = 0;
+    virtual uword
+    totalNumGrid(int loc, uword numDim) const = 0;
 
     /**
      *  Get the vertical level index.
@@ -110,7 +110,7 @@ public:
      *
      *  @return The vertical level index.
      */
-    virtual int
+    virtual uword
     levelIndex(int loc, int cellIdx) const = 0;
 
     /**

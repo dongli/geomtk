@@ -1,5 +1,5 @@
-#ifndef __Geomtk_RLLField_test__
-#define __Geomtk_RLLField_test__
+#ifndef __GEOMTK_RLLField_test__
+#define __GEOMTK_RLLField_test__
 
 #include "RLLField.h"
 
@@ -41,21 +41,21 @@ TEST_F(RLLFieldTest, Basics) {
 }
 
 TEST_F(RLLFieldTest, AccessElements) {
-    for (int i = 0; i < mesh->totalNumGrid(CENTER, f.numDim()); ++i) {
+    for (uword i = 0; i < mesh->totalNumGrid(CENTER, f.numDim()); ++i) {
         f(timeIdx, i) = i;
     }
     ASSERT_EQ(0, f.min(timeIdx));
     ASSERT_EQ(mesh->totalNumGrid(CENTER, f.numDim())-1, f.max(timeIdx));
     int l = 0;
-    for (int j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
-        for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+    for (auto j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+        for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
             ASSERT_EQ(l++, f(timeIdx, i, j));
         }
     }
 }
 
 TEST_F(RLLFieldTest, AssignmentOperator) {
-    for (int i = 0; i < mesh->totalNumGrid(CENTER, f.numDim()); ++i) {
+    for (uword i = 0; i < mesh->totalNumGrid(CENTER, f.numDim()); ++i) {
         f(timeIdx, i) = i;
     }
     ASSERT_EQ(NULL, &g.mesh());
@@ -67,22 +67,22 @@ TEST_F(RLLFieldTest, AssignmentOperator) {
     ASSERT_EQ(f.staggerLocation(), g.staggerLocation());
     ASSERT_EQ(f.gridType(0), g.gridType(0));
     ASSERT_EQ(f.gridType(1), g.gridType(1));
-    for (int i = 0; i < mesh->totalNumGrid(CENTER, f.numDim()); ++i) {
+    for (uword i = 0; i < mesh->totalNumGrid(CENTER, f.numDim()); ++i) {
         ASSERT_EQ(i, g(timeIdx, i));
     }
 }
 
 TEST_F(RLLFieldTest, BoundaryCondition) {
-    for (int j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
-        for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+    for (auto j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+        for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
             f(timeIdx, i, j) = i+j*mesh->numGrid(0, FULL);
         }
     }
     f.applyBndCond(timeIdx);
-    for (int j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+    for (auto j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
         ASSERT_EQ(f(timeIdx, mesh->is(FULL)-1, j), f(timeIdx, mesh->ie(FULL), j));
         ASSERT_EQ(f(timeIdx, mesh->ie(FULL)+1, j), f(timeIdx, mesh->is(FULL), j));
     }
 }
 
-#endif
+#endif // __GEOMTK_RLLField_test__

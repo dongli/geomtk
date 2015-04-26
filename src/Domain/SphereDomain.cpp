@@ -56,6 +56,7 @@ init(const string &filePath) {
 
 double SphereDomain::
 calcDistance(const SphereCoord &x, const SphereCoord &y) const {
+    // TODO: We don't consider vertical distance yet!
     double dlon = x(0)-y(0);
     double tmp1 = x.sinLat()*y.sinLat();
     double tmp2 = x.cosLat()*y.cosLat()*cos(dlon);
@@ -84,7 +85,7 @@ calcDistance(const SphereCoord &x, double lon, double sinLat, double cosLat) con
 vec SphereDomain::
 diffCoord(const SphereCoord &x, const SphereCoord &y) const {
     vec d(numDim());
-    for (int m = 0; m < numDim(); ++m) {
+    for (uword m = 0; m < numDim(); ++m) {
         d(m) = x(m)-y(m);
     }
     if (fabs(d(0)) > M_PI_2) {

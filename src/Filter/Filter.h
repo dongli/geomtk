@@ -1,5 +1,5 @@
-#ifndef __Geomtk_Filter__
-#define __Geomtk_Filter__
+#ifndef __GEOMTK_Filter__
+#define __GEOMTK_Filter__
 
 #include "geomtk_commons.h"
 
@@ -20,8 +20,8 @@ public:
         this->scheme = scheme;
     }
     virtual ~Filter() {}
-};
+}; // Filter
 
 } // geomtk
 
-#endif // __Geomtk_Filter__
+#endif // __GEOMTK_Filter__

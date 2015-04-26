@@ -1,5 +1,5 @@
-#ifndef __Geomtk_TimeManager__
-#define __Geomtk_TimeManager__
+#ifndef __GEOMTK_TimeManager__
+#define __GEOMTK_TimeManager__
 
 #include "geomtk_commons.h"
 #include "_Time.h"
@@ -58,7 +58,7 @@ public:
      *
      *  @return The boolean status.
      */
-    bool checkAlarm(int i);
+    bool checkAlarm(uword i);
 
     /**
      *  Advance the time by one time step.

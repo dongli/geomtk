@@ -7,14 +7,24 @@ namespace geomtk {
 
 /**
  *  This class describes the grid stagger in structured mesh.
+ *
+ *  Pair relationship:
+ *
+ *      CENTER - VERTEX
+ *      X_FACE - Y_FACE/YZ_VERTEX
+ *      Y_FACE - X_FACE/XZ_VERTEX
+ *      Z_FACE - XY_VERTEX
  */
 struct StructuredStagger {
     struct Location {
         static const int CENTER = 0;
-        static const int X_FACE = 1;
-        static const int Y_FACE = 2;
-        static const int XY_VERTEX = 3;
+        static const int VERTEX = 1;
+        static const int X_FACE = 2;
+        static const int Y_FACE = 3;
         static const int Z_FACE = 4;
+        static const int XY_VERTEX = 5;
+        static const int XZ_VERTEX = 6;
+        static const int YZ_VERTEX = 7;
     };
     struct GridType {
         static const int FULL = 0;
@@ -32,23 +42,24 @@ enum StructuredGridStyle {
  *  providing several querying methods.
  */
 template <class DomainType, class CoordType>
-class StructuredMesh : public Mesh<DomainType, CoordType> {
+class StructuredMesh
+: public Mesh<DomainType, CoordType> {
 public:
     typedef StructuredStagger::GridType GridType;
     typedef StructuredStagger::Location Location;
 protected:
-    int _haloWidth;
-    umat fullIndexRanges;
-    umat halfIndexRanges;
+    uword _haloWidth;
+    arma::Mat<int> fullIndexRanges;
+    arma::Mat<int> halfIndexRanges;
     vec *fullCoords;
     vec *halfCoords;
     vec *fullIntervals;
     vec *halfIntervals;
-    field<CoordType> gridCoords[5]; // With different locations.
+    field<CoordType> gridCoords[8]; // With different locations.
 
     StructuredGridStyle gridStyles[3];
 public:
-    StructuredMesh(DomainType &domain, int haloWidth = 1);
+    StructuredMesh(DomainType &domain, uword haloWidth = 1);
     virtual ~StructuredMesh();
 
     /**
@@ -70,11 +81,16 @@ public:
     init(const string &filePathH, const string &filePathV);
 
     virtual void
-    init(int nx, int ny = 1, int nz = 1);
+    init(uword nx, uword ny = 1, uword nz = 1);
 
-    int
+    uword
     haloWidth() const {
         return _haloWidth;
+    }
+
+    StructuredGridStyle
+    gridStyle(int axisIdx) const {
+        return gridStyles[axisIdx];
     }
 
     /**
@@ -86,7 +102,7 @@ public:
      *  @param end      the end index.
      */
     void
-    setGridIndexRange(int axisIdx, int gridType, int start, int end);
+    setGridIndexRange(uword axisIdx, int gridType, int start, int end);
 
     /**
      *  Set the grid coordinate components.
@@ -97,7 +113,8 @@ public:
      *  @param half    the half grid coordinate component array.
      */
     virtual void
-    setGridCoordComps(int axisIdx, int size, const vec &full, const vec &half);
+    setGridCoordComps(uword axisIdx, uword size,
+                      const vec &full, const vec &half);
 
     /**
      *  Set the grid coordinate components.
@@ -107,7 +124,7 @@ public:
      *  @param full    the full grid coordinate component array.
      */
     virtual void
-    setGridCoordComps(int axisIdx, int size, const vec &full);
+    setGridCoordComps(uword axisIdx, uword size, const vec &full);
 
     /**
      *  Get the grid coordinate component array.
@@ -119,7 +136,8 @@ public:
      *  @return The grid coordinate component array.
      */
     vec
-    gridCoordComps(int axisIdx, int gridType, bool hasHaloGrids = false) const;
+    gridCoordComps(uword axisIdx, int gridType,
+                   bool hasHaloGrids = false) const;
 
     /**
      *  Get the grid coordinate component at given position.
@@ -131,7 +149,7 @@ public:
      *  @return The grid coordinate component.
      */
     double
-    gridCoordComp(int axisIdx, int gridType, int gridIdx) const;
+    gridCoordComp(uword axisIdx, int gridType, int gridIdx) const;
 
     /**
      *  Get the space coordinate of a grid with given location.
@@ -163,7 +181,7 @@ public:
      *  @return The grid interval.
      */
     double
-    gridInterval(int axisIdx, int gridType, int gridIdx) const;
+    gridInterval(uword axisIdx, int gridType, int gridIdx) const;
 
     /**
      *  Get the total grid number on given location (e.g. CENTER).
@@ -173,8 +191,8 @@ public:
      *
      *  @return The total grid number.
      */
-    virtual int
-    totalNumGrid(int loc, int numDim = -1) const;
+    virtual uword
+    totalNumGrid(int loc, uword numDim = 0) const;
 
     /**
      *  Get the grid number along the given axis.
@@ -185,8 +203,8 @@ public:
      *
      *  @return The grid number.
      */
-    int
-    numGrid(int axisIdx, int gridType, bool hasHaloGrids = false) const;
+    uword
+    numGrid(uword axisIdx, int gridType, bool hasHaloGrids = false) const;
 
     /**
      *  Get the start grid index along the given axis.
@@ -196,8 +214,8 @@ public:
      *
      *  @return The start grid index.
      */
-    int
-    startIndex(int axisIdx, int gridType) const;
+    uword
+    startIndex(uword axisIdx, int gridType) const;
 
     /**
      *  Get the end grid index along the given axis.
@@ -207,8 +225,8 @@ public:
      *
      *  @return The end grid index.
      */
-    int
-    endIndex(int axisIdx, int gridType) const;
+    uword
+    endIndex(uword axisIdx, int gridType) const;
 
     /**
      *  Get the start grid index along x axis.
@@ -217,7 +235,7 @@ public:
      *
      *  @return The start grid index along x axis.
      */
-    int
+    uword
     is(int gridType) const;
 
     /**
@@ -227,7 +245,7 @@ public:
      *
      *  @return The end grid index along x axis.
      */
-    int
+    uword
     ie(int gridType) const;
 
     /**
@@ -237,7 +255,7 @@ public:
      *
      *  @return The start grid index along x axis.
      */
-    int
+    uword
     js(int gridType) const;
 
     /**
@@ -247,7 +265,7 @@ public:
      *
      *  @return The end grid index along y axis.
      */
-    int
+    uword
     je(int gridType) const;
 
     /**
@@ -257,7 +275,7 @@ public:
      *
      *  @return The start grid index along z axis.
      */
-    int
+    uword
     ks(int gridType) const;
 
     /**
@@ -267,7 +285,7 @@ public:
      *
      *  @return The end grid index along z axis.
      */
-    int
+    uword
     ke(int gridType) const;
 
     /**
@@ -278,14 +296,73 @@ public:
      *
      *  @return The vertical level index.
      */
-    virtual int
+    virtual uword
     levelIndex(int loc, int cellIdx) const;
 
     virtual void
-    unwrapIndex(int loc, int cellIdx, int gridIdx[3]) const;
+    unwrapIndex(int loc, int cellIdx, vector<int> &spanIdx) const;
 
+    virtual void
+    unwrapIndex(int loc, int cellIdx, int &i) const;
+
+    /**
+     *  Unwrap the cell index (1D) into the span index (2D).
+     *
+     *  @param loc     the grid location.
+     *  @param cellIdx the cell index.
+     *  @param i       the span index of the first axis.
+     *  @param j       the span index of the second axis.
+     */
+    virtual void
+    unwrapIndex(int loc, int cellIdx, int &i, int &j) const;
+
+    /**
+     *  Unwrap the cell index (1D) into the span index (3D).
+     *
+     *  @param loc     the grid location.
+     *  @param cellIdx the cell index.
+     *  @param i       the span index of the first axis.
+     *  @param j       the span index of the second axis.
+     *  @param k       the span index of the third axis.
+     */
+    virtual void
+    unwrapIndex(int loc, int cellIdx, int &i, int &j, int &k) const;
+
+    /**
+     *  Wrap the span index (1D) into cell index (1D).
+     *
+     *  @param loc the grid location.
+     *  @param i   the span index of the first axis.
+     *
+     *  @return The cell index.
+     */
     virtual int
-    wrapIndex(int loc, int i, int j = 0, int k = 0) const;
+    wrapIndex(int loc, int i) const;
+
+    /**
+     *  Wrap the span indices (2D) into cell index (1D).
+     *
+     *  @param loc the grid location.
+     *  @param i   the span index of the first axis.
+     *  @param j   the span index of the second axis.
+     *
+     *  @return The cell index.
+     */
+    virtual int
+    wrapIndex(int loc, int i, int j) const;
+
+    /**
+     *  Wrap the span indices (3D) into cell index (1D).
+     *
+     *  @param loc the grid location.
+     *  @param i   the span index of the first axis.
+     *  @param j   the span index of the second axis.
+     *  @param k   the span index of the third axis.
+     *
+     *  @return The cell index
+     */
+    virtual int
+    wrapIndex(int loc, int i, int j, int k) const;
 
     virtual bool
     isHorizontalGridsSame(const Mesh<DomainType, CoordType> &other) const;

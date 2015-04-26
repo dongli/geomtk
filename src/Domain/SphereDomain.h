@@ -1,5 +1,5 @@
-#ifndef __SphereDomain__
-#define __SphereDomain__
+#ifndef __GEOMTK_SphereDomain__
+#define __GEOMTK_SphereDomain__
 
 #include "Domain.h"
 #include "SphereCoord.h"
@@ -88,8 +88,8 @@ public:
      */
     virtual string
     brief() const;
-};
+}; // SphereDomain
 
-}
+} // geomtk
 
-#endif
+#endif // __GEOMTK_SphereDomain__

@@ -1,5 +1,5 @@
-#ifndef __Geomtk_TimeLevels_test__
-#define __Geomtk_TimeLevels_test__
+#ifndef __GEOMTK_TimeLevels_test__
+#define __GEOMTK_TimeLevels_test__
 
 #include "TimeLevels.h"
 
@@ -75,10 +75,10 @@ TEST(TimeLevels, OperatorEqual) {
     d = c;
     ASSERT_EQ(c.level(0).size(), d.level(0).size());
     ASSERT_EQ(c.level(1).size(), d.level(1).size());
-    for (int i = 0; i < c.level(0).size(); ++i) {
+    for (uword i = 0; i < c.level(0).size(); ++i) {
         ASSERT_EQ(c.level(0)[i], d.level(0)[i]);
     }
-    for (int i = 0; i < c.level(1).size(); ++i) {
+    for (uword i = 0; i < c.level(1).size(); ++i) {
         ASSERT_EQ(c.level(1)[i], d.level(1)[i]);
     }
 }

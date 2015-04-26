@@ -1,5 +1,5 @@
-#ifndef __Geomtk_SphereCoord_test__
-#define __Geomtk_SphereCoord_test__
+#ifndef __GEOMTK_SphereCoord_test__
+#define __GEOMTK_SphereCoord_test__
 
 #include "SphereCoord.h"
 #include "SphereDomain.h"
@@ -23,4 +23,4 @@ TEST(SphereDomain, CopyConstructor) {
     ASSERT_EQ(x.sinLat(), y.sinLat());
 }
 
-#endif // __Geomtk_SphereCoord_test__
+#endif // __GEOMTK_SphereCoord_test__

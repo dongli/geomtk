@@ -1,5 +1,5 @@
-#ifndef __Geomtk_OpenCartesianMeshIndex_test__
-#define __Geomtk_OpenCartesianMeshIndex_test__
+#ifndef __GEOMTK_OpenCartesianMeshIndex_test__
+#define __GEOMTK_OpenCartesianMeshIndex_test__
 
 #include "geomtk.h"
 
@@ -69,4 +69,4 @@ TEST_F(OpenCartesianMeshIndexTest, Locate) {
     ASSERT_EQ(9, idx(2, HALF));
 }
 
-#endif // __Geomtk_OpenCartesianMeshIndex_test__
+#endif // __GEOMTK_OpenCartesianMeshIndex_test__

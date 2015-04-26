@@ -23,7 +23,8 @@ void RLLRegrid::run(RegridMethod method, const TimeLevelIndex<N> &timeIdx,
         y = 0.0;
         bool match = false;
         double ws = 0.0;
-        for (int i = 0; i < mesh().numGrid(0, RLLStagger::GridType::FULL); ++i) {
+        for (uword i = mesh().is(RLLStagger::GridType::FULL);
+             i <= mesh().ie(RLLStagger::GridType::FULL); ++i) {
             // TODO: Use mesh().gridCoord(...) instead.
             double d = domain.calcDistance(x, mesh().gridCoordComp(0, RLLStagger::GridType::FULL, i),
                                            sinLat, cosLat);

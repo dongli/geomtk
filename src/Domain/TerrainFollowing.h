@@ -1,5 +1,5 @@
-#ifndef __Geomtk__TerrainFollowing__
-#define __Geomtk__TerrainFollowing__
+#ifndef __GEOMTK__TerrainFollowing__
+#define __GEOMTK__TerrainFollowing__
 
 #include "VertCoord.h"
 
@@ -18,4 +18,4 @@ public:
 
 } // geomtk
 
-#endif // __Geomtk__TerrainFollowing__
+#endif // __GEOMTK__TerrainFollowing__

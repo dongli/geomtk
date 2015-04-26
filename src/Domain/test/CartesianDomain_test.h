@@ -1,5 +1,5 @@
-#ifndef __Geomtk_CartesianDomain_test__
-#define __Geomtk_CartesianDomain_test__
+#ifndef __GEOMTK_CartesianDomain_test__
+#define __GEOMTK_CartesianDomain_test__
 
 #include "CartesianDomain.h"
 
@@ -46,8 +46,8 @@ TEST_F(CartesianDomainTest, DifferenceCoordinate) {
     x(0) = -0.9; x(1) = -0.9;
     y(0) =  0.9; y(1) =  0.9;
     vec dxy = d2->diffCoord(x, y);
-    ASSERT_GT(1.0e-15, fabs(0.2-dxy(0)));
-    ASSERT_GT(1.0e-15, fabs(0.2-dxy(1)));
+    ASSERT_NEAR(0.2, dxy(0), 1.0e-15);
+    ASSERT_NEAR(0.2, dxy(1), 1.0e-15);
 }
 
 TEST_F(CartesianDomainTest, CalculateDistance) {
@@ -56,7 +56,7 @@ TEST_F(CartesianDomainTest, CalculateDistance) {
     SpaceCoord x(2), y(2);
     x(0) = -0.9; x(1) = -0.9;
     y(0) =  0.9; y(1) =  0.9;
-    ASSERT_GT(1.0e-15, fabs(0.2*sqrt(2)-d2->calcDistance(x, y)));
+    ASSERT_NEAR(0.2*sqrt(2), d2->calcDistance(x, y), 1.0e-15);
 }
 
-#endif // __Geomtk_CartesianDomain_test__
+#endif // __GEOMTK_CartesianDomain_test__

@@ -1,5 +1,5 @@
-#ifndef __Geomtk_ClassicPressureSigma__
-#define __Geomtk_ClassicPressureSigma__
+#ifndef __GEOMTK_ClassicPressureSigma__
+#define __GEOMTK_ClassicPressureSigma__
 
 #include "geomtk_commons.h"
 #include "TerrainFollowing.h"
@@ -25,9 +25,10 @@ public:
     ClassicPressureSigma();
     virtual ~ClassicPressureSigma();
 
-    virtual double calcPressure(double ps, int k) const;
-};
+    virtual double
+    calcPressure(double ps, int k) const;
+}; // ClassicPressureSigma
 
-}
+} // geomtk
 
-#endif
+#endif // __GEOMTK_ClassicPressureSigma__

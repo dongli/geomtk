@@ -7,7 +7,7 @@ MeshIndex() {
 
 template <class MeshType, class CoordType>
 MeshIndex<MeshType, CoordType>::
-MeshIndex(int numDim) {
+MeshIndex(uword numDim) {
 	this->numDim = numDim;
 }
 
@@ -18,9 +18,9 @@ MeshIndex<MeshType, CoordType>::
 
 template <class MeshType, class CoordType>
 void MeshIndex<MeshType, CoordType>::
-setNumDim(int numDim) {
+init(uword numDim) {
     this->numDim = numDim;
-}
+} // init
 
 template <class MeshType, class CoordType>
 MeshIndex<MeshType, CoordType>& MeshIndex<MeshType, CoordType>::
@@ -29,6 +29,6 @@ operator=(const MeshIndex &other) {
     	numDim = other.numDim;
     }
     return *this;
-}
+} // operator=
 
-}
+} // geomtk

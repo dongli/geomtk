@@ -1,12 +1,14 @@
 namespace geomtk {
 
 template <class MeshType, typename DataType, int NumTimeLevel>
-StructuredField<MeshType, DataType, NumTimeLevel>::StructuredField() : Field<MeshType>() {
+StructuredField<MeshType, DataType, NumTimeLevel>::
+StructuredField() : Field<MeshType>() {
     data = NULL;
 }
 
 template <class MeshType, typename DataType, int NumTimeLevel>
-StructuredField<MeshType, DataType, NumTimeLevel>::~StructuredField() {
+StructuredField<MeshType, DataType, NumTimeLevel>::
+~StructuredField() {
     if (data != NULL) {
         delete data;
     }
@@ -61,95 +63,131 @@ create(const string &name, const string &units, const string &longName,
                                     this->mesh().numGrid(2, gridTypes[2], true));
         }
     }
-}
+} // operator()
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 const field<DataType>& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
     return data->level(timeIdx);
-}
+} // operator()
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 field<DataType>& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx) {
     return data->level(timeIdx);
-}
+} // operator()
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 const field<DataType>& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()() const {
     return data->level(0);
-}
+} // operator()
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 field<DataType>& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()() {
     return data->level(0);
-}
+} // operator()
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 const DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k) const {
     return data->level(timeIdx)(i, j, k);
-}
+} // operator()
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k) {
     return data->level(timeIdx)(i, j, k);
-}
+} // operator()
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 const DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()(int i, int j, int k) const {
     return data->level(0)(i, j, k);
-}
+} // operator()
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()(int i, int j, int k) {
     return data->level(0)(i, j, k);
-}
+} // operator()
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 const DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) const {
-    int gridIdx[3];
-    this->mesh().unwrapIndex(staggerLocation(), cellIdx, gridIdx);
-    return data->level(timeIdx)(gridIdx[0], gridIdx[1], gridIdx[2]);
-}
+    int i, j, k;
+    switch (this->mesh().domain().numDim()) {
+        case 1:
+            this->mesh().unwrapIndex(staggerLocation(), cellIdx, i);
+            return data->level(timeIdx)(i);
+        case 2:
+            this->mesh().unwrapIndex(staggerLocation(), cellIdx, i, j);
+            return data->level(timeIdx)(i, j);
+        case 3:
+            this->mesh().unwrapIndex(staggerLocation(), cellIdx, i, j, k);
+            return data->level(timeIdx)(i, j, k);
+        default:
+            REPORT_ERROR("Invalid dimension number!");
+    }
+} // operator()
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) {
-    if (this->mesh().domain().numDim() > 1) {
-        int gridIdx[3];
-        this->mesh().unwrapIndex(staggerLocation(), cellIdx, gridIdx);
-        return data->level(timeIdx)(gridIdx[0], gridIdx[1], gridIdx[2]);
-    } else {
-        return data->level(timeIdx)(cellIdx);
+    int i, j, k;
+    switch (this->mesh().domain().numDim()) {
+        case 1:
+            this->mesh().unwrapIndex(staggerLocation(), cellIdx, i);
+            return data->level(timeIdx)(i);
+        case 2:
+            this->mesh().unwrapIndex(staggerLocation(), cellIdx, i, j);
+            return data->level(timeIdx)(i, j);
+        case 3:
+            this->mesh().unwrapIndex(staggerLocation(), cellIdx, i, j, k);
+            return data->level(timeIdx)(i, j, k);
+        default:
+            REPORT_ERROR("Invalid dimension number!");
     }
-}
+} // operator()
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 const DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()(int cellIdx) const {
-    int gridIdx[3];
-    this->mesh().unwrapIndex(staggerLocation(), cellIdx, gridIdx);
-    return data->level(0)(gridIdx[0], gridIdx[1], gridIdx[2]);
-}
+    int i, j, k;
+    switch (this->mesh().domain().numDim()) {
+        case 1:
+            this->mesh().unwrapIndex(staggerLocation(), cellIdx, i);
+            return data->level(0)(i);
+        case 2:
+            this->mesh().unwrapIndex(staggerLocation(), cellIdx, i, j);
+            return data->level(0)(i, j);
+        case 3:
+            this->mesh().unwrapIndex(staggerLocation(), cellIdx, i, j, k);
+            return data->level(0)(i, j, k);
+        default:
+            REPORT_ERROR("Invalid dimension number!");
+    }
+} // operator()
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
-operator()(int i) {
-    if (this->mesh().domain().numDim() != 1) {
-        int gridIdx[3];
-        this->mesh().unwrapIndex(staggerLocation(), i, gridIdx);
-        return data->level(0)(gridIdx[0], gridIdx[1], gridIdx[2]);
-    } else {
-        return data->level(0)(i);
+operator()(int cellIdx) {
+    int i, j, k;
+    switch (this->mesh().domain().numDim()) {
+        case 1:
+            this->mesh().unwrapIndex(staggerLocation(), cellIdx, i);
+            return data->level(0)(i);
+        case 2:
+            this->mesh().unwrapIndex(staggerLocation(), cellIdx, i, j);
+            return data->level(0)(i, j);
+        case 3:
+            this->mesh().unwrapIndex(staggerLocation(), cellIdx, i, j, k);
+            return data->level(0)(i, j, k);
+        default:
+            REPORT_ERROR("Invalid dimension number!");
     }
-}
+} // operator()
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 StructuredField<MeshType, DataType, NumTimeLevel>&
@@ -171,9 +209,9 @@ operator=(const StructuredField<MeshType, DataType, NumTimeLevel> &other) {
             }
         }
         for (int l = 0; l < other.data->numLevel(); ++l) {
-            for (int k = 0; k < other.data->level(l).n_slices; ++k) {
-                for (int j = 0; j < other.data->level(l).n_cols; ++j) {
-                    for (int i = 0; i < other.data->level(l).n_rows; ++i) {
+            for (uword k = 0; k < other.data->level(l).n_slices; ++k) {
+                for (uword j = 0; j < other.data->level(l).n_cols; ++j) {
+                    for (uword i = 0; i < other.data->level(l).n_rows; ++i) {
                         data->level(l)(i, j, k) = other.data->level(l)(i, j, k);
                     }
                 }
@@ -181,6 +219,6 @@ operator=(const StructuredField<MeshType, DataType, NumTimeLevel> &other) {
         }
     }
     return *this;
-}
+} // operator=
 
 } // geomtk

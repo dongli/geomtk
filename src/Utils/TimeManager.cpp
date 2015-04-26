@@ -74,7 +74,7 @@ void TimeManager::reset(int numStep, const Time &currTime) {
 
 int TimeManager::addAlarm(TimeStepUnit unit, double freq) {
     // check if there is already an alarm with same frequency
-    for (int i = 0; i < alarms.size(); ++i) {
+    for (uword i = 0; i < alarms.size(); ++i) {
         if (alarms[i].unit == unit && alarms[i].freq == freq) {
             REPORT_WARNING("There is already an alarm with frequency " <<
                            freq << " " << unit << "!");
@@ -90,9 +90,9 @@ int TimeManager::addAlarm(TimeStepUnit unit, double freq) {
     return alarms.size()-1;
 }
 
-bool TimeManager::checkAlarm(int i) {
+bool TimeManager::checkAlarm(uword i) {
 #ifndef NDEBUG
-    if (i < 0 || i > alarms.size()-1) {
+    if (i > alarms.size()-1) {
         REPORT_ERROR("Alarm index \"" << i << "\" is out of range!");
     }
 #endif

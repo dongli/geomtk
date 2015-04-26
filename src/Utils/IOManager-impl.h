@@ -19,7 +19,7 @@ init(TimeManager &timeManager) {
 template <class DataFileType>
 int IOManager<DataFileType>::
 addInputFile(MeshType &mesh, const string &filePattern) {
-    for (int i = 0; i < files.size(); ++i) {
+    for (uword i = 0; i < files.size(); ++i) {
         if (files[i].ioType == INPUT && files[i].filePattern == filePattern) {
             REPORT_ERROR("File with file pattern \"" << filePattern <<
                          "\" has already been added for input!");
@@ -38,7 +38,7 @@ template <class DataFileType>
 int IOManager<DataFileType>::
 addOutputFile(typename DataFileType::MeshType &mesh, StampString &filePattern,
               TimeStepUnit freqUnit, double freq) {
-    for (int i = 0; i < files.size(); ++i) {
+    for (uword i = 0; i < files.size(); ++i) {
         if (files[i].ioType == OUTPUT && files[i].filePattern == filePattern) {
             REPORT_ERROR("File with pattern \"" << filePattern <<
                          "\" has already been added for output!");
@@ -54,7 +54,7 @@ addOutputFile(typename DataFileType::MeshType &mesh, StampString &filePattern,
     file.isActive = false;
     file.lastTime = -1;
     files.push_back(file);
-    REPORT_NOTICE("Register output file with pattern " << filePattern << ".");
+    REPORT_NOTICE("Add output file with pattern " << filePattern << ".");
     return files.size()-1;
 } // addOutputFile
 
@@ -68,7 +68,7 @@ addOutputFile(typename DataFileType::MeshType &mesh, const string &filePattern,
 
 template <class DataFileType>
 void IOManager<DataFileType>::
-removeFile(int fileIdx) {
+removeFile(uword fileIdx) {
     if (fileIdx < 0 || fileIdx >= files.size()) {
         REPORT_ERROR("File index is out of range!");
     }
@@ -77,7 +77,7 @@ removeFile(int fileIdx) {
 
 template <class DataFileType>
 DataFileType& IOManager<DataFileType>::
-file(int fileIdx) {
+file(uword fileIdx) {
     if (fileIdx < 0 || fileIdx >= files.size()) {
         REPORT_ERROR("File index is out of range!");
     }
@@ -86,14 +86,14 @@ file(int fileIdx) {
 
 template <class DataFileType>
 void IOManager<DataFileType>::
-addField(int fileIdx, const string &xtype, int spaceDims,
+addField(uword fileIdx, const string &xtype, int spaceDims,
          initializer_list<Field<MeshType>*> fields) {
     file(fileIdx).addField(xtype, spaceDims, fields);
 } // addField
 
 template <class DataFileType>
 bool IOManager<DataFileType>::
-isFileActive(int fileIdx) {
+isFileActive(uword fileIdx) {
     DataFileType &file = files[fileIdx];
     file.isActive = timeManager->checkAlarm(file.alarmIdx);
     return file.isActive;
@@ -101,7 +101,7 @@ isFileActive(int fileIdx) {
 
 template <class DataFileType>
 void IOManager<DataFileType>::
-open(int fileIdx) {
+open(uword fileIdx) {
     DataFileType &file = files[fileIdx];
     file.filePath = file.filePattern.run(*timeManager);
     int ret;
@@ -117,7 +117,7 @@ open(int fileIdx) {
     
 template <class DataFileType>
 void IOManager<DataFileType>::
-create(int fileIdx) {
+create(uword fileIdx) {
     DataFileType &file = files[fileIdx];
     if (!isFileActive(fileIdx)) return;
     file.filePath = file.filePattern.run(*timeManager);
@@ -142,7 +142,7 @@ create(int fileIdx) {
 
 template <class DataFileType>
 Time IOManager<DataFileType>::
-getTime(int fileIdx) const {
+getTime(uword fileIdx) const {
     Time time;
     const DataFileType &file = files[fileIdx];
     int ret; double timeValue; char units[100];
@@ -205,7 +205,7 @@ getTime(const string &filePath) const {
 
 template <class DataFileType>
 void IOManager<DataFileType>::
-updateTime(int fileIdx, TimeManager &timeManager) {
+updateTime(uword fileIdx, TimeManager &timeManager) {
     DataFileType &file = files[fileIdx];
     int timeStep, ret;
     ret = nc_get_att(file.fileId, NC_GLOBAL, "time_step", &timeStep);
@@ -217,7 +217,7 @@ updateTime(int fileIdx, TimeManager &timeManager) {
 template <class DataFileType>
 template <typename DataType, int NumTimeLevel>
 void IOManager<DataFileType>::
-input(int fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
+input(uword fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
       initializer_list<Field<MeshType>*> fields) {
     DataFileType &file = files[fileIdx];
     file.template input<DataType, NumTimeLevel>(timeIdx, fields);
@@ -226,7 +226,7 @@ input(int fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
 template <class DataFileType>
 template <typename DataType>
 void IOManager<DataFileType>::
-input(int fileIdx, initializer_list<Field<MeshType>*> fields) {
+input(uword fileIdx, initializer_list<Field<MeshType>*> fields) {
     DataFileType &file = files[fileIdx];
     file.template input<DataType>(fields);
 } // input
@@ -234,8 +234,8 @@ input(int fileIdx, initializer_list<Field<MeshType>*> fields) {
 template <class DataFileType>
 template <typename DataType, int NumTimeLevel>
 void IOManager<DataFileType>::
-input(int fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx, int timeCounter,
-      initializer_list<Field<MeshType>*> fields) {
+input(uword fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
+      int timeCounter, initializer_list<Field<MeshType>*> fields) {
     DataFileType &file = files[fileIdx];
     file.template input<DataType, NumTimeLevel>(timeIdx, timeCounter, fields);
 } // input
@@ -243,7 +243,8 @@ input(int fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx, int timeCounter,
 template <class DataFileType>
 template <typename DataType>
 void IOManager<DataFileType>::
-input(int fileIdx, int timeCounter, initializer_list<Field<MeshType>*> fields) {
+input(uword fileIdx, int timeCounter,
+      initializer_list<Field<MeshType>*> fields) {
     DataFileType &file = files[fileIdx];
     file.template input<DataType>(timeCounter, fields);
 } // input
@@ -251,7 +252,7 @@ input(int fileIdx, int timeCounter, initializer_list<Field<MeshType>*> fields) {
 template <class DataFileType>
 template <typename DataType, int NumTimeLevel>
 void IOManager<DataFileType>::
-output(int fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
+output(uword fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
        initializer_list<Field<MeshType>*> fields) {
     int ret, flag = 0;
     DataFileType &file = files[fileIdx];
@@ -278,7 +279,7 @@ output(int fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
 template <class DataFileType>
 template <typename DataType>
 void IOManager<DataFileType>::
-output(int fileIdx, initializer_list<Field<MeshType>*> fields) {
+output(uword fileIdx, initializer_list<Field<MeshType>*> fields) {
     int ret, flag = 0;
     DataFileType &file = files[fileIdx];
     // If the file is not created yet, then create it.
@@ -304,7 +305,7 @@ output(int fileIdx, initializer_list<Field<MeshType>*> fields) {
 
 template <class DataFileType>
 void IOManager<DataFileType>::
-close(int fileIdx) {
+close(uword fileIdx) {
     DataFileType &file = files[fileIdx];
     if (!file.isActive) return;
     CHECK_NC_CLOSE(nc_close(file.fileId), file.filePath);

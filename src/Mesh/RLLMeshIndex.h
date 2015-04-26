@@ -1,5 +1,5 @@
-#ifndef __RLLMeshIndex__
-#define __RLLMeshIndex__
+#ifndef __GEOMTK_RLLMeshIndex__
+#define __GEOMTK_RLLMeshIndex__
 
 #include "StructuredMeshIndex.h"
 #include "RLLMesh.h"
@@ -18,25 +18,42 @@ protected:
     bool moveOnPole;
 public:
     RLLMeshIndex();
-    RLLMeshIndex(int numDim);
+    RLLMeshIndex(uword numDim);
     virtual ~RLLMeshIndex();
 
-    virtual void reset();
+    virtual void
+    reset();
 
-    virtual RLLMeshIndex& operator=(const RLLMeshIndex &other);
+    virtual RLLMeshIndex&
+    operator=(const RLLMeshIndex &other);
 
     /**
      *  Toggle 'moveOnPole' boolean.
      */
-    void setMoveOnPole(bool moveOnPole) { this->moveOnPole = moveOnPole; }
+    void
+    setMoveOnPole(bool moveOnPole) {
+        this->moveOnPole = moveOnPole;
+    }
 
-    Pole pole() const { return _pole; }
+    Pole
+    pole() const {
+        return _pole;
+    }
 
-    bool isInPolarCap() const { return inPolarCap; }
+    bool
+    isInPolarCap() const {
+        return inPolarCap;
+    }
 
-    bool isOnPole() const { return onPole; }
+    bool
+    isOnPole() const {
+        return onPole;
+    }
 
-    bool isMoveOnPole() const { return moveOnPole; }
+    bool
+    isMoveOnPole() const {
+        return moveOnPole;
+    }
 
     /**
      *  Inherit CartesianMeshIndex::locate(SpaceCoord) and add Pole judgement.
@@ -46,11 +63,13 @@ public:
      *
      *  @return None.
      */
-    virtual void locate(const RLLMesh &mesh, const SphereCoord &x);
+    virtual void
+    locate(const RLLMesh &mesh, const SphereCoord &x);
 
-    virtual void print() const;
-};
+    virtual void
+    print() const;
+}; // RLLMeshIndex
 
-}
+} // geomtk
 
-#endif
+#endif // __GEOMTK_RLLMeshIndex__

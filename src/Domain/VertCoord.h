@@ -1,5 +1,5 @@
-#ifndef __Geomtk_VertCoord__
-#define __Geomtk_VertCoord__
+#ifndef __GEOMTK_VertCoord__
+#define __GEOMTK_VertCoord__
 
 namespace geomtk {
 
@@ -17,9 +17,12 @@ public:
     VertCoord() {}
     virtual ~VertCoord() {}
 
-    VertCoordType type() const { return _type; }
-};
+    VertCoordType
+    type() const {
+        return _type;
+    }
+}; // VertCoord
 
 } // geomtk
 
-#endif // __Geomtk_VertCoord__
+#endif // __GEOMTK_VertCoord__

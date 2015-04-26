@@ -15,11 +15,11 @@ protected:
     int **indices;
 public:
     StructuredMeshIndex();
-    StructuredMeshIndex(int numDim);
+    StructuredMeshIndex(uword numDim);
     virtual ~StructuredMeshIndex();
 
     virtual void
-    setNumDim(int numDim);
+    init(uword numDim);
 
     /**
      *  Reset the indices to undefined status.
@@ -28,10 +28,10 @@ public:
     reset();
 
     virtual int
-    operator()(int axisIdx, int gridType) const;
+    operator()(uword axisIdx, int gridType) const;
 
     virtual int&
-    operator()(int axisIdx, int gridType);
+    operator()(uword axisIdx, int gridType);
 
     virtual StructuredMeshIndex&
     operator=(const StructuredMeshIndex &other);
@@ -39,8 +39,8 @@ public:
     virtual void
     locate(const MeshType &mesh, const CoordType &x);
 
-    virtual int
-    getIndex(const MeshType &mesh, int loc) const;
+    virtual uword
+    cellIndex(const MeshType &mesh, int loc) const;
 
     virtual bool
     isValid() const;

@@ -15,40 +15,46 @@ Velocity::Velocity(int numDim) {
 Velocity::~Velocity() {
 }
 
-void Velocity::setNumDim(int numDim) {
+void Velocity::
+setNumDim(int numDim) {
     v.resize(numDim);
-}
+} // setNumDim
 
-const Velocity Velocity::operator+(const Velocity &other) const {
+const Velocity Velocity::
+operator+(const Velocity &other) const {
     Velocity res;
     res.v = v+other.v;
     return res;
-}
+} // operator+
 
-const Velocity Velocity::operator-(const Velocity &other) const {
+const Velocity Velocity::
+operator-(const Velocity &other) const {
     Velocity res;
     res.v = v-other.v;
     return res;
-}
+} // operator-
 
-const Velocity Velocity::operator*(double scale) const {
+const Velocity Velocity::
+operator*(double scale) const {
     Velocity res;
     res.v = v*scale;
     return res;
-}
+} // operator*
 
-const Velocity Velocity::operator/(double scale) const {
+const Velocity Velocity::
+operator/(double scale) const {
     Velocity res;
     res.v = v/scale;
     return res;
-}
+} // operator/
 
-void Velocity::print() const {
+void Velocity::
+print() const {
     cout << "Velocity:";
-    for (int i = 0; i < v.size(); ++i) {
+    for (uword i = 0; i < v.size(); ++i) {
         cout << setw(20) << v(i);
     }
     cout << endl;
-}
+} // print
 
 } // geomtk

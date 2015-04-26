@@ -1,5 +1,5 @@
-#ifndef __RLLRegrid_test__
-#define __RLLRegrid_test__
+#ifndef __GEOMTK_RLLRegrid_test__
+#define __GEOMTK_RLLRegrid_test__
 
 #include "RLLRegrid.h"
 
@@ -43,13 +43,13 @@ protected:
 
 TEST_F(RLLRegridTest, Run) {
     v.create(*mesh, true);
-    for (int j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
-        for (int i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
+    for (uword j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
+        for (uword i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
             v(0)(timeIdx, i, j) = 5.0;
         }
     }
-    for (int j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
-        for (int i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
+    for (uword j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
+        for (uword i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
             v(1)(timeIdx, i, j) = 5.0;
         }
     }
@@ -88,4 +88,4 @@ TEST_F(RLLRegridTest, Run) {
     ASSERT_NE(0.0, z(1));
 }
 
-#endif
+#endif // __GEOMTK_RLLRegrid_test__

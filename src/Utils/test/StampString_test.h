@@ -1,5 +1,5 @@
-#ifndef __Geomtk_StampString_test__
-#define __Geomtk_StampString_test__
+#ifndef __GEOMTK_StampString_test__
+#define __GEOMTK_StampString_test__
 
 #include "StampString.h"
 
@@ -39,4 +39,4 @@ TEST_F(StampStringTest, run) {
     ASSERT_EQ("test.1979-02-01.nc", res);
 }
 
-#endif // __Geomtk_StampString_test__
+#endif // __GEOMTK_StampString_test__

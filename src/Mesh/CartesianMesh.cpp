@@ -12,7 +12,7 @@ init(const string &filePath) {
     char str[100];
     ret = nc_open(filePath.c_str(), NC_NOWRITE, &ncId);
     CHECK_NC_OPEN(ret, filePath);
-    for (int m = 0; m < domain().numDim(); ++m) {
+    for (uword m = 0; m < domain().numDim(); ++m) {
         ret = nc_inq_varid(ncId, domain().axisName(m).c_str(), &varId);
         CHECK_NC_INQ_VARID(ret, filePath, domain().axisName(m));
         ret = nc_inq_vartype(ncId, varId, &xtype);
@@ -30,7 +30,7 @@ init(const string &filePath) {
             float *buffer = new float[numFullGrid];
             ret = nc_get_var(ncId, varId, buffer);
             CHECK_NC_GET_VAR(ret, filePath, domain().axisName(m));
-            for (int i = 0; i < numFullGrid; ++i) {
+            for (size_t i = 0; i < numFullGrid; ++i) {
                 full[i] = buffer[i];
             }
             delete [] buffer;
@@ -38,7 +38,7 @@ init(const string &filePath) {
             double *buffer = new double[numFullGrid];
             ret = nc_get_var(ncId, varId, buffer);
             CHECK_NC_GET_VAR(ret, filePath, domain().axisName(m));
-            for (int i = 0; i < numFullGrid; ++i) {
+            for (size_t i = 0; i < numFullGrid; ++i) {
                 full[i] = buffer[i];
             }
             delete [] buffer;
@@ -58,7 +58,7 @@ init(const string &filePath) {
                 float *buffer = new float[numHalfGrid];
                 ret = nc_get_var(ncId, varId, buffer);
                 CHECK_NC_GET_VAR(ret, filePath, str);
-                for (int i = 0; i < numHalfGrid; ++i) {
+                for (size_t i = 0; i < numHalfGrid; ++i) {
                     half[i] = buffer[i];
                 }
                 delete [] buffer;
@@ -66,7 +66,7 @@ init(const string &filePath) {
                 double *buffer = new double[numHalfGrid];
                 ret = nc_get_var(ncId, varId, buffer);
                 CHECK_NC_GET_VAR(ret, filePath, str);
-                for (int i = 0; i < numHalfGrid; ++i) {
+                for (size_t i = 0; i < numHalfGrid; ++i) {
                     half[i] = buffer[i];
                 }
                 delete [] buffer;
@@ -82,7 +82,7 @@ init(const string &filePath) {
 } // init
 
 void CartesianMesh::
-init(int nx, int ny, int nz) {
+init(uword nx, uword ny, uword nz) {
     StructuredMesh<CartesianDomain, SpaceCoord>::init(nx, ny, nz);
 } // init
 
@@ -92,29 +92,29 @@ setCellVolumes() {
                      numGrid(1, GridType::FULL),
                      numGrid(2, GridType::FULL));
     if (domain().numDim() == 1) {
-        for (int i = is(GridType::FULL); i <= ie(GridType::FULL); ++i) {
+        for (uword i = is(GridType::FULL); i <= ie(GridType::FULL); ++i) {
             int I = gridStyles[0] == FULL_LEAD ? i-haloWidth() : i;
             double dx = gridInterval(0, GridType::HALF, I);
             volumes(I) = dx;
         }
     } else if (domain().numDim() == 2) {
-        for (int j = js(GridType::FULL); j <= je(GridType::FULL); ++j) {
+        for (uword j = js(GridType::FULL); j <= je(GridType::FULL); ++j) {
             int J = gridStyles[1] == FULL_LEAD ? j-haloWidth() : j;
             double dy = gridInterval(1, GridType::HALF, J);
-            for (int i = is(GridType::FULL); i <= ie(GridType::FULL); ++i) {
+            for (uword i = is(GridType::FULL); i <= ie(GridType::FULL); ++i) {
                 int I = gridStyles[0] == FULL_LEAD ? i-haloWidth() : i;
                 double dx = gridInterval(0, GridType::HALF, I);
                 volumes(I, J) = dx*dy;
             }
         }
     } else if (domain().numDim() == 3) {
-        for (int k = ks(GridType::FULL); k <= ke(GridType::FULL); ++k) {
+        for (uword k = ks(GridType::FULL); k <= ke(GridType::FULL); ++k) {
             int K = gridStyles[2] == FULL_LEAD ? k-haloWidth() : k;
             double dz = gridInterval(2, GridType::HALF, K);
-            for (int j = js(GridType::FULL); j <= je(GridType::FULL); ++j) {
+            for (uword j = js(GridType::FULL); j <= je(GridType::FULL); ++j) {
                 int J = gridStyles[1] == FULL_LEAD ? j-haloWidth() : j;
                 double dy = gridInterval(1, GridType::HALF, J);
-                for (int i = is(GridType::FULL); i <= ie(GridType::FULL); ++i) {
+                for (uword i = is(GridType::FULL); i <= ie(GridType::FULL); ++i) {
                     int I = gridStyles[0] == FULL_LEAD ? i-haloWidth() : i;
                     double dx = gridInterval(0, GridType::HALF, I);
                     volumes(I, J, K) = dx*dy*dz;
@@ -124,7 +124,7 @@ setCellVolumes() {
     }
 #ifndef NDEBUG
     double totalVolume = 0.0, diff;
-    for (int i = 0; i < totalNumGrid(Location::CENTER, domain().numDim()); ++i) {
+    for (uword i = 0; i < totalNumGrid(Location::CENTER); ++i) {
         totalVolume += volumes(i);
     }
     if (domain().numDim() == 1) {

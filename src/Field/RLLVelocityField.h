@@ -1,5 +1,5 @@
-#ifndef __Geomtk_RLLVelocityField__
-#define __Geomtk_RLLVelocityField__
+#ifndef __GEOMTK_RLLVelocityField__
+#define __GEOMTK_RLLVelocityField__
 
 #include "RLLField.h"
 #include "SphereDomain.h"
@@ -41,7 +41,7 @@ public:
                               int i, int k = 0) const;
 
     void print() const;
-};
+}; // PolarRing
 
 // -----------------------------------------------------------------------------
 
@@ -67,8 +67,8 @@ public:
 
     virtual void
     calcVorticity(const TimeLevelIndex<2> &timeIdx);
-};
+}; // RLLVelocityField
 
 } // geomtk
 
-#endif // __Geomtk_RLLVelocityField__
+#endif // __GEOMTK_RLLVelocityField__
