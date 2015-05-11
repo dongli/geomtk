@@ -13,4 +13,4 @@ template <class DomainType, class CoordType>
 Mesh<DomainType, CoordType>::~Mesh() {
 }
 
-}
+} // geomtk

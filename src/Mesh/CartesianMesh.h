@@ -19,7 +19,6 @@ public:
 public:
     CartesianMesh(CartesianDomain &domain, uword haloWidth = 1)
             : StructuredMesh<CartesianDomain, SpaceCoord>(domain, haloWidth) {
-        this->_type = CARTESIAN_MESH;
     }
     virtual ~CartesianMesh() {}
 

@@ -6,7 +6,6 @@ namespace geomtk {
 
 template <typename CoordType>
 Domain<CoordType>::Domain() {
-    _type = CARTESIAN_DOMAIN;
     _numDim = 2;
     _axisName.resize(_numDim);
     _axisLongName.resize(_numDim);
@@ -25,7 +24,6 @@ Domain<CoordType>::Domain() {
 
 template <typename CoordType>
 Domain<CoordType>::Domain(uword numDim) {
-    _type = CARTESIAN_DOMAIN;
     this->_numDim = numDim;
     _axisName.resize(_numDim);
     _axisLongName.resize(_numDim);
@@ -45,7 +43,6 @@ Domain<CoordType>::Domain(uword numDim) {
 template <typename CoordType>
 Domain<CoordType>::Domain(VertCoordType vertCoordType) {
     this->_numDim = 3;
-    _type = CARTESIAN_DOMAIN;
     _axisName.resize(_numDim);
     _axisLongName.resize(_numDim);
     _axisUnits.resize(_numDim);

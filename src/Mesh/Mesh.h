@@ -6,10 +6,6 @@
 
 namespace geomtk {
 
-enum MeshType {
-    CARTESIAN_MESH, RLL_MESH
-};
-
 /**
  *  This is an abstract class.
  */
@@ -18,7 +14,6 @@ class Mesh {
 public:
     typedef DomainType_ DomainType;
 protected:
-    MeshType _type;
     DomainType *_domain;
     field<double> volumes;
     bool set;
@@ -43,17 +38,6 @@ public:
      */
     virtual void
     init(const string &fileNameH, const string &fileNameV) = 0;
-
-    /**
-     *  Get the mesh type (see enum MeshType), then you can cast the mesh to
-     *  the actual type.
-     *
-     *  @param The mesh type.
-     */
-    MeshType
-    type() const {
-        return _type;
-    }
 
     /**
      *  Get the spatial domain.

@@ -6,7 +6,6 @@
 namespace geomtk {
 
 RLLMesh::RLLMesh(SphereDomain &domain) : StructuredMesh<SphereDomain, SphereCoord>(domain) {
-    _type = RLL_MESH;
     _poleRadius = 18.0*RAD;
 }
 

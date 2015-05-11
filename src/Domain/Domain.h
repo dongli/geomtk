@@ -8,10 +8,6 @@
 
 namespace geomtk {
 
-enum DomainType {
-    CARTESIAN_DOMAIN, SPHERE_DOMAIN
-};
-
 enum BndType {
     PERIODIC, OPEN, POLE, RIGID, INVALID
 };
@@ -29,7 +25,7 @@ bndTypeFromString(const string &bndType) {
     } else {
         return INVALID;
     }
-}
+} // bndTypeFromString
 
 /**
  *  This class describtes the Cartesian domain, and can be derived by other
@@ -38,7 +34,6 @@ bndTypeFromString(const string &bndType) {
 template <typename CoordType>
 class Domain {
 protected:
-    DomainType _type;
     uword _numDim;
     vector<string> _axisName;
     vector<string> _axisLongName;
@@ -61,16 +56,6 @@ public:
 
     virtual void
     init(const string &filePath) = 0;
-
-    /**
-     *  Return the type of the domain.
-     *
-     *  @return The domain type enum.
-     */
-    DomainType
-    type() const {
-        return _type;
-    }
 
     /**
      *  Return the dimension number of the domain.

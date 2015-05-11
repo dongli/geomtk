@@ -10,7 +10,6 @@ SphereDomain() {
 SphereDomain::
 SphereDomain(int numDim)
 : Domain(numDim) {
-    _type = SPHERE_DOMAIN;
     if (numDim != 2) {
         REPORT_ERROR("Spherical domain dimension should be 2 in this case!");
     }
@@ -22,7 +21,6 @@ SphereDomain(int numDim)
 SphereDomain::
 SphereDomain(VertCoordType vertCoordType)
 : Domain(vertCoordType) {
-    _type = SPHERE_DOMAIN;
     _radius = 1.0;
     setAxis(0, "lon", "longitude", "radian_east", 0.0, PERIODIC, 2.0*M_PI, PERIODIC);
     setAxis(1, "lat", "latitude", "radian_north", -M_PI_2, POLE, M_PI_2, POLE);

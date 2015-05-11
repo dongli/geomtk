@@ -423,7 +423,7 @@ isHorizontalGridsSame(const Mesh<DomainType, CoordType> &_other) const {
     if (this == &_other) {
         return true;
     }
-    if (this->type() != _other.type()) {
+    if (typeid(*this) != typeid(_other)) {
         return false;
     }
     const StructuredMesh<DomainType, CoordType> &other = static_cast<const StructuredMesh<DomainType, CoordType>&>(_other);
