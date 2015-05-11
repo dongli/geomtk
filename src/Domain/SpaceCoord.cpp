@@ -22,7 +22,7 @@ SpaceCoord::
 }
 
 void SpaceCoord::
-setNumDim(int numDim) {
+init(int numDim) {
     coord.resize(numDim);
 }
 

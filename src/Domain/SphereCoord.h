@@ -29,7 +29,7 @@ public:
     virtual ~SphereCoord();
 
     virtual void
-    setNumDim(int numDim);
+    init(int numDim);
 
     virtual void
     setCoord(double lon, double lat);

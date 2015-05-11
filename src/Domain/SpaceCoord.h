@@ -18,7 +18,7 @@ public:
     virtual ~SpaceCoord();
 
     virtual void
-    setNumDim(int numDim);
+    init(int numDim);
 
     virtual void
     setCoord(double x, double y);

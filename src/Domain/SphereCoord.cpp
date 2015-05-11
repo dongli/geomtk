@@ -3,39 +3,50 @@
 
 namespace geomtk {
 
-SphereCoord::SphereCoord() : SpaceCoord() {
+SphereCoord::
+SphereCoord()
+: SpaceCoord() {
 }
 
-SphereCoord::SphereCoord(int numDim) : SpaceCoord(numDim) {
+SphereCoord::
+SphereCoord(int numDim)
+: SpaceCoord(numDim) {
     xt.set_size(numDim);
 }
 
-SphereCoord::SphereCoord(const SphereCoord &other) : SpaceCoord(other) {
+SphereCoord::
+SphereCoord(const SphereCoord &other)
+: SpaceCoord(other) {
     *this = other;
 }
 
-SphereCoord::~SphereCoord() {
+SphereCoord::
+~SphereCoord() {
 }
 
-void SphereCoord::setNumDim(int numDim) {
+void SphereCoord::
+init(int numDim) {
     xt.set_size(numDim);
-    SpaceCoord::setNumDim(numDim);
-}
+    SpaceCoord::init(numDim);
+} // init
 
-void SphereCoord::setCoord(double lon, double lat) {
+void SphereCoord::
+setCoord(double lon, double lat) {
     coord[0] = lon;
     coord[1] = lat;
     updateTrigonometricFunctions();
-}
+} // setCoord
 
-void SphereCoord::setCoord(double lon, double lat, double lev) {
+void SphereCoord::
+setCoord(double lon, double lat, double lev) {
     coord[0] = lon;
     coord[1] = lat;
     coord[2] = lev;
     updateTrigonometricFunctions();
-}
+} // setCoord
     
-void SphereCoord::setCoordComp(int dim, double comp) {
+void SphereCoord::
+setCoordComp(int dim, double comp) {
     coord(dim) = comp;
     if (dim == 0) {
         _cosLon = cos(comp);
@@ -44,9 +55,10 @@ void SphereCoord::setCoordComp(int dim, double comp) {
         _cosLat = cos(comp);
         _sinLat = sin(comp);
     }
-}
+} // setCoordComp
     
-void SphereCoord::setCartCoord(double x, double y, double z) {
+void SphereCoord::
+setCartCoord(double x, double y, double z) {
     _cartCoord[0] = x;
     _cartCoord[1] = y;
     _cartCoord[2] = z;
@@ -55,16 +67,18 @@ void SphereCoord::setCartCoord(double x, double y, double z) {
     if (coord[0] < 0.0) coord[0] += PI2;
     if (coord[0] > PI2) coord[0] -= PI2;
     updateTrigonometricFunctions();
-}
+} // setCartCoord
 
-void SphereCoord::updateTrigonometricFunctions() {
+void SphereCoord::
+updateTrigonometricFunctions() {
     _cosLon = cos(coord[0]);
     _sinLon = sin(coord[0]);
     _cosLat = cos(coord[1]);
     _sinLat = sin(coord[1]);
-}
+} // updateTrigonometricFunctions
 
-SphereCoord& SphereCoord::operator=(const SphereCoord &other) {
+SphereCoord& SphereCoord::
+operator=(const SphereCoord &other) {
     if (this != &other) {
         SpaceCoord::operator=(other);
         xt = other.xt;
@@ -75,9 +89,10 @@ SphereCoord& SphereCoord::operator=(const SphereCoord &other) {
         _sinLat = other.sinLat();
     }
     return *this;
-}
+} // operator=
 
-void SphereCoord::transformToPS(const SphereDomain &domain) {
+void SphereCoord::
+transformToPS(const SphereDomain &domain) {
     double tanLat = tan(coord[1]);
     if (coord[1] < 0.0) { // South Pole
         xt[0] =  domain.radius()*_cosLon/tanLat;
@@ -89,9 +104,10 @@ void SphereCoord::transformToPS(const SphereDomain &domain) {
     if (domain.numDim() == 3) {
         xt[2] = coord[2];
     }
-}
+} // transformToPS
 
-void SphereCoord::transformFromPS(const SphereDomain &domain, Pole pole) {
+void SphereCoord::
+transformFromPS(const SphereDomain &domain, Pole pole) {
     if (pole == SOUTH_POLE) { // South Pole
         coord[0] = atan2(xt[1], -xt[0]);
         coord[1] = -atan(domain.radius()/sqrt(xt[0]*xt[0]+xt[1]*xt[1]));
@@ -111,16 +127,17 @@ void SphereCoord::transformFromPS(const SphereDomain &domain, Pole pole) {
         coord[2] = xt[2];
     }
     updateTrigonometricFunctions();
-}
+} // transformFromPS
 
 void SphereCoord::
 transformToCart(const SphereDomain &domain) {
     _cartCoord[0] = domain.radius()*_cosLat*_cosLon;
     _cartCoord[1] = domain.radius()*_cosLat*_sinLon;
     _cartCoord[2] = domain.radius()*_sinLat;
-}
+} // transformToCart
 
-void SphereCoord::print() const {
+void SphereCoord::
+print() const {
     cout << "Coordinate:";
     cout << setw(20) << setprecision(10) << coord[0]/RAD;
     cout << setw(20) << setprecision(10) << coord[1]/RAD;
@@ -128,6 +145,6 @@ void SphereCoord::print() const {
         cout << setw(20) << setprecision(10) << coord(2);
     }
     cout << endl;
-}
+} // print
 
 } // geomtk

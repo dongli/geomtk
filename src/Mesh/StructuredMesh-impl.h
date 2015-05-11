@@ -862,7 +862,7 @@ setGridCoords() {
         }
         gridCoords[loc].set_size(totalNumGrid(loc, this->domain().numDim()));
         for (uword cellIdx = 0; cellIdx < gridCoords[loc].size(); ++cellIdx) {
-            gridCoords[loc][cellIdx].setNumDim(this->domain().numDim());
+            gridCoords[loc][cellIdx].init(this->domain().numDim());
             uvec spanIdx = unwrapIndex(loc, cellIdx);
             for (uword m = 0; m < this->domain().numDim(); ++m) {
                 gridCoords[loc][cellIdx].setCoordComp(m, gridCoordComp(m, gridTypes(0, m, loc), spanIdx[m]));
