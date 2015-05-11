@@ -50,28 +50,31 @@ init(const string &filePath) {
             ret = nc_inq_dimlen(ncId, dimId, &numHalfGrid);
             CHECK_NC_INQ_DIMLEN(ret, filePath, str);
             ret = nc_inq_varid(ncId, str, &varId);
-            CHECK_NC_INQ_VARID(ret, filePath, str);
-            ret = nc_inq_vartype(ncId, varId, &xtype);
-            CHECK_NC_INQ_VARTYPE(ret, filePath, str);
-            half.set_size(numHalfGrid);
-            if (xtype == NC_FLOAT) {
-                float *buffer = new float[numHalfGrid];
-                ret = nc_get_var(ncId, varId, buffer);
-                CHECK_NC_GET_VAR(ret, filePath, str);
-                for (size_t i = 0; i < numHalfGrid; ++i) {
-                    half[i] = buffer[i];
+            if (ret == NC_NOERR) {
+                ret = nc_inq_vartype(ncId, varId, &xtype);
+                CHECK_NC_INQ_VARTYPE(ret, filePath, str);
+                half.set_size(numHalfGrid);
+                if (xtype == NC_FLOAT) {
+                    float *buffer = new float[numHalfGrid];
+                    ret = nc_get_var(ncId, varId, buffer);
+                    CHECK_NC_GET_VAR(ret, filePath, str);
+                    for (size_t i = 0; i < numHalfGrid; ++i) {
+                        half[i] = buffer[i];
+                    }
+                    delete [] buffer;
+                } else if (xtype == NC_DOUBLE) {
+                    double *buffer = new double[numHalfGrid];
+                    ret = nc_get_var(ncId, varId, buffer);
+                    CHECK_NC_GET_VAR(ret, filePath, str);
+                    for (size_t i = 0; i < numHalfGrid; ++i) {
+                        half[i] = buffer[i];
+                    }
+                    delete [] buffer;
                 }
-                delete [] buffer;
-            } else if (xtype == NC_DOUBLE) {
-                double *buffer = new double[numHalfGrid];
-                ret = nc_get_var(ncId, varId, buffer);
-                CHECK_NC_GET_VAR(ret, filePath, str);
-                for (size_t i = 0; i < numHalfGrid; ++i) {
-                    half[i] = buffer[i];
-                }
-                delete [] buffer;
+                setGridCoordComps(m, numFullGrid, full, half);
+            } else {
+                setGridCoordComps(m, numFullGrid, full);
             }
-            setGridCoordComps(m, numFullGrid, full, half);
         } else {
             setGridCoordComps(m, numFullGrid, full);
         }

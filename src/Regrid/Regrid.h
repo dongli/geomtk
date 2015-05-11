@@ -9,7 +9,7 @@
 namespace geomtk {
 
 enum RegridMethod {
-    BILINEAR, BIQUADRATIC, BICUBIC
+    LINEAR, QUADRATIC, CUBIC
 };
 
 /**
@@ -40,12 +40,12 @@ public:
 
     static RegridMethod
     methodFromString(const string &method) {
-        if (method == "bilinear") {
-            return BILINEAR;
-        } else if (method == "biquadratic") {
-            return BIQUADRATIC;
-        } else if (method == "bicubic") {
-            return BICUBIC;
+        if (method == "linear") {
+            return LINEAR;
+        } else if (method == "quadratic") {
+            return QUADRATIC;
+        } else if (method == "cubic") {
+            return CUBIC;
         } else {
             REPORT_ERROR("Unknown regrid method \"" << method << "\"!");
         }
@@ -53,7 +53,7 @@ public:
 }; // Regrid
 
 template <class MeshType, class CoordType>
-const MeshType* Regrid<MeshType, CoordType>::_mesh;
+const MeshType* Regrid<MeshType, CoordType>::_mesh = NULL;
 
 } // geomtk
 

@@ -291,4 +291,22 @@ setGridCoords() {
     }
 } // setGridCoords
 
+vec RLLMesh::
+cellSize(int loc, int cellIdx) const {
+    vec res(this->domain().numDim());
+    uvec spanIdx = unwrapIndex(loc, cellIdx);
+    for (uword m = 0; m < this->domain().numDim(); ++m) {
+        if (this->domain().axisStartBndType(m) == PERIODIC &&
+            ((gridTypes(1, m, loc) == GridType::HALF && gridStyles[m] == FULL_LEAD) ||
+             (gridTypes(1, m, loc) == GridType::FULL && gridStyles[m] == HALF_LEAD))) {
+            res[m] = gridInterval(m, gridTypes[m], spanIdx[m]-1);
+        } else {
+            res[m] = gridInterval(m, gridTypes[m], spanIdx[m]);
+        }
+    }
+    res[0] *= this->domain().radius()*cosLat(gridTypes(0, 1, loc), spanIdx[1]);
+    res[1] *= this->domain().radius();
+    return res;
+} // cellSize
+
 } // geomtk

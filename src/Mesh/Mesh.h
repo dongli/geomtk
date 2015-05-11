@@ -92,6 +92,17 @@ public:
     };
 
     /**
+     *  Get the cell size.
+     *
+     *  @param loc the grid location.
+     *  @param i   the grid index.
+     *
+     *  @return The cell size array.
+     */
+    virtual vec
+    cellSize(int loc, int i) const = 0;
+
+    /**
      *  Get the total grid number with given location and dimension number.
      *
      *  @param loc    the cell location.

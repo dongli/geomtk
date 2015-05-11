@@ -297,89 +297,18 @@ locate(const MeshType &mesh, const CoordType &x) {
 template <class MeshType, class CoordType>
 uword StructuredMeshIndex<MeshType, CoordType>::
 cellIndex(const MeshType &mesh, int loc) const {
-    int i, j, k;
-    switch (mesh.domain().numDim()) {
-        case 1:
-            switch (loc) {
-                case Location::CENTER:
-                    i = mesh.gridStyle(0) == FULL_LEAD ? indices[0][GridType::HALF]+1 : indices[0][GridType::HALF];
-                    return mesh.wrapIndex(Location::VERTEX, i);
-                case Location::VERTEX:
-                    i = mesh.gridStyle(0) == HALF_LEAD ? indices[0][GridType::FULL]+1 : indices[0][GridType::FULL];
-                    return mesh.wrapIndex(Location::CENTER, i);
-                default:
-                    REPORT_ERROR("Unsupported stagger location!");
-            }
-        case 2:
-            switch (loc) {
-                case Location::CENTER:
-                    i = mesh.gridStyle(0) == FULL_LEAD ? indices[0][GridType::HALF]+1 : indices[0][GridType::HALF];
-                    j = mesh.gridStyle(1) == FULL_LEAD ? indices[1][GridType::HALF]+1 : indices[1][GridType::HALF];
-                    return mesh.wrapIndex(Location::VERTEX, i, j);
-                case Location::VERTEX:
-                case Location::XY_VERTEX:
-                    i = mesh.gridStyle(0) == HALF_LEAD ? indices[0][GridType::FULL]+1 : indices[0][GridType::FULL];
-                    j = mesh.gridStyle(1) == HALF_LEAD ? indices[1][GridType::FULL]+1 : indices[1][GridType::FULL];
-                    return mesh.wrapIndex(Location::CENTER, i, j);
-                case Location::X_FACE:
-                    i = mesh.gridStyle(0) == HALF_LEAD ? indices[0][GridType::FULL]+1 : indices[0][GridType::FULL];
-                    j = mesh.gridStyle(1) == FULL_LEAD ? indices[1][GridType::HALF]+1 : indices[1][GridType::HALF];
-                    return mesh.wrapIndex(Location::Y_FACE, i, j);
-                case Location::Y_FACE:
-                    i = mesh.gridStyle(0) == FULL_LEAD ? indices[0][GridType::HALF]+1 : indices[0][GridType::HALF];
-                    j = mesh.gridStyle(1) == HALF_LEAD ? indices[1][GridType::FULL]+1 : indices[1][GridType::FULL];
-                    return mesh.wrapIndex(Location::X_FACE, i, j);
-                default:
-                    REPORT_ERROR("Unsupported stagger location!");
-            }
-        case 3:
-            switch (loc) {
-                case Location::CENTER:
-                    i = mesh.gridStyle(0) == FULL_LEAD ? indices[0][GridType::HALF]+1 : indices[0][GridType::HALF];
-                    j = mesh.gridStyle(1) == FULL_LEAD ? indices[1][GridType::HALF]+1 : indices[1][GridType::HALF];
-                    k = mesh.gridStyle(2) == FULL_LEAD ? indices[2][GridType::HALF]+1 : indices[2][GridType::HALF];
-                    return mesh.wrapIndex(Location::VERTEX, i, j, k);
-                case Location::VERTEX:
-                    i = mesh.gridStyle(0) == HALF_LEAD ? indices[0][GridType::FULL]+1 : indices[0][GridType::FULL];
-                    j = mesh.gridStyle(1) == HALF_LEAD ? indices[1][GridType::FULL]+1 : indices[1][GridType::FULL];
-                    k = mesh.gridStyle(2) == HALF_LEAD ? indices[2][GridType::FULL]+1 : indices[2][GridType::FULL];
-                    return mesh.wrapIndex(Location::CENTER, i, j, k);
-                case Location::X_FACE:
-                    i = mesh.gridStyle(0) == HALF_LEAD ? indices[0][GridType::FULL]+1 : indices[0][GridType::FULL];
-                    j = mesh.gridStyle(1) == FULL_LEAD ? indices[1][GridType::HALF]+1 : indices[1][GridType::HALF];
-                    k = mesh.gridStyle(2) == FULL_LEAD ? indices[2][GridType::HALF]+1 : indices[2][GridType::HALF];
-                    return mesh.wrapIndex(Location::YZ_VERTEX, i, j, k);
-                case Location::Y_FACE:
-                    i = mesh.gridStyle(0) == FULL_LEAD ? indices[0][GridType::HALF]+1 : indices[0][GridType::HALF];
-                    j = mesh.gridStyle(1) == HALF_LEAD ? indices[1][GridType::FULL]+1 : indices[1][GridType::FULL];
-                    k = mesh.gridStyle(2) == FULL_LEAD ? indices[2][GridType::HALF]+1 : indices[2][GridType::HALF];
-                    return mesh.wrapIndex(Location::XZ_VERTEX, i, j, k);
-                case Location::Z_FACE:
-                    i = mesh.gridStyle(0) == FULL_LEAD ? indices[0][GridType::HALF]+1 : indices[0][GridType::HALF];
-                    j = mesh.gridStyle(1) == FULL_LEAD ? indices[1][GridType::HALF]+1 : indices[1][GridType::HALF];
-                    k = mesh.gridStyle(2) == HALF_LEAD ? indices[2][GridType::FULL]+1 : indices[2][GridType::FULL];
-                    return mesh.wrapIndex(Location::XY_VERTEX, i, j, k);
-                case Location::XY_VERTEX:
-                    i = mesh.gridStyle(0) == HALF_LEAD ? indices[0][GridType::FULL]+1 : indices[0][GridType::FULL];
-                    j = mesh.gridStyle(1) == HALF_LEAD ? indices[1][GridType::FULL]+1 : indices[1][GridType::FULL];
-                    k = mesh.gridStyle(2) == FULL_LEAD ? indices[2][GridType::HALF]+1 : indices[2][GridType::HALF];
-                    return mesh.wrapIndex(Location::Z_FACE, i, j, k);
-                case Location::XZ_VERTEX:
-                    i = mesh.gridStyle(0) == HALF_LEAD ? indices[0][GridType::FULL]+1 : indices[0][GridType::FULL];
-                    j = mesh.gridStyle(1) == FULL_LEAD ? indices[1][GridType::HALF]+1 : indices[1][GridType::HALF];
-                    k = mesh.gridStyle(2) == HALF_LEAD ? indices[2][GridType::FULL]+1 : indices[2][GridType::FULL];
-                    return mesh.wrapIndex(Location::Y_FACE, i, j, k);
-                case Location::YZ_VERTEX:
-                    i = mesh.gridStyle(0) == FULL_LEAD ? indices[0][GridType::HALF]+1 : indices[0][GridType::HALF];
-                    j = mesh.gridStyle(1) == HALF_LEAD ? indices[1][GridType::FULL]+1 : indices[1][GridType::FULL];
-                    k = mesh.gridStyle(2) == HALF_LEAD ? indices[2][GridType::FULL]+1 : indices[2][GridType::FULL];
-                    return mesh.wrapIndex(Location::X_FACE, i, j, k);
-                default:
-                    REPORT_ERROR("Unsupported stagger location!");
-            }
-        default:
-            REPORT_ERROR("Incorrect domain dimension!");
+    uvec::fixed<3> spanIdx;
+    for (uword m = 0; m < mesh.domain().numDim(); ++m) {
+        auto gridStyle = mesh.gridStyle(m);
+        auto gridType = mesh.gridType(m, loc, true);
+        if ((gridStyle == FULL_LEAD && gridType == GridType::HALF) ||
+            (gridStyle == HALF_LEAD && gridType == GridType::FULL)) {
+            spanIdx[m] = indices[m][mesh.gridType(m, loc, true)]+1;
+        } else {
+            spanIdx[m] = indices[m][mesh.gridType(m, loc, true)];
+        }
     }
+    return mesh.wrapIndex(mesh.dualGridLocation(loc), spanIdx);
 } // cellIndex
 
 template <class MeshType, class CoordType>

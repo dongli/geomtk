@@ -15,7 +15,7 @@ protected:
     MeshType *_mesh;
     TimeManager _timeManager;
     IOManager io;
-    int outputIdx;
+    uword outputIdx;
     VelocityFieldType velocityField;
     vector<FieldType> densities;
     Time _startTime;

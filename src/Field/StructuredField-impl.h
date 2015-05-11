@@ -116,7 +116,7 @@ operator()(int i, int j, int k) {
 template <class MeshType, typename DataType, int NumTimeLevel>
 const DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) const {
-    int i, j, k;
+    uword i, j, k;
     switch (this->mesh().domain().numDim()) {
         case 1:
             this->mesh().unwrapIndex(staggerLocation(), cellIdx, i);
@@ -135,7 +135,7 @@ operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) const {
 template <class MeshType, typename DataType, int NumTimeLevel>
 DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) {
-    int i, j, k;
+    uword i, j, k;
     switch (this->mesh().domain().numDim()) {
         case 1:
             this->mesh().unwrapIndex(staggerLocation(), cellIdx, i);
@@ -154,7 +154,7 @@ operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) {
 template <class MeshType, typename DataType, int NumTimeLevel>
 const DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()(int cellIdx) const {
-    int i, j, k;
+    uword i, j, k;
     switch (this->mesh().domain().numDim()) {
         case 1:
             this->mesh().unwrapIndex(staggerLocation(), cellIdx, i);
@@ -173,7 +173,7 @@ operator()(int cellIdx) const {
 template <class MeshType, typename DataType, int NumTimeLevel>
 DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()(int cellIdx) {
-    int i, j, k;
+    uword i, j, k;
     switch (this->mesh().domain().numDim()) {
         case 1:
             this->mesh().unwrapIndex(staggerLocation(), cellIdx, i);

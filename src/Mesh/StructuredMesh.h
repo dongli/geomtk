@@ -57,6 +57,7 @@ protected:
     vec *halfIntervals;
     field<CoordType> gridCoords[8]; // With different locations.
 
+    field<int> gridTypes;
     StructuredGridStyle gridStyles[3];
 public:
     StructuredMesh(DomainType &domain, uword haloWidth = 1);
@@ -88,10 +89,18 @@ public:
         return _haloWidth;
     }
 
+    int
+    gridType(int axisIdx, int loc, bool isDual = false) const {
+        return isDual ? gridTypes(1, axisIdx, loc) : gridTypes(0, axisIdx, loc);
+    }
+
     StructuredGridStyle
     gridStyle(int axisIdx) const {
         return gridStyles[axisIdx];
     }
+
+    int
+    dualGridLocation(int loc) const;
 
     /**
      *  Set the grid index ranges (start index and end index).
@@ -170,6 +179,9 @@ public:
      */
     virtual void
     setCellVolumes() = 0;
+
+    virtual vec
+    cellSize(int loc, int i) const;
 
     /**
      *  Get the grid interval.
@@ -299,11 +311,11 @@ public:
     virtual uword
     levelIndex(int loc, int cellIdx) const;
 
-    virtual void
-    unwrapIndex(int loc, int cellIdx, vector<int> &spanIdx) const;
+    virtual uvec
+    unwrapIndex(int loc, int cellIdx) const;
 
     virtual void
-    unwrapIndex(int loc, int cellIdx, int &i) const;
+    unwrapIndex(int loc, int cellIdx, uword &i) const;
 
     /**
      *  Unwrap the cell index (1D) into the span index (2D).
@@ -314,7 +326,7 @@ public:
      *  @param j       the span index of the second axis.
      */
     virtual void
-    unwrapIndex(int loc, int cellIdx, int &i, int &j) const;
+    unwrapIndex(int loc, int cellIdx, uword &i, uword &j) const;
 
     /**
      *  Unwrap the cell index (1D) into the span index (3D).
@@ -326,7 +338,18 @@ public:
      *  @param k       the span index of the third axis.
      */
     virtual void
-    unwrapIndex(int loc, int cellIdx, int &i, int &j, int &k) const;
+    unwrapIndex(int loc, int cellIdx, uword &i, uword &j, uword &k) const;
+
+    /**
+     *  Wrap the span index into cell index (1D).
+     *
+     *  @param loc     the grid location.
+     *  @param spanIdx the span indices.
+     *
+     *  @return The cell index.
+     */
+    virtual int
+    wrapIndex(int loc, const uvec &spanIdx) const;
 
     /**
      *  Wrap the span index (1D) into cell index (1D).
@@ -369,6 +392,9 @@ public:
 protected:
     virtual void
     setGridCoords();
+
+    void
+    setGridTypes();
 }; // StructuredMesh
 
 } // geomtk

@@ -60,7 +60,7 @@ TEST_F(RLLRegridTest, Run) {
     x.setCoord(1.9*M_PI, 0.2*M_PI);
 
     SphereVelocity z(2);
-    regrid->run(BILINEAR, timeIdx, v, x, z);
+    regrid->run(LINEAR, timeIdx, v, x, z);
     ASSERT_EQ(5.0, z(0));
     ASSERT_EQ(5.0, z(1));
 
@@ -72,7 +72,7 @@ TEST_F(RLLRegridTest, Run) {
     RLLMeshIndex idx(2);
     idx.locate(*mesh, x);
     idx.setMoveOnPole(true);
-    regrid->run(BILINEAR, timeIdx, v, x, z, &idx);
+    regrid->run(LINEAR, timeIdx, v, x, z, &idx);
     ASSERT_EQ(0.0, z(0));
     ASSERT_EQ(0.0, z(1));
 
@@ -83,7 +83,7 @@ TEST_F(RLLRegridTest, Run) {
     x.setCoord(0.1*M_PI, 0.26*M_PI);
     idx.reset();
     idx.locate(*mesh, x);
-    regrid->run(BILINEAR, timeIdx, v, x, z, &idx);
+    regrid->run(LINEAR, timeIdx, v, x, z, &idx);
     ASSERT_NE(0.0, z(0));
     ASSERT_NE(0.0, z(1));
 }

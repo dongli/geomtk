@@ -11,7 +11,7 @@ struct Alarm {
     double freq;
     Time lastTime;
     int lastStep;
-};
+}; // Alarm
 
 class TimeManager {
 protected:
@@ -32,14 +32,18 @@ public:
      *  @param endTime   the end time.
      *  @param stepSize  the time step size in seconds.
      */
-    void init(const Time &startTime, const Time &endTime, double stepSize);
+    void
+    init(const Time &startTime, const Time &endTime, double stepSize);
 
-    void init(const string &startTime, const string &endTime,
+    void
+    init(const string &startTime, const string &endTime,
               const string &stepSize);
 
-    void reset();
+    void
+    reset();
 
-    void reset(int numStep, const Time &time);
+    void
+    reset(int numStep, const Time &time);
 
     /**
      *  Add an alarm with given frequency
@@ -49,7 +53,8 @@ public:
      *
      *  @return The alarm index.
      */
-    int addAlarm(TimeStepUnit unit, double freq);
+    int
+    addAlarm(TimeStepUnit unit, double freq);
 
     /**
      *  Check if an alarm is ringing in current step.
@@ -58,45 +63,81 @@ public:
      *
      *  @return The boolean status.
      */
-    bool checkAlarm(uword i);
+    bool
+    checkAlarm(uword i);
 
     /**
      *  Advance the time by one time step.
      *
      *  @param mute boolean to control whether print message or not.
      */
-    void advance(bool mute = false);
+    void
+    advance(bool mute = false);
 
     /**
      *  Check if the end time is reached.
      *
      *  @return Boolean true if the end time is reached, otherwise false.
      */
-    bool isFinished() const { return _currTime > _endTime; }
+    bool
+    isFinished() const {
+        return _currTime > _endTime;
+    }
     
-    const Time& startTime() const { return _startTime; }
+    const Time&
+    startTime() const {
+        return _startTime;
+    }
 
-    const Time& currTime() const { return _currTime; }
+    const Time&
+    currTime() const {
+        return _currTime;
+    }
 
-    const Time& endTime() const { return _endTime; }
+    const Time&
+    endTime() const {
+        return _endTime;
+    }
 
-    double stepSize() const { return _stepSize; }
+    double
+    stepSize() const {
+        return _stepSize;
+    }
 
-    TimeStepUnit stepUnit() const { return _stepUnit; }
+    TimeStepUnit
+    stepUnit() const {
+        return _stepUnit;
+    }
 
-    int numStep() const { return _numStep; }
+    int
+    numStep() const {
+        return _numStep;
+    }
 
-    int totalNumStep() const;
+    int
+    totalNumStep() const;
 
-    double seconds() const { return _currTime.seconds(_startTime); }
+    double
+    seconds() const {
+        return _currTime.seconds(_startTime);
+    }
 
-    double minutes() const { return _currTime.minutes(_startTime); }
+    double
+    minutes() const {
+        return _currTime.minutes(_startTime);
+    }
 
-    double hours() const { return _currTime.hours(_startTime); }
+    double
+    hours() const {
+        return _currTime.hours(_startTime);
+    }
 
-    double days() const { return _currTime.days(_startTime); }
-};
+    double
+    days() const {
+        return _currTime.days(_startTime);
+    }
+}; // TimeManager
 
-}
+} // geomtk
 
-#endif
+#endif // __GEOMTK_TimeManager__

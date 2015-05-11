@@ -191,7 +191,9 @@ create(const RLLMesh &mesh, bool useStagger, bool hasHalfLevel) {
     StructuredVelocityField<MeshType, FieldType>::
     create(mesh, useStagger, hasHalfLevel);
     v[0].setLongName("zonal wind speed");
+    v[0].setUnits("rad s-1");
     v[1].setLongName("meridional wind speed");
+    v[1].setUnits("rad s-1");
     if (mesh.domain().numDim() == 3) {
         v[2].setLongName("vertical wind speed");
     }

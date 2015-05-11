@@ -27,12 +27,16 @@ StructuredMesh<DomainType, CoordType>::
 template <class DomainType, class CoordType>
 void StructuredMesh<DomainType, CoordType>::
 init(const string &filePath) {
+    setGridTypes();
+    setCellVolumes();
     setGridCoords();
 }
 
 template <class DomainType, class CoordType>
 void StructuredMesh<DomainType, CoordType>::
 init(const string &filePathH, const string &filePathV) {
+    setGridTypes();
+    setCellVolumes();
     setGridCoords();
 }
 
@@ -296,6 +300,7 @@ setGridCoordComps(uword axisIdx, uword size, const vec &full, const vec &half) {
         }
     }
     // Set other parameters.
+    setGridTypes();
     setCellVolumes();
     setGridCoords();
 }
@@ -407,7 +412,7 @@ endIndex(uword axisIdx, int gridType) const {
 template <class DomainType, class CoordType>
 uword StructuredMesh<DomainType, CoordType>::
 levelIndex(int cellIdx, int loc) const {
-    int i, j, k;
+    uword i, j, k;
     unwrapIndex(loc, cellIdx, i, j, k);
     return k;
 }
@@ -550,7 +555,90 @@ gridCoord(int loc, int i) const {
 template <class DomainType, class CoordType>
 const CoordType& StructuredMesh<DomainType, CoordType>::
 gridCoord(int loc, int i, int j, int k) const {
-    return gridCoords[loc][wrapIndex(loc, i, j, k)];
+    uword cellIdx;
+    switch (this->domain().numDim()) {
+        case 1:
+            cellIdx = wrapIndex(loc, i);
+            break;
+        case 2:
+            cellIdx = wrapIndex(loc, i, j);
+            break;
+        case 3:
+            cellIdx = wrapIndex(loc, i, j, k);
+        default:
+            REPORT_ERROR("Invalid dimension number!");
+    }
+    return gridCoords[loc][cellIdx];
+}
+
+template <class DomainType, class CoordType>
+int StructuredMesh<DomainType, CoordType>::
+dualGridLocation(int loc) const {
+    switch (this->domain().numDim()) {
+        case 1:
+            switch (loc) {
+                case Location::CENTER:
+                    return Location::VERTEX;
+                case Location::VERTEX:
+                    return Location::CENTER;
+                default:
+                    REPORT_ERROR("Invalid grid location!");
+            }
+            break;
+        case 2:
+            switch (loc) {
+                case Location::CENTER:
+                    return Location::VERTEX;
+                case Location::VERTEX:
+                case Location::XY_VERTEX:
+                    return Location::CENTER;
+                case Location::X_FACE:
+                    return Location::Y_FACE;
+                case Location::Y_FACE:
+                    return Location::X_FACE;
+                default:
+                    REPORT_ERROR("Invalid grid location!");
+            }
+        case 3:
+            switch (loc) {
+                case Location::CENTER:
+                    return Location::VERTEX;
+                case Location::VERTEX:
+                    return Location::CENTER;
+                case Location::X_FACE:
+                    return Location::YZ_VERTEX;
+                case Location::Y_FACE:
+                    return Location::XZ_VERTEX;
+                case Location::Z_FACE:
+                    return Location::XY_VERTEX;
+                case Location::XY_VERTEX:
+                    return Location::Z_FACE;
+                case Location::XZ_VERTEX:
+                    return Location::Y_FACE;
+                case Location::YZ_VERTEX:
+                    return Location::X_FACE;
+                default:
+                    REPORT_ERROR("Invalid grid location!");
+            }
+        default:
+            REPORT_ERROR("Invalid dimension number!");
+    }
+}
+
+template <class DomainType, class CoordType>
+vec StructuredMesh<DomainType, CoordType>::
+cellSize(int loc, int cellIdx) const {
+    vec res(this->domain().numDim());
+    uvec spanIdx = unwrapIndex(loc, cellIdx);
+    for (uword m = 0; m < this->domain().numDim(); ++m) {
+        if ((gridTypes(0, m, loc) == GridType::HALF && gridStyles[m] == FULL_LEAD) ||
+            (gridTypes(0, m, loc) == GridType::FULL && gridStyles[m] == HALF_LEAD)) {
+            res[m] = gridInterval(m, gridTypes[m], spanIdx[m]-1);
+        } else {
+            res[m] = gridInterval(m, gridTypes[m], spanIdx[m]);
+        }
+    }
+    return res;
 }
 
 template <class DomainType, class CoordType>
@@ -580,87 +668,11 @@ totalNumGrid(int loc, uword numDim) const {
 #ifndef NDEBUG
     assert(numDim >= 1 && numDim <= 3);
 #endif
-    switch (loc) {
-        case Location::CENTER:
-            if (numDim == 1) {
-                return numGrid(0, GridType::FULL);
-            } else if (numDim == 2) {
-                return numGrid(0, GridType::FULL)*
-                       numGrid(1, GridType::FULL);
-            } else {
-                return numGrid(0, GridType::FULL)*
-                       numGrid(1, GridType::FULL)*
-                       numGrid(2, GridType::FULL);
-            }
-        case Location::VERTEX:
-            if (numDim == 1) {
-                return numGrid(0, GridType::HALF);
-            } else if (numDim == 2) {
-                return numGrid(0, GridType::HALF)*
-                       numGrid(1, GridType::HALF);
-            } else if (numDim == 3) {
-                return numGrid(0, GridType::HALF)*
-                       numGrid(1, GridType::HALF)*
-                       numGrid(2, GridType::HALF);
-            }
-        case Location::X_FACE:
-            if (numDim == 1) {
-                return numGrid(0, GridType::HALF);
-            } else if (numDim == 2) {
-                return numGrid(0, GridType::HALF)*
-                       numGrid(1, GridType::FULL);
-            } else {
-                return numGrid(0, GridType::HALF)*
-                       numGrid(1, GridType::FULL)*
-                       numGrid(2, GridType::FULL);
-            }
-        case Location::Y_FACE:
-            if (numDim == 1) {
-                return numGrid(0, GridType::FULL);
-            } else if (numDim == 2) {
-                return numGrid(0, GridType::FULL)*
-                       numGrid(1, GridType::HALF);
-            } else {
-                return numGrid(0, GridType::FULL)*
-                       numGrid(1, GridType::HALF)*
-                       numGrid(2, GridType::FULL);
-            }
-        case Location::Z_FACE:
-            return numGrid(0, GridType::FULL)*
-                   numGrid(1, GridType::FULL)*
-                   numGrid(2, GridType::HALF);
-        case Location::XY_VERTEX:
-            if (numDim == 2) {
-                return numGrid(0, GridType::HALF)*
-                       numGrid(1, GridType::HALF);
-            } else {
-                return numGrid(0, GridType::HALF)*
-                       numGrid(1, GridType::HALF)*
-                       numGrid(2, GridType::FULL);
-            }
-        case Location::XZ_VERTEX:
-            if (numDim == 2) {
-                // NOTE: In 2D, the second axis is Z!
-                return numGrid(0, GridType::HALF)*
-                       numGrid(1, GridType::HALF);
-            } else {
-                return numGrid(0, GridType::HALF)*
-                       numGrid(1, GridType::FULL)*
-                       numGrid(2, GridType::HALF);
-            }
-        case Location::YZ_VERTEX:
-            if (numDim == 2) {
-                // NOTE: In 2D, the first axis is Y and the second is Z!
-                return numGrid(0, GridType::HALF)*
-                       numGrid(1, GridType::HALF);
-            } else {
-                return numGrid(0, GridType::FULL)*
-                       numGrid(1, GridType::HALF)*
-                       numGrid(2, GridType::HALF);
-            }
-        default:
-            REPORT_ERROR("Unknown stagger location!");
+    uword res = 1;
+    for (uword m = 0; m < numDim; ++m) {
+        res *= numGrid(m, gridTypes(0, m, loc));
     }
+    return res;
 } // totalNumGrid
 
 template <class DomainType, class CoordType>
@@ -691,186 +703,79 @@ numGrid(uword axisIdx, int gridType, bool hasHaloGrids) const {
 } // numGrid
 
 template <class DomainType, class CoordType>
-void StructuredMesh<DomainType, CoordType>::
-unwrapIndex(int loc, int cellIdx, vector<int> &spanIdx) const {
-#ifndef NDEBUG
-    assert(spanIdx.size() == this->domain().numDim());
-#endif
+uvec StructuredMesh<DomainType, CoordType>::
+unwrapIndex(int loc, int cellIdx) const {
+    uvec res(this->domain().numDim());
     switch (this->domain().numDim()) {
         case 1:
-            unwrapIndex(loc, cellIdx, spanIdx[0]);
+            unwrapIndex(loc, cellIdx, res[0]);
             break;
         case 2:
-            unwrapIndex(loc, cellIdx, spanIdx[0], spanIdx[1]);
+            unwrapIndex(loc, cellIdx, res[0], res[1]);
             break;
         case 3:
-            unwrapIndex(loc, cellIdx, spanIdx[0], spanIdx[1], spanIdx[2]);
+            unwrapIndex(loc, cellIdx, res[0], res[1], res[2]);
             break;
         default:
-            break;
+            REPORT_ERROR("Invalid dimension number!");
     }
+    return res;
 }
 
 template <class DomainType, class CoordType>
 void StructuredMesh<DomainType, CoordType>::
-unwrapIndex(int loc, int cellIdx, int &i) const {
+unwrapIndex(int loc, int cellIdx, uword &i) const {
 #ifndef NDEBUG
     assert(this->domain().numDim() == 1);
 #endif
-    switch (loc) {
-        case Location::CENTER:
-            i = cellIdx+fullIndexRanges(0, 0);
-            break;
-        case Location::VERTEX:
-            i = cellIdx+halfIndexRanges(0, 0);
-            break;
-        default:
-            break;
-    }
+    auto gridType = gridTypes(0, 0, loc);
+    i = cellIdx+startIndex(0, gridType);
 }
 
 template <class DomainType, class CoordType>
 void StructuredMesh<DomainType, CoordType>::
-unwrapIndex(int loc, int cellIdx, int &i, int &j) const {
+unwrapIndex(int loc, int cellIdx, uword &i, uword &j) const {
 #ifndef NDEBUG
     assert(this->domain().numDim() == 2);
 #endif
-    int nx;
-    switch (loc) {
-        case Location::CENTER:
-            nx = numGrid(0, GridType::FULL);
-            j = cellIdx/nx;
-            i = cellIdx%nx;
-            i += fullIndexRanges(0, 0);
-            j += fullIndexRanges(0, 1);
-            break;
-        case Location::VERTEX:
-        case Location::XY_VERTEX:
-            nx = numGrid(0, GridType::HALF);
-            j = cellIdx/nx;
-            i = cellIdx%nx;
-            i += halfIndexRanges(0, 0);
-            j += halfIndexRanges(0, 1);
-            break;
-        case Location::X_FACE:
-            nx = numGrid(0, GridType::HALF);
-            j = cellIdx/nx;
-            i = cellIdx%nx;
-            i += halfIndexRanges(0, 0);
-            j += fullIndexRanges(0, 1);
-            break;
-        case Location::Y_FACE:
-            nx = numGrid(0, GridType::FULL);
-            j = cellIdx/nx;
-            i = cellIdx%nx;
-            i += fullIndexRanges(0, 0);
-            j += halfIndexRanges(0, 1);
-            break;
-        default:
-            REPORT_ERROR("Unsupported stagger location!");
-    }
+    auto gridType = gridTypes(0, 0, loc);
+    auto nx = numGrid(0, gridType);
+    j = cellIdx/nx+startIndex(1, gridType);
+    i = cellIdx%nx+startIndex(0, gridType);
 }
 
 template <class DomainType, class CoordType>
 void StructuredMesh<DomainType, CoordType>::
-unwrapIndex(int loc, int cellIdx, int &i, int &j, int &k) const {
+unwrapIndex(int loc, int cellIdx, uword &i, uword &j, uword &k) const {
 #ifndef NDEBUG
     assert(this->domain().numDim() == 3);
 #endif
-    int nx, ny;
-    switch (loc) {
-        case Location::CENTER:
-            nx = numGrid(0, GridType::FULL);
-            ny = numGrid(1, GridType::FULL);
-            k = cellIdx/(nx*ny);
-            cellIdx -= k*nx*ny;
-            j = cellIdx/nx;
-            i = cellIdx%nx;
-            i += fullIndexRanges(0, 0);
-            j += fullIndexRanges(0, 1);
-            k += fullIndexRanges(0, 2);
-            break;
-        case Location::VERTEX:
-            nx = numGrid(0, GridType::HALF);
-            ny = numGrid(1, GridType::HALF);
-            k = cellIdx/(nx*ny);
-            cellIdx -= k*nx*ny;
-            j = cellIdx/nx;
-            i = cellIdx%nx;
-            i += halfIndexRanges(0, 0);
-            j += halfIndexRanges(0, 1);
-            k += halfIndexRanges(0, 2);
-            break;
-        case Location::X_FACE:
-            nx = numGrid(0, GridType::HALF);
-            ny = numGrid(1, GridType::FULL);
-            k = cellIdx/(nx*ny);
-            cellIdx -= k*nx*ny;
-            j = cellIdx/nx;
-            i = cellIdx%nx;
-            i += halfIndexRanges(0, 0);
-            j += fullIndexRanges(0, 1);
-            k += fullIndexRanges(0, 2);
-            break;
-        case Location::Y_FACE:
-            nx = numGrid(0, GridType::FULL);
-            ny = numGrid(1, GridType::HALF);
-            k = cellIdx/(nx*ny);
-            cellIdx -= k*nx*ny;
-            j = cellIdx/nx;
-            i = cellIdx%nx;
-            i += fullIndexRanges(0, 0);
-            j += halfIndexRanges(0, 1);
-            k += fullIndexRanges(0, 2);
-            break;
-        case Location::Z_FACE:
-            nx = numGrid(0, GridType::FULL);
-            ny = numGrid(1, GridType::FULL);
-            k = cellIdx/(nx*ny);
-            cellIdx -= k*nx*ny;
-            j = cellIdx/nx;
-            i = cellIdx%nx;
-            i += fullIndexRanges(0, 0);
-            j += fullIndexRanges(0, 1);
-            k += halfIndexRanges(0, 2);
-            break;
-        case Location::XY_VERTEX:
-            nx = numGrid(0, GridType::HALF);
-            ny = numGrid(1, GridType::HALF);
-            k = cellIdx/(nx*ny);
-            cellIdx -= k*nx*ny;
-            j = cellIdx/nx;
-            i = cellIdx%nx;
-            i += halfIndexRanges(0, 0);
-            j += halfIndexRanges(0, 1);
-            k += fullIndexRanges(0, 2);
-            break;
-        case Location::XZ_VERTEX:
-            nx = numGrid(0, GridType::HALF);
-            ny = numGrid(1, GridType::FULL);
-            k = cellIdx/(nx*ny);
-            cellIdx -= k*nx*ny;
-            j = cellIdx/nx;
-            i = cellIdx%nx;
-            i += halfIndexRanges(0, 0);
-            j += fullIndexRanges(0, 1);
-            k += halfIndexRanges(0, 2);
-            break;
-        case Location::YZ_VERTEX:
-            nx = numGrid(0, GridType::FULL);
-            ny = numGrid(1, GridType::HALF);
-            k = cellIdx/(nx*ny);
-            cellIdx -= k*nx*ny;
-            j = cellIdx/nx;
-            i = cellIdx%nx;
-            i += fullIndexRanges(0, 0);
-            j += halfIndexRanges(0, 1);
-            k += halfIndexRanges(0, 2);
-            break;
-        default:
-            REPORT_ERROR("Unknown stagger location!");
-    }
+    auto gridTypeX = gridTypes(0, 0, loc);
+    auto gridTypeY = gridTypes(0, 1, loc);
+    auto gridTypeZ = gridTypes(0, 2, loc);
+    auto nx = numGrid(0, gridTypeX);
+    auto ny = numGrid(1, gridTypeY);
+    k = cellIdx/(nx*ny);
+    cellIdx -= k*nx*ny;
+    k += startIndex(2, gridTypeZ);
+    j = cellIdx/nx+startIndex(1, gridTypeY);
+    i = cellIdx%nx+startIndex(0, gridTypeX);
 } // unwrapIndex
+
+template <class DomainType, class CoordType>
+int StructuredMesh<DomainType, CoordType>::
+wrapIndex(int loc, const uvec &spanIdx) const {
+    switch (this->domain().numDim()) {
+        case 1:
+            return wrapIndex(loc, spanIdx[0]);
+        case 2:
+            return wrapIndex(loc, spanIdx[0], spanIdx[1]);
+        case 3:
+            return wrapIndex(loc, spanIdx[0], spanIdx[1], spanIdx[2]);
+        default:
+            REPORT_ERROR("Wrong span index array size!");
+    }
+}
 
 template <class DomainType, class CoordType>
 int StructuredMesh<DomainType, CoordType>::
@@ -878,25 +783,11 @@ wrapIndex(int loc, int i) const {
 #ifndef NDEBUG
     assert(this->domain().numDim() == 1);
 #endif
-    switch (loc) {
-        case Location::CENTER:
-            i -= fullIndexRanges(0, 0);
-            if (this->domain().axisStartBndType(0) == PERIODIC) {
-                if (i >= fullIndexRanges(1, 0)) {
-                    i -= numGrid(0, GridType::FULL);
-                }
-            }
-            break;
-        case Location::VERTEX:
-            i -= halfIndexRanges(0, 0);
-            if (this->domain().axisStartBndType(0) == PERIODIC) {
-                if (i >= halfIndexRanges(1, 0)) {
-                    i -= numGrid(0, GridType::HALF);
-                }
-            }
-            break;
-        default:
-            REPORT_ERROR("Unsupported stagger location!");
+    i -= startIndex(0, gridTypes(0, 0, loc));
+    if (this->domain().axisStartBndType(0) == PERIODIC) {
+        if (i >= endIndex(0, gridTypes(0, 0, loc))) {
+            i -= numGrid(0, gridTypes(0, 0, loc));
+        }
     }
     return i;
 } // wrapIndex
@@ -907,71 +798,18 @@ wrapIndex(int loc, int i, int j) const {
 #ifndef NDEBUG
     assert(this->domain().numDim() == 2);
 #endif
-    int nx;
-    switch (loc) {
-        case Location::CENTER:
-            nx = numGrid(0, GridType::FULL);
-            i -= fullIndexRanges(0, 0);
-            j -= fullIndexRanges(0, 1);
-            if (this->domain().axisStartBndType(0) == PERIODIC) {
-                if (i >= fullIndexRanges(1, 0)) {
-                    i -= numGrid(0, GridType::FULL);
-                }
-            }
-            if (this->domain().axisStartBndType(1) == PERIODIC) {
-                if (j >= fullIndexRanges(1, 1)) {
-                    j -= numGrid(1, GridType::FULL);
-                }
-            }
-            break;
-        case Location::VERTEX:
-        case Location::XY_VERTEX:
-            nx = numGrid(0, GridType::HALF);
-            i -= halfIndexRanges(0, 0);
-            j -= halfIndexRanges(0, 1);
-            if (this->domain().axisStartBndType(0) == PERIODIC) {
-                if (i >= halfIndexRanges(1, 0)) {
-                    i -= numGrid(0, GridType::HALF);
-                }
-            }
-            if (this->domain().axisStartBndType(1) == PERIODIC) {
-                if (j >= halfIndexRanges(1, 1)) {
-                    j -= numGrid(1, GridType::HALF);
-                }
-            }
-            break;
-        case Location::X_FACE:
-            nx = numGrid(0, GridType::HALF);
-            i -= halfIndexRanges(0, 0);
-            j -= fullIndexRanges(0, 1);
-            if (this->domain().axisStartBndType(0) == PERIODIC) {
-                if (i >= halfIndexRanges(1, 0)) {
-                    i -= numGrid(0, GridType::HALF);
-                }
-            }
-            if (this->domain().axisStartBndType(1) == PERIODIC) {
-                if (j >= fullIndexRanges(1, 1)) {
-                    j -= numGrid(1, GridType::FULL);
-                }
-            }
-            break;
-        case Location::Y_FACE:
-            nx = numGrid(0, GridType::FULL);
-            i -= fullIndexRanges(0, 0);
-            j -= halfIndexRanges(0, 1);
-            if (this->domain().axisStartBndType(0) == PERIODIC) {
-                if (i >= fullIndexRanges(1, 0)) {
-                    i -= numGrid(0, GridType::FULL);
-                }
-            }
-            if (this->domain().axisStartBndType(1) == PERIODIC) {
-                if (j >= halfIndexRanges(1, 1)) {
-                    j -= numGrid(1, GridType::HALF);
-                }
-            }
-            break;
-        default:
-            REPORT_ERROR("Unsupported stagger location!");
+    int nx = numGrid(0, gridTypes(0, 0, loc));
+    i -= startIndex(0, gridTypes(0, 0, loc));
+    j -= startIndex(1, gridTypes(0, 1, loc));
+    if (this->domain().axisStartBndType(0) == PERIODIC) {
+        if (i >= endIndex(0, gridTypes(0, 0, loc))) {
+            i -= numGrid(0, gridTypes(0, 0, loc));
+        }
+    }
+    if (this->domain().axisStartBndType(1) == PERIODIC) {
+        if (j >= endIndex(1, gridTypes(0, 1, loc))) {
+            j -= numGrid(1, gridTypes(0, 1, loc));
+        }
     }
     return i+nx*j;
 } // wrapIndex
@@ -982,186 +820,25 @@ wrapIndex(int loc, int i, int j, int k) const {
 #ifndef NDEBUG
     assert(this->domain().numDim() == 3);
 #endif
-    int nx, ny;
-    switch (loc) {
-        case Location::CENTER:
-            nx = numGrid(0, GridType::FULL);
-            ny = numGrid(1, GridType::FULL);
-            i -= fullIndexRanges(0, 0);
-            j -= fullIndexRanges(0, 1);
-            k -= fullIndexRanges(0, 2);
-            if (this->domain().axisStartBndType(0) == PERIODIC) {
-                if (i >= fullIndexRanges(1, 0)) {
-                    i -= numGrid(0, GridType::FULL);
-                }
-            }
-            if (this->domain().axisStartBndType(1) == PERIODIC) {
-                if (j >= fullIndexRanges(1, 1)) {
-                    j -= numGrid(1, GridType::FULL);
-                }
-            }
-            if (this->domain().axisStartBndType(2) == PERIODIC) {
-                if (k >= fullIndexRanges(1, 2)) {
-                    k -= numGrid(2, GridType::FULL);
-                }
-            }
-            break;
-        case Location::VERTEX:
-            nx = numGrid(0, GridType::HALF);
-            ny = numGrid(1, GridType::HALF);
-            i -= halfIndexRanges(0, 0);
-            j -= halfIndexRanges(0, 1);
-            k -= halfIndexRanges(0, 2);
-            if (this->domain().axisStartBndType(0) == PERIODIC) {
-                if (i >= halfIndexRanges(1, 0)) {
-                    i -= numGrid(0, GridType::HALF);
-                }
-            }
-            if (this->domain().axisStartBndType(1) == PERIODIC) {
-                if (j >= halfIndexRanges(1, 1)) {
-                    j -= numGrid(1, GridType::HALF);
-                }
-            }
-            if (this->domain().axisStartBndType(2) == PERIODIC) {
-                if (k >= halfIndexRanges(1, 2)) {
-                    k -= numGrid(2, GridType::HALF);
-                }
-            }
-            break;
-        case Location::X_FACE:
-            nx = numGrid(0, GridType::HALF);
-            ny = numGrid(1, GridType::FULL);
-            i -= halfIndexRanges(0, 0);
-            j -= fullIndexRanges(0, 1);
-            k -= fullIndexRanges(0, 2);
-            if (this->domain().axisStartBndType(0) == PERIODIC) {
-                if (i >= halfIndexRanges(1, 0)) {
-                    i -= numGrid(0, GridType::HALF);
-                }
-            }
-            if (this->domain().axisStartBndType(1) == PERIODIC) {
-                if (j >= fullIndexRanges(1, 1)) {
-                    j -= numGrid(1, GridType::FULL);
-                }
-            }
-            if (this->domain().axisStartBndType(2) == PERIODIC) {
-                if (k >= fullIndexRanges(1, 2)) {
-                    k -= numGrid(2, GridType::FULL);
-                }
-            }
-            break;
-        case Location::Y_FACE:
-            nx = numGrid(0, GridType::FULL);
-            ny = numGrid(1, GridType::HALF);
-            i -= fullIndexRanges(0, 0);
-            j -= halfIndexRanges(0, 1);
-            k -= fullIndexRanges(0, 2);
-            if (this->domain().axisStartBndType(0) == PERIODIC) {
-                if (i >= fullIndexRanges(1, 0)) {
-                    i -= numGrid(0, GridType::FULL);
-                }
-            }
-            if (this->domain().axisStartBndType(1) == PERIODIC) {
-                if (j >= halfIndexRanges(1, 1)) {
-                    j -= numGrid(1, GridType::HALF);
-                }
-            }
-            if (this->domain().axisStartBndType(2) == PERIODIC) {
-                if (k >= fullIndexRanges(1, 2)) {
-                    k -= numGrid(2, GridType::FULL);
-                }
-            }
-            break;
-        case Location::Z_FACE:
-            nx = numGrid(0, GridType::FULL);
-            ny = numGrid(1, GridType::FULL);
-            i -= fullIndexRanges(0, 0);
-            j -= fullIndexRanges(0, 1);
-            k -= halfIndexRanges(0, 2);
-            if (this->domain().axisStartBndType(0) == PERIODIC) {
-                if (i >= fullIndexRanges(1, 0)) {
-                    i -= numGrid(0, GridType::FULL);
-                }
-            }
-            if (this->domain().axisStartBndType(1) == PERIODIC) {
-                if (j >= fullIndexRanges(1, 1)) {
-                    j -= numGrid(1, GridType::FULL);
-                }
-            }
-            if (this->domain().axisStartBndType(2) == PERIODIC) {
-                if (k >= halfIndexRanges(1, 2)) {
-                    k -= numGrid(2, GridType::HALF);
-                }
-            }
-            break;
-        case Location::XY_VERTEX:
-            nx = numGrid(0, GridType::HALF);
-            ny = numGrid(1, GridType::HALF);
-            i -= halfIndexRanges(0, 0);
-            j -= halfIndexRanges(0, 1);
-            k -= fullIndexRanges(0, 2);
-            if (this->domain().axisStartBndType(0) == PERIODIC) {
-                if (i >= halfIndexRanges(1, 0)) {
-                    i -= numGrid(0, GridType::HALF);
-                }
-            }
-            if (this->domain().axisStartBndType(1) == PERIODIC) {
-                if (j >= halfIndexRanges(1, 1)) {
-                    j -= numGrid(1, GridType::HALF);
-                }
-            }
-            if (this->domain().axisStartBndType(2) == PERIODIC) {
-                if (k >= fullIndexRanges(1, 2)) {
-                    k -= numGrid(2, GridType::FULL);
-                }
-            }
-            break;
-        case Location::XZ_VERTEX:
-            nx = numGrid(0, GridType::HALF);
-            ny = numGrid(1, GridType::FULL);
-            i -= fullIndexRanges(0, 0);
-            j -= halfIndexRanges(0, 1);
-            k -= fullIndexRanges(0, 2);
-            if (this->domain().axisStartBndType(0) == PERIODIC) {
-                if (i >= halfIndexRanges(1, 0)) {
-                    i -= numGrid(0, GridType::HALF);
-                }
-            }
-            if (this->domain().axisStartBndType(1) == PERIODIC) {
-                if (j >= fullIndexRanges(1, 1)) {
-                    j -= numGrid(1, GridType::FULL);
-                }
-            }
-            if (this->domain().axisStartBndType(2) == PERIODIC) {
-                if (k >= halfIndexRanges(1, 2)) {
-                    k -= numGrid(2, GridType::HALF);
-                }
-            }
-            break;
-        case Location::YZ_VERTEX:
-            nx = numGrid(0, GridType::FULL);
-            ny = numGrid(1, GridType::HALF);
-            i -= fullIndexRanges(0, 0);
-            j -= halfIndexRanges(0, 1);
-            k -= fullIndexRanges(0, 2);
-            if (this->domain().axisStartBndType(0) == PERIODIC) {
-                if (i >= fullIndexRanges(1, 0)) {
-                    i -= numGrid(0, GridType::FULL);
-                }
-            }
-            if (this->domain().axisStartBndType(1) == PERIODIC) {
-                if (j >= halfIndexRanges(1, 1)) {
-                    j -= numGrid(1, GridType::HALF);
-                }
-            }
-            if (this->domain().axisStartBndType(2) == PERIODIC) {
-                if (k >= halfIndexRanges(1, 2)) {
-                    k -= numGrid(2, GridType::HALF);
-                }
-            }
-            break;
-        default:
-            REPORT_ERROR("Unknown stagger location!");
+    int nx = numGrid(0, gridTypes(0, 0, loc));
+    int ny = numGrid(1, gridTypes(0, 1, loc));
+    i -= startIndex(0, gridTypes(0, 0, loc));
+    j -= startIndex(1, gridTypes(0, 1, loc));
+    k -= startIndex(2, gridTypes(0, 2, loc));
+    if (this->domain().axisStartBndType(0) == PERIODIC) {
+        if (i >= endIndex(0, gridTypes(0, 0, loc))) {
+            i -= numGrid(0, gridTypes(0, 0, loc));
+        }
+    }
+    if (this->domain().axisStartBndType(1) == PERIODIC) {
+        if (j >= endIndex(1, gridTypes(0, 1, loc))) {
+            j -= numGrid(1, gridTypes(0, 1, loc));
+        }
+    }
+    if (this->domain().axisStartBndType(2) == PERIODIC) {
+        if (k >= endIndex(1, gridTypes(0, 1, loc))) {
+            k -= numGrid(2, gridTypes(0, 2, loc));
+        }
     }
     return i+nx*j+nx*ny*k;
 } // wrapIndex
@@ -1170,7 +847,6 @@ template <class DomainType, class CoordType>
 void StructuredMesh<DomainType, CoordType>::
 setGridCoords() {
     // Store the coordinates of each grid point for convenience.
-    vector<int> spanIdx(this->domain().numDim());
     for (int loc = 0; loc < 8; ++loc) {
         switch (this->domain().numDim()) {
             case 1:
@@ -1187,18 +863,66 @@ setGridCoords() {
         gridCoords[loc].set_size(totalNumGrid(loc, this->domain().numDim()));
         for (uword cellIdx = 0; cellIdx < gridCoords[loc].size(); ++cellIdx) {
             gridCoords[loc][cellIdx].setNumDim(this->domain().numDim());
-            unwrapIndex(loc, cellIdx, spanIdx);
+            uvec spanIdx = unwrapIndex(loc, cellIdx);
             for (uword m = 0; m < this->domain().numDim(); ++m) {
-                if ((m == 0 && (loc == Location::VERTEX || loc == Location::X_FACE || loc == Location::XY_VERTEX || loc == Location::XZ_VERTEX)) ||
-                    (m == 1 && (loc == Location::VERTEX || loc == Location::Y_FACE || loc == Location::XY_VERTEX || loc == Location::YZ_VERTEX)) ||
-                    (m == 2 && (loc == Location::VERTEX || loc == Location::Z_FACE || loc == Location::XZ_VERTEX || loc == Location::YZ_VERTEX))) {
-                    gridCoords[loc][cellIdx].setCoordComp(m, gridCoordComp(m, GridType::HALF, spanIdx[m]));
-                } else {
-                    gridCoords[loc][cellIdx].setCoordComp(m, gridCoordComp(m, GridType::FULL, spanIdx[m]));
-                }
+                gridCoords[loc][cellIdx].setCoordComp(m, gridCoordComp(m, gridTypes(0, m, loc), spanIdx[m]));
             }
         }
     }
 } // setGridCoords
+
+template <class DomainType, class CoordType>
+void StructuredMesh<DomainType, CoordType>::
+setGridTypes() {
+    gridTypes.set_size(2, 3, 8);
+    gridTypes(0, 0, Location::CENTER) = GridType::FULL;
+    gridTypes(0, 1, Location::CENTER) = GridType::FULL;
+    gridTypes(0, 2, Location::CENTER) = GridType::FULL;
+    gridTypes(1, 0, Location::CENTER) = GridType::HALF;
+    gridTypes(1, 1, Location::CENTER) = GridType::HALF;
+    gridTypes(1, 2, Location::CENTER) = GridType::HALF;
+    gridTypes(0, 0, Location::VERTEX) = GridType::HALF;
+    gridTypes(0, 1, Location::VERTEX) = GridType::HALF;
+    gridTypes(0, 2, Location::VERTEX) = GridType::HALF;
+    gridTypes(1, 0, Location::VERTEX) = GridType::FULL;
+    gridTypes(1, 1, Location::VERTEX) = GridType::FULL;
+    gridTypes(1, 2, Location::VERTEX) = GridType::FULL;
+    gridTypes(0, 0, Location::X_FACE) = GridType::HALF;
+    gridTypes(0, 1, Location::X_FACE) = GridType::FULL;
+    gridTypes(0, 2, Location::X_FACE) = GridType::FULL;
+    gridTypes(1, 0, Location::X_FACE) = GridType::FULL;
+    gridTypes(1, 1, Location::X_FACE) = GridType::HALF;
+    gridTypes(1, 2, Location::X_FACE) = GridType::HALF;
+    gridTypes(0, 0, Location::Y_FACE) = GridType::FULL;
+    gridTypes(0, 1, Location::Y_FACE) = GridType::HALF;
+    gridTypes(0, 2, Location::Y_FACE) = GridType::FULL;
+    gridTypes(1, 0, Location::Y_FACE) = GridType::HALF;
+    gridTypes(1, 1, Location::Y_FACE) = GridType::FULL;
+    gridTypes(1, 2, Location::Y_FACE) = GridType::HALF;
+    gridTypes(0, 0, Location::Z_FACE) = GridType::FULL;
+    gridTypes(0, 1, Location::Z_FACE) = GridType::FULL;
+    gridTypes(0, 2, Location::Z_FACE) = GridType::HALF;
+    gridTypes(1, 0, Location::Z_FACE) = GridType::HALF;
+    gridTypes(1, 1, Location::Z_FACE) = GridType::HALF;
+    gridTypes(1, 2, Location::Z_FACE) = GridType::FULL;
+    gridTypes(0, 0, Location::XY_VERTEX) = GridType::HALF;
+    gridTypes(0, 1, Location::XY_VERTEX) = GridType::HALF;
+    gridTypes(0, 2, Location::XY_VERTEX) = GridType::FULL;
+    gridTypes(1, 0, Location::XY_VERTEX) = GridType::FULL;
+    gridTypes(1, 1, Location::XY_VERTEX) = GridType::FULL;
+    gridTypes(1, 2, Location::XY_VERTEX) = GridType::HALF;
+    gridTypes(0, 0, Location::XZ_VERTEX) = GridType::HALF;
+    gridTypes(0, 1, Location::XZ_VERTEX) = GridType::FULL;
+    gridTypes(0, 2, Location::XZ_VERTEX) = GridType::HALF;
+    gridTypes(1, 0, Location::XZ_VERTEX) = GridType::FULL;
+    gridTypes(1, 1, Location::XZ_VERTEX) = GridType::HALF;
+    gridTypes(1, 2, Location::XZ_VERTEX) = GridType::FULL;
+    gridTypes(0, 0, Location::YZ_VERTEX) = GridType::FULL;
+    gridTypes(0, 1, Location::YZ_VERTEX) = GridType::HALF;
+    gridTypes(0, 2, Location::YZ_VERTEX) = GridType::HALF;
+    gridTypes(1, 0, Location::YZ_VERTEX) = GridType::HALF;
+    gridTypes(1, 1, Location::YZ_VERTEX) = GridType::FULL;
+    gridTypes(1, 2, Location::YZ_VERTEX) = GridType::FULL;
+} // setGridTypes
 
 } // geomtk

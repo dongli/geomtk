@@ -12,7 +12,6 @@ class CartesianRegrid : public Regrid<CartesianMesh, SpaceCoord> {
 public:
     typedef CartesianStagger::GridType GridType;
     typedef CartesianStagger::Location Location;
-protected:
 public:
     CartesianRegrid();
     CartesianRegrid(const CartesianMesh &mesh);
@@ -29,103 +28,94 @@ public:
 };
 
 template <typename T, int N>
-void CartesianRegrid::run(RegridMethod method, const TimeLevelIndex<N> &timeIdx,
-                           const CartesianField<T, N> &f, const SpaceCoord &x,
-                           T &y, CartesianMeshIndex *idx_) {
+void CartesianRegrid::
+run(RegridMethod method, const TimeLevelIndex<N> &timeIdx,
+    const CartesianField<T, N> &f, const SpaceCoord &x,
+    T &y, CartesianMeshIndex *_idx) {
     CartesianMeshIndex *idx;
-    if (idx_ == NULL) {
+    if (_idx == NULL) {
         idx = new CartesianMeshIndex(mesh().domain().numDim());
         idx->locate(mesh(), x);
     } else {
-        idx = idx_;
+        idx = _idx;
     }
-    if (method == BILINEAR) {
-#ifndef NDEBUG
-        assert(mesh().domain().numDim() == 2);
-#endif
-        int i1, i2, i3, i4, j1, j2, j3, j4;
-        i1 = (*idx)(0, f.gridType(0));
-        i2 = i1+1; i3 = i1; i4 = i2;
-        j1 = (*idx)(1, f.gridType(1));
-        j2 = j1; j3 = j1+1; j4 = j3;
-        if (f.gridType(1) == GridType::HALF &&
-            (j1 == -1 || j3 == static_cast<int>(mesh().numGrid(1, GridType::HALF)))) {
-            REPORT_ERROR("Check this error!");
-        }
-        double x1 = mesh().gridCoordComp(0, f.gridType(0), i1);
-        double x2 = mesh().gridCoordComp(0, f.gridType(0), i2);
-        double X = (x(0)-x1)/(x2-x1);
-        double y1 = mesh().gridCoordComp(1, f.gridType(1), j1);
-        double y2 = mesh().gridCoordComp(1, f.gridType(1), j3);
-        double Y = (x(1)-y1)/(y2-y1);
-#ifndef NDEBUG
-        assert(X >= 0.0 && X <= 1.0 && Y >= 0.0 && Y <= 1.0);
-#endif
-        double f1 = f(timeIdx, i1, j1);
-        double f2 = f(timeIdx, i2, j2);
-        double f3 = f(timeIdx, i3, j3);
-        double f4 = f(timeIdx, i4, j4);
-        double a = f1;
-        double b = f2-f1;
-        double c = f3-f1;
-        double d = f1-f2-f3+f4;
-        y = a+b*X+c*Y+d*X*Y;
-    } else if (method == BIQUADRATIC || method == BICUBIC) {
-        // TODO: Merge the above BILINEAR into here.
-        // Use Lagrangian polynomial interpolation without derivatives.
-#ifndef NDEBUG
-        assert(mesh().domain().numDim() == 2);
-#endif
-        int n = -1;
-        if (method == BIQUADRATIC) {
+    if (method == LINEAR || method == QUADRATIC || method == CUBIC) {
+        int n = 0;
+        if (method == LINEAR) {
+            n = 2;
+        } else if (method == QUADRATIC) {
             n = 3;
-        } else if (method == BICUBIC) {
+        } else if (method == CUBIC) {
             n = 4;
         }
-        int i[n], j[n];
-        i[0] = (*idx)(0, f.gridType(0))-n/2+1;
-        j[0] = (*idx)(1, f.gridType(1))-n/2+1;
-        for (int l = 1; l < n; ++l) {
-            i[l] = i[l-1]+1;
-            j[l] = j[l-1]+1;
-        }
-#ifndef NDEBUG
-        for (int m = 0; m < 2; ++m) {
-            if (mesh().domain().axisStartBndType(m) != PERIODIC &&
-                (i[0] == static_cast<int>(mesh().is(f.gridType(m)))-1 ||
-                 i[n-1] == static_cast<int>(mesh().ie(f.gridType(m)))+1)) {
-                idx->print();
-                REPORT_ERROR("Point is out of range!");
-            }
-        }
-#endif
-        double wx[n], wy[n];
-        for (int l0 = 0; l0 < n; ++l0) {
-            double x0 = mesh().gridCoordComp(0, f.gridType(0), i[l0]);
-            double y0 = mesh().gridCoordComp(1, f.gridType(1), j[l0]);
-            wx[l0] = 1; wy[l0] = 1;
-            for (int l1 = 0; l1 < n; ++l1) {
-                if (l0 != l1) {
-                    double x1 = mesh().gridCoordComp(0, f.gridType(0), i[l1]);
-                    double y1 = mesh().gridCoordComp(1, f.gridType(1), j[l1]);
-                    wx[l0] *= (x(0)-x1)/(x0-x1);
-                    wy[l0] *= (x(1)-y1)/(y0-y1);
+        int n1 = n/2-2;
+        int n2 = -(n-1)/2;
+        int i[mesh().domain().numDim()][n];
+        for (uword m = 0; m < mesh().domain().numDim(); ++m) {
+            i[m][0] = (*idx)(m, f.gridType(m))-n/2+1;
+            if (mesh().domain().axisStartBndType(m) != PERIODIC) {
+                if ((*idx)(m, f.gridType(m)) == static_cast<int>(mesh().startIndex(m, f.gridType(m)))+n1) {
+                    i[m][0]++;
+                } else if ((*idx)(m, f.gridType(m)) == static_cast<int>(mesh().endIndex(m, f.gridType(m)))+n2) {
+                    i[m][0]--;
+                }
+            } else {
+                if (i[m][0] < 0) {
+                    REPORT_ERROR("The halo width is not sufficient for the interpolation!");
+                } else if (i[m][0]+n > static_cast<int>(mesh().numGrid(m, f.gridType(m), true))) {
+                    REPORT_ERROR("The halo width is not sufficient for the interpolation!");
                 }
             }
+            for (int l = 1; l < n; ++l) {
+                i[m][l] = i[m][l-1]+1;
+            }
+        }
+        double w[mesh().domain().numDim()][n];
+        for (uword m = 0; m < mesh().domain().numDim(); ++m) {
+            for (int l0 = 0; l0 < n; ++l0) {
+                double x0 = mesh().gridCoordComp(m, f.gridType(m), i[m][l0]);
+                w[m][l0] = 1;
+                for (int l1 = 0; l1 < n; ++l1) {
+                    if (l0 == l1) continue;
+                    double x1 = mesh().gridCoordComp(m, f.gridType(m), i[m][l1]);
+                    w[m][l0] *= (x(m)-x1)/(x0-x1);
+                }
+            }
+
         }
         y = 0;
-        for (int l0 = 0; l0 < n; ++l0) {
-            for (int l1 = 0; l1 < n; ++l1) {
-                y += wx[l0]*wy[l1]*f(timeIdx, i[l0], j[l1]);
-            }
+        switch (mesh().domain().numDim()) {
+            case 1:
+                for (int l = 0; l < n; ++l) {
+                    y += w[0][l]*f(timeIdx, i[0][l]);
+                }
+                break;
+            case 2:
+                for (int l0 = 0; l0 < n; ++l0) {
+                    for (int l1 = 0; l1 < n; ++l1) {
+                        y += w[0][l0]*w[1][l1]*f(timeIdx, i[0][l0], i[1][l1]);
+                    }
+                }
+                break;
+            case 3:
+                for (int l0 = 0; l0 < n; ++l0) {
+                    for (int l1 = 0; l1 < n; ++l1) {
+                        for (int l2 = 0; l2 < n; ++l2) {
+                            y += w[0][l0]*w[1][l1]*w[2][l2]*f(timeIdx, i[0][l0], i[1][l1], i[2][l2]);
+                        }
+                    }
+                }
+                break;
+            default:
+                break;
         }
     } else {
         REPORT_ERROR("Under construction!");
     }
-    if (idx_ == NULL) {
+    if (_idx == NULL) {
         delete idx;
     }
-}
+} // run
 
 } // geomtk
 

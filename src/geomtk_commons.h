@@ -268,7 +268,7 @@ inline string getClassName(const string &str) {
 #define CHECK_NC_INQ_DIMID(IERR, FILE_NAME, DIM_NAME) \
 { \
     if (IERR != NC_NOERR) { \
-        REPORT_ERROR("Failed to inquire ID of dimension \"" << DIM_NAME << "\" with " << \
+        REPORT_ERROR("Failed to inquire id of dimension \"" << DIM_NAME << "\" with " << \
                      "error message \"" << nc_strerror(IERR) << "\" in file " << \
                      "\"" << FILE_NAME << "\"!"); \
     } \
@@ -295,7 +295,7 @@ inline string getClassName(const string &str) {
 #define CHECK_NC_INQ_VARID(IERR, FILE_NAME, VAR_NAME) \
 { \
     if (IERR != NC_NOERR) { \
-        REPORT_ERROR("Failed to inquire ID of variable \"" << VAR_NAME << "\" with " << \
+        REPORT_ERROR("Failed to inquire id of variable \"" << VAR_NAME << "\" with " << \
                      "error message \"" << nc_strerror(IERR) << "\" in file " << \
                      "\"" << FILE_NAME << "\"!"); \
     } \
@@ -378,6 +378,6 @@ const double PI = M_PI;
 const double RAD = PI/180.0;
 const double PI2 = PI*2.0;
 
-}
+} // geomtk
 
-#endif
+#endif // __geomtk_commons__

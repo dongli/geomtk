@@ -34,6 +34,22 @@ protected:
 };
 
 TEST_F(RLLMeshTest, Basics) {
+    ASSERT_EQ(FULL, mesh->gridType(0, CENTER));
+    ASSERT_EQ(FULL, mesh->gridType(1, CENTER));
+    ASSERT_EQ(HALF, mesh->gridType(0, CENTER, true));
+    ASSERT_EQ(HALF, mesh->gridType(1, CENTER, true));
+    ASSERT_EQ(HALF, mesh->gridType(0, VERTEX));
+    ASSERT_EQ(HALF, mesh->gridType(1, VERTEX));
+    ASSERT_EQ(FULL, mesh->gridType(0, VERTEX, true));
+    ASSERT_EQ(FULL, mesh->gridType(1, VERTEX, true));
+    ASSERT_EQ(HALF, mesh->gridType(0, X_FACE));
+    ASSERT_EQ(FULL, mesh->gridType(1, X_FACE));
+    ASSERT_EQ(FULL, mesh->gridType(0, X_FACE, true));
+    ASSERT_EQ(HALF, mesh->gridType(1, X_FACE, true));
+    ASSERT_EQ(FULL, mesh->gridType(0, Y_FACE));
+    ASSERT_EQ(HALF, mesh->gridType(1, Y_FACE));
+    ASSERT_EQ(HALF, mesh->gridType(0, Y_FACE, true));
+    ASSERT_EQ(FULL, mesh->gridType(1, Y_FACE, true));
     ASSERT_EQ(FULL_LEAD, mesh->gridStyle(0));
     ASSERT_EQ(FULL_LEAD, mesh->gridStyle(1));
     ASSERT_EQ(10, mesh->numGrid(0, FULL));
@@ -64,7 +80,7 @@ TEST_F(RLLMeshTest, IndexRanges) {
 }
 
 TEST_F(RLLMeshTest, IndexWrapping) {
-    int I, J, K, l = 0;
+    uword I, J, K, l = 0;
     for (auto k = mesh->ks(FULL); k <= mesh->ke(FULL); ++k) {
         for (auto j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
             for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
@@ -132,7 +148,7 @@ TEST_F(RLLMeshTest, IndexWrapping) {
 }
 
 TEST_F(RLLMeshTest, GridCoords) {
-    int I, J, K;
+    uword I, J, K;
     for (int loc = 0; loc < 5; ++loc) {
         ASSERT_EQ(mesh->totalNumGrid(loc, domain->numDim()),
                   mesh->gridCoords[loc].size());

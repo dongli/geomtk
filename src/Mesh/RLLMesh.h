@@ -58,6 +58,9 @@ public:
     virtual void
     setCellVolumes();
 
+    virtual vec
+    cellSize(int loc, int cellIdx) const;
+
     double
     cosLon(int gridType, int i) const;
 
