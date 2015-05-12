@@ -15,6 +15,7 @@ class RLLMeshIndex;
 
 class RLLMesh : public StructuredMesh<SphereDomain, SphereCoord> {
 public:
+    typedef SphereDomain DomainType;
     typedef SphereCoord CoordType;
     typedef RLLStagger::GridType GridType;
     typedef RLLStagger::Location Location;

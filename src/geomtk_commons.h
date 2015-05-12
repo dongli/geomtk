@@ -14,6 +14,11 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <netcdf.h>
+#include <mlpack/core.hpp>
+#include <mlpack/core/tree/bounds.hpp>
+#include <mlpack/core/tree/binary_space_tree/binary_space_tree.hpp>
+#include <mlpack/core/metrics/lmetric.hpp>
+#include <mlpack/core/tree/cover_tree/cover_tree.hpp>
 #include <mlpack/methods/range_search/range_search.hpp>
 #include <armadillo>
 
@@ -57,13 +62,6 @@ using boost::xpressive::repeat;
 using boost::xpressive::_d;
 using boost::xpressive::_w;
 using boost::timer::cpu_timer;
-
-typedef mlpack::tree::BinarySpaceTree<
-    mlpack::bound::HRectBound<2>,
-    mlpack::range::RangeSearchStat> Tree;
-typedef mlpack::metric::EuclideanDistance Metric;
-typedef mlpack::range::RangeSearch<Metric, Tree> Searcher;
-using mlpack::math::Range;
 
 using std::cout;
 using std::cerr;

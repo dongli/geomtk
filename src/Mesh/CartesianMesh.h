@@ -13,6 +13,7 @@ struct CartesianStagger : public StructuredStagger {
 
 class CartesianMesh : public StructuredMesh<CartesianDomain, SpaceCoord> {
 public:
+    typedef CartesianDomain DomainType;
     typedef SpaceCoord CoordType;
     typedef CartesianStagger::GridType GridType;
     typedef CartesianStagger::Location Location;

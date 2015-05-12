@@ -15,7 +15,6 @@ template <class MeshType, class CoordType>
 class MeshIndex {
 protected:
     uword numDim;
-    const MeshType *mesh;
 public:
     MeshIndex();
     MeshIndex(uword numDim);

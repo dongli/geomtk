@@ -21,6 +21,7 @@
 // Domain class hierarchy
 #include "Domain.h"
 #include "SphereDomain.h"
+#include "DomainMetric.h"
 // Mesh class hierarchy
 #include "Mesh.h"
 #include "MeshIndex.h"
