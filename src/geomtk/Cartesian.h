@@ -38,7 +38,7 @@ using geomtk::PI;
 using geomtk::PI2;
 using geomtk::RAD;
 
-typedef DomainMetric<typename Mesh::DomainType> MetricType;
+typedef geomtk::DomainMetric<typename Mesh::DomainType> MetricType;
 typedef mlpack::tree::CoverTree<MetricType> TreeType;
 typedef mlpack::range::RangeSearch<MetricType, TreeType> SearchType;
 

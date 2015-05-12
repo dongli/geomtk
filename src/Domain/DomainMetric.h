@@ -15,7 +15,7 @@ public:
 
     template <typename VecType1, typename VecType2>
     static double
-    Evaluate(const VecType1 &x, const VecType1 &y) {
+    Evaluate(const VecType1 &x, const VecType2 &y) {
         return domain->calcDistance(x, y);
     }
 }; // DomainMetric
