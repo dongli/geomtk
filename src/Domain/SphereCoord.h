@@ -31,14 +31,28 @@ public:
     virtual void
     init(int numDim);
 
-    virtual void
-    setCoord(double lon, double lat);
+    virtual vec
+    data() const {
+        vec res(coord.size()+4);
+        int m;
+        for (m = 0; m < coord.size(); ++m) {
+            res[m] = coord[m];
+        }
+        res[m++] = _cosLon;
+        res[m++] = _sinLon;
+        res[m++] = _cosLat;
+        res[m]   = _sinLat;
+        return res;
+    }
 
     virtual void
-    setCoord(double lon, double lat, double lev);
+    set(double lon, double lat);
 
     virtual void
-    setCoordComp(int dim, double comp);
+    set(double lon, double lat, double lev);
+
+    virtual void
+    setComp(int i, double comp);
 
     void
     setCartCoord(double x, double y, double z);

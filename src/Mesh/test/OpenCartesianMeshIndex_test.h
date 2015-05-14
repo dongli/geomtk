@@ -50,7 +50,7 @@ TEST_F(OpenCartesianMeshIndexTest, Locate) {
 	SpaceCoord x(3);
     CartesianMeshIndex idx(3);
 
-    x.setCoord(0.0, 0.0, 0.0);
+    x.set(0.0, 0.0, 0.0);
     idx.locate(*mesh, x);
     ASSERT_EQ(-1, idx(0, FULL));
     ASSERT_EQ(0, idx(0, HALF));
@@ -59,7 +59,7 @@ TEST_F(OpenCartesianMeshIndexTest, Locate) {
     ASSERT_EQ(-1, idx(2, FULL));
     ASSERT_EQ(0, idx(2, HALF));
 
-    x.setCoord(1.0, 1.0, 1.0);
+    x.set(1.0, 1.0, 1.0);
     idx.locate(*mesh, x);
     ASSERT_EQ(9, idx(0, FULL));
     ASSERT_EQ(9, idx(0, HALF));

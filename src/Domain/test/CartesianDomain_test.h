@@ -48,6 +48,9 @@ TEST_F(CartesianDomainTest, DifferenceCoordinate) {
     vec dxy = d2->diffCoord(x, y);
     ASSERT_NEAR(0.2, dxy(0), 1.0e-15);
     ASSERT_NEAR(0.2, dxy(1), 1.0e-15);
+    dxy = d2->diffCoord(x(), y());
+    ASSERT_NEAR(0.2, dxy(0), 1.0e-15);
+    ASSERT_NEAR(0.2, dxy(1), 1.0e-15);
 }
 
 TEST_F(CartesianDomainTest, CalculateDistance) {
@@ -57,6 +60,7 @@ TEST_F(CartesianDomainTest, CalculateDistance) {
     x(0) = -0.9; x(1) = -0.9;
     y(0) =  0.9; y(1) =  0.9;
     ASSERT_NEAR(0.2*sqrt(2), d2->calcDistance(x, y), 1.0e-15);
+    ASSERT_NEAR(0.2*sqrt(2), d2->calcDistance(x(), y()), 1.0e-15);
 }
 
 #endif // __GEOMTK_CartesianDomain_test__

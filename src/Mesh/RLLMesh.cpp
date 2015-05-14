@@ -265,7 +265,7 @@ move(const SphereCoord &x0, double dt, const SphereVelocity &v,
         } else if (lon > PI2) {
             lon = fmod(lon, PI2);
         }
-        x1.setCoord(lon, lat);
+        x1.set(lon, lat);
     } else {
         x1.psCoord()[0] = x0.psCoord()[0]+dt*v.psVelocity()[0];
         x1.psCoord()[1] = x0.psCoord()[1]+dt*v.psVelocity()[1];

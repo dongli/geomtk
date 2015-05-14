@@ -58,7 +58,12 @@ init(const string &filePath) {
 
 vec CartesianDomain::
 diffCoord(const SpaceCoord &x, const SpaceCoord &y) const {
-    vec res = x()-y();
+    return diffCoord(x(), y());
+} // diffCoord
+
+vec CartesianDomain::
+diffCoord(const vec &x, const vec &y) const {
+    vec res = x-y;
     double tmp1, tmp2;
     for (uword m = 0; m < numDim(); ++m) {
         if (axisStartBndType(m) == PERIODIC) {
@@ -70,11 +75,16 @@ diffCoord(const SpaceCoord &x, const SpaceCoord &y) const {
         }
     }
     return res;
-}
+} // diffCoord
 
 double CartesianDomain::
 calcDistance(const SpaceCoord &x, const SpaceCoord &y) const {
     return norm(diffCoord(x, y));
-}
+} // calcDistance
 
-}
+double CartesianDomain::
+calcDistance(const vec &x, const vec &y) const {
+    return norm(diffCoord(x, y));
+} // calcDistance
+
+} // geomtk

@@ -24,25 +24,29 @@ SpaceCoord::
 void SpaceCoord::
 init(int numDim) {
     coord.resize(numDim);
-}
+} // init
 
 void SpaceCoord::
-setCoord(double x, double y) {
+set(double x, double y) {
     coord[0] = x;
     coord[1] = y;
-}
+} // set
 
 void SpaceCoord::
-setCoord(double x, double y, double z) {
+set(double x, double y, double z) {
     coord[0] = x;
     coord[1] = y;
     coord[2] = z;
-}
+} // set
 
 void SpaceCoord::
-setCoordComp(int dim, double comp) {
-    coord(dim) = comp;
-}
+setComp(int i, double comp) {
+#ifndef NDEBUG
+    coord(i) = comp;
+#else
+    coord[i] = comp;
+#endif
+} // setComp
 
 SpaceCoord& SpaceCoord::
 operator=(const SpaceCoord &other) {
@@ -50,7 +54,7 @@ operator=(const SpaceCoord &other) {
         coord = other.coord;
     }
     return *this;
-}
+} // operator=
 
 void SpaceCoord::
 print() const {
@@ -59,6 +63,6 @@ print() const {
         cout << setw(20) << setprecision(10) << coord(i);
     }
     cout << endl;
-}
+} // print
 
 } // geomtk

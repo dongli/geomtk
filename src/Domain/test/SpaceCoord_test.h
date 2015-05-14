@@ -5,6 +5,13 @@
 
 using namespace geomtk;
 
+TEST(SpaceCoord, Basic) {
+    SpaceCoord x(2);
+    ASSERT_EQ(2, x().size());
+    SpaceCoord y(3);
+    ASSERT_EQ(3, y().size());
+}
+
 TEST(SpaceCoord, CopyConstructor) {
     SpaceCoord x(2);
     x(0) = 1.0;

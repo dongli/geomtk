@@ -14,12 +14,8 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <netcdf.h>
-#include <mlpack/core.hpp>
-#include <mlpack/core/tree/bounds.hpp>
-#include <mlpack/core/tree/binary_space_tree/binary_space_tree.hpp>
-#include <mlpack/core/metrics/lmetric.hpp>
-#include <mlpack/core/tree/cover_tree/cover_tree.hpp>
 #include <mlpack/methods/range_search/range_search.hpp>
+#include <mlpack/core/tree/cover_tree.hpp>
 #include <armadillo>
 
 #include <iostream>

@@ -21,14 +21,9 @@ protected:
 
 TEST_F(SphereDomainTest, SphereCoordOperator) {
     SphereCoord a(2), b(2);
-
-    a(0) = 1.0;
-    a(1) = 2.0;
-
+    a.set(1, 2);
     a.transformToPS(*domain);
-
     b = a;
-
     ASSERT_EQ(a(0), b(0));
     ASSERT_EQ(a(1), b(1));
     ASSERT_EQ(a.psCoord()[0], b.psCoord()[0]);
@@ -53,9 +48,11 @@ TEST_F(SphereDomainTest, Constructor) {
 
 TEST_F(SphereDomainTest, CalculateDistance) {
     SphereCoord x(2), y(2);
-    x.setCoord(1.0/3.0*M_PI, 1.0/3.0*M_PI);
-    y.setCoord(1.0/3.0*M_PI, -1.0/3.0*M_PI);
+    x.set(1.0/3.0*M_PI, 1.0/3.0*M_PI);
+    y.set(1.0/3.0*M_PI, -1.0/3.0*M_PI);
     double d = domain->calcDistance(x, y);
+    ASSERT_EQ(x(1)-y(1), d);
+    d = domain->calcDistance(x.data(), y.data());
     ASSERT_EQ(x(1)-y(1), d);
 }
 
@@ -63,7 +60,7 @@ TEST_F(SphereDomainTest, TransformPS) {
     SphereCoord x(2);
     double lon = 0.34*M_PI;
     double lat = -0.4*M_PI_2;
-    x.setCoord(lon, lat);
+    x.set(lon, lat);
     x.transformToPS(*domain);
     x.transformFromPS(*domain, SOUTH_POLE);
     ASSERT_EQ(lon, x(0));

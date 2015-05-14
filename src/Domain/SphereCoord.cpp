@@ -31,32 +31,40 @@ init(int numDim) {
 } // init
 
 void SphereCoord::
-setCoord(double lon, double lat) {
+set(double lon, double lat) {
     coord[0] = lon;
     coord[1] = lat;
     updateTrigonometricFunctions();
-} // setCoord
+} // set
 
 void SphereCoord::
-setCoord(double lon, double lat, double lev) {
+set(double lon, double lat, double lev) {
     coord[0] = lon;
     coord[1] = lat;
     coord[2] = lev;
     updateTrigonometricFunctions();
-} // setCoord
-    
+} // set
+
 void SphereCoord::
-setCoordComp(int dim, double comp) {
-    coord(dim) = comp;
-    if (dim == 0) {
-        _cosLon = cos(comp);
-        _sinLon = sin(comp);
-    } else if (dim == 1) {
-        _cosLat = cos(comp);
-        _sinLat = sin(comp);
+setComp(int i, double comp) {
+#ifndef NDEBUG
+    coord(i) = comp;
+#else
+    coord[i] = comp;
+#endif
+    switch (i) {
+        case 0:
+            _cosLon = cos(comp);
+            _sinLon = sin(comp);
+            break;
+        case 1:
+            _cosLat = cos(comp);
+            _sinLat = sin(comp);
+        default:
+            break;
     }
-} // setCoordComp
-    
+} // setComp
+
 void SphereCoord::
 setCartCoord(double x, double y, double z) {
     _cartCoord[0] = x;

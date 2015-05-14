@@ -40,7 +40,7 @@ using geomtk::PI2;
 using geomtk::RAD;
 
 typedef geomtk::DomainMetric<typename Mesh::DomainType> MetricType;
-typedef mlpack::tree::CoverTree<MetricType> TreeType;
+typedef mlpack::tree::CoverTree<MetricType, mlpack::tree::FirstPointIsRoot, mlpack::range::RangeSearchStat> TreeType;
 typedef mlpack::range::RangeSearch<MetricType, TreeType> SearchType;
 
 #endif // __GEOMTK_RLLSphere__

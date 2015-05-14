@@ -6,10 +6,19 @@
 
 using namespace geomtk;
 
-TEST(SphereDomain, CopyConstructor) {
+TEST(SphereCoord, Basic) {
+    SphereCoord x(2);
+    ASSERT_EQ(2, x().size());
+    ASSERT_EQ(6, x.data().size());
+    SphereCoord y(3);
+    ASSERT_EQ(3, y().size());
+    ASSERT_EQ(7, y.data().size());
+}
+
+TEST(SphereCoord, CopyConstructor) {
     SphereDomain domain(2);
     SphereCoord x(2);
-    x.setCoord(30.0/RAD, 60.0/RAD);
+    x.set(30.0/RAD, 60.0/RAD);
     x.transformToPS(domain);
     SphereCoord y(x);
     ASSERT_EQ(x().size(), y().size());

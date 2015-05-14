@@ -14,25 +14,37 @@ public:
     SphereVelocity(int numDim);
     virtual ~SphereVelocity();
 
-    const vec::fixed<2>& psVelocity() const { return vt; }
+    const vec::fixed<2>&
+    psVelocity() const {
+        return vt;
+    }
 
-    vec::fixed<2>& psVelocity() { return vt; }
+    vec::fixed<2>&
+    psVelocity() {
+        return vt;
+    }
 
-    SphereVelocity& operator=(const SphereVelocity &other);
+    SphereVelocity&
+    operator=(const SphereVelocity &other);
 
-    const SphereVelocity operator+(const SphereVelocity &other) const;
+    const SphereVelocity
+    operator+(const SphereVelocity &other) const;
 
-    const SphereVelocity operator-(const SphereVelocity &other) const;
+    const SphereVelocity
+    operator-(const SphereVelocity &other) const;
 
-    const SphereVelocity operator*(double scale) const;
+    const SphereVelocity
+    operator*(double scale) const;
 
-    const SphereVelocity operator/(double scale) const;
+    const SphereVelocity
+    operator/(double scale) const;
 
     /**
      * Transform velocity onto polar stereographic plane.
      * @param x the space coordinate.
      */
-    void transformToPS(const SphereCoord &x);
+    void
+    transformToPS(const SphereCoord &x);
 
     /**
      * Transform velocity onto polar stereographic plane.
@@ -43,16 +55,18 @@ public:
      * @param sinLon
      * @param cosLon
      */
-    void transformToPS(double sinLat, double sinLat2,
-                       double sinLon, double cosLon);
+    void
+    transformToPS(double sinLat, double sinLat2, double sinLon, double cosLon);
 
     /**
      * Transform velocity from polar stereographic plane.
      * @param x the space coordinate.
      */
-     void transformFromPS(const SphereCoord &x);
+     void
+    transformFromPS(const SphereCoord &x);
 
-    virtual void print() const;
+    virtual void
+    print() const;
 }; // SphereVelocity
 
 } // geomtk

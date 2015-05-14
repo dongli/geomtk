@@ -156,6 +156,18 @@ public:
     calcDistance(const CoordType &x, const CoordType &y) const = 0;
 
     /**
+     *  Same as calcDistance(const CoordType &x, const CoordType &y), but the
+     *  argument type is arma::vec.
+     *
+     *  @param x the first space coordinate data.
+     *  @param y the second space coordinate data.
+     *
+     *  @return The distance.
+     */
+    virtual double
+    calcDistance(const vec &x, const vec &y) const = 0;
+
+    /**
      *  Difference two space coordinates.
      *
      *  @param x the first space coordinate.
@@ -163,8 +175,20 @@ public:
      *
      *  @return The distance.
      */
-    vec
-    diffCoord(const SpaceCoord &x, const SpaceCoord &y) const;
+    virtual vec
+    diffCoord(const CoordType &x, const CoordType &y) const = 0;
+
+    /**
+     *  Same as diffCoord(const CoordType &x, const CoordType &y), but the
+     *  argument type is arma::vec.
+     *
+     *  @param x the first space coordinate data.
+     *  @param y the second space coordinate data.
+     *
+     *  @return The distance.
+     */
+    virtual vec
+    diffCoord(const vec &x, const vec &y) const = 0;
 
     /**
      *  Get a brief about the domain.

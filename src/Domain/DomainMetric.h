@@ -18,6 +18,8 @@ public:
     Evaluate(const VecType1 &x, const VecType2 &y) {
         return domain->calcDistance(x, y);
     }
+
+    string ToString() const { return "Implement me!"; }
 }; // DomainMetric
 
 template <class DomainType>

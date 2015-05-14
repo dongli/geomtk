@@ -37,6 +37,9 @@ public:
     virtual double
     calcDistance(const SphereCoord &x, const SphereCoord &y) const;
 
+    virtual double
+    calcDistance(const vec &x, const vec &y) const;
+
     double
     calcDistance(const SphereCoord &x, double lon, double lat) const;
 
@@ -45,6 +48,9 @@ public:
 
     virtual vec
     diffCoord(const SphereCoord &x, const SphereCoord &y) const;
+
+    virtual vec
+    diffCoord(const vec &x, const vec &y) const;
 
     /**
      *  Transform the given space coordinate 'xo' into a rotated spherical

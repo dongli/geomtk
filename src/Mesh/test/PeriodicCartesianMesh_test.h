@@ -154,7 +154,7 @@ TEST_F(PeriodicCartesianMeshTest, Move) {
     Velocity v(3);
     CartesianMeshIndex idx(3);
 
-    x0.setCoord(0.0, 0.0, 0.0);
+    x0.set(0.0, 0.0, 0.0);
     idx.locate(*mesh, x0);
     v(0) = 0.1;
     mesh->move(x0, dt, v, idx, x1);

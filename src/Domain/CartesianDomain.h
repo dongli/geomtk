@@ -19,8 +19,14 @@ public:
     virtual vec
     diffCoord(const SpaceCoord &x, const SpaceCoord &y) const;
 
+    virtual vec
+    diffCoord(const vec &x, const vec &y) const;
+
     virtual double
     calcDistance(const SpaceCoord &x, const SpaceCoord &y) const;
+
+    virtual double
+    calcDistance(const vec &x, const vec &y) const;
 }; // CartesianDomain
 
 } // geomtk

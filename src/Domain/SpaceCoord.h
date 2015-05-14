@@ -20,26 +20,39 @@ public:
     virtual void
     init(int numDim);
 
-    virtual void
-    setCoord(double x, double y);
+    virtual vec
+    data() const {
+        return coord;
+    }
 
     virtual void
-    setCoord(double x, double y, double z);
+    set(double x, double y);
 
     virtual void
-    setCoordComp(int dim, double comp);
+    set(double x, double y, double z);
+
+    virtual void
+    setComp(int i, double comp);
 
     virtual SpaceCoord&
     operator=(const SpaceCoord &other);
 
     virtual double
     operator()(int i) const {
+#ifndef NDEBUG
         return coord(i);
+#else
+        return coord[i];
+#endif
     }
 
     virtual double&
     operator()(int i) {
+#ifndef NDEBUG
         return coord(i);
+#else
+        return coord[i];
+#endif
     }
 
     virtual const vec&
