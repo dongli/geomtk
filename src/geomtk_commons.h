@@ -371,6 +371,7 @@ inline string getClassName(const string &str) {
 const double PI = M_PI;
 const double RAD = PI/180.0;
 const double PI2 = PI*2.0;
+const double PI05 = PI*0.5;
 
 } // geomtk
 

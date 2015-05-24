@@ -82,11 +82,11 @@ public:
     template <typename DataType, int NumTimeLevel>
     void
     output(uword fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
-           initializer_list<Field<MeshType>*> fields);
+           initializer_list<const Field<MeshType>*> fields);
     
     template <typename DataType>
     void
-    output(uword fileIdx, initializer_list<Field<MeshType>*> fields);
+    output(uword fileIdx, initializer_list<const Field<MeshType>*> fields);
 
     void
     close(uword fileIdx);

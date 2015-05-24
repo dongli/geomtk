@@ -42,10 +42,10 @@ applyBndCond(const TimeLevelIndex<2> &timeIdx, bool updateHalfLevel) {
     }
     calcDivergence(timeIdx);
     div.applyBndCond(timeIdx, updateHalfLevel);
-    calcVorticity(timeIdx);
-    for (uword m = 0; m < vor.size(); ++m) {
-        vor[m].applyBndCond(timeIdx);
-    }
+//    calcVorticity(timeIdx);
+//    for (uword m = 0; m < vor.size(); ++m) {
+//        vor[m].applyBndCond(timeIdx);
+//    }
 } // applyBndCond
 
 } // geomtk

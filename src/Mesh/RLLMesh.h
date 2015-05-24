@@ -49,6 +49,9 @@ public:
         return _poleRadius;
     }
 
+    uword
+    totalNumGridWithUniquePoleGrid(int loc, uword numDim = 0) const;
+
     virtual void
     setGridCoordComps(uword axisIdx, uword size, const vec &full);
 

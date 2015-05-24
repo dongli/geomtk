@@ -253,7 +253,7 @@ template <class DataFileType>
 template <typename DataType, int NumTimeLevel>
 void IOManager<DataFileType>::
 output(uword fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
-       initializer_list<Field<MeshType>*> fields) {
+       initializer_list<const Field<MeshType>*> fields) {
     int ret, flag = 0;
     DataFileType &file = files[fileIdx];
     // If the file is not created yet, then create it.
@@ -279,7 +279,7 @@ output(uword fileIdx, const TimeLevelIndex<NumTimeLevel> &timeIdx,
 template <class DataFileType>
 template <typename DataType>
 void IOManager<DataFileType>::
-output(uword fileIdx, initializer_list<Field<MeshType>*> fields) {
+output(uword fileIdx, initializer_list<const Field<MeshType>*> fields) {
     int ret, flag = 0;
     DataFileType &file = files[fileIdx];
     // If the file is not created yet, then create it.

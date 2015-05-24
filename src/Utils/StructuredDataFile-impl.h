@@ -637,7 +637,7 @@ template <class MeshType>
 template <typename DataType, int NumTimeLevel>
 void StructuredDataFile<MeshType>::
 output(const TimeLevelIndex<NumTimeLevel> &timeIdx,
-       initializer_list<Field<MeshType>*> fields) {
+       initializer_list<const Field<MeshType>*> fields) {
     typedef StructuredField<MeshType, DataType, NumTimeLevel> FieldType;
     int ret;
     for (auto field_ : fields) {
@@ -645,7 +645,7 @@ output(const TimeLevelIndex<NumTimeLevel> &timeIdx,
         for (auto info : this->fieldInfos) {
             if (info.field == field_) {
                 tag = true;
-                FieldType *field = dynamic_cast<FieldType*>(field_);
+                const FieldType *field = dynamic_cast<const FieldType*>(field_);
                 if (field == NULL) {
                     REPORT_ERROR("Field \"" << field_->name() << "\" does not match expected type!");
                 }
@@ -687,7 +687,7 @@ output(const TimeLevelIndex<NumTimeLevel> &timeIdx,
 template <class MeshType>
 template <typename DataType>
 void StructuredDataFile<MeshType>::
-output(initializer_list<Field<MeshType>*> fields) {
+output(initializer_list<const Field<MeshType>*> fields) {
     typedef StructuredField<MeshType, DataType, 1> FieldType;
     int ret;
     for (auto field_ : fields) {
@@ -695,7 +695,7 @@ output(initializer_list<Field<MeshType>*> fields) {
         for (auto info : this->fieldInfos) {
             if (info.field == field_) {
                 tag = true;
-                FieldType *field = dynamic_cast<FieldType*>(field_);
+                const FieldType *field = dynamic_cast<const FieldType*>(field_);
                 if (field == NULL) {
                     REPORT_ERROR("Field \"" << field_->name() << "\" does not match expected type!");
                 }

@@ -3,7 +3,8 @@
 
 namespace geomtk {
 
-template <int NumTimeLevel, class DomainType, class MeshType, class VelocityFieldType>
+template <int NumTimeLevel, class DomainType, class MeshType,
+          template<typename, int> class FieldType, class VelocityFieldType>
 class AdvectionManagerInterface {
 protected:
     const DomainType *domain;
@@ -23,11 +24,26 @@ public:
     input(const TimeLevelIndex<NumTimeLevel> &timeIdx, double *q) = 0;
 
     virtual void
-    output(const TimeLevelIndex<NumTimeLevel> &timeIdx, int ncId) = 0;
+    output(const TimeLevelIndex<NumTimeLevel> &timeIdx, int ncId) const = 0;
 
-    virtual double
-    density(const TimeLevelIndex<2> &timeIdx,
-            int tracerIdx, int cellIdx) const = 0;
+    virtual double&
+    density(const TimeLevelIndex<NumTimeLevel> &timeIdx,
+            int tracerIdx, int cellIdx) = 0;
+
+    virtual const FieldType<double, NumTimeLevel>&
+    density(int tracerIdx) const = 0;
+
+    virtual FieldType<double, NumTimeLevel>&
+    density(int tracerIdx) = 0;
+
+    virtual double&
+    tendency(int tracerIdx, int cellIdx) = 0;
+
+    virtual const FieldType<double, 1>&
+    tendency(int tracerIdx) const = 0;
+
+    virtual FieldType<double, 1>&
+    tendency(int tracerIdx) = 0;
 }; // AdvectionManagerInterface
 
 } // geomtk

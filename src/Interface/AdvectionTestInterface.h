@@ -6,10 +6,12 @@
 namespace geomtk {
 
 template <int NumTimeLevel, class DomainType, class MeshType, 
-          class FieldType, class VelocityFieldType, class IOManager>
+          template<typename, int> class FieldType,
+          class VelocityFieldType, class IOManager>
 class AdvectionTestInterface {
 public:
-    typedef AdvectionManagerInterface<NumTimeLevel, DomainType, MeshType, VelocityFieldType> AdvectionManager;
+    typedef AdvectionManagerInterface<NumTimeLevel, DomainType, MeshType,
+                                      FieldType, VelocityFieldType> AdvectionManager;
 protected:
     DomainType *_domain;
     MeshType *_mesh;
@@ -17,10 +19,10 @@ protected:
     IOManager io;
     uword outputIdx;
     VelocityFieldType velocityField;
-    vector<FieldType> densities;
     Time _startTime;
     Time _endTime;
     double _stepSize;
+    int numTracer;
 public:
     AdvectionTestInterface() {
         _domain = NULL;
@@ -71,13 +73,28 @@ public:
     virtual void
     advanceDynamics(const TimeLevelIndex<NumTimeLevel> &timeIdx,
                     AdvectionManager &advectionManager) {
-        advectionManager.advance(stepSize(), timeIdx, velocityField);
         _timeManager.advance();
+        setVelocityField(timeIdx);
+        advectionManager.advance(stepSize(), timeIdx, velocityField);
+    }
+
+    virtual void
+    advancePhysics(const TimeLevelIndex<NumTimeLevel> &timeIdx,
+                   AdvectionManager &advectionManager) {}
+
+    virtual void
+    advance(const TimeLevelIndex<NumTimeLevel> &timeIdx,
+            AdvectionManager &advectionManager) {
+        advancePhysics(timeIdx-1, advectionManager);
+        advanceDynamics(timeIdx, advectionManager);
     }
 
     virtual void
     output(const TimeLevelIndex<NumTimeLevel> &timeIdx,
-           AdvectionManager &advectionManager) = 0;
+           const AdvectionManager &advectionManager) = 0;
+protected:
+    virtual void
+    setVelocityField(const TimeLevelIndex<NumTimeLevel> &timeIdx) = 0;
 }; // AdvectionTestInterface
 
 } // geomtk

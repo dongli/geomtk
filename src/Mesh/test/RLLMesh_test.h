@@ -64,8 +64,9 @@ TEST_F(RLLMeshTest, Basics) {
     ASSERT_EQ(5, mesh->numGrid(2, FULL, true));
     ASSERT_EQ(6, mesh->numGrid(2, HALF));
     ASSERT_EQ(6, mesh->numGrid(2, HALF, true));
-    ASSERT_EQ(-M_PI_2, mesh->gridCoordComp(1, FULL, 0));
-    ASSERT_EQ(M_PI_2, mesh->gridCoordComp(1, FULL, mesh->numGrid(1, FULL)-1));
+    ASSERT_EQ(-PI05, mesh->gridCoordComp(1, FULL, 0));
+    ASSERT_EQ(PI05, mesh->gridCoordComp(1, FULL, mesh->numGrid(1, FULL)-1));
+    ASSERT_EQ((8*10+2)*5, mesh->totalNumGridWithUniquePoleGrid(CENTER));
 }
 
 TEST_F(RLLMeshTest, IndexRanges) {

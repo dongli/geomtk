@@ -65,28 +65,9 @@ calcDistance(const SphereCoord &x, const SphereCoord &y) const {
 double SphereDomain::
 calcDistance(const vec &x, const vec &y) const {
 #ifndef NDEBUG
-    assert((_numDim == 2 && x.size() == 6 && y.size() == 6) ||
-           (_numDim == 3 && x.size() == 7 && y.size() == 7));
+    assert(x.size() == 3 && y.size() == 3);
 #endif
-    // TODO: We don't consider vertical distance yet!
-    double cosDlon = cos(x[0]-y[0]);
-    double tmp1, tmp2;
-    switch (_numDim) {
-        case 2:
-            // cosLon: 2, sinLon: 3, cosLat: 4, sinLat: 5
-            tmp1 = x[5]*y[5];
-            tmp2 = x[4]*y[4]*cosDlon;
-            break;
-        case 3:
-            // cosLon: 3, sinLon: 4, cosLat: 5, sinLat: 6
-            tmp1 = x[6]*y[6];
-            tmp2 = x[5]*y[5]*cosDlon;
-            break;
-        default:
-            REPORT_ERROR("Invalid dimension number!");
-    }
-    double tmp3 = min(1.0, max(-1.0, tmp1+tmp2));
-    return _radius*acos(tmp3);
+    return norm(x-y);
 } // calcDistance
 
 double SphereDomain::
