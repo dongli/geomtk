@@ -817,9 +817,9 @@ wrapIndex(int loc, int i, int j) const {
 template <class DomainType, class CoordType>
 int StructuredMesh<DomainType, CoordType>::
 wrapIndex(int loc, int i, int j, int k) const {
-#ifndef NDEBUG
-    assert(this->domain().numDim() == 3);
-#endif
+    if (this->domain().numDim() == 2) {
+        return wrapIndex(loc, i, j);
+    }
     int nx = numGrid(0, gridTypes(0, 0, loc));
     int ny = numGrid(1, gridTypes(0, 1, loc));
     i -= startIndex(0, gridTypes(0, 0, loc));

@@ -66,6 +66,21 @@ public:
     cellSize(int loc, int cellIdx) const;
 
     double
+    lon(int gridType, int i) const {
+        return gridCoordComp(0, gridType, i);
+    }
+
+    double
+    lat(int gridType, int j) const {
+        return gridCoordComp(1, gridType, j);
+    }
+
+    double
+    lev(int gridType, int k) const {
+        return gridCoordComp(2, gridType, k);
+    }
+
+    double
     cosLon(int gridType, int i) const;
 
     double
