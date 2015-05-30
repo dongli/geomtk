@@ -87,19 +87,30 @@ locate(const MeshType &mesh, const CoordType &x) {
         // #####################################################################
         if (indices[m][GridType::FULL] == UNDEFINED_MESH_INDEX) {
             if (domain.axisStartBndType(m) == PERIODIC) {
-                for (uword i = mesh.startIndex(m, GridType::FULL);
-                     i <= mesh.endIndex(m, GridType::FULL); ++i) {
-                    if (x(m) >= mesh.gridCoordComp(m, GridType::FULL, i) &&
-                        x(m) <= mesh.gridCoordComp(m, GridType::FULL, i+1)) {
-                        indices[m][GridType::FULL] = i;
+                int gridType1, gridType2;
+                if (mesh.gridStyle(m) == FULL_LEAD) {
+                    gridType1 = GridType::FULL;
+                    gridType2 = GridType::HALF;
+                } else {
+                    gridType1 = GridType::HALF;
+                    gridType2 = GridType::FULL;
+                }
+                for (uword i = mesh.startIndex(m, gridType1);
+                     i <= mesh.endIndex(m, gridType1); ++i) {
+                    if (x(m) >= mesh.gridCoordComp(m, gridType1, i) &&
+                        x(m) <= mesh.gridCoordComp(m, gridType1, i+1)) {
+                        indices[m][gridType1] = i;
                         break;
                     }
                 }
-                for (int i = indices[m][GridType::FULL]-1;
-                     i < indices[m][GridType::FULL]+1; ++i) {
-                    if (x(m) >= mesh.gridCoordComp(m, GridType::HALF, i) &&
-                        x(m) <= mesh.gridCoordComp(m, GridType::HALF, i+1)) {
-                        indices[m][GridType::HALF] = i;
+#ifndef NDEBUG
+                assert(indices[m][gridType1] != UNDEFINED_MESH_INDEX);
+#endif
+                for (int i = indices[m][gridType1]-1;
+                     i < indices[m][gridType1]+1; ++i) {
+                    if (x(m) >= mesh.gridCoordComp(m, gridType2, i) &&
+                        x(m) <= mesh.gridCoordComp(m, gridType2, i+1)) {
+                        indices[m][gridType2] = i;
                         break;
                     }
                 }
@@ -169,32 +180,37 @@ locate(const MeshType &mesh, const CoordType &x) {
         // #####################################################################
         else {
             if (domain.axisStartBndType(m) == PERIODIC) {
-                if (x(m) < mesh.gridCoordComp(m, GridType::FULL,
-                                              indices[m][GridType::FULL])) {
-                    for (int i = indices[m][GridType::FULL]-1;
-                         i >= static_cast<int>(mesh.startIndex(m, GridType::FULL)); --i) {
-                        if (x(m) >= mesh.gridCoordComp(m, GridType::FULL, i) &&
-                            x(m) <= mesh.gridCoordComp(m, GridType::FULL, i+1)) {
-                            indices[m][GridType::FULL] = i;
+                int gridType1, gridType2;
+                if (mesh.gridStyle(m) == FULL_LEAD) {
+                    gridType1 = GridType::FULL;
+                    gridType2 = GridType::HALF;
+                } else {
+                    gridType1 = GridType::HALF;
+                    gridType2 = GridType::FULL;
+                }
+                if (x(m) < mesh.gridCoordComp(m, gridType1, indices[m][gridType1])) {
+                    for (int i = indices[m][gridType1]-1;
+                         i >= static_cast<int>(mesh.startIndex(m, gridType1)); --i) {
+                        if (x(m) >= mesh.gridCoordComp(m, gridType1, i) &&
+                            x(m) <= mesh.gridCoordComp(m, gridType1, i+1)) {
+                            indices[m][gridType1] = i;
                             break;
                         }
                     }
-                } else if (x(m) > mesh.gridCoordComp(m, GridType::FULL,
-                                                     indices[m][GridType::FULL]+1)) {
-                    for (int i = indices[m][GridType::FULL]+1;
-                         i <= static_cast<int>(mesh.endIndex(m, GridType::FULL)); ++i) {
-                        if (x(m) >= mesh.gridCoordComp(m, GridType::FULL, i) &&
-                            x(m) <= mesh.gridCoordComp(m, GridType::FULL, i+1)) {
-                            indices[m][GridType::FULL] = i;
+                } else if (x(m) > mesh.gridCoordComp(m, gridType1, indices[m][gridType1]+1)) {
+                    for (int i = indices[m][gridType1]+1;
+                         i <= static_cast<int>(mesh.endIndex(m, gridType1)); ++i) {
+                        if (x(m) >= mesh.gridCoordComp(m, gridType1, i) &&
+                            x(m) <= mesh.gridCoordComp(m, gridType1, i+1)) {
+                            indices[m][gridType1] = i;
                             break;
                         }
                     }
                 }
-                for (int i = indices[m][GridType::FULL]-1;
-                     i < indices[m][GridType::FULL]+1; ++i) {
-                    if (x(m) >= mesh.gridCoordComp(m, GridType::HALF, i) &&
-                        x(m) <= mesh.gridCoordComp(m, GridType::HALF, i+1)) {
-                        indices[m][GridType::HALF] = i;
+                for (int i = indices[m][gridType1]-1; i < indices[m][gridType1]+1; ++i) {
+                    if (x(m) >= mesh.gridCoordComp(m, gridType2, i) &&
+                        x(m) <= mesh.gridCoordComp(m, gridType2, i+1)) {
+                        indices[m][gridType2] = i;
                         break;
                     }
                 }

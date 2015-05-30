@@ -111,16 +111,29 @@ setCellVolumes() {
             }
         }
     } else if (domain().numDim() == 3) {
-        for (uword k = ks(GridType::FULL); k <= ke(GridType::FULL); ++k) {
-            int K = gridStyles[2] == FULL_LEAD ? k-haloWidth() : k;
+        int I, J, K;
+        for (uword k = 0; k < volumes.n_slices; ++k) {
+            if (domain().axisStartBndType(2) == PERIODIC) {
+                K = gridStyles[2] == FULL_LEAD ? k+haloWidth()-1 : k+haloWidth();
+            } else {
+                K = k;
+            }
             double dz = gridInterval(2, GridType::HALF, K);
-            for (uword j = js(GridType::FULL); j <= je(GridType::FULL); ++j) {
-                int J = gridStyles[1] == FULL_LEAD ? j-haloWidth() : j;
+            for (uword j = 0; j < volumes.n_cols; ++j) {
+                if (domain().axisStartBndType(1) == PERIODIC) {
+                    J = gridStyles[1] == FULL_LEAD ? j+haloWidth()-1 : j+haloWidth();
+                } else {
+                    J = j;
+                }
                 double dy = gridInterval(1, GridType::HALF, J);
-                for (uword i = is(GridType::FULL); i <= ie(GridType::FULL); ++i) {
-                    int I = gridStyles[0] == FULL_LEAD ? i-haloWidth() : i;
+                for (uword i = 0; i < volumes.n_rows; ++i) {
+                    if (domain().axisStartBndType(0) == PERIODIC) {
+                        I = gridStyles[0] == FULL_LEAD ? i+haloWidth()-1 : i+haloWidth();
+                    } else {
+                        I = i;
+                    }
                     double dx = gridInterval(0, GridType::HALF, I);
-                    volumes(I, J, K) = dx*dy*dz;
+                    volumes(i, j, k) = dx*dy*dz;
                 }
             }
         }

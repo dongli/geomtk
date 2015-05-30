@@ -2,33 +2,39 @@
 
 namespace geomtk {
 
-Time::Time() {
+Time::
+Time() {
     reset();
 }
 
-Time::Time(double seconds) {
+Time::
+Time(double seconds) {
     reset();
     *this += seconds;
 }
 
-Time::~Time() {
+Time::
+~Time() {
 }
 
-void Time::reset() {
+void Time::
+reset() {
     useLeap = false;
-    year = 1;
-    month = 1;
-    day = 1;
+    year = 0;
+    month = 0;
+    day = 0;
     hour = 0;
     minute = 0;
     second = 0;
-}
+} // reset
 
-double Time::tod() const {
+double Time::
+tod() const {
     return hour*TimeUnit::HOURS+minute*TimeUnit::MINUTES+second;
-}
+} // tod
 
-double Time::seconds(const Time &other) const {
+double Time::
+seconds(const Time &other) const {
     double res = 0; int sign = 1;
     const Time *big = this;
     const Time *small = &other;
@@ -107,21 +113,25 @@ double Time::seconds(const Time &other) const {
         res += big->second-small->second;
     }
     return res*sign;
-}
+} // seconds
 
-double Time::minutes(const Time &other) const {
+double Time::
+minutes(const Time &other) const {
     return seconds(other)/60;
-}
+} // minutes
 
-double Time::hours(const Time &other) const {
+double Time::
+hours(const Time &other) const {
     return seconds(other)/3600;
-}
+} // hours
 
-double Time::days(const Time &other) const {
+double Time::
+days(const Time &other) const {
     return seconds(other)/86400;
-}
+} // days
 
-int Time::daysOfMonth(int month, int year) const {
+int Time::
+daysOfMonth(int month, int year) const {
     if (month == -1) {
         month = this->month;
     }
@@ -142,9 +152,10 @@ int Time::daysOfMonth(int month, int year) const {
                 REPORT_ERROR("Wrong month " << month << "!");
         }
     }
-}
+} // daysOfMonth
     
-int Time::daysBeforeMonth(int month, int year) const {
+int Time::
+daysBeforeMonth(int month, int year) const {
     if (month == -1) {
         month = this->month;
     }
@@ -153,9 +164,10 @@ int Time::daysBeforeMonth(int month, int year) const {
         res += daysOfMonth(i, year);
     }
     return res;
-}
+} // daysBeforeMonth
     
-int Time::daysAfterMonth(int month, int year) const {
+int Time::
+daysAfterMonth(int month, int year) const {
     if (month == -1) {
         month = this->month;
     }
@@ -164,9 +176,10 @@ int Time::daysAfterMonth(int month, int year) const {
         res += daysOfMonth(i, year);
     }
     return res;
-}
+} // daysAfterMonth
 
-int Time::daysOfYear(int year) const {
+int Time::
+daysOfYear(int year) const {
     if (useLeap) {
         REPORT_ERROR("Under construction!");
         if (year == -1) {
@@ -175,23 +188,26 @@ int Time::daysOfYear(int year) const {
     } else {
         return 365;
     }
-}
+} // daysOfYear
 
-int Time::prevMonth(int month) const {
+int Time::
+prevMonth(int month) const {
     if (month == -1) {
         month = this->month;
     }
     return month == 1 ? 12 : month-1;
-}
+} // prevMonth
     
-int Time::nextMonth(int month) const {
+int Time::
+nextMonth(int month) const {
     if (month == -1) {
         month = this->month;
     }
     return month == 12 ? 1 : month+1;
-}
+} // nextMonth
     
-const Time Time::operator+(double seconds) const {
+const Time Time::
+operator+(double seconds) const {
     Time res = *this;
     double remain = seconds; // remained time (unit will be changed)
     // handle second
@@ -238,14 +254,16 @@ const Time Time::operator+(double seconds) const {
         }
     }
     return res;
-}
+} // operator+
     
-Time& Time::operator+=(double seconds) {
+Time& Time::
+operator+=(double seconds) {
     *this = *this+seconds;
     return *this;
-}
+} // operator+=
 
-const Time Time::operator-(double seconds) const {
+const Time Time::
+operator-(double seconds) const {
     Time res = *this;
     double remain = seconds; // remained time (unit will be changed)
     // handle second
@@ -317,9 +335,10 @@ const Time Time::operator-(double seconds) const {
         }
     }
     return res;
-}
+} // operator-
 
-Time& Time::operator=(const Time &other) {
+Time& Time::
+operator=(const Time &other) {
     if (this != &other) {
         year = other.year;
         month = other.month;
@@ -329,8 +348,7 @@ Time& Time::operator=(const Time &other) {
         second = other.second;
     }
     return *this;
-}
-
+} // operator=
 
 static mark_tag tagYear(1), tagMonth(2), tagDay(3), tagTod(4);
 static sregex reTime = (tagYear= repeat<4, 4>(_d)) >> '-' >>
@@ -338,9 +356,9 @@ static sregex reTime = (tagYear= repeat<4, 4>(_d)) >> '-' >>
                        optional('-' >> (tagDay= repeat<2, 2>(_d))) >>
                        optional(' ' >> (tagTod= repeat<5, 5>(_d)));
 
-Time& Time::operator=(const string &other) {
+Time& Time::
+operator=(const string &other) {
     smatch what;
-
     if (regex_search(other, what, reTime)) {
         year = stoi(what[tagYear].str());
         month = stoi(what[tagMonth].str());
@@ -358,16 +376,17 @@ Time& Time::operator=(const string &other) {
     } else {
         REPORT_ERROR("Bad time string format: \"" << other << "\"!");
     }
-
     return *this;
-}
+} // operator=
 
-Time& Time::operator=(const char *other) {
+Time& Time::
+operator=(const char *other) {
     string other_(other);
     return operator=(other_);
-}
+} // operator=
 
-bool Time::operator==(const Time &other) const {
+bool Time::
+operator==(const Time &other) const {
     static const double eps = 1.0e-12;
     if (year == other.year && month == other.month &&
         day == other.day && hour == other.hour &&
@@ -376,17 +395,20 @@ bool Time::operator==(const Time &other) const {
     } else {
         return false;
     }
-}
+} // operator==
 
-bool Time::operator>(const Time &other) const {
+bool Time::
+operator>(const Time &other) const {
     static Time epoch;
     epoch.year = 1970;
+    epoch.month = 1;
+    epoch.day = 1;
     if (this->seconds(epoch) > other.seconds(epoch)) {
         return true;
     } else {
         return false;
     }
-}
+} // operator>
 
 bool Time::operator>=(const Time &other) const {
     static Time epoch;
@@ -411,8 +433,13 @@ string Time::s(bool onlyDate) const {
     if (onlyDate) {
         sprintf(tmp, "%4.4d-%2.2d-%2.2d", year, month, day);
     } else {
-        sprintf(tmp, "%4.4d-%2.2d-%2.2d %2.2d:%2.2d:%f",
-                year, month, day, hour, minute, second);
+        if (static_cast<int>(second) == second) {
+            sprintf(tmp, "%4.4d-%2.2d-%2.2d %2.2d:%2.2d:%2.2d",
+                    year, month, day, hour, minute, static_cast<int>(second));
+        } else {
+            sprintf(tmp, "%4.4d-%2.2d-%2.2d %2.2d:%2.2d:%f",
+                    year, month, day, hour, minute, second);
+        }
     }
     string res = tmp;
     return res;

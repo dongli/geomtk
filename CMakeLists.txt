@@ -94,6 +94,10 @@ else ()
         "set MLPACK_ROOT (e.g. in .bashrc) to it."
     )
 endif ()
+# UDUNITS
+find_package (UDUNITS REQUIRED)
+include_directories (${UDUNITS_INCLUDE_DIRS})
+link_directories (${UDUNITS_LIBRARY_DIRS})
 
 # Set the source directory structure.
 set (source_directories
@@ -118,10 +122,12 @@ if (use_as_submodule)
         ${Boost_INCLUDE_DIRS}
         ${MLPACK_INCLUDE_DIRS}
         ${LIBXML2_INCLUDE_DIR}
+        ${UDUNITS_INCLUDE_DIRS}
         PARENT_SCOPE
     )
     set (GEOMTK_LIBRARY_DIRS
         ${MLPACK_LIBRARY_DIRS}
+        ${UDUNITS_LIBRARY_DIRS}
         PARENT_SCOPE
     )
 endif ()
@@ -144,6 +150,7 @@ target_link_libraries (geomtk
     ${HDF5_LIBRARIES}
     ${NETCDF_LIBRARIES}
     ${Boost_LIBRARIES}
+    ${UDUNITS_LIBRARIES}
     mlpack
 )
 

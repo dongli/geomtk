@@ -2,7 +2,8 @@
 
 namespace geomtk {
 
-int SystemTools::getNumFiles(const string &fileRoot, const string &filePattern) {
+int SystemTools::
+getNumFiles(const string &fileRoot, const string &filePattern) {
     string cmd = "ls "+fileRoot+"/"+filePattern;
 
     FILE *pipe = popen(cmd.c_str(), "r");
@@ -29,28 +30,46 @@ int SystemTools::getNumFiles(const string &fileRoot, const string &filePattern) 
     return numFile;
 }
 
-void SystemTools::getFileNames(const string &fileRoot,
-                               const string &filePattern,
-                               vector<string> &fileNames) {
+vector<string> SystemTools::
+getFileNames(const string &fileRoot, const string &filePattern) {
+    vector<string> res;
     boost::filesystem::path _fileRoot(fileRoot);
     boost::regex _filePattern(filePattern);
     boost::filesystem::directory_iterator i(_fileRoot), end;
     for (; i != end; ++i) {
         if(!boost::filesystem::is_regular_file(i->status())) continue;
         if (boost::regex_match(i->path().leaf().string(), _filePattern)) {
-            fileNames.push_back(i->path().leaf().string());
+            res.push_back(i->path().leaf().string());
         }
     }
-}
+    return res;
+} // getFileNames
 
-void SystemTools::writeFile(const string &filePath, const string &content) {
+vector<string> SystemTools::
+getFilePaths(const string &fileRoot, const string &filePattern) {
+    vector<string> res;
+    boost::filesystem::path _fileRoot(fileRoot);
+    boost::regex _filePattern(filePattern);
+    boost::filesystem::directory_iterator i(_fileRoot), end;
+    for (; i != end; ++i) {
+        if(!boost::filesystem::is_regular_file(i->status())) continue;
+        if (boost::regex_match(i->path().leaf().string(), _filePattern)) {
+            res.push_back(fileRoot+"/"+i->path().leaf().string());
+        }
+    }
+    return res;
+} // getFilePaths
+
+void SystemTools::
+writeFile(const string &filePath, const string &content) {
     ofstream file;
     file.open(filePath, ios::out);
     file << content;
     file.close();
 }
 
-void SystemTools::removeFile(const string &filePath) {
+void SystemTools::
+removeFile(const string &filePath) {
     if (!boost::filesystem::exists(filePath)) {
         REPORT_WARNING("File \"" << filePath << "\" to be removed does not exist!");
     }

@@ -172,35 +172,53 @@ getTime(uword fileIdx) const {
 template <class DataFileType>
 Time IOManager<DataFileType>::
 getTime(const string &filePath) const {
-    Time time;
-    int ret, fileId, timeVarId; double timeValue; char units[100];
+    Time res;
+    int ret, fileId, timeVarId;
+    double timeValue;
+    char unitsInFile[100], unitsInSeconds[100];
     ret = nc_open(filePath.c_str(), NC_NOWRITE, &fileId);
     CHECK_NC_OPEN(ret, filePath);
     ret = nc_inq_varid(fileId, "time", &timeVarId);
     CHECK_NC_INQ_VARID(ret, filePath, "time");
     ret = nc_get_var(fileId, timeVarId, &timeValue);
     CHECK_NC_GET_VAR(ret, filePath, "time");
-    ret = nc_get_att(fileId, timeVarId, "units", units);
+    ret = nc_get_att_text(fileId, timeVarId, "units", unitsInFile);
     CHECK_NC_GET_ATT(ret, filePath, "time", "units");
     ret = nc_close(fileId);
     CHECK_NC_CLOSE(ret, filePath);
-    regex reDays("^days");
-    regex reDate("(\\d\\d\\d\\d)-(\\d\\d)-(\\d\\d) (\\d\\d)*:(\\d\\d)*:(\\d\\.\\d*)*");
-    match_results<std::string::const_iterator> what; string tmp = units;
+    // Parse time unit.
+    sregex reDate = sregex::compile("(\\d?\\d?\\d?\\d)-(\\d\\d)-(\\d\\d) ((\\d\\d):(\\d\\d):(\\d+(\\.\\d)*))?");
+    smatch what; string tmp = unitsInFile;
     if (regex_search(tmp, what, reDate)) {
-        tmp = what[1]; time.year = atoi(tmp.c_str());
-        tmp = what[2]; time.month = atoi(tmp.c_str());
-        tmp = what[3]; time.day = atoi(tmp.c_str());
-        tmp = what[4]; time.hour = atoi(tmp.c_str());
-        tmp = what[5]; time.minute = atoi(tmp.c_str());
-        tmp = what[6]; time.second = atof(tmp.c_str());
+        sprintf(unitsInSeconds, "seconds since %s", what[0].str().c_str());
+        tmp = what[1]; res.year = atoi(tmp.c_str());
+        tmp = what[2]; res.month = atoi(tmp.c_str());
+        tmp = what[3]; res.day = atoi(tmp.c_str());
+        tmp = what[5]; res.hour = atoi(tmp.c_str());
+        tmp = what[6]; res.minute = atoi(tmp.c_str());
+        tmp = what[7]; res.second = atof(tmp.c_str());
     }
-    if (regex_search(units, reDays)) {
-        time += timeValue*TimeUnit::DAYS;
-    } else {
-        REPORT_ERROR("Unsupported time units!");
+    // Convert time into seconds.
+    ut_set_error_message_handler(ut_ignore);
+    ut_system *utSystem = ut_read_xml(NULL);
+    if (ut_get_status() != UT_SUCCESS) {
+        REPORT_ERROR("udunits: Failed to get units database!");
     }
-    return time;
+    ut_unit *utTimeUnit1 = ut_parse(utSystem, unitsInFile, UT_ASCII);
+    if (ut_get_status() != UT_SUCCESS) {
+        REPORT_ERROR("udunits: Failed to parse time unit \"" << unitsInFile << "\"!");
+    }
+    ut_unit *utTimeUnit2 = ut_parse(utSystem, unitsInSeconds, UT_ASCII);
+    if (ut_get_status() != UT_SUCCESS) {
+        REPORT_ERROR("udunits: Failed to parse time unit \"" << unitsInSeconds << "\"!");
+    }
+    cv_converter *cvConverter = ut_get_converter(utTimeUnit1, utTimeUnit2);
+    if (ut_get_status() != UT_SUCCESS) {
+        REPORT_ERROR("udunits: Failed to get units converter!");
+    }
+    // Add seconds.
+    res += cv_convert_double(cvConverter, timeValue);
+    return res;
 } // getTime
 
 template <class DataFileType>

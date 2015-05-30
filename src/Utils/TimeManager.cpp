@@ -8,28 +8,29 @@ TimeManager::TimeManager() {
     _currTime.useLeap = _useLeap;
     _endTime.useLeap = _useLeap;
     _numStep = 0;
+    REPORT_ONLINE;
 }
 
 TimeManager::~TimeManager() {
-
+    REPORT_OFFLINE;
 }
 
-void TimeManager::init(const Time &startTime, const Time &endTime,
-                       double stepSize) {
-    if (_startTime > _endTime) {
+void TimeManager::
+init(const Time &startTime, const Time &endTime, double stepSize) {
+    if (startTime > endTime) {
         REPORT_ERROR("Start time is less than end time!");
     }
     _startTime = startTime;
     _currTime = startTime;
     _endTime = endTime;
     _stepSize = stepSize;
-}
+} // init
 
 mark_tag tagStepSize(1), tagStepUnit(2);
 sregex reStepSize = (tagStepSize= +_d) >> ' ' >> (tagStepUnit= +_w);
 
-void TimeManager::init(const string &startTime, const string &endTime,
-                       const string &stepSize) {
+void TimeManager::
+init(const string &startTime, const string &endTime, const string &stepSize) {
     _startTime = startTime;
     _currTime = startTime;
     _endTime = endTime;
@@ -60,19 +61,22 @@ void TimeManager::init(const string &startTime, const string &endTime,
     } else {
         REPORT_ERROR("Bad step size format: \"" << stepSize << "\"!");
     }
-}
+} // init
 
-void TimeManager::reset() {
+void TimeManager::
+reset() {
     _numStep = 0;
     _currTime = _startTime;
-}
+} // reset
 
-void TimeManager::reset(int numStep, const Time &currTime) {
+void TimeManager::
+reset(int numStep, const Time &currTime) {
     _numStep = numStep;
     _currTime = currTime;
-}
+} // reset
 
-int TimeManager::addAlarm(TimeStepUnit unit, double freq) {
+int TimeManager::
+addAlarm(TimeStepUnit unit, double freq) {
     // check if there is already an alarm with same frequency
     for (uword i = 0; i < alarms.size(); ++i) {
         if (alarms[i].unit == unit && alarms[i].freq == freq) {
@@ -88,9 +92,10 @@ int TimeManager::addAlarm(TimeStepUnit unit, double freq) {
     alarm.lastStep = _numStep;
     alarms.push_back(alarm);
     return alarms.size()-1;
-}
+} // addAlarm
 
-bool TimeManager::checkAlarm(uword i) {
+bool TimeManager::
+checkAlarm(uword i) {
 #ifndef NDEBUG
     if (i > alarms.size()-1) {
         REPORT_ERROR("Alarm index \"" << i << "\" is out of range!");
@@ -136,9 +141,10 @@ bool TimeManager::checkAlarm(uword i) {
     } else {
         return false;
     }
-}
+} // checkAlarm
 
-void TimeManager::advance(bool mute) {
+void TimeManager::
+advance(bool mute) {
     _numStep++;
     switch (_stepUnit) {
         case YEAR:
@@ -168,9 +174,10 @@ void TimeManager::advance(bool mute) {
             REPORT_ERROR("Invalid time step unit!");
     }
     if (!mute) REPORT_NOTICE(_currTime);
-}
+} // advance
 
-int TimeManager::totalNumStep() const {
+int TimeManager::
+totalNumStep() const {
     int res;
     switch (_stepUnit) {
         case YEAR:
@@ -199,6 +206,6 @@ int TimeManager::totalNumStep() const {
             REPORT_ERROR("Invalid time step unit!");
     }
     return res;
-}
+} // totalNumStep
 
-}
+} // geomtk

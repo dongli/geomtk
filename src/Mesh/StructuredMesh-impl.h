@@ -631,8 +631,9 @@ cellSize(int loc, int cellIdx) const {
     vec res(this->domain().numDim());
     uvec spanIdx = unwrapIndex(loc, cellIdx);
     for (uword m = 0; m < this->domain().numDim(); ++m) {
-        if ((gridTypes(0, m, loc) == GridType::HALF && gridStyles[m] == FULL_LEAD) ||
-            (gridTypes(0, m, loc) == GridType::FULL && gridStyles[m] == HALF_LEAD)) {
+        if (this->domain().axisStartBndType(m) == PERIODIC &&
+            ((gridTypes(0, m, loc) == GridType::HALF && gridStyles[m] == FULL_LEAD) ||
+             (gridTypes(0, m, loc) == GridType::FULL && gridStyles[m] == HALF_LEAD))) {
             res[m] = gridInterval(m, gridTypes[m], spanIdx[m]-1);
         } else {
             res[m] = gridInterval(m, gridTypes[m], spanIdx[m]);

@@ -17,6 +17,7 @@
 #include <mlpack/methods/range_search/range_search.hpp>
 #include <mlpack/core/tree/cover_tree.hpp>
 #include <armadillo>
+#include <udunits2.h>
 
 #include <iostream>
 #include <sstream>
