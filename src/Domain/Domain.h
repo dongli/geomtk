@@ -130,6 +130,9 @@ public:
         return *_vertCoord;
     }
 
+    bool
+    validateCoord(CoordType &x) const;
+
     /**
      *  Check the given space coordinate, especially when the boundary condition
      *  is periodic. The out-of-range coordinate should be put back.
@@ -138,9 +141,6 @@ public:
      *
      *  @return Whether x is within the domain.
      */
-    bool
-    isValid(CoordType &x) const;
-
     bool
     isValid(const CoordType &x) const;
 

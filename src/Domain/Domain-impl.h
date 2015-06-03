@@ -113,7 +113,7 @@ brief() const {
 
 template <typename CoordType>
 bool Domain<CoordType>::
-isValid(CoordType &x) const {
+validateCoord(CoordType &x) const {
     bool res = true;
     for (uword m = 0; m < _numDim; ++m) {
         if (x(m) < axisStart(m)) {
@@ -131,7 +131,7 @@ isValid(CoordType &x) const {
         }
     }
     return res;
-} // isValid
+} // validateCoord
 
 template <typename CoordType>
 bool Domain<CoordType>::

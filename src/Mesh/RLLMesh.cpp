@@ -305,9 +305,6 @@ move(const SphereCoord &x0, double dt, const SphereVelocity &v,
     if (domain().numDim() == 3) {
         double dlev = dt*v(2);
         x1(2) = x0(2)+dlev;
-#ifndef NDEBUG
-        assert(x1(2) >= _domain->axisStart(2) && x1(2) <= domain().axisEnd(2));
-#endif
     }
     x1.transformToCart(*_domain);
 } // move

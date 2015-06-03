@@ -15,6 +15,9 @@ public:
     static vector<string>
     getFilePaths(const string &fileRoot, const string &filePattern);
 
+    static vector<string>
+    getFilePaths(const string &filePattern);
+
     static void
     writeFile(const string &filePath, const string &content);
 

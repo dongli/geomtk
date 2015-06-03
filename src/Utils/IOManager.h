@@ -10,9 +10,10 @@ namespace geomtk {
 /**
  *  This class manages the I/O for fields.
  */
-template <class DataFileType>
+template <class _DataFileType>
 class IOManager {
 public:
+    typedef _DataFileType DataFileType;
     typedef typename DataFileType::MeshType MeshType;
 private:
     TimeManager *timeManager;

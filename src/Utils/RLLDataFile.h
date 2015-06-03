@@ -12,6 +12,8 @@ struct RLLSpaceDimensions : public StructuredSpaceDimensions {
 class RLLDataFile
 : public StructuredDataFile<RLLMesh> {
 public:
+    typedef RLLSpaceDimensions SpaceDimensions;
+
     RLLDataFile(MeshType &mesh, TimeManager &timeManager)
         : StructuredDataFile<RLLMesh>(mesh, timeManager) {}
     virtual ~RLLDataFile() {}

@@ -12,7 +12,7 @@ enum StampType {
 
 class StampString {
 protected:
-    string pattern;
+    string _pattern;
 
     static sregex re4DigitYear;
     static sregex re2DigitYear;
@@ -20,6 +20,9 @@ protected:
     static sregex reMonth;
     static sregex re2DigitDay;
     static sregex reDay;
+    static sregex re2DigitHour;
+    static sregex re2DigitMinute;
+    static sregex re2DigitSecond;
     static sregex re5DigitTOD;
     static sregex reTOD;
     static sregex reStep;
@@ -28,9 +31,14 @@ public:
     StampString(const string &pattern);
     virtual ~StampString();
 
+    const string&
+    pattern() const {
+        return _pattern;
+    }
+
     void
     init(const string &pattern) {
-        this->pattern = pattern;
+        _pattern = pattern;
     }
 
     string
@@ -50,7 +58,7 @@ public:
     
     friend ostream&
     operator<<(ostream &os, const StampString &stampString) {
-        os << stampString.pattern;
+        os << stampString._pattern;
         return os;
     }
 }; // StampString

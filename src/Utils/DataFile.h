@@ -4,6 +4,7 @@
 #include "geomtk_commons.h"
 #include "Field.h"
 #include "StampString.h"
+#include "SystemTools.h"
 
 namespace geomtk {
 
@@ -83,7 +84,13 @@ public:
     typename enable_if<!is_same<AttType, string>::value, AttType>::type
     getAttribute(const string &attName) const {
         AttType res;
-        string filePath = filePattern.run(*_timeManager);
+        string filePath;
+        if (_timeManager->isInited()) {
+            filePath = filePattern.run(*_timeManager);
+        } else {
+            vector<string> filePaths = SystemTools::getFilePaths(filePattern.wildcard());
+            filePath = filePaths.front();
+        }
         int ncId, ret;
         ret = nc_open(filePath.c_str(), NC_NOWRITE, &ncId);
         CHECK_NC_OPEN(ret, filePath);

@@ -8,6 +8,7 @@ TimeManager::TimeManager() {
     _currTime.useLeap = _useLeap;
     _endTime.useLeap = _useLeap;
     _numStep = 0;
+    _isInited = false;
     REPORT_ONLINE;
 }
 
@@ -24,6 +25,7 @@ init(const Time &startTime, const Time &endTime, double stepSize) {
     _currTime = startTime;
     _endTime = endTime;
     _stepSize = stepSize;
+    _isInited = true;
 } // init
 
 mark_tag tagStepSize(1), tagStepUnit(2);
@@ -61,6 +63,7 @@ init(const string &startTime, const string &endTime, const string &stepSize) {
     } else {
         REPORT_ERROR("Bad step size format: \"" << stepSize << "\"!");
     }
+    _isInited = true;
 } // init
 
 void TimeManager::

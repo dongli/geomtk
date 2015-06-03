@@ -11,6 +11,8 @@ struct CartesianSpaceDimensions : public StructuredSpaceDimensions {
 
 class CartesianDataFile : public StructuredDataFile<CartesianMesh> {
 public:
+    typedef CartesianSpaceDimensions SpaceDimensions;
+
 	CartesianDataFile(MeshType &mesh, TimeManager &timeManager)
         : StructuredDataFile<CartesianMesh>(mesh, timeManager) {}
 	virtual ~CartesianDataFile() {}

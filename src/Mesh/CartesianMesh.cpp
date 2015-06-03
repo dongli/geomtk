@@ -162,7 +162,7 @@ void CartesianMesh::
 move(const SpaceCoord &x0, double dt, const Velocity &v,
      const CartesianMeshIndex &idx, SpaceCoord &x1) const {
     x1() = x0()+dt*v();
-    domain().isValid(x1);
+    domain().validateCoord(x1);
 } // move
 
 } // geomtk

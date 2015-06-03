@@ -21,6 +21,7 @@ protected:
     double _stepSize;
     int _numStep;
     vector<Alarm> alarms;
+    bool _isInited;
 public:
     TimeManager();
     ~TimeManager();
@@ -38,6 +39,11 @@ public:
     void
     init(const string &startTime, const string &endTime,
               const string &stepSize);
+
+    bool
+    isInited() const {
+        return _isInited;
+    }
 
     void
     reset();
