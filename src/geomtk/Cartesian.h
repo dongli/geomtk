@@ -25,6 +25,7 @@ using Field = geomtk::CartesianField<DataType, NumTimeLevel>;
 typedef geomtk::CartesianVelocityField VelocityField;
 typedef geomtk::CartesianRegrid Regrid;
 typedef geomtk::IOManager<geomtk::CartesianDataFile> IOManager;
+typedef geomtk::Diagnostics<Mesh, Field, IOManager> Diagnostics;
 
 const int FULL_DIMENSION = geomtk::CartesianSpaceDimensions::FULL_DIMENSION;
 const int FULL = geomtk::CartesianStagger::GridType::FULL;

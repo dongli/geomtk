@@ -319,9 +319,9 @@ cellIndex(const MeshType &mesh, int loc) const {
         auto gridType = mesh.gridType(m, loc, true);
         if ((gridStyle == FULL_LEAD && gridType == GridType::HALF) ||
             (gridStyle == HALF_LEAD && gridType == GridType::FULL)) {
-            spanIdx[m] = indices[m][mesh.gridType(m, loc, true)]+1;
+            spanIdx[m] = indices[m][gridType]+1;
         } else {
-            spanIdx[m] = indices[m][mesh.gridType(m, loc, true)];
+            spanIdx[m] = indices[m][gridType];
         }
     }
     return mesh.wrapIndex(mesh.dualGridLocation(loc), spanIdx);

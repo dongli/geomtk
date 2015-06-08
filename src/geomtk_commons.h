@@ -48,6 +48,7 @@ using arma::Mat;
 using boost::is_same;
 using boost::variant;
 using boost::any;
+using boost::any_cast;
 using boost::regex;
 using boost::regex_search;
 using boost::match_results;

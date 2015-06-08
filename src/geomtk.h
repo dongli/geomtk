@@ -48,5 +48,6 @@
  // Interfaces
 #include "AdvectionManagerInterface.h"
 #include "AdvectionTestInterface.h"
+#include "Diagnostics.h"
 
 #endif

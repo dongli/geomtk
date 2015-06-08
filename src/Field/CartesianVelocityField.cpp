@@ -41,6 +41,7 @@ calcDivergence(const TimeLevelIndex<2> &timeIdx) {
         } else {
             REPORT_ERROR("Under construction!");
         }
+        break;
     case 3:
         if (v[0].staggerLocation() == Location::CENTER &&
             v[1].staggerLocation() == Location::CENTER &&
@@ -81,8 +82,8 @@ calcDivergence(const TimeLevelIndex<2> &timeIdx) {
                         double v2 = v[1](timeIdx, i, j,   k);
                         double dy = mesh().gridInterval(1, GridType::HALF, j);
                         double dvdy = (v2-v1)/dy;
-                        double w1 = v[2](timeIdx, i, j, k-1);
-                        double w2 = v[2](timeIdx, i, j, k  );
+                        double w1 = v[2](timeIdx, i, j, k);
+                        double w2 = v[2](timeIdx, i, j, k+1);
                         double dz = mesh().gridInterval(2, GridType::HALF, k);
                         double dwdz = (w2-w1)/dz;
                         div(timeIdx, i, j) = dudx+dvdy+dwdz;
@@ -92,7 +93,7 @@ calcDivergence(const TimeLevelIndex<2> &timeIdx) {
         } else {
             REPORT_ERROR("Under construction!");
         }
-        REPORT_ERROR("Under construction!");
+        break;
     default:
         REPORT_ERROR("Unexpected branch!");
     }

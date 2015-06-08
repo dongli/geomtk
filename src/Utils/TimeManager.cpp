@@ -83,8 +83,6 @@ addAlarm(TimeStepUnit unit, double freq) {
     // check if there is already an alarm with same frequency
     for (uword i = 0; i < alarms.size(); ++i) {
         if (alarms[i].unit == unit && alarms[i].freq == freq) {
-            REPORT_WARNING("There is already an alarm with frequency " <<
-                           freq << " " << unit << "!");
             return i;
         }
     }
