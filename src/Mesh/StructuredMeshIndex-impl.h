@@ -338,6 +338,25 @@ isValid() const {
 } // isValid
 
 template <class MeshType, class CoordType>
+bool StructuredMeshIndex<MeshType, CoordType>::
+atBoundary(const MeshType &mesh) const {
+    bool res = false;
+    for (uword m = 0; m < this->numDim; ++m) {
+        if (mesh.domain().axisStartBndType(m) != RIGID) continue;
+        if (res) break;
+        auto gridStyle = mesh.gridStyle(m);
+        if (gridStyle == FULL_LEAD) {
+            res = indices[m][GridType::FULL] == mesh.startIndex(m, GridType::FULL) ||
+                  indices[m][GridType::FULL] == mesh.endIndex(m, GridType::FULL)-1;
+        } else if (gridStyle == HALF_LEAD) {
+            res = indices[m][GridType::HALF] == mesh.startIndex(m, GridType::HALF) ||
+                  indices[m][GridType::HALF] == mesh.endIndex(m, GridType::HALF)-1;
+        }
+    }
+    return res;
+} // atBounary
+
+template <class MeshType, class CoordType>
 void StructuredMeshIndex<MeshType, CoordType>::
 print() const {
     cout << "Center indices:";

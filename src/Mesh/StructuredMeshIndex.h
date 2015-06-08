@@ -45,6 +45,9 @@ public:
     virtual bool
     isValid() const;
 
+    virtual bool
+    atBoundary(const MeshType &mesh) const;
+
     virtual void
     print() const;
 }; // StructuredMeshIndex

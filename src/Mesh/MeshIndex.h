@@ -38,6 +38,9 @@ public:
     virtual bool
     isValid() const = 0;
 
+    virtual bool
+    atBoundary(const MeshType &mesh) const = 0;
+
     virtual void
     print() const = 0;
 }; // MeshIndex
