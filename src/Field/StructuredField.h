@@ -10,7 +10,7 @@ namespace geomtk {
  *  This class specifies the scalar field on structured mesh. The data type is
  *  templated, so any proper basic type (e.g. double) and classes can be used.
  */
-template <class MeshType, typename DataType, int NumTimeLevel>
+template <class MeshType, typename DataType, int NumTimeLevel = 1>
 class StructuredField : public Field<MeshType> {
 public:
     typedef StructuredStagger::GridType GridType;

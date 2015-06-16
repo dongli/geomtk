@@ -22,7 +22,8 @@ template <typename MetricDataType>
 void Diagnostics<MeshType, FieldType, IOManagerType>::
 addMetric(const string &name, const string &units, const string &longName) {
     MetricDataType *data = new MetricDataType;
-    if (is_same<MetricDataType, CartesianField<int> >::value) {
+    if (is_same<MetricDataType, CartesianField<int> >::value ||
+        is_same<MetricDataType, RLLField<int> >::value) {
         data->create(name, units, longName, *_mesh, MeshType::Location::CENTER, _mesh->domain().numDim());
         _io->file(outputIdx).addField("int", IOManagerType::DataFileType::SpaceDimensions::FULL_DIMENSION, {data});
     }
@@ -39,7 +40,8 @@ resetMetric(const string &name) {
     }
 #endif
     MetricDataType& data = *any_cast<MetricDataType*>(_metrics[name]);
-    if (is_same<MetricDataType, CartesianField<int> >::value) {
+    if (is_same<MetricDataType, CartesianField<int> >::value ||
+        is_same<MetricDataType, RLLField<int> >::value) {
         for (int i = 0; i < _mesh->totalNumGrid(data.staggerLocation()); ++i) {
             data(i) = 0;
         }
@@ -49,11 +51,11 @@ resetMetric(const string &name) {
 template <class MeshType, template <typename, int> class FieldType, class IOManagerType>
 template <typename MetricDataType>
 MetricDataType& Diagnostics<MeshType, FieldType, IOManagerType>::
-    metric(const string &name) {
+metric(const string &name) {
 #ifndef NDEBUG
-        if (_metrics.find(name) == _metrics.end()) {
-            REPORT_ERROR("Invalid metric name \"" << name  << "\"!");
-        }
+    if (_metrics.find(name) == _metrics.end()) {
+        REPORT_ERROR("Invalid metric name \"" << name  << "\"!");
+    }
 #endif
     return *any_cast<MetricDataType*>(_metrics[name]);
 } // metric
@@ -63,8 +65,9 @@ void Diagnostics<MeshType, FieldType, IOManagerType>::
 output() {
     _io->create(outputIdx);
     for (auto metric : _metrics) {
-        if (metric.second.type() == typeid(CartesianField<int>*)) {
-            _io->template output<int>(outputIdx, {any_cast<CartesianField<int>*>(metric.second)});
+        if (metric.second.type() == typeid(CartesianField<int>*) ||
+            metric.second.type() == typeid(RLLField<int>*)) {
+            _io->template output<int>(outputIdx, {any_cast<FieldType<int, 1>*>(metric.second)});
         }
     }
     _io->close(outputIdx);

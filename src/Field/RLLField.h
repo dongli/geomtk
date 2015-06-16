@@ -6,7 +6,7 @@
 
 namespace geomtk {
 
-template <typename DataType, int NumTimeLevel>
+template <typename DataType, int NumTimeLevel = 1>
 class RLLField : public StructuredField<RLLMesh, DataType, NumTimeLevel> {
 public:
 	typedef RLLMesh MeshType;

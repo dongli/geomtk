@@ -26,6 +26,7 @@ typedef geomtk::RLLVelocityField VelocityField;
 typedef geomtk::RLLRegrid Regrid;
 typedef geomtk::IOManager<geomtk::RLLDataFile> IOManager;
 typedef geomtk::RLLFilter<Mesh> Filter;
+typedef geomtk::Diagnostics<Mesh, Field, IOManager> Diagnostics;
 
 const int FULL_DIMENSION = geomtk::RLLSpaceDimensions::FULL_DIMENSION;
 const int FULL = geomtk::RLLStagger::GridType::FULL;
