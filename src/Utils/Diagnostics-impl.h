@@ -18,6 +18,14 @@ init(MeshType &mesh, IOManagerType &io) {
 } // init
 
 template <class MeshType, template <typename, int> class FieldType, class IOManagerType>
+void Diagnostics<MeshType, FieldType, IOManagerType>::
+init(MeshType &mesh, IOManagerType &io, const string &label) {
+    _mesh = &mesh;
+    _io = &io;
+    outputIdx = _io->addOutputFile(*_mesh, "diag."+label+".%5s.nc", TimeStepUnit::STEP, 1);
+} // init
+
+template <class MeshType, template <typename, int> class FieldType, class IOManagerType>
 template <typename MetricDataType>
 void Diagnostics<MeshType, FieldType, IOManagerType>::
 addMetric(const string &name, const string &units, const string &longName) {

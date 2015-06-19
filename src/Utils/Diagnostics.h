@@ -16,6 +16,9 @@ public:
     static void
     init(MeshType &mesh, IOManagerType &io);
 
+    static void
+    init(MeshType &mesh, IOManagerType &io, const string &label);
+
     template <typename MetricDataType>
     static void
     addMetric(const string &name, const string &units, const string &longName);
