@@ -64,9 +64,6 @@ calcDistance(const SphereCoord &x, const SphereCoord &y) const {
 
 double SphereDomain::
 calcDistance(const vec &x, const vec &y) const {
-#ifndef NDEBUG
-    assert(x.size() == 3 && y.size() == 3);
-#endif
     return norm(x-y);
 } // calcDistance
 

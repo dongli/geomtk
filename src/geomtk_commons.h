@@ -60,6 +60,7 @@ using boost::xpressive::repeat;
 using boost::xpressive::_d;
 using boost::xpressive::_w;
 using boost::timer::cpu_timer;
+using boost::property_tree::ptree;
 
 using std::cout;
 using std::cerr;
