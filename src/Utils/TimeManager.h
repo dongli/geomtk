@@ -2,23 +2,20 @@
 #define __GEOMTK_TimeManager__
 
 #include "geomtk_commons.h"
-#include "_Time.h"
 
 namespace geomtk {
 
 struct Alarm {
-    TimeStepUnit unit;
-    double freq;
-    Time lastTime;
+    variant<time_duration, days, months, years> freq;
+    ptime lastTime;
     int lastStep;
 }; // Alarm
 
 class TimeManager {
 protected:
     bool _useLeap;
-    Time _startTime, _currTime, _endTime;
-    TimeStepUnit _stepUnit;
-    double _stepSize;
+    ptime _startTime, _currTime, _endTime;
+    time_duration _stepSize;
     int _numStep;
     vector<Alarm> alarms;
     bool _isInited;
@@ -26,19 +23,17 @@ public:
     TimeManager();
     ~TimeManager();
 
-    /**
-     *  Initialize time manager.
-     *
-     *  @param startTime the start time.
-     *  @param endTime   the end time.
-     *  @param stepSize  the time step size in seconds.
-     */
     void
-    init(const Time &startTime, const Time &endTime, double stepSize);
+    init(const ptime &startTime, const ptime &endTime,
+         const time_duration &stepSize);
+
+    void
+    init(const ptime &startTime, const ptime &endTime,
+         double stepSizeInSeconds);
 
     void
     init(const string &startTime, const string &endTime,
-              const string &stepSize);
+         const string &stepSize);
 
     bool
     isInited() const {
@@ -49,70 +44,46 @@ public:
     reset();
 
     void
-    reset(int numStep, const Time &time);
+    reset(int numStep, const ptime &time);
 
-    /**
-     *  Add an alarm with given frequency
-     *
-     *  @param unit the frequency unit.
-     *  @param freq the frequency.
-     *
-     *  @return The alarm index.
-     */
+    template <class FreqType>
     int
-    addAlarm(TimeStepUnit unit, double freq);
+    addAlarm(const FreqType &freq);
 
-    /**
-     *  Check if an alarm is ringing in current step.
-     *
-     *  @param i the alarm index.
-     *
-     *  @return The boolean status.
-     */
     bool
     checkAlarm(uword i);
 
-    /**
-     *  Advance the time by one time step.
-     *
-     *  @param mute boolean to control whether print message or not.
-     */
+    const Alarm&
+    alarm(uword i) const {
+        return alarms[i];
+    }
+
     void
     advance(bool mute = false);
 
-    /**
-     *  Check if the end time is reached.
-     *
-     *  @return Boolean true if the end time is reached, otherwise false.
-     */
     bool
     isFinished() const {
         return _currTime > _endTime;
     }
     
-    const Time&
+    const ptime&
     startTime() const {
         return _startTime;
     }
 
-    const Time&
+    const ptime&
     currTime() const {
         return _currTime;
     }
 
-    const Time&
+    const ptime&
     endTime() const {
         return _endTime;
     }
 
-    double
+    const time_duration&
     stepSize() const {
         return _stepSize;
-    }
-
-    TimeStepUnit
-    stepUnit() const {
-        return _stepUnit;
     }
 
     int
@@ -125,24 +96,41 @@ public:
 
     double
     seconds() const {
-        return _currTime.seconds(_startTime);
+        return (_currTime-_startTime).total_seconds();
     }
 
     double
     minutes() const {
-        return _currTime.minutes(_startTime);
+        return seconds()/60;
     }
 
     double
     hours() const {
-        return _currTime.hours(_startTime);
+        return minutes()/60;
     }
 
     double
     days() const {
-        return _currTime.days(_startTime);
+        return hours()/24;
     }
 }; // TimeManager
+
+template <class FreqType>
+int TimeManager::
+addAlarm(const FreqType &freq) {
+    for (uword i = 0; i < alarms.size(); ++i) {
+        if (alarms[i].freq.type() == typeid(FreqType) &&
+            boost::get<FreqType>(alarms[i].freq) == freq) {
+            return i;
+        }
+    }
+    Alarm alarm;
+    alarm.freq = freq;
+    alarm.lastTime = _currTime;
+    alarm.lastStep = _numStep;
+    alarms.push_back(alarm);
+    return alarms.size()-1;
+} // addAlarm
 
 } // geomtk
 

@@ -30,47 +30,47 @@ StampString::
 }
 
 string StampString::
-run(const Time &time) const {
+run(const ptime &time) const {
     string res = _pattern;
     smatch what;
     bool matched = false;
     // check year
     if (regex_search(_pattern, what, re4DigitYear)) {
-        stringstream ss; ss << time.year;
+        stringstream ss; ss << time.date().year();
         res = regex_replace(res, re4DigitYear, ss.str());
         matched = true;
     } else if (regex_search(_pattern, what, re2DigitYear)) {
-        stringstream ss; ss << fmod(time.year, 100);
+        stringstream ss; ss << fmod(time.date().year(), 100);
         res = regex_replace(res, re2DigitYear, ss.str());
         matched = true;
     }
     // check month
     if (regex_search(_pattern, what, re2DigitMonth)) {
-        stringstream ss; ss << setw(2) << setfill('0') << time.month;
+        stringstream ss; ss << setw(2) << setfill('0') << time.date().month();
         res = regex_replace(res, re2DigitMonth, ss.str());
         matched = true;
     } else if (regex_search(_pattern, what, reMonth)) {
-        stringstream ss; ss << time.month;
+        stringstream ss; ss << time.date().month();
         res = regex_replace(res, reMonth, ss.str());
         matched = true;
     }
     // check day
     if (regex_search(_pattern, what, re2DigitDay)) {
-        stringstream ss; ss << setw(2) << setfill('0') << time.day;
+        stringstream ss; ss << setw(2) << setfill('0') << time.date().day();
         res = regex_replace(res, re2DigitDay, ss.str());
         matched = true;
     } else if (regex_search(_pattern, what, reDay)) {
-        stringstream ss; ss << time.day;
+        stringstream ss; ss << time.date().day();
         res = regex_replace(res, reDay, ss.str());
         matched = true;
     }
     // check TOD
     if (regex_search(_pattern, what, re5DigitTOD)) {
-        stringstream ss; ss << setw(5) << setfill('0') << time.tod();
+        stringstream ss; ss << setw(5) << setfill('0') << time.time_of_day().total_seconds();
         res = regex_replace(res, re5DigitTOD, ss.str());
         matched = true;
     } else if (regex_search(_pattern, what, reTOD)) {
-        stringstream ss; ss << time.tod();
+        stringstream ss; ss << time.time_of_day().total_seconds();
         res = regex_replace(res, reTOD, ss.str());
         matched = true;
     }
@@ -82,61 +82,63 @@ run(const TimeManager &timeManager) const {
     string res = _pattern;
     smatch what;
     stringstream ss;
-    const Time &time = timeManager.currTime();
+    const ptime &time = timeManager.currTime();
     bool matched = false;
     // Check year.
     if (regex_search(_pattern, what, re4DigitYear)) {
-        ss.str(""); ss << setw(4) << setfill('0') << time.year;
+        ss.str(""); ss << setw(4) << setfill('0') << time.date().year();
         res = regex_replace(res, re4DigitYear, ss.str());
         matched = true;
     } else if (regex_search(_pattern, what, re2DigitYear)) {
-        ss.str(""); ss << fmod(time.year, 100);
+        ss.str(""); ss << fmod(time.date().year(), 100);
         res = regex_replace(res, re2DigitYear, ss.str());
         matched = true;
     }
     // Check month.
     if (regex_search(_pattern, what, re2DigitMonth)) {
-        ss.str(""); ss << setw(2) << setfill('0') << time.month;
+        int month = time.date().month();
+        ss.str(""); ss << setw(2) << setfill('0') << month;
         res = regex_replace(res, re2DigitMonth, ss.str());
         matched = true;
     } else if (regex_search(_pattern, what, reMonth)) {
-        ss.str(""); ss << time.month;
+        int month = time.date().month();
+        ss.str(""); ss << month;
         res = regex_replace(res, reMonth, ss.str());
         matched = true;
     }
     // Check day.
     if (regex_search(_pattern, what, re2DigitDay)) {
-        ss.str(""); ss << setw(2) << setfill('0') << time.day;
+        ss.str(""); ss << setw(2) << setfill('0') << time.date().day();
         res = regex_replace(res, re2DigitDay, ss.str());
         matched = true;
     } else if (regex_search(_pattern, what, reDay)) {
-        ss.str(""); ss << time.day;
+        ss.str(""); ss << time.date().day();
         res = regex_replace(res, reDay, ss.str());
         matched = true;
     }
     // Check hour.
     if (regex_search(_pattern, what, re2DigitHour)) {
-        ss.str(""); ss << setw(2) << setfill('0') << time.hour;
+        ss.str(""); ss << setw(2) << setfill('0') << time.time_of_day().hours();
         res = regex_replace(res, re2DigitHour, ss.str());
         matched = true;
     }
     // Check minute.
     if (regex_search(_pattern, what, re2DigitMinute)) {
-        ss.str(""); ss << setw(2) << setfill('0') << time.minute;
+        ss.str(""); ss << setw(2) << setfill('0') << time.time_of_day().minutes();
         res = regex_replace(res, re2DigitMinute, ss.str());
     }
     // Check second.
     if (regex_search(_pattern, what, re2DigitSecond)) {
-        ss.str(""); ss << setw(2) << setfill('0') << time.second;
+        ss.str(""); ss << setw(2) << setfill('0') << time.time_of_day().seconds();
         res = regex_replace(res, re2DigitSecond, ss.str());
     }
     // Check TOD.
     if (regex_search(_pattern, what, re5DigitTOD)) {
-        ss.str(""); ss << setw(5) << setfill('0') << time.tod();
+        ss.str(""); ss << setw(5) << setfill('0') << time.time_of_day().total_seconds();
         res = regex_replace(res, re5DigitTOD, ss.str());
         matched = true;
     } else if (regex_search(_pattern, what, reTOD)) {
-        ss.str(""); ss << time.tod();
+        ss.str(""); ss << time.time_of_day().total_seconds();
         res = regex_replace(res, reTOD, ss.str());
         matched = true;
     }

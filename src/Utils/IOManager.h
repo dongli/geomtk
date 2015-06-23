@@ -30,11 +30,11 @@ public:
 
     int
     addOutputFile(MeshType &mesh, StampString &filePattern,
-                  TimeStepUnit freqUnit, double freq);
+                  const time_duration &freq);
 
     int
     addOutputFile(MeshType &mesh, const string &filePattern,
-                  TimeStepUnit freqUnit, double freq);
+                  const time_duration &freq);
 
     void
     removeFile(uword fileIdx);
@@ -52,10 +52,10 @@ public:
     void
     create(uword fileIdx);
 
-    Time
+    ptime
     getTime(uword fileIdx) const;
 
-    Time
+    ptime
     getTime(const string &filePath) const;
 
     void

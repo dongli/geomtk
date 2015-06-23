@@ -13,6 +13,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
+#include "boost/date_time/posix_time/posix_time.hpp"
 #include <netcdf.h>
 #include <mlpack/methods/range_search/range_search.hpp>
 #include <mlpack/core/tree/cover_tree.hpp>
@@ -32,6 +33,7 @@
 #include <cstdarg>
 #include <typeinfo>
 #include <random>
+#include <exception>
 
 namespace geomtk {
 
@@ -61,6 +63,19 @@ using boost::xpressive::_d;
 using boost::xpressive::_w;
 using boost::timer::cpu_timer;
 using boost::property_tree::ptree;
+using boost::gregorian::date;
+using boost::gregorian::gregorian_calendar;
+using boost::posix_time::ptime;
+using boost::posix_time::time_duration;
+using boost::posix_time::time_period;
+using boost::posix_time::time_from_string;
+using boost::posix_time::duration_from_string;
+using boost::gregorian::years;
+using boost::gregorian::months;
+using boost::gregorian::days;
+using boost::posix_time::hours;
+using boost::posix_time::minutes;
+using boost::posix_time::seconds;
 
 using std::cout;
 using std::cerr;
@@ -81,6 +96,7 @@ using std::map;
 using std::min;
 using std::max;
 using std::getline;
+using std::exception;
 
 // meta-programming
 using std::enable_if;

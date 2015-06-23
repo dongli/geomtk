@@ -12,12 +12,12 @@ protected:
     string res;
 
     void SetUp() {
-        timeManager.init("1979-01-01 00000", "2008-12-31 86400", "1 month");
+        timeManager.init("1979-01-01 00000", "2008-12-31 86400", "1 hour");
     }
 };
 
 TEST_F(StampStringTest, run) {
-    ss.init("test.%Y-%M-%D.nc");
+    ss.init("test.%Y-%N-%D.nc");
     res = ss.run(timeManager);
     ASSERT_EQ("test.1979-01-01.nc", res);
 
@@ -34,9 +34,9 @@ TEST_F(StampStringTest, run) {
     ASSERT_EQ("test.0.nc", res);
 
     timeManager.advance(true);
-    ss.init("test.%Y-%M-%D.nc");
+    ss.init("test.%Y-%N-%D_%H:%M:%S.nc");
     res = ss.run(timeManager);
-    ASSERT_EQ("test.1979-02-01.nc", res);
+    ASSERT_EQ("test.1979-01-01_01:00:00.nc", res);
 }
 
 #endif // __GEOMTK_StampString_test__

@@ -19,8 +19,8 @@ protected:
     IOManager io;
     uword outputIdx;
     VelocityFieldType velocityField;
-    Time _startTime;
-    Time _endTime;
+    ptime _startTime;
+    ptime _endTime;
     double _stepSize;
     int numTracer;
 public:
@@ -48,12 +48,12 @@ public:
         return _timeManager;
     }
 
-    const Time&
+    const ptime&
     startTime() const {
         return _startTime;
     }
 
-    const Time&
+    const ptime&
     endTime() const {
         return _endTime;
     }

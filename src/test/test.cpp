@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "TimeLevels_test.h"
-#include "Time_test.h"
+#include "TimeManager_test.h"
 #include "SpaceCoord_test.h"
 #include "CartesianDomain_test.h"
 #include "SphereCoord_test.h"

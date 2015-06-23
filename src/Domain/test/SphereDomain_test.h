@@ -52,8 +52,6 @@ TEST_F(SphereDomainTest, CalculateDistance) {
     y.set(1.0/3.0*M_PI, -1.0/3.0*M_PI);
     double d = domain->calcDistance(x, y);
     ASSERT_EQ(x(1)-y(1), d);
-    d = domain->calcDistance(x.data(), y.data());
-    ASSERT_EQ(x(1)-y(1), d);
 }
 
 TEST_F(SphereDomainTest, TransformPS) {

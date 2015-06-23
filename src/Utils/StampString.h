@@ -42,7 +42,7 @@ public:
     }
 
     string
-    run(const Time &time) const;
+    run(const ptime &time) const;
 
     string
     run(const TimeManager &timeManager) const;

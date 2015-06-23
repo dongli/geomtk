@@ -3,10 +3,7 @@
 namespace geomtk {
 
 TimeManager::TimeManager() {
-    _stepUnit = SECOND;
     _useLeap = false;
-    _currTime.useLeap = _useLeap;
-    _endTime.useLeap = _useLeap;
     _numStep = 0;
     _isInited = false;
     REPORT_ONLINE;
@@ -17,7 +14,8 @@ TimeManager::~TimeManager() {
 }
 
 void TimeManager::
-init(const Time &startTime, const Time &endTime, double stepSize) {
+init(const ptime &startTime, const ptime &endTime,
+     const time_duration &stepSize) {
     if (startTime > endTime) {
         REPORT_ERROR("Start time is less than end time!");
     }
@@ -28,40 +26,53 @@ init(const Time &startTime, const Time &endTime, double stepSize) {
     _isInited = true;
 } // init
 
-mark_tag tagStepSize(1), tagStepUnit(2);
-sregex reStepSize = (tagStepSize= +_d) >> ' ' >> (tagStepUnit= +_w);
-
 void TimeManager::
-init(const string &startTime, const string &endTime, const string &stepSize) {
+init(const ptime &startTime, const ptime &endTime,
+     double stepSizeInSeconds) {
+    if (startTime > endTime) {
+        REPORT_ERROR("Start time is less than end time!");
+    }
     _startTime = startTime;
     _currTime = startTime;
     _endTime = endTime;
+    _stepSize = time_duration(0, 0, 0, time_duration::ticks_per_second()*stepSizeInSeconds);
+    _isInited = true;
+} // init
+
+void TimeManager::
+init(const string &startTime, const string &endTime, const string &stepSize) {
+    try {
+        _startTime = time_from_string(startTime);
+    } catch (exception &e) {
+        REPORT_ERROR("Failed to parse time string \"" << startTime << "\" with"
+                     << " exception \"" << e.what() << "\"!");
+    }
+    try {
+        _endTime = time_from_string(endTime);
+    } catch (exception &e) {
+        REPORT_ERROR("Failed to parse time string \"" << endTime << "\" with"
+                     << " exception \"" << e.what() << "\"!");
+    }
+    _currTime = time_from_string(startTime);
+    mark_tag tagStepSize(1), tagStepUnit(2);
+    sregex reStepSize = (tagStepSize= +_d) >> ' ' >> (tagStepUnit= +_w);
     smatch what;
     if (regex_match(stepSize, what, reStepSize)) {
-        _stepSize = atoi(what[tagStepSize].str().c_str());
-        if (what[tagStepUnit] == "year" ||
-            what[tagStepUnit] == "years") {
-            _stepUnit = YEAR;
-        } else if (what[tagStepUnit] == "month" ||
-            what[tagStepUnit] == "months") {
-            _stepUnit = MONTH;
-        } else if (what[tagStepUnit] == "day" ||
-                   what[tagStepUnit] == "days") {
-            _stepUnit = DAY;
-        } else if (what[tagStepUnit] == "hour" ||
-                   what[tagStepUnit] == "hours"){
-            _stepUnit = HOUR;
+        double tmp = atoi(what[tagStepSize].str().c_str());
+        if (what[tagStepUnit] == "hour" ||
+            what[tagStepUnit] == "hours"){
+            _stepSize = time_duration(0, 0, 0, tmp*3600*time_duration::ticks_per_second());
         } else if (what[tagStepUnit] == "minute" ||
                    what[tagStepUnit] == "minutes") {
-            _stepUnit = MINUTE;
+            _stepSize = time_duration(0, 0, 0, tmp*60*time_duration::ticks_per_second());
         } else if (what[tagStepUnit] == "second" ||
                    what[tagStepUnit] == "seconds") {
-            _stepUnit = SECOND;
+            _stepSize = time_duration(0, 0, 0, tmp*time_duration::ticks_per_second());
         } else {
-            REPORT_ERROR("Unknown step unit \"" << what[tagStepUnit] << "\"!");
+            REPORT_ERROR("Invalid step unit \"" << what[tagStepUnit] << "\"!");
         }
     } else {
-        REPORT_ERROR("Bad step size format: \"" << stepSize << "\"!");
+        _stepSize = duration_from_string(stepSize);
     }
     _isInited = true;
 } // init
@@ -73,27 +84,10 @@ reset() {
 } // reset
 
 void TimeManager::
-reset(int numStep, const Time &currTime) {
+reset(int numStep, const ptime &currTime) {
     _numStep = numStep;
     _currTime = currTime;
 } // reset
-
-int TimeManager::
-addAlarm(TimeStepUnit unit, double freq) {
-    // check if there is already an alarm with same frequency
-    for (uword i = 0; i < alarms.size(); ++i) {
-        if (alarms[i].unit == unit && alarms[i].freq == freq) {
-            return i;
-        }
-    }
-    Alarm alarm;
-    alarm.unit = unit;
-    alarm.freq = freq;
-    alarm.lastTime = _currTime;
-    alarm.lastStep = _numStep;
-    alarms.push_back(alarm);
-    return alarms.size()-1;
-} // addAlarm
 
 bool TimeManager::
 checkAlarm(uword i) {
@@ -102,110 +96,67 @@ checkAlarm(uword i) {
         REPORT_ERROR("Alarm index \"" << i << "\" is out of range!");
     }
 #endif
-    double diffTime = 0.0;
-    int diffStep = 0;
-    switch (alarms[i].unit) {
-        case YEAR:
-            diffTime = _currTime.year-alarms[i].lastTime.year;
-            break;
-        case MONTH:
-            diffTime = _currTime.month-alarms[i].lastTime.month;
-            if (diffTime == -11) diffTime = 1;
-            break;
-        case DAY:
-            diffTime = _currTime.days(alarms[i].lastTime);
-            break;
-        case HOUR:
-            diffTime = _currTime.hours(alarms[i].lastTime);
-            break;
-        case MINUTE:
-            diffTime = _currTime.minutes(alarms[i].lastTime);
-            break;
-        case STEP:
-            diffStep = _numStep-alarms[i].lastStep;
-            break;
-        default:
-            REPORT_ERROR("Under construction!");
-            break;
-    }
-    if (alarms[i].unit == STEP) {
-        if (diffStep >= alarms[i].freq || diffStep == 0) {
-            alarms[i].lastStep = _numStep;
-            return true;
+    if (alarms[i].freq.type() == typeid(time_duration)) {
+        const auto &freq = boost::get<time_duration>(alarms[i].freq);
+        if (freq.is_negative()) {
+            int diff = alarms[i].lastStep-_numStep;
+            if (diff == 0 || diff == freq.seconds()) {
+                alarms[i].lastStep = _numStep;
+                return true;
+            }
         } else {
-            return false;
+            time_duration diff = _currTime-alarms[i].lastTime;
+            if (diff.total_seconds() == 0 || diff == freq) {
+                alarms[i].lastTime = _currTime;
+                return true;
+            }
+        }
+    } else if (alarms[i].freq.type() == typeid(boost::gregorian::days)) {
+        const auto &freq = boost::get<boost::gregorian::days>(alarms[i].freq);
+        auto diffDays = _currTime.date()-alarms[i].lastTime.date();
+        auto diffSeconds = _currTime.time_of_day()-alarms[i].lastTime.time_of_day();
+        if (diffSeconds.total_seconds() == 0 &&
+            (diffDays.days() == 0 || diffDays == freq)) {
+            alarms[i].lastTime = _currTime;
+            return true;
+        }
+    } else if (alarms[i].freq.type() == typeid(boost::gregorian::months)) {
+        const auto &freq = boost::get<boost::gregorian::months>(alarms[i].freq);
+        assert(freq.number_of_months() == 1);
+        auto numDay = gregorian_calendar::end_of_month_day(alarms[i].lastTime.date().year(), alarms[i].lastTime.date().month());
+        auto diffDays = _currTime.date()-alarms[i].lastTime.date();
+        auto diffSeconds = _currTime.time_of_day()-alarms[i].lastTime.time_of_day();
+        if (diffSeconds.total_seconds() == 0 &&
+            (diffDays.days() == 0 || diffDays.days() == numDay)) {
+            alarms[i].lastTime = _currTime;
+            return true;
+        }
+    } else if (alarms[i].freq.type() == typeid(boost::gregorian::years)) {
+        const auto &freq = boost::get<boost::gregorian::years>(alarms[i].freq);
+        assert(freq.number_of_years() == 1);
+        auto numDay = gregorian_calendar::is_leap_year(alarms[i].lastTime.date().year()) ? 366 : 365;
+        auto diffDays = _currTime.date()-alarms[i].lastTime.date();
+        auto diffSeconds = _currTime.time_of_day()-alarms[i].lastTime.time_of_day();
+        if (diffSeconds.total_seconds() == 0 &&
+            (diffDays.days() == 0 || diffDays.days() == numDay)) {
+            alarms[i].lastTime = _currTime;
+            return true;
         }
     }
-    if (diffTime >= alarms[i].freq || diffTime == 0) {
-        alarms[i].lastTime = _currTime;
-        return true;
-    } else {
-        return false;
-    }
+    return false;
 } // checkAlarm
 
 void TimeManager::
 advance(bool mute) {
     _numStep++;
-    switch (_stepUnit) {
-        case YEAR:
-            _currTime.year += 1;
-            break;
-        case MONTH:
-            if (_currTime.month != 12) {
-                _currTime.month += 1;
-            } else {
-                _currTime.month = 1;
-                _currTime.year += 1;
-            }
-            break;
-        case DAY:
-            _currTime += _stepSize*TimeUnit::DAYS;
-            break;
-        case HOUR:
-            _currTime += _stepSize*TimeUnit::HOURS;
-            break;
-        case MINUTE:
-            _currTime += _stepSize*TimeUnit::MINUTES;
-            break;
-        case SECOND:
-            _currTime += _stepSize;
-            break;
-        default:
-            REPORT_ERROR("Invalid time step unit!");
-    }
+    _currTime += _stepSize;
     if (!mute) REPORT_NOTICE(_currTime);
 } // advance
 
 int TimeManager::
 totalNumStep() const {
     int res;
-    switch (_stepUnit) {
-        case YEAR:
-            res = _endTime.year-_startTime.year+1;
-            break;
-        case MONTH:
-            if (_endTime.year == _startTime.year) {
-                res = _endTime.month-_startTime.month+1;
-            } else {
-                res = (_endTime.year-_startTime.year)*12-_startTime.month+1+_endTime.month;
-            }
-            break;
-        case DAY:
-            REPORT_ERROR("Under construction!");
-            break;
-        case HOUR:
-            REPORT_ERROR("Under construction!");
-            break;
-        case MINUTE:
-            REPORT_ERROR("Under construction!");
-            break;
-        case SECOND:
-            REPORT_ERROR("Under construction!");
-            break;
-        default:
-            REPORT_ERROR("Invalid time step unit!");
-    }
+    res = static_cast<double>((_endTime-_startTime).total_seconds())/_stepSize.total_seconds();
     return res;
 } // totalNumStep
 

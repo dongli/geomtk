@@ -37,7 +37,7 @@ addInputFile(MeshType &mesh, const string &filePattern) {
 template <class DataFileType>
 int IOManager<DataFileType>::
 addOutputFile(typename DataFileType::MeshType &mesh, StampString &filePattern,
-              TimeStepUnit freqUnit, double freq) {
+              const time_duration &freq) {
     for (uword i = 0; i < files.size(); ++i) {
         if (files[i].ioType == OUTPUT && files[i].filePattern == filePattern) {
             REPORT_ERROR("File with pattern \"" << filePattern <<
@@ -48,9 +48,8 @@ addOutputFile(typename DataFileType::MeshType &mesh, StampString &filePattern,
     DataFileType file(mesh, *timeManager);
     file.filePattern = filePattern;
     file.ioType = OUTPUT;
-    file.freqUnit = freqUnit;
     file.freq = freq;
-    file.alarmIdx = timeManager->addAlarm(freqUnit, freq);
+    file.alarmIdx = timeManager->addAlarm(freq);
     file.isActive = false;
     file.lastTime = -1;
     files.push_back(file);
@@ -61,9 +60,9 @@ addOutputFile(typename DataFileType::MeshType &mesh, StampString &filePattern,
 template <class DataFileType>
 int IOManager<DataFileType>::
 addOutputFile(typename DataFileType::MeshType &mesh, const string &filePattern,
-              TimeStepUnit freqUnit, double freq) {
+              const time_duration &freq) {
     StampString tmp(filePattern);
-    return addOutputFile(mesh, tmp, freqUnit, freq);
+    return addOutputFile(mesh, tmp, freq);
 } // addOutputFile
 
 template <class DataFileType>
@@ -131,7 +130,7 @@ create(uword fileIdx) {
     CHECK_NC_DEF_DIM(ret, file.filePath, "time");
     ret = nc_def_var(file.fileId, "time", NC_DOUBLE, 1, &file.timeDimId, &file.timeVarId);
     CHECK_NC_DEF_VAR(ret, file.filePath, "time")
-    string units = "days since "+timeManager->startTime().s();
+    string units = "days since "+to_simple_string(timeManager->startTime());
     ret = nc_put_att(file.fileId, file.timeVarId, "units", NC_CHAR,
                      units.length(), units.c_str());
     CHECK_NC_PUT_ATT(ret, file.filePath, "time", "units");
@@ -141,64 +140,22 @@ create(uword fileIdx) {
 } // create
 
 template <class DataFileType>
-Time IOManager<DataFileType>::
+ptime IOManager<DataFileType>::
 getTime(uword fileIdx) const {
-    Time time;
+    ptime res;
     const DataFileType &file = files[fileIdx];
-    int ret; double timeValue; char units[100];
+    int ret; double timeValue;
+    char unitsInFile[100], unitsInSeconds[100];
     ret = nc_get_var(file.fileId, file.timeVarId, &timeValue);
     CHECK_NC_GET_VAR(ret, file.filePath, "time");
-    ret = nc_get_att(file.fileId, file.timeVarId, "units", units);
+    ret = nc_get_att(file.fileId, file.timeVarId, "units", unitsInFile);
     CHECK_NC_GET_ATT(ret, file.filePath, "time", "units");
-    regex reDays("^days");
     regex reDate("(\\d\\d\\d\\d)-(\\d\\d)-(\\d\\d) (\\d\\d)*:(\\d\\d)*:(\\d\\.\\d*)*");
-    match_results<std::string::const_iterator> what; string tmp = units;
-    if (regex_search(tmp, what, reDate)) {
-        tmp = what[1]; time.year = atoi(tmp.c_str());
-        tmp = what[2]; time.month = atoi(tmp.c_str());
-        tmp = what[3]; time.day = atoi(tmp.c_str());
-        tmp = what[4]; time.hour = atoi(tmp.c_str());
-        tmp = what[5]; time.minute = atoi(tmp.c_str());
-        tmp = what[6]; time.second = atof(tmp.c_str());
-    }
-    if (regex_search(units, reDays)) {
-        time += timeValue*TimeUnit::DAYS;
-    } else {
-        REPORT_ERROR("Unsupported time units!");
-    }
-    return time;
-} // getTime
-
-template <class DataFileType>
-Time IOManager<DataFileType>::
-getTime(const string &filePath) const {
-    Time res;
-    int ret, fileId, timeVarId;
-    double timeValue;
-    char unitsInFile[100], unitsInSeconds[100];
-    ret = nc_open(filePath.c_str(), NC_NOWRITE, &fileId);
-    CHECK_NC_OPEN(ret, filePath);
-    ret = nc_inq_varid(fileId, "time", &timeVarId);
-    CHECK_NC_INQ_VARID(ret, filePath, "time");
-    ret = nc_get_var(fileId, timeVarId, &timeValue);
-    CHECK_NC_GET_VAR(ret, filePath, "time");
-    ret = nc_get_att_text(fileId, timeVarId, "units", unitsInFile);
-    CHECK_NC_GET_ATT(ret, filePath, "time", "units");
-    ret = nc_close(fileId);
-    CHECK_NC_CLOSE(ret, filePath);
-    // Parse time unit.
-    sregex reDate = sregex::compile("(\\d?\\d?\\d?\\d)-(\\d\\d)-(\\d\\d) ((\\d\\d):(\\d\\d):(\\d+(\\.\\d)*))?");
-    smatch what; string tmp = unitsInFile;
-    if (regex_search(tmp, what, reDate)) {
+    match_results<std::string::const_iterator> what;
+    if (regex_search(string(unitsInFile), what, reDate)) {
         sprintf(unitsInSeconds, "seconds since %s", what[0].str().c_str());
-        tmp = what[1]; res.year = atoi(tmp.c_str());
-        tmp = what[2]; res.month = atoi(tmp.c_str());
-        tmp = what[3]; res.day = atoi(tmp.c_str());
-        tmp = what[5]; res.hour = atoi(tmp.c_str());
-        tmp = what[6]; res.minute = atoi(tmp.c_str());
-        tmp = what[7]; res.second = atof(tmp.c_str());
+        res = time_from_string(what[0]);
     }
-    // Convert time into seconds.
     ut_set_error_message_handler(ut_ignore);
     ut_system *utSystem = ut_read_xml(NULL);
     if (ut_get_status() != UT_SUCCESS) {
@@ -216,8 +173,51 @@ getTime(const string &filePath) const {
     if (ut_get_status() != UT_SUCCESS) {
         REPORT_ERROR("udunits: Failed to get units converter!");
     }
-    // Add seconds.
-    res += cv_convert_double(cvConverter, timeValue);
+    res += time_duration(0, 0, 0, time_duration::ticks_per_second()*cv_convert_double(cvConverter, timeValue));
+    return res;
+} // getTime
+
+template <class DataFileType>
+ptime IOManager<DataFileType>::
+getTime(const string &filePath) const {
+    ptime res;
+    int ret, fileId, timeVarId;
+    double timeValue;
+    char unitsInFile[100], unitsInSeconds[100];
+    ret = nc_open(filePath.c_str(), NC_NOWRITE, &fileId);
+    CHECK_NC_OPEN(ret, filePath);
+    ret = nc_inq_varid(fileId, "time", &timeVarId);
+    CHECK_NC_INQ_VARID(ret, filePath, "time");
+    ret = nc_get_var(fileId, timeVarId, &timeValue);
+    CHECK_NC_GET_VAR(ret, filePath, "time");
+    ret = nc_get_att_text(fileId, timeVarId, "units", unitsInFile);
+    CHECK_NC_GET_ATT(ret, filePath, "time", "units");
+    ret = nc_close(fileId);
+    CHECK_NC_CLOSE(ret, filePath);
+    regex reDate("(\\d\\d\\d\\d)-(\\d\\d)-(\\d\\d) (\\d\\d)*:(\\d\\d)*:(\\d\\.\\d*)*");
+    match_results<std::string::const_iterator> what;
+    if (regex_search(string(unitsInFile), what, reDate)) {
+        sprintf(unitsInSeconds, "seconds since %s", what[0].str().c_str());
+        res = time_from_string(what[0]);
+    }
+    ut_set_error_message_handler(ut_ignore);
+    ut_system *utSystem = ut_read_xml(NULL);
+    if (ut_get_status() != UT_SUCCESS) {
+        REPORT_ERROR("udunits: Failed to get units database!");
+    }
+    ut_unit *utTimeUnit1 = ut_parse(utSystem, unitsInFile, UT_ASCII);
+    if (ut_get_status() != UT_SUCCESS) {
+        REPORT_ERROR("udunits: Failed to parse time unit \"" << unitsInFile << "\"!");
+    }
+    ut_unit *utTimeUnit2 = ut_parse(utSystem, unitsInSeconds, UT_ASCII);
+    if (ut_get_status() != UT_SUCCESS) {
+        REPORT_ERROR("udunits: Failed to parse time unit \"" << unitsInSeconds << "\"!");
+    }
+    cv_converter *cvConverter = ut_get_converter(utTimeUnit1, utTimeUnit2);
+    if (ut_get_status() != UT_SUCCESS) {
+        REPORT_ERROR("udunits: Failed to get units converter!");
+    }
+    res += time_duration(0, 0, 0, time_duration::ticks_per_second()*cv_convert_double(cvConverter, timeValue));
     return res;
 } // getTime
 
@@ -228,7 +228,7 @@ updateTime(uword fileIdx, TimeManager &timeManager) {
     int timeStep, ret;
     ret = nc_get_att(file.fileId, NC_GLOBAL, "time_step", &timeStep);
     CHECK_NC_GET_ATT(ret, file.filePath, "NC_GLOBAL", "time_step");
-    Time time = getTime(fileIdx);
+    ptime time = getTime(fileIdx);
     timeManager.reset(timeStep, time);
 } // updateTime
 

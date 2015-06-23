@@ -22,9 +22,9 @@ protected:
     StampString filePattern;
 
     void SetUp() {
-        Time startTime(0), endTime(1*TimeUnit::DAYS);
+        ptime startTime(date(2000, 1, 1)), endTime(date(2000, 1, 2));
         filePattern.init("test-output.%5s.nc");
-        timeManager.init(startTime, endTime, 1*TimeUnit::MINUTES);
+        timeManager.init(startTime, endTime, minutes(1));
         ioManager.init(timeManager);
     }
     
@@ -63,7 +63,7 @@ TEST_F(IOManagerTest, OutputFrequency) {
     mesh = new RLLMesh(*domain);
     mesh->init(10, 10);
 
-    int fileIdx = ioManager.addOutputFile(*mesh, filePattern, MINUTE, 5);
+    int fileIdx = ioManager.addOutputFile(*mesh, filePattern, minutes(5));
     RLLDataFile &dataFile = ioManager.files[fileIdx];
     ASSERT_FALSE(dataFile.isActive);
     while (!timeManager.isFinished()) {
@@ -96,7 +96,7 @@ TEST_F(IOManagerTest, OutputField) {
         f3(timeIdx, i) = 3;
     }
 
-    int fileIdx = ioManager.addOutputFile(*mesh, filePattern, STEP, 1);
+    int fileIdx = ioManager.addOutputFile(*mesh, filePattern, seconds(-1));
     ioManager.file(fileIdx).addField("double", RLLSpaceDimensions::FULL_DIMENSION, {&f1, &f2, &f3});
     ioManager.create(fileIdx);
     ioManager.output<double, 2>(fileIdx, timeIdx, {&f1, &f2});

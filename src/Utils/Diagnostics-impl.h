@@ -14,7 +14,7 @@ void Diagnostics<MeshType, FieldType, IOManagerType>::
 init(MeshType &mesh, IOManagerType &io) {
     _mesh = &mesh;
     _io = &io;
-    outputIdx = _io->addOutputFile(*_mesh, "diag.%5s.nc", TimeStepUnit::STEP, 1);
+    outputIdx = _io->addOutputFile(*_mesh, "diag.%5s.nc", time_duration(0, 0, -1));
 } // init
 
 template <class MeshType, template <typename, int> class FieldType, class IOManagerType>
@@ -22,7 +22,7 @@ void Diagnostics<MeshType, FieldType, IOManagerType>::
 init(MeshType &mesh, IOManagerType &io, const string &label) {
     _mesh = &mesh;
     _io = &io;
-    outputIdx = _io->addOutputFile(*_mesh, "diag."+label+".%5s.nc", TimeStepUnit::STEP, 1);
+    outputIdx = _io->addOutputFile(*_mesh, "diag."+label+".%5s.nc", time_duration(0, 0, -1));
 } // init
 
 template <class MeshType, template <typename, int> class FieldType, class IOManagerType>
