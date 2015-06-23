@@ -6,76 +6,87 @@
 namespace geomtk {
 
 class ConfigManager {
-    string filePath;
-    boost::property_tree::ptree pt;
+    static map<string, ptree> ptrees;
 public:
-    ConfigManager();
-    virtual ~ConfigManager();
-
     /**
      *  Parse the configuration from a given file.
      *
      *  @param filePath the configure file path.
      *  @param mute     the control boolean.
      */
-    void parse(const string &filePath, bool mute = false);
+    static void
+    parse(const string &filePath, bool mute = false);
 
     template <typename T>
-    void addKeyValue(const string &group, const string &key, const T &value);
+    static void
+    addKeyValue(const string &group, const string &key, const T &value);
 
-    bool hasGroup(const string &group) const;
+    static bool
+    hasGroup(const string &group);
 
-    vector<string> getGroups() const;
+    static vector<string>
+    getGroups();
 
-    bool hasKey(const string &group, const string &key) const;
+    static bool
+    hasKey(const string &group, const string &key);
 
-    vector<string> getKeys(const string &group) const;
+    static vector<string>
+    getKeys(const string &group);
 
     template <typename T>
-    T getValue(const string &group, const string &key) const;
+    static T
+    getValue(const string &group, const string &key);
 
     template <typename T>
-    T getValue(const string &group, const string &key, const T &defaultValue) const;
+    static T
+    getValue(const string &group, const string &key, const T &defaultValue);
 
-    void print() const;
+    static void
+    print();
 private:
-    void printPropertyTree(const boost::property_tree::ptree &pt,
-                           int level = 0) const;
-};
+    static void
+    printPropertyTree(const boost::property_tree::ptree &pt, int level = 0);
+}; // ConfigManager
 
 template <typename T>
-void ConfigManager::addKeyValue(const string &group, const string &key,
-                                const T &value) {
+void ConfigManager::
+addKeyValue(const string &group, const string &key, const T &value) {
     if (hasKey(group, key)) {
         REPORT_ERROR("Already add key \"" << key << "\" in group \"" <<
                      group << "\"!");
     }
-    pt.put(group+"."+key, value);
-}
-
-template <typename T>
-T ConfigManager::getValue(const string &group, const string &key) const {
-    if (!hasGroup(group)) {
-        printPropertyTree(pt);
-        REPORT_ERROR("Configure file \"" << filePath <<
-                     "\" does not have group \"" << group << "\"!");
+    if (ptrees.find("memory") != ptrees.end()) {
+        ptree pt;
+        ptrees["memory"] = pt;
     }
-    if (!hasKey(group, key)) {
-        REPORT_ERROR("Configure file \"" << filePath <<
-                     "\" does not have key \"" << key << "\" in group \"" <<
-                     group << "\"!");
-    }
-    return pt.get<T>(group+"."+key);
-}
+    ptrees["memory"].put(group+"."+key, value);
+} // addKeyValue
 
 template <typename T>
 T ConfigManager::
-getValue(const string &group, const string &key, const T &defaultValue) const {
+getValue(const string &group, const string &key) {
+    for (auto const &it : ptrees) {
+        const ptree &pt = it.second;
+        if (pt.get_child_optional(group+"."+key)) {
+            return pt.get<T>(group+"."+key);
+        }
+    }
+    REPORT_ERROR("There is no key \"" << key << "\" in group \"" << group << "\"!");
+} // getValue
+
+template <typename T>
+T ConfigManager::
+getValue(const string &group, const string &key, const T &defaultValue) {
     if (!hasGroup(group) || !hasKey(group, key)) {
         return defaultValue;
     }
-    return pt.get<T>(group+"."+key);
-}
+    for (auto const &it : ptrees) {
+        const ptree &pt = it.second;
+        if (pt.get_child_optional(group+"."+key)) {
+            return pt.get<T>(group+"."+key);
+        }
+    }
+} // getValue
 
 }
 

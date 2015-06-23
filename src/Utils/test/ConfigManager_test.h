@@ -5,20 +5,7 @@
 
 using namespace geomtk;
 
-class ConfigManagerTest : public ::testing::Test {
-protected:
-    ConfigManager configManager;
-
-    void SetUp() {
-
-    }
-
-    void TearDown() {
-
-    }
-};
-
-TEST_F(ConfigManagerTest, Parse) {
+TEST(ConfigManager, Parse) {
     stringstream ss;
     ss << "{" << endl;
     ss << "  \"test_config\":" << endl;
@@ -31,18 +18,26 @@ TEST_F(ConfigManagerTest, Parse) {
     ss << "}" << endl;
     SystemTools::writeFile("test.config", ss.str());
 
-    configManager.parse("test.config");
+    ConfigManager::parse("test.config");
 
-    double a = configManager.getValue<double>("test_config", "a");
+    double a = ConfigManager::getValue<double>("test_config", "a");
     ASSERT_EQ(a, 1.0);
-    string b = configManager.getValue<string>("test_config", "b");
+    string b = ConfigManager::getValue<string>("test_config", "b");
     ASSERT_EQ(b, "hello, \"world\"!");
-    double c = configManager.getValue<double>("test_config", "c");
+    double c = ConfigManager::getValue<double>("test_config", "c");
     ASSERT_EQ(c, -1.0);
-    double d = configManager.getValue<double>("test_config", "d");
+    double d = ConfigManager::getValue<double>("test_config", "d");
     ASSERT_EQ(d, -1.0e+10);
 
+    ASSERT_TRUE(ConfigManager::hasGroup("test_config"));
+    ASSERT_FALSE(ConfigManager::hasGroup("foo"));
+
     SystemTools::removeFile("test.config");
+}
+
+TEST(ConfigManager, AddKeyValue) {
+    ConfigManager::addKeyValue("test_config", "e", "abc");
+    ASSERT_EQ("abc", ConfigManager::getValue<string>("test_config", "e"));
 }
 
 #endif // __GEOMTK_ConfigManager_test__
