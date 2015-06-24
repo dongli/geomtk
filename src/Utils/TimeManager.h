@@ -33,6 +33,9 @@ durationFromString(const string &str) {
         } else if (what[tagUnit] == "year" ||
                    what[tagUnit] == "years") {
             res = years(tmp);
+        } else if (what[tagUnit] == "step" ||
+                   what[tagUnit] == "steps") {
+            res = time_duration(0, 0, -tmp);
         } else {
             REPORT_ERROR("Invalid step unit \"" << what[tagUnit] << "\"!");
         }

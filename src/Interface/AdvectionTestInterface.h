@@ -64,8 +64,7 @@ public:
     }
 
     virtual void
-    init(const ConfigManager &configManager,
-         AdvectionManager &advectionManager) = 0;
+    init(AdvectionManager &advectionManager) = 0;
 
     virtual void
     setInitialCondition(AdvectionManager &advectionManager) = 0;

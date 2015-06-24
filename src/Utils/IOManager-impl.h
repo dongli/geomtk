@@ -37,7 +37,7 @@ addInputFile(MeshType &mesh, const string &filePattern) {
 template <class DataFileType>
 int IOManager<DataFileType>::
 addOutputFile(typename DataFileType::MeshType &mesh, StampString &filePattern,
-              const time_duration &freq) {
+              const duration &freq) {
     for (uword i = 0; i < files.size(); ++i) {
         if (files[i].ioType == OUTPUT && files[i].filePattern == filePattern) {
             REPORT_ERROR("File with pattern \"" << filePattern <<
@@ -59,32 +59,8 @@ addOutputFile(typename DataFileType::MeshType &mesh, StampString &filePattern,
 
 template <class DataFileType>
 int IOManager<DataFileType>::
-addOutputFile(typename DataFileType::MeshType &mesh, StampString &filePattern,
-              const string &freq) {
-    for (uword i = 0; i < files.size(); ++i) {
-        if (files[i].ioType == OUTPUT && files[i].filePattern == filePattern) {
-            REPORT_ERROR("File with pattern \"" << filePattern <<
-                         "\" has already been added for output!");
-        }
-    }
-    // add an alarm for output
-    DataFileType file(mesh, *timeManager);
-    file.filePattern = filePattern;
-    file.ioType = OUTPUT;
-    file.freq = durationFromString(freq);
-    file.alarmIdx = timeManager->addAlarm(freq);
-    file.isActive = false;
-    file.lastTime = -1;
-    files.push_back(file);
-    REPORT_NOTICE("Add output file with pattern " << filePattern << ".");
-    return files.size()-1;
-} // addOutputFile
-
-template <class DataFileType>
-template <class T>
-int IOManager<DataFileType>::
 addOutputFile(typename DataFileType::MeshType &mesh, const string &filePattern,
-              const T &freq) {
+              const duration &freq) {
     StampString tmp(filePattern);
     return addOutputFile(mesh, tmp, freq);
 } // addOutputFile

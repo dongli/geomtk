@@ -30,7 +30,7 @@ public:
     int timeDimId, timeVarId;
     vector<FieldInfo<MeshType> > fieldInfos;
     IOType ioType;
-    time_duration freq;
+    duration freq;
     double lastTime;
     int alarmIdx;
     bool isActive;

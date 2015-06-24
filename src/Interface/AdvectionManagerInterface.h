@@ -11,7 +11,7 @@ protected:
     const MeshType *mesh;
 public:
     virtual void
-    init(const ConfigManager &configManager, const MeshType &mesh) = 0;
+    init(const MeshType &mesh) = 0;
 
     virtual void
     addTracer(const string &name, const string &unit, const string &comment) = 0;
