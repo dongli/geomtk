@@ -85,12 +85,4 @@ TEST_F(RLLVelocityFieldTest, RingVelocity) {
     }
 }
 
-TEST_F(RLLVelocityFieldTest, Divergence) {
-    ASSERT_TRUE(false);
-}
-
-TEST_F(RLLVelocityFieldTest, Vorticity) {
-    ASSERT_TRUE(false);
-}
-
 #endif // __GEOMTK_RLLVelocityField_test__

@@ -15,19 +15,6 @@ TimeManager::~TimeManager() {
 
 void TimeManager::
 init(const ptime &startTime, const ptime &endTime,
-     const time_duration &stepSize) {
-    if (startTime > endTime) {
-        REPORT_ERROR("Start time is less than end time!");
-    }
-    _startTime = startTime;
-    _currTime = startTime;
-    _endTime = endTime;
-    _stepSize = stepSize;
-    _isInited = true;
-} // init
-
-void TimeManager::
-init(const ptime &startTime, const ptime &endTime,
      double stepSizeInSeconds) {
     if (startTime > endTime) {
         REPORT_ERROR("Start time is less than end time!");
@@ -54,26 +41,7 @@ init(const string &startTime, const string &endTime, const string &stepSize) {
                      << " exception \"" << e.what() << "\"!");
     }
     _currTime = time_from_string(startTime);
-    mark_tag tagStepSize(1), tagStepUnit(2);
-    sregex reStepSize = (tagStepSize= +_d) >> ' ' >> (tagStepUnit= +_w);
-    smatch what;
-    if (regex_match(stepSize, what, reStepSize)) {
-        double tmp = atoi(what[tagStepSize].str().c_str());
-        if (what[tagStepUnit] == "hour" ||
-            what[tagStepUnit] == "hours"){
-            _stepSize = time_duration(0, 0, 0, tmp*3600*time_duration::ticks_per_second());
-        } else if (what[tagStepUnit] == "minute" ||
-                   what[tagStepUnit] == "minutes") {
-            _stepSize = time_duration(0, 0, 0, tmp*60*time_duration::ticks_per_second());
-        } else if (what[tagStepUnit] == "second" ||
-                   what[tagStepUnit] == "seconds") {
-            _stepSize = time_duration(0, 0, 0, tmp*time_duration::ticks_per_second());
-        } else {
-            REPORT_ERROR("Invalid step unit \"" << what[tagStepUnit] << "\"!");
-        }
-    } else {
-        _stepSize = duration_from_string(stepSize);
-    }
+    _stepSize = durationFromString(stepSize);
     _isInited = true;
 } // init
 
@@ -146,17 +114,48 @@ checkAlarm(uword i) {
     return false;
 } // checkAlarm
 
+double TimeManager::
+stepSizeInSeconds() const {
+    double res;
+    if (_stepSize.type() == typeid(time_duration)) {
+        res = boost::get<time_duration>(_stepSize).total_seconds();
+    } else if (_stepSize.type() == typeid(boost::gregorian::days)) {
+        res = boost::get<boost::gregorian::days>(_stepSize).days()*86400;
+    } else if (_stepSize.type() == typeid(boost::gregorian::months)) {
+        REPORT_ERROR("Step size unit is month and cannot be converted to seconds!");
+    } else if (_stepSize.type() == typeid(boost::gregorian::years)) {
+        REPORT_ERROR("Step size unit is year and cannot be converted to seconds!");
+    }
+    return res;
+} // stepSizeInSeconds
+
 void TimeManager::
 advance(bool mute) {
     _numStep++;
-    _currTime += _stepSize;
+    if (_stepSize.type() == typeid(time_duration)) {
+        _currTime += boost::get<time_duration>(_stepSize);
+    } else if (_stepSize.type() == typeid(boost::gregorian::days)) {
+        _currTime += boost::get<boost::gregorian::days>(_stepSize);
+    } else if (_stepSize.type() == typeid(boost::gregorian::months)) {
+        _currTime += boost::get<boost::gregorian::months>(_stepSize);
+    } else if (_stepSize.type() == typeid(boost::gregorian::years)) {
+        _currTime += boost::get<boost::gregorian::years>(_stepSize);
+    }
     if (!mute) REPORT_NOTICE(_currTime);
 } // advance
 
 int TimeManager::
 totalNumStep() const {
     int res;
-    res = static_cast<double>((_endTime-_startTime).total_seconds())/_stepSize.total_seconds();
+    if (_stepSize.type() == typeid(time_duration)) {
+        res = static_cast<double>((_endTime-_startTime).total_seconds())/boost::get<time_duration>(_stepSize).total_seconds();
+    } else if (_stepSize.type() == typeid(boost::gregorian::days)) {
+        res = static_cast<double>((_endTime.date()-_startTime.date()).days()/boost::get<boost::gregorian::days>(_stepSize).days());
+    } else if (_stepSize.type() == typeid(boost::gregorian::months)) {
+        res = (_endTime.date().year()-_startTime.date().year())*12+_endTime.date().month()-_startTime.date().month();
+    } else if (_stepSize.type() == typeid(boost::gregorian::years)) {
+        res = (_endTime.date().year()-_startTime.date().year()+1)/boost::get<boost::gregorian::years>(_stepSize).number_of_years().as_number();
+    }
     return res;
 } // totalNumStep
 

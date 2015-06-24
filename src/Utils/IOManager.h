@@ -33,8 +33,13 @@ public:
                   const time_duration &freq);
 
     int
+    addOutputFile(MeshType &mesh, StampString &filePattern,
+                  const string &freq);
+
+    template <class T>
+    int
     addOutputFile(MeshType &mesh, const string &filePattern,
-                  const time_duration &freq);
+                  const T &freq);
 
     void
     removeFile(uword fileIdx);

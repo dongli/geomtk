@@ -5,8 +5,45 @@
 
 namespace geomtk {
 
+typedef variant<time_duration, days, months, years> duration;
+
+static duration
+durationFromString(const string &str) {
+    duration res;
+    mark_tag tagSize(1), tagUnit(2);
+    sregex reDuration = (tagSize= +_d) >> ' ' >> (tagUnit= +_w);
+    smatch what;
+    if (regex_match(str, what, reDuration)) {
+        double tmp = atoi(what[tagSize].str().c_str());
+        if (what[tagUnit] == "hour" ||
+            what[tagUnit] == "hours"){
+            res = time_duration(0, 0, 0, tmp*3600*time_duration::ticks_per_second());
+        } else if (what[tagUnit] == "minute" ||
+                   what[tagUnit] == "minutes") {
+            res = time_duration(0, 0, 0, tmp*60*time_duration::ticks_per_second());
+        } else if (what[tagUnit] == "second" ||
+                   what[tagUnit] == "seconds") {
+            res = time_duration(0, 0, 0, tmp*time_duration::ticks_per_second());
+        } else if (what[tagUnit] == "day" ||
+                   what[tagUnit] == "days") {
+            res = days(tmp);
+        } else if (what[tagUnit] == "month" ||
+                   what[tagUnit] == "months") {
+            res = months(tmp);
+        } else if (what[tagUnit] == "year" ||
+                   what[tagUnit] == "years") {
+            res = years(tmp);
+        } else {
+            REPORT_ERROR("Invalid step unit \"" << what[tagUnit] << "\"!");
+        }
+    } else {
+        res = duration_from_string(str);
+    }
+    return res;
+} // timeDurationFromString
+
 struct Alarm {
-    variant<time_duration, days, months, years> freq;
+    duration freq;
     ptime lastTime;
     int lastStep;
 }; // Alarm
@@ -15,7 +52,7 @@ class TimeManager {
 protected:
     bool _useLeap;
     ptime _startTime, _currTime, _endTime;
-    time_duration _stepSize;
+    duration _stepSize;
     int _numStep;
     vector<Alarm> alarms;
     bool _isInited;
@@ -23,9 +60,10 @@ public:
     TimeManager();
     ~TimeManager();
 
+    template <class DurationType>
     void
     init(const ptime &startTime, const ptime &endTime,
-         const time_duration &stepSize);
+         const DurationType &stepSize);
 
     void
     init(const ptime &startTime, const ptime &endTime,
@@ -81,7 +119,10 @@ public:
         return _endTime;
     }
 
-    const time_duration&
+    double
+    stepSizeInSeconds() const;
+
+    const duration&
     stepSize() const {
         return _stepSize;
     }
@@ -114,6 +155,20 @@ public:
         return hours()/24;
     }
 }; // TimeManager
+
+template <class _DurationType>
+void TimeManager::
+init(const ptime &startTime, const ptime &endTime,
+     const _DurationType &stepSize) {
+    if (startTime > endTime) {
+        REPORT_ERROR("Start time is less than end time!");
+    }
+    _startTime = startTime;
+    _currTime = startTime;
+    _endTime = endTime;
+    _stepSize = stepSize;
+    _isInited = true;
+} // init
 
 template <class FreqType>
 int TimeManager::

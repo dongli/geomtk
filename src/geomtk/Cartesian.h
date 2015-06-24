@@ -5,9 +5,6 @@
 
 typedef geomtk::BodyCoord BodyCoord;
 typedef geomtk::ConfigManager ConfigManager;
-typedef geomtk::Time Time;
-typedef geomtk::TimeUnit TimeUnit;
-typedef geomtk::TimeStepUnit TimeStepUnit;
 template <class DataType, int NumTimeLevel>
 using TimeLevels = geomtk::TimeLevels<DataType, NumTimeLevel>;
 typedef geomtk::TimeManager TimeManager;
