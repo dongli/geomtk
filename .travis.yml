@@ -4,14 +4,14 @@ os: linux
 sudo: false
 
 cache:
-    directories:
-        - $HOME/.packman
+  directories:
+    - $HOME/.packman
 
 before_install:
-	- git clone https://github.com/dongli/packman
-	- ./packman/setup.sh
-	- source $HOME/packman/bashrc
-	- packman config -silent
+  - git clone https://github.com/dongli/packman
+  - ./packman/setup.sh
+  - source ./packman/bashrc
+  - packman config -silent
 
 install:
-	- packman install gcc
+  - packman install gcc
