@@ -14,31 +14,38 @@ protected:
     const int X_FACE = RLLStagger::Location::X_FACE;
     const int Y_FACE = RLLStagger::Location::Y_FACE;
 
+    typedef IOManager<RLLDataFile> IOManager;
+
     TimeManager timeManager;
-    IOManager<RLLDataFile> ioManager;
+    IOManager ioManager;
     SphereDomain *domain;
     RLLMesh *mesh;
     TimeLevelIndex<2> timeIdx;
     StampString filePattern;
 
     void SetUp() {
+        domain = new SphereDomain(2);
+        mesh = new RLLMesh(*domain);
         ptime startTime(date(2000, 1, 1)), endTime(date(2000, 1, 2));
         filePattern.init("test-output.%5s.nc");
         timeManager.init(startTime, endTime, minutes(1));
         ioManager.init(timeManager);
+        gen_2d_tv_data("test.nc");
     }
     
     void TearDown() {
         delete mesh;
         delete domain;
+        SystemTools::removeFile("test.nc");
     }
 };
 
-TEST_F(IOManagerTest, Input2DMesh) {
-    domain = new SphereDomain(2);
-    mesh = new RLLMesh(*domain);
+TEST_F(IOManagerTest, GetTime) {
+    ptime time = IOManager::getTime("test.nc");
+    ASSERT_EQ(ptime(date(2015, 1, 1), time_duration(0, 23, 0)), time);
+}
 
-    gen_2d_tv_data("test.nc");
+TEST_F(IOManagerTest, Input2DMesh) {
     mesh->init("test.nc");
     double dlon = PI2/mesh->numGrid(0, FULL);
     for (uword i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
@@ -55,12 +62,9 @@ TEST_F(IOManagerTest, Input2DMesh) {
         ASSERT_LE(fabs(mesh->gridCoordComp(1, HALF, j)+M_PI_2-(j+0.5)*dlat), 1.0e-15);
     }
     ASSERT_LE(fabs(mesh->gridCoordComp(1, FULL, 9)-M_PI_2), 1.0e-15);
-    SystemTools::removeFile("test.nc");
 }
 
 TEST_F(IOManagerTest, OutputFrequency) {
-    domain = new SphereDomain(2);
-    mesh = new RLLMesh(*domain);
     mesh->init(10, 10);
 
     int fileIdx = ioManager.addOutputFile(*mesh, filePattern, minutes(5));
@@ -77,8 +81,6 @@ TEST_F(IOManagerTest, OutputFrequency) {
 }
 
 TEST_F(IOManagerTest, OutputField) {
-    domain = new SphereDomain(2);
-    mesh = new RLLMesh(*domain);
     mesh->init(10, 10);
 
     RLLField<double, 2> f1, f2, f3;

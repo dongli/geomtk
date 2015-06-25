@@ -31,11 +31,11 @@ void gen_2d_tv_data(const string &filePath)
 
     ret = nc_def_dim(fileId, "time", NC_UNLIMITED, &timeDimId);
 
-    ret = nc_def_var(fileId, "time", NC_INT, 1, &timeDimId, &timeVarId);
+    ret = nc_def_var(fileId, "time", NC_DOUBLE, 1, &timeDimId, &timeVarId);
 
     ret = nc_put_att(fileId, timeVarId, "long_name", NC_CHAR, 4, "time");
 
-    ret = nc_put_att(fileId, timeVarId, "units", NC_CHAR, 33, "minutes since 0001-01-01 00:00:00");
+    ret = nc_put_att(fileId, timeVarId, "units", NC_CHAR, 33, "minutes since 2015-01-01 00:00:00");
 
     dimIDs[0] = timeDimId;
     dimIDs[1] = latDimID;
@@ -67,7 +67,7 @@ void gen_2d_tv_data(const string &filePath)
 
     ret = nc_put_var(fileId, latVarID, lat);
 
-    int time = 0;
+    double time = 23;
     size_t index[1] = {0};
 
     ret = nc_put_var1(fileId, timeVarId, index, &time);

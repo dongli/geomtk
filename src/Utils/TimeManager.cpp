@@ -22,7 +22,7 @@ init(const ptime &startTime, const ptime &endTime,
     _startTime = startTime;
     _currTime = startTime;
     _endTime = endTime;
-    _stepSize = time_duration(0, 0, 0, time_duration::ticks_per_second()*stepSizeInSeconds);
+    _stepSize = geomtk::seconds(stepSizeInSeconds);
     _isInited = true;
 } // init
 

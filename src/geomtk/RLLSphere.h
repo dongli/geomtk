@@ -5,12 +5,18 @@
 
 typedef geomtk::BodyCoord BodyCoord;
 typedef geomtk::ConfigManager ConfigManager;
-typedef geomtk::Time Time;
-typedef geomtk::TimeUnit TimeUnit;
-typedef geomtk::TimeStepUnit TimeStepUnit;
 template <class DataType, int NumTimeLevel>
 using TimeLevels = geomtk::TimeLevels<DataType, NumTimeLevel>;
 typedef geomtk::TimeManager TimeManager;
+using boost::posix_time::ptime;
+using boost::posix_time::hours;
+using boost::posix_time::minutes;
+using boost::posix_time::seconds;
+using boost::gregorian::date;
+using boost::gregorian::years;
+using boost::gregorian::months;
+using boost::gregorian::days;
+using geomtk::durationFromString;
 typedef geomtk::StampString StampString;
 template <int NumTimeLevel>
 using TimeLevelIndex = geomtk::TimeLevelIndex<NumTimeLevel>;

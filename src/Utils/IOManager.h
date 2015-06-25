@@ -55,8 +55,8 @@ public:
     ptime
     getTime(uword fileIdx) const;
 
-    ptime
-    getTime(const string &filePath) const;
+    static ptime
+    getTime(const string &filePath);
 
     void
     updateTime(uword fileIdx, TimeManager &timeManager);
@@ -92,13 +92,6 @@ public:
     void
     close(uword fileIdx);
 
-    /**
-     *  Check if file is active for input or output.
-     *
-     *  @param fileIdx the data file index.
-     *
-     *  @return The boolean result.
-     */
     bool
     isFileActive(uword fileIdx);
 }; // IOManager

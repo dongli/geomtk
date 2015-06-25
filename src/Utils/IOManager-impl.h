@@ -4,6 +4,7 @@ namespace geomtk {
  
 template <class DataFileType>
 IOManager<DataFileType>::IOManager() {
+    this->timeManager = NULL;
 }
 
 template <class DataFileType>
@@ -173,17 +174,18 @@ getTime(uword fileIdx) const {
     if (ut_get_status() != UT_SUCCESS) {
         REPORT_ERROR("udunits: Failed to get units converter!");
     }
-    res += time_duration(0, 0, 0, time_duration::ticks_per_second()*cv_convert_double(cvConverter, timeValue));
+    res += seconds(cv_convert_double(cvConverter, timeValue));
     return res;
 } // getTime
 
 template <class DataFileType>
 ptime IOManager<DataFileType>::
-getTime(const string &filePath) const {
+getTime(const string &filePath) {
     ptime res;
     int ret, fileId, timeVarId;
     double timeValue;
     char unitsInFile[100], unitsInSeconds[100];
+    memset(&unitsInFile[0], 0, sizeof(unitsInFile));
     ret = nc_open(filePath.c_str(), NC_NOWRITE, &fileId);
     CHECK_NC_OPEN(ret, filePath);
     ret = nc_inq_varid(fileId, "time", &timeVarId);
@@ -217,7 +219,7 @@ getTime(const string &filePath) const {
     if (ut_get_status() != UT_SUCCESS) {
         REPORT_ERROR("udunits: Failed to get units converter!");
     }
-    res += time_duration(0, 0, 0, time_duration::ticks_per_second()*cv_convert_double(cvConverter, timeValue));
+    res += seconds(cv_convert_double(cvConverter, timeValue));
     return res;
 } // getTime
 

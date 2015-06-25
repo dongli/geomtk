@@ -7,6 +7,11 @@ namespace geomtk {
 
 typedef variant<time_duration, days, months, years> duration;
 
+static time_duration
+seconds(double x) {
+    return time_duration(0, 0, 0, time_duration::ticks_per_second()*x);
+} // seconds
+
 static duration
 durationFromString(const string &str) {
     duration res;
@@ -17,13 +22,13 @@ durationFromString(const string &str) {
         double tmp = atoi(what[tagSize].str().c_str());
         if (what[tagUnit] == "hour" ||
             what[tagUnit] == "hours"){
-            res = time_duration(0, 0, 0, tmp*3600*time_duration::ticks_per_second());
+            res = seconds(tmp*3600);
         } else if (what[tagUnit] == "minute" ||
                    what[tagUnit] == "minutes") {
-            res = time_duration(0, 0, 0, tmp*60*time_duration::ticks_per_second());
+            res = seconds(tmp*60);
         } else if (what[tagUnit] == "second" ||
                    what[tagUnit] == "seconds") {
-            res = time_duration(0, 0, 0, tmp*time_duration::ticks_per_second());
+            res = seconds(tmp);
         } else if (what[tagUnit] == "day" ||
                    what[tagUnit] == "days") {
             res = days(tmp);
