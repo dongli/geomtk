@@ -131,7 +131,7 @@ create(uword fileIdx) {
     CHECK_NC_DEF_DIM(ret, file.filePath, "time");
     ret = nc_def_var(file.fileId, "time", NC_DOUBLE, 1, &file.timeDimId, &file.timeVarId);
     CHECK_NC_DEF_VAR(ret, file.filePath, "time")
-    string units = "days since "+to_simple_string(timeManager->startTime());
+    string units = "days since "+ptime_to_string(timeManager->startTime());
     ret = nc_put_att(file.fileId, file.timeVarId, "units", NC_CHAR,
                      units.length(), units.c_str());
     CHECK_NC_PUT_ATT(ret, file.filePath, "time", "units");

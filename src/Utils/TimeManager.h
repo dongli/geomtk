@@ -12,6 +12,14 @@ seconds(double x) {
     return time_duration(0, 0, 0, time_duration::ticks_per_second()*x);
 } // seconds
 
+static string
+ptime_to_string(const ptime &x) {
+    stringstream ss;
+    ss.imbue(std::locale(cout.getloc(), new time_facet("%Y-%m-%d %H:%M:%s")));
+    ss << x;
+    return ss.str();
+} // ptime_to_string
+
 static duration
 durationFromString(const string &str) {
     duration res;
