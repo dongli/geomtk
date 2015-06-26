@@ -127,6 +127,9 @@ create(uword fileIdx) {
     int timeStep = timeManager->numStep();
     ret = nc_put_att(file.fileId, NC_GLOBAL, "time_step", NC_INT, 1, &timeStep);
     CHECK_NC_PUT_ATT(ret, file.filePath, "NC_GLOBAL", "time_step");
+    double stepSize = timeManager->stepSizeInSeconds();
+    ret = nc_put_att(file.fileId, NC_GLOBAL, "time_step_size_in_seconds", NC_DOUBLE, 1, &stepSize);
+    CHECK_NC_PUT_ATT(ret, file.filePath, "NC_GLOBAL", "time_step_size_in_seconds");
     ret = nc_def_dim(file.fileId, "time", NC_UNLIMITED, &file.timeDimId);
     CHECK_NC_DEF_DIM(ret, file.filePath, "time");
     ret = nc_def_var(file.fileId, "time", NC_DOUBLE, 1, &file.timeDimId, &file.timeVarId);
