@@ -123,7 +123,7 @@ create(uword fileIdx) {
     file.filePath = file.filePattern.run(*timeManager);
     int ret = nc_create(file.filePath.c_str(), NC_CLOBBER, &file.fileId);
     CHECK_NC_CREATE(ret, file.filePath);
-    // define temporal dimension
+    // Define temporal dimension.
     int timeStep = timeManager->numStep();
     ret = nc_put_att(file.fileId, NC_GLOBAL, "time_step", NC_INT, 1, &timeStep);
     CHECK_NC_PUT_ATT(ret, file.filePath, "NC_GLOBAL", "time_step");
@@ -138,8 +138,9 @@ create(uword fileIdx) {
     ret = nc_put_att(file.fileId, file.timeVarId, "units", NC_CHAR,
                      units.length(), units.c_str());
     CHECK_NC_PUT_ATT(ret, file.filePath, "time", "units");
-    // let concrete data file class create the rest data file
+    // Let concrete data file class create the rest data file.
     file.create(*timeManager);
+    file.outputDomain();
     file.outputMesh();
 } // create
 

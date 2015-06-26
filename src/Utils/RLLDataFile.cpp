@@ -160,4 +160,15 @@ outputMesh() {
     }
 } // outputMesh
 
+void RLLDataFile::
+outputDomain() {
+    const auto &domain = mesh().domain();
+    int ret; char str[100];
+    ret = nc_redef(fileId);
+    sprintf(str, "Sphere %llud", domain.numDim());
+    ret = nc_put_att(fileId, NC_GLOBAL, "domain_type", NC_CHAR, 9, str);
+    CHECK_NC_PUT_ATT(ret, filePath, "global", "domain_type");
+    ret = nc_enddef(fileId);
+} // outputDomain
+
 } // geomtk

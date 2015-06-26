@@ -27,6 +27,21 @@ bndTypeFromString(const string &bndType) {
     }
 } // bndTypeFromString
 
+static string
+bndTypeToString(BndType bndType) {
+    if (bndType == PERIODIC) {
+        return "periodic";
+    } else if (bndType == OPEN) {
+        return "open";
+    } else if (bndType == POLE) {
+        return "pole";
+    } else if (bndType == RIGID) {
+        return "rigid";
+    } else {
+        return "invalid";
+    }
+} // bndTypeToString
+
 /**
  *  This class describtes the Cartesian domain, and can be derived by other
  *  domains.

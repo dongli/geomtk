@@ -26,6 +26,9 @@ public:
 
     virtual void
     outputMesh();
+
+    virtual void
+    outputDomain();
 }; // RLLDataFile
 
 } // geomtk

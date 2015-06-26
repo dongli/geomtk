@@ -22,6 +22,9 @@ public:
 
     virtual void
     inputVerticalMesh();
+
+    virtual void
+    outputDomain();
 };
 
 } // geomtk
