@@ -14,7 +14,7 @@ before_install:
   - packman config -silent
 
 install:
-  - packman install gcc
+  - travis_wait packman install gcc
   - source $HOME/.packman/packman.bashrc
   - echo "int main(void) { auto a = 1; }" > test.c
   - g++ -std=c++11 test.c
