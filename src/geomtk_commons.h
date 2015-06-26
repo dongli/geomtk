@@ -65,6 +65,7 @@ using boost::timer::cpu_timer;
 using boost::property_tree::ptree;
 using boost::gregorian::date;
 using boost::gregorian::gregorian_calendar;
+using boost::posix_time::time_facet;
 using boost::posix_time::ptime;
 using boost::posix_time::time_duration;
 using boost::posix_time::time_period;

@@ -3,9 +3,9 @@
 namespace geomtk {
 
 TimeManager::TimeManager() {
-    _useLeap = false;
     _numStep = 0;
     _isInited = false;
+    cout.imbue(std::locale(cout.getloc(), new time_facet("%Y-%m-%d %H:%M:%s")));
     REPORT_ONLINE;
 }
 

@@ -58,7 +58,6 @@ struct Alarm {
 
 class TimeManager {
 protected:
-    bool _useLeap;
     ptime _startTime, _currTime, _endTime;
     duration _stepSize;
     int _numStep;
