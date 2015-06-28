@@ -163,11 +163,16 @@ outputMesh() {
 void RLLDataFile::
 outputDomain() {
     const auto &domain = mesh().domain();
-    int ret; char str[100];
+    int ret;
+    char str[100];
+    double value;
     ret = nc_redef(fileId);
     sprintf(str, "Sphere %llud", domain.numDim());
     ret = nc_put_att(fileId, NC_GLOBAL, "domain_type", NC_CHAR, 9, str);
     CHECK_NC_PUT_ATT(ret, filePath, "global", "domain_type");
+    value = domain.radius();
+    ret = nc_put_att(fileId, NC_GLOBAL, "sphere_radius", NC_DOUBLE, 1, &value);
+    CHECK_NC_PUT_ATT(ret, filePath, "global", "sphere_radius");
     ret = nc_enddef(fileId);
 } // outputDomain
 
