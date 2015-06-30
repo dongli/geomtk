@@ -1,10 +1,12 @@
 #include "IOManager.h"
 
 namespace geomtk {
- 
+
+template <class DataFileType>
+TimeManager *IOManager<DataFileType>::timeManager;
+
 template <class DataFileType>
 IOManager<DataFileType>::IOManager() {
-    this->timeManager = NULL;
 }
 
 template <class DataFileType>
@@ -13,8 +15,8 @@ IOManager<DataFileType>::~IOManager() {
 
 template <class DataFileType>
 void IOManager<DataFileType>::
-init(TimeManager &timeManager) {
-    this->timeManager = &timeManager;
+init(TimeManager &_timeManager) {
+    timeManager = &_timeManager;
 } // init
 
 template <class DataFileType>
@@ -30,8 +32,10 @@ addInputFile(MeshType &mesh, const string &filePattern) {
     file.filePattern = filePattern;
     file.ioType = INPUT;
     file.isActive = true;
+    file.freq = seconds(-1);
+    file.alarmIdx = timeManager->addAlarm(file.freq);
     files.push_back(file);
-    REPORT_NOTICE("Register input file with pattern " << filePattern << ".");
+    REPORT_NOTICE("Add input file with pattern " << filePattern << ".");
     return files.size()-1;
 } // addInputFile
 
@@ -102,6 +106,7 @@ isFileActive(uword fileIdx) {
 template <class DataFileType>
 void IOManager<DataFileType>::
 open(uword fileIdx) {
+    if (!isFileActive(fileIdx)) return;
     DataFileType &file = files[fileIdx];
     file.filePath = file.filePattern.run(*timeManager);
     int ret;

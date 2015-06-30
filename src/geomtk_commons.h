@@ -378,6 +378,15 @@ inline string getClassName(const string &str) {
     } \
 }
 
+#define CHECK_NC_INQ_ATTTYPE(IERR, FILE_NAME, VAR_NAME, ATT_NAME) \
+{ \
+    if (IERR != NC_NOERR) { \
+        REPORT_ERROR("Failed to inquire attribute type \"" << ATT_NAME << "\" of " << \
+                     "variable \"" << VAR_NAME << "\" with error message \"" << \
+                     nc_strerror(IERR) << "\" in file \"" << FILE_NAME << "\"!"); \
+    } \
+}
+
 #define PRINT_USED_TIME(FUNC_CALL) \
 { \
     double time1, time2; \

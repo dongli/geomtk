@@ -84,6 +84,7 @@ public:
     getAttribute(const string &attName) const {
         AttType res;
         string filePath;
+        nc_type attTypeInFile;
         if (_timeManager->isInited()) {
             filePath = filePattern.run(*_timeManager);
         } else {
@@ -93,8 +94,35 @@ public:
         int ncId, ret;
         ret = nc_open(filePath.c_str(), NC_NOWRITE, &ncId);
         CHECK_NC_OPEN(ret, filePath);
+        ret = nc_inq_atttype(ncId, NC_GLOBAL, attName.c_str(), &attTypeInFile);
+        CHECK_NC_INQ_ATTTYPE(ret, filePath, "global", attName);
+        switch (attTypeInFile) {
+            case NC_FLOAT:
+                if (typeid(AttType) != typeid(float)) {
+                    REPORT_ERROR("Type of attribute \"" << attName <<
+                                 "\" is float, but template argument is not!");
+                }
+                break;
+            case NC_DOUBLE:
+                if (typeid(AttType) != typeid(double)) {
+                    REPORT_ERROR("Type of attribute \"" << attName <<
+                                 "\" is double, but template argument is not!");
+                }
+                break;
+            case NC_INT:
+                if (typeid(AttType) != typeid(int)) {
+                    REPORT_ERROR("Type of attribute \"" << attName <<
+                                 "\" is int, but template argument is not!");
+                }
+                break;
+            default:
+                REPORT_ERROR("Under construction!");
+                break;
+        }
         ret = nc_get_att(ncId, NC_GLOBAL, attName.c_str(), &res);
         CHECK_NC_GET_ATT(ret, filePath, "global", attName);
+        ret = nc_close(ncId);
+        CHECK_NC_CLOSE(ret, filePath);
         return res;
     }
 
@@ -114,6 +142,8 @@ public:
         ret = nc_inq_attlen(ncId, NC_GLOBAL, attName.c_str(), &len);
         CHECK_NC_INQ_ATTLEN(ret, filePath, "global", attName);
         res.assign(str, len);
+        ret = nc_close(ncId);
+        CHECK_NC_CLOSE(ret, filePath);
         return res;
     }
 
@@ -133,6 +163,8 @@ public:
         }
         ret = nc_get_att(ncId, varId, attName.c_str(), &res);
         CHECK_NC_GET_ATT(ret, filePath, varName, attName);
+        ret = nc_close(ncId);
+        CHECK_NC_CLOSE(ret, filePath);
         return res;
     }
 
@@ -158,7 +190,30 @@ public:
         ret = nc_inq_attlen(ncId, varId, attName.c_str(), &len);
         CHECK_NC_INQ_ATTLEN(ret, filePath, varName, attName);
         res.assign(str, len);
+        ret = nc_close(ncId);
+        CHECK_NC_CLOSE(ret, filePath);
         return res;
+    }
+
+    bool
+    hasAttribute(const string &attName) const {
+        string filePath;
+        if (_timeManager->isInited()) {
+            filePath = filePattern.run(*_timeManager);
+        } else {
+            vector<string> filePaths = SystemTools::getFilePaths(filePattern.wildcard());
+            filePath = filePaths.front();
+        }
+        int ncId, ret, attId;
+        ret = nc_open(filePath.c_str(), NC_NOWRITE, &ncId);
+        CHECK_NC_OPEN(ret, filePath);
+        ret = nc_inq_attid(ncId, NC_GLOBAL, attName.c_str(), &attId);
+        nc_close(ncId);
+        if (ret == NC_NOERR) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }; // DataFile
 

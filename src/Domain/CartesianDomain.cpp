@@ -11,7 +11,8 @@ init(const string &filePath) {
     smatch what;
     ret = nc_open(filePath.c_str(), NC_NOWRITE, &ncId);
     CHECK_NC_OPEN(ret, filePath);
-    memset(&str1[0], 0, sizeof(str1)); ret = nc_get_att_text(ncId, NC_GLOBAL, "domain_type", str1);
+    memset(&str1[0], 0, sizeof(str1));
+    ret = nc_get_att_text(ncId, NC_GLOBAL, "domain_type", str1);
     CHECK_NC_GET_ATT(ret, filePath, "global", "domain_type");
     if (regex_search(string(str1), what, reDomainType)) {
         string domainType = what[1];

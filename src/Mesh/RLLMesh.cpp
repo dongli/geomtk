@@ -19,6 +19,7 @@ init(const string &filePath) {
     io.open(fileIdx);
     io.file(fileIdx).inputMesh();
     io.close(fileIdx);
+    io.removeFile(fileIdx);
     StructuredMesh<SphereDomain, SphereCoord>::init(filePath);
     set = true;
 } // init
@@ -30,10 +31,12 @@ init(const string &filePathH, const string &filePathV) {
     io.open(fileIdx);
     io.file(fileIdx).inputHorizontalMesh();
     io.close(fileIdx);
+    io.removeFile(fileIdx);
     fileIdx = io.addInputFile(*this, filePathV);
     io.open(fileIdx);
     io.file(fileIdx).inputVerticalMesh();
     io.close(fileIdx);
+    io.removeFile(fileIdx);
     StructuredMesh<SphereDomain, SphereCoord>::init(filePathH, filePathV);
     set = true;
 } // init

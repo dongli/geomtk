@@ -196,6 +196,7 @@ addAlarm(const FreqType &freq) {
     }
     Alarm alarm;
     alarm.freq = freq;
+    assert(_currTime != boost::date_time::not_a_date_time);
     alarm.lastTime = _currTime;
     alarm.lastStep = _numStep;
     alarms.push_back(alarm);

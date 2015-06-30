@@ -16,13 +16,13 @@ public:
     typedef _DataFileType DataFileType;
     typedef typename DataFileType::MeshType MeshType;
 private:
-    TimeManager *timeManager;
+    static TimeManager *timeManager;
     vector<DataFileType> files;
 public:
     IOManager();
     virtual ~IOManager();
 
-    void
+    static void
     init(TimeManager &timeManager);
 
     int

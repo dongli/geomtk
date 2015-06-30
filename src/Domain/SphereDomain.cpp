@@ -49,7 +49,27 @@ SphereDomain::
 
 void SphereDomain::
 init(const string &filePath) {
-    REPORT_ERROR("Under construction!");
+    int ncId, ret; char str1[100], str2[100];
+    sregex reDomainType = sregex::compile("(\\w+) (\\d)d");
+    sregex reSpan = sregex::compile("(\\d*(\\.\\d*)?)-(\\d*(\\.\\d*)?)");
+    sregex reBndCond = sregex::compile("(\\w+)-(\\w+)");
+    smatch what;
+    ret = nc_open(filePath.c_str(), NC_NOWRITE, &ncId);
+    CHECK_NC_OPEN(ret, filePath);
+    memset(&str1[0], 0, sizeof(str1));
+    ret = nc_get_att_text(ncId, NC_GLOBAL, "domain_type", str1);
+    CHECK_NC_GET_ATT(ret, filePath, "global", "domain_type");
+    if (regex_search(string(str1), what, reDomainType)) {
+        string domainType = what[1];
+        assert(domainType == "Sphere");
+        string numDim = what[2];
+        assert(_numDim == static_cast<uword>(atoi(numDim.c_str())));
+        // TODO: Handle vertical coordinate.
+    }
+    ret = nc_get_att_double(ncId, NC_GLOBAL, "sphere_radius", &_radius);
+    CHECK_NC_GET_ATT(ret, filePath, "global", "sphere_radius");
+    ret = nc_close(ncId);
+    CHECK_NC_CLOSE(ret, filePath);
 } // init
 
 double SphereDomain::
