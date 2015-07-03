@@ -86,6 +86,10 @@ public:
 
     void
     init(const string &startTime, const string &endTime,
+         double stepSizeInSeconds);
+
+    void
+    init(const string &startTime, const string &endTime,
          const string &stepSize);
 
     bool
@@ -152,7 +156,7 @@ public:
 
     double
     seconds() const {
-        return (_currTime-_startTime).total_seconds();
+        return static_cast<double>((_currTime-_startTime).ticks())/time_duration::ticks_per_second();
     }
 
     double

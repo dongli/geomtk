@@ -37,6 +37,18 @@ TEST(TimeManager, Advance) {
     ASSERT_EQ(2, timeManager.totalNumStep());
 }
 
+TEST(TimeManager, Seconds) {
+    TimeManager timeManager;
+    double dt = 1.54325;
+    timeManager.init("2012-01-01 00:00:00", "2012-01-1 00:01:00", dt);
+    double seconds = 0;
+    while (!timeManager.isFinished()) {
+        seconds += dt;
+        timeManager.advance(true);
+        ASSERT_NEAR(seconds, timeManager.seconds(), 1.0e-12);
+    }
+}
+
 TEST(TimeManager, Alarm) {
     TimeManager timeManager;
     timeManager.init("2012-01-02 00:00:00", "2013-12-02 00:00:00", "3600 seconds");

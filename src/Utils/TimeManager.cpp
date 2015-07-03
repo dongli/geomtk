@@ -27,6 +27,26 @@ init(const ptime &startTime, const ptime &endTime,
 } // init
 
 void TimeManager::
+init(const string &startTime, const string &endTime,
+     double stepSizeInSeconds) {
+    try {
+        _startTime = time_from_string(startTime);
+    } catch (exception &e) {
+        REPORT_ERROR("Failed to parse time string \"" << startTime << "\" with"
+                     << " exception \"" << e.what() << "\"!");
+    }
+    try {
+        _endTime = time_from_string(endTime);
+    } catch (exception &e) {
+        REPORT_ERROR("Failed to parse time string \"" << endTime << "\" with"
+                     << " exception \"" << e.what() << "\"!");
+    }
+    _currTime = _startTime;
+    _stepSize = geomtk::seconds(stepSizeInSeconds);
+    _isInited = true;
+} // init
+
+void TimeManager::
 init(const string &startTime, const string &endTime, const string &stepSize) {
     try {
         _startTime = time_from_string(startTime);
@@ -40,7 +60,7 @@ init(const string &startTime, const string &endTime, const string &stepSize) {
         REPORT_ERROR("Failed to parse time string \"" << endTime << "\" with"
                      << " exception \"" << e.what() << "\"!");
     }
-    _currTime = time_from_string(startTime);
+    _currTime = _startTime;
     _stepSize = durationFromString(stepSize);
     _isInited = true;
 } // init
