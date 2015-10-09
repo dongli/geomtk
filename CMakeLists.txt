@@ -35,7 +35,7 @@ else ()
     set (shared_or_static STATIC)
 endif ()
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fpermissive")
 
 # Handle the external libraries.
 # Armadillo
@@ -151,6 +151,7 @@ target_link_libraries (geomtk
     ${NETCDF_LIBRARIES}
     ${Boost_LIBRARIES}
     ${UDUNITS_LIBRARIES}
+    expat
     mlpack
 )
 
