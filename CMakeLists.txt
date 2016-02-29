@@ -35,7 +35,7 @@ else ()
     set (shared_or_static STATIC)
 endif ()
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fpermissive")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fpermissive -DBOOST_VARIANT_USE_RELAXED_GET_BY_DEFAULT")
 
 # Handle the external libraries.
 # Armadillo
@@ -79,21 +79,10 @@ list (APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
 find_package (NETCDF REQUIRED COMPONENTS C)
 include_directories (${NETCDF_INCLUDE_DIRS})
 # MLPACK
-if (DEFINED ENV{MLPACK_ROOT})
-    message ("@@ Use user provided library MLPACK.")
-    message ("@@ MLPACK_ROOT = $ENV{MLPACK_ROOT}")
-    set (MLPACK_INCLUDE_DIRS "$ENV{MLPACK_ROOT}/include")
-    set (MLPACK_LIBRARY_DIRS "$ENV{MLPACK_ROOT}/lib")
-    find_package(LibXml2 2.6.0 REQUIRED)
-    include_directories (${MLPACK_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIR})
-    link_directories (${MLPACK_LIBRARY_DIRS})
-else ()
-    message (FATAL_ERROR
-        "CMake couldn't find library MLPACK! "
-        "If it have been installed and you know where it is, "
-        "set MLPACK_ROOT (e.g. in .bashrc) to it."
-    )
-endif ()
+find_package (MLPACK REQUIRED)
+find_package (LibXml2 2.6.0 REQUIRED)
+include_directories (${MLPACK_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIR})
+link_directories (${MLPACK_LIBRARY_DIRS})
 # UDUNITS
 find_package (UDUNITS REQUIRED)
 include_directories (${UDUNITS_INCLUDE_DIRS})
@@ -151,7 +140,6 @@ target_link_libraries (geomtk
     ${NETCDF_LIBRARIES}
     ${Boost_LIBRARIES}
     ${UDUNITS_LIBRARIES}
-    expat
     mlpack
 )
 

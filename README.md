@@ -1,6 +1,3 @@
-GeoMTK
-======
-
 Introduction
 ------------
 
@@ -29,19 +26,12 @@ Basic usage
 
 // Choose the specific classes for use.
 typedef geomtk::SphereDomain Domain;
-typedef geomtk::SphereCoord SpaceCoord;
-typedef geomtk::BodyCoord BodyCoord;
-typedef geomtk::SphereVelocity Velocity;
 typedef geomtk::RLLMesh Mesh;
-typedef geomtk::RLLMeshIndex MeshIndex;
 typedef geomtk::RLLField<double, 2> Field;
-typedef geomtk::RLLVelocityField VelocityField;
-typedef geomtk::RLLRegrid Regrid;
 typedef geomtk::TimeManager TimeManager;
 typedef geomtk::TimeLevelIndex<2> TimeLevelIndex;
 typedef geomtk::IOManager<geomtk::RLLDataFile> IOManager;
 typedef geomtk::ConfigManager ConfigManager;
-typedef geomtk::StampString StampString;
 
 int CENTER = geomtk::RLLStagger::Location::CENTER;
 ...
@@ -49,8 +39,6 @@ int CENTER = geomtk::RLLStagger::Location::CENTER;
 Domain sphere(3);
 Mesh mesh(sphere);
 Field q(); // Field with two time levels.
-VelocityField V(); // Velocity field is also two time levels.
-Regrid regrid(mesh);
 TimeLevelIndex timeIdx; // Time level index.
 
 sphere.setRadius(6371.299e3);
@@ -60,25 +48,14 @@ mesh.init(128, 64);
 
 // zonal virtual grids are added, which is apparent to user
 q.create("q", "kg m-3", "moisture density", mesh, CENTER, sphere.getNumDim());
-// three components are included in v
-V.create(mesh, CENTER);
 
-for (int k = 0; k < mesh.getNumGrid(2, CENTER); ++k) {
-	for (int j = 0; j < mesh.getNumGrid(1, CENTER); ++j) {
-		for (int i = 0; i < mesh.getNumGrid(0, CENTER); ++i) {
+for (int k = mesh.ks(FULL); k <= mesh.ke(FULL); ++k) {
+	for (int j = mesh.js(FULL); j <= mesh.je(FULL); ++j) {
+		for (int i = mesh.is(FULL); i <= mesh.ie(FULL); ++i) {
 			q(timeIdx, i, j, k) = ...;
 		}
 	}
 }
-
-// interpolate field onto a point
-SphereCoord x(3);
-x(0) = ...;
-x(1) = ...;
-x(2) = ...;
-
-double y;
-regrid.run(geomtk::BILINEAR, timeIdx, q, x, y);
 
 // Shift time level index.
 timeIdx.shift();
