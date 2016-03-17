@@ -27,6 +27,11 @@ init(int numDim) {
 } // init
 
 void SpaceCoord::
+set(double x) {
+    coord[0] = x;
+} // set
+
+void SpaceCoord::
 set(double x, double y) {
     coord[0] = x;
     coord[1] = y;

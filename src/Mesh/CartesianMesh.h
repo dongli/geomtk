@@ -27,7 +27,7 @@ public:
     init(const string &filePath);
 
     virtual void
-    init(uword nx, uword ny, uword nz = 1);
+    init(uword nx, uword ny = 1, uword nz = 1);
 
     virtual void
     setCellVolumes();

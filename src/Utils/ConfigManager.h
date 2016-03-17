@@ -86,8 +86,9 @@ getValue(const string &group, const string &key, const T &defaultValue) {
             return pt.get<T>(group+"."+key);
         }
     }
+    REPORT_ERROR("Internal error in ConfigManager::getValue!");
 } // getValue
 
-}
+} // geomtk
 
 #endif // __GEOMTK_ConfigManager__

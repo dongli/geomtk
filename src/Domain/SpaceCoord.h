@@ -26,6 +26,9 @@ public:
     }
 
     virtual void
+    set(double x);
+
+    virtual void
     set(double x, double y);
 
     virtual void

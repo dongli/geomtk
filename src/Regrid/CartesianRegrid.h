@@ -87,13 +87,13 @@ run(RegridMethod method, const TimeLevelIndex<N> &timeIdx,
         switch (mesh().domain().numDim()) {
             case 1:
                 for (int l = 0; l < n; ++l) {
-                    y += w[0][l]*f(timeIdx, i[0][l]);
+                    y += w[0][l]*f(timeIdx)(i[0][l]);
                 }
                 break;
             case 2:
                 for (int l0 = 0; l0 < n; ++l0) {
                     for (int l1 = 0; l1 < n; ++l1) {
-                        y += w[0][l0]*w[1][l1]*f(timeIdx, i[0][l0], i[1][l1]);
+                        y += w[0][l0]*w[1][l1]*f(timeIdx)(i[0][l0], i[1][l1]);
                     }
                 }
                 break;
@@ -101,7 +101,7 @@ run(RegridMethod method, const TimeLevelIndex<N> &timeIdx,
                 for (int l0 = 0; l0 < n; ++l0) {
                     for (int l1 = 0; l1 < n; ++l1) {
                         for (int l2 = 0; l2 < n; ++l2) {
-                            y += w[0][l0]*w[1][l1]*w[2][l2]*f(timeIdx, i[0][l0], i[1][l1], i[2][l2]);
+                            y += w[0][l0]*w[1][l1]*w[2][l2]*f(timeIdx)(i[0][l0], i[1][l1], i[2][l2]);
                         }
                     }
                 }

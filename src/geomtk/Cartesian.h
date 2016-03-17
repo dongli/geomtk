@@ -7,6 +7,9 @@ typedef geomtk::BodyCoord BodyCoord;
 typedef geomtk::ConfigManager ConfigManager;
 template <class DataType, int NumTimeLevel>
 using TimeLevels = geomtk::TimeLevels<DataType, NumTimeLevel>;
+typedef boost::posix_time::ptime Time;
+typedef boost::gregorian::date Date;
+typedef boost::posix_time::seconds Seconds;
 typedef geomtk::TimeManager TimeManager;
 typedef geomtk::StampString StampString;
 template <int NumTimeLevel>
@@ -21,6 +24,7 @@ template <class DataType, int NumTimeLevel = 1>
 using Field = geomtk::CartesianField<DataType, NumTimeLevel>;
 typedef geomtk::CartesianVelocityField VelocityField;
 typedef geomtk::CartesianRegrid Regrid;
+typedef geomtk::RegridMethod RegridMethod;
 typedef geomtk::IOManager<geomtk::CartesianDataFile> IOManager;
 typedef geomtk::Diagnostics<Mesh, Field, IOManager> Diagnostics;
 

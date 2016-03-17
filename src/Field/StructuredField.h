@@ -40,24 +40,14 @@ public:
     operator()();
 
     const DataType&
-    operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k = 0) const;
-
-    DataType&
-    operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k = 0);
-
-    const DataType& operator()(int i, int j, int k = 0) const;
-
-    DataType& operator()(int i, int j, int k = 0);
-
-    const DataType&
     operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) const;
 
     DataType&
     operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx);
 
-    const DataType& operator()(int i) const;
+    const DataType& operator()(int cellIdx) const;
 
-    DataType& operator()(int i);
+    DataType& operator()(int cellIdx);
 
     StructuredField<MeshType, DataType, NumTimeLevel>&
     operator=(const StructuredField<MeshType, DataType, NumTimeLevel> &other);

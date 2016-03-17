@@ -49,7 +49,7 @@ TEST_F(RLLFieldTest, AccessElements) {
     int l = 0;
     for (auto j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
         for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
-            ASSERT_EQ(l++, f(timeIdx, i, j));
+            ASSERT_EQ(l++, f(timeIdx)(i, j));
         }
     }
 }
@@ -75,13 +75,13 @@ TEST_F(RLLFieldTest, AssignmentOperator) {
 TEST_F(RLLFieldTest, BoundaryCondition) {
     for (auto j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
         for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
-            f(timeIdx, i, j) = i+j*mesh->numGrid(0, FULL);
+            f(timeIdx)(i, j) = i+j*mesh->numGrid(0, FULL);
         }
     }
     f.applyBndCond(timeIdx);
     for (auto j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
-        ASSERT_EQ(f(timeIdx, mesh->is(FULL)-1, j), f(timeIdx, mesh->ie(FULL), j));
-        ASSERT_EQ(f(timeIdx, mesh->ie(FULL)+1, j), f(timeIdx, mesh->is(FULL), j));
+        ASSERT_EQ(f(timeIdx)(mesh->is(FULL)-1, j), f(timeIdx)(mesh->ie(FULL), j));
+        ASSERT_EQ(f(timeIdx)(mesh->ie(FULL)+1, j), f(timeIdx)(mesh->is(FULL), j));
     }
 }
 

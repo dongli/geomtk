@@ -63,7 +63,7 @@ create(const string &name, const string &units, const string &longName,
                                     this->mesh().numGrid(2, gridTypes[2], true));
         }
     }
-} // operator()
+} // create
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 const field<DataType>& StructuredField<MeshType, DataType, NumTimeLevel>::
@@ -87,30 +87,6 @@ template <class MeshType, typename DataType, int NumTimeLevel>
 field<DataType>& StructuredField<MeshType, DataType, NumTimeLevel>::
 operator()() {
     return data->level(0);
-} // operator()
-
-template <class MeshType, typename DataType, int NumTimeLevel>
-const DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
-operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k) const {
-    return data->level(timeIdx)(i, j, k);
-} // operator()
-
-template <class MeshType, typename DataType, int NumTimeLevel>
-DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
-operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j, int k) {
-    return data->level(timeIdx)(i, j, k);
-} // operator()
-
-template <class MeshType, typename DataType, int NumTimeLevel>
-const DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
-operator()(int i, int j, int k) const {
-    return data->level(0)(i, j, k);
-} // operator()
-
-template <class MeshType, typename DataType, int NumTimeLevel>
-DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
-operator()(int i, int j, int k) {
-    return data->level(0)(i, j, k);
 } // operator()
 
 template <class MeshType, typename DataType, int NumTimeLevel>
