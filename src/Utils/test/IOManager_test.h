@@ -89,13 +89,13 @@ TEST_F(IOManagerTest, OutputField) {
     f3.create("f3", "test units", "a field on Y_FACE location", *mesh, Y_FACE, 2, false);
 
     for (uword i = 0; i < mesh->totalNumGrid(f1.staggerLocation(), f1.numDim()); ++i) {
-        f1(timeIdx, i) = 1;
+        f1.at(timeIdx, i) = 1;
     }
     for (uword i = 0; i < mesh->totalNumGrid(f2.staggerLocation(), f2.numDim()); ++i) {
-        f2(timeIdx, i) = 2;
+        f2.at(timeIdx, i) = 2;
     }
     for (uword i = 0; i < mesh->totalNumGrid(f3.staggerLocation(), f3.numDim()); ++i) {
-        f3(timeIdx, i) = 3;
+        f3.at(timeIdx, i) = 3;
     }
 
     int fileIdx = ioManager.addOutputFile(*mesh, filePattern, seconds(-1));
@@ -171,7 +171,7 @@ TEST_F(IOManagerTest, OutputField) {
     ret = nc_get_var_double(fileId, varId, x);
     ASSERT_EQ(NC_NOERR, ret);
     for (uword i = 0; i < mesh->totalNumGrid(f1.staggerLocation(), f1.numDim()); ++i) {
-        ASSERT_EQ(x[i], f1(timeIdx, i));
+        ASSERT_EQ(x[i], f1.at(timeIdx, i));
     }
     delete [] x;
 
@@ -217,7 +217,7 @@ TEST_F(IOManagerTest, OutputField) {
     ret = nc_get_var_double(fileId, varId, x);
     ASSERT_EQ(NC_NOERR, ret);
     for (uword i = 0; i < mesh->totalNumGrid(f2.staggerLocation(), f2.numDim()); ++i) {
-        ASSERT_EQ(x[i], f2(timeIdx, i));
+        ASSERT_EQ(x[i], f2.at(timeIdx, i));
     }
     delete [] x;
 
@@ -263,7 +263,7 @@ TEST_F(IOManagerTest, OutputField) {
     ret = nc_get_var_double(fileId, varId, x);
     ASSERT_EQ(NC_NOERR, ret);
     for (uword i = 0; i < mesh->totalNumGrid(f3.staggerLocation(), f3.numDim()); ++i) {
-        ASSERT_EQ(x[i], f3(timeIdx, i));
+        ASSERT_EQ(x[i], f3.at(timeIdx, i));
     }
     delete [] x;
 

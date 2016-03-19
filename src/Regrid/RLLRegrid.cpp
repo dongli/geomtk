@@ -66,7 +66,7 @@ run(RegridMethod method, const TimeLevelIndex<2> &timeIdx,
             double z1 = mesh().gridCoordComp(2, RLLStagger::GridType::HALF, k);
             double z2 = mesh().gridCoordComp(2, RLLStagger::GridType::HALF, k+1);
             double c = (z2-x(2))/(z2-z1);
-            y(2) = c*f(2)(timeIdx)(i, j, k)+(1.0-c)*f(2)(timeIdx)(i, j, k+1);
+            y(2) = c*f(2)(timeIdx, i, j, k)+(1.0-c)*f(2)(timeIdx, i, j, k+1);
         }
         if (!idx->isMoveOnPole()) {
             y.transformFromPS(x);

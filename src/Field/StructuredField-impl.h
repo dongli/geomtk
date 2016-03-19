@@ -66,32 +66,8 @@ create(const string &name, const string &units, const string &longName,
 } // create
 
 template <class MeshType, typename DataType, int NumTimeLevel>
-const field<DataType>& StructuredField<MeshType, DataType, NumTimeLevel>::
-operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
-    return data->level(timeIdx);
-} // operator()
-
-template <class MeshType, typename DataType, int NumTimeLevel>
-field<DataType>& StructuredField<MeshType, DataType, NumTimeLevel>::
-operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx) {
-    return data->level(timeIdx);
-} // operator()
-
-template <class MeshType, typename DataType, int NumTimeLevel>
-const field<DataType>& StructuredField<MeshType, DataType, NumTimeLevel>::
-operator()() const {
-    return data->level(0);
-} // operator()
-
-template <class MeshType, typename DataType, int NumTimeLevel>
-field<DataType>& StructuredField<MeshType, DataType, NumTimeLevel>::
-operator()() {
-    return data->level(0);
-} // operator()
-
-template <class MeshType, typename DataType, int NumTimeLevel>
 const DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
-operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) const {
+at(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) const {
     uword i, j, k;
     switch (this->mesh().domain().numDim()) {
         case 1:
@@ -106,11 +82,11 @@ operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) const {
         default:
             REPORT_ERROR("Invalid dimension number!");
     }
-} // operator()
+} // at
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
-operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) {
+at(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) {
     uword i, j, k;
     switch (this->mesh().domain().numDim()) {
         case 1:
@@ -125,11 +101,11 @@ operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) {
         default:
             REPORT_ERROR("Invalid dimension number!");
     }
-} // operator()
+} // at
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 const DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
-operator()(int cellIdx) const {
+at(int cellIdx) const {
     uword i, j, k;
     switch (this->mesh().domain().numDim()) {
         case 1:
@@ -144,11 +120,11 @@ operator()(int cellIdx) const {
         default:
             REPORT_ERROR("Invalid dimension number!");
     }
-} // operator()
+} // at
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 DataType& StructuredField<MeshType, DataType, NumTimeLevel>::
-operator()(int cellIdx) {
+at(int cellIdx) {
     uword i, j, k;
     switch (this->mesh().domain().numDim()) {
         case 1:
@@ -163,7 +139,7 @@ operator()(int cellIdx) {
         default:
             REPORT_ERROR("Invalid dimension number!");
     }
-} // operator()
+} // at
 
 template <class MeshType, typename DataType, int NumTimeLevel>
 StructuredField<MeshType, DataType, NumTimeLevel>&

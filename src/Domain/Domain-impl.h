@@ -137,7 +137,7 @@ template <typename CoordType>
 bool Domain<CoordType>::
 isValid(const CoordType &x) const {
     for (uword m = 0; m < _numDim; ++m) {
-        if (x(m) < axisStart(m) || x(m) > axisEnd(m)) {
+        if (axisStartBndType(m) != PERIODIC && (x(m) < axisStart(m) || x(m) > axisEnd(m))) {
             return false;
         }
     }

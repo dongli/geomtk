@@ -45,7 +45,7 @@ update(const TimeLevelIndex<2> &timeIdx, Pole pole,
         for (uword k = mesh->ks(GridType::FULL); k <= mesh->ke(GridType::FULL); ++k) {
             for (uword i = mesh->is(GridType::FULL); i <= mesh->ie(GridType::FULL); ++i) {
                 vr(i, k)->level(timeIdx)(0) =
-                    (v[0](timeIdx)(i-1, j, k)+v[0](timeIdx)(i, j, k))*0.5;
+                    (v[0](timeIdx, i-1, j, k)+v[0](timeIdx, i, j, k))*0.5;
             }
         }
         // periodic boundary condition
@@ -58,7 +58,7 @@ update(const TimeLevelIndex<2> &timeIdx, Pole pole,
     } else if (v[0].staggerLocation() == Location::CENTER) { // A-grid
         for (uword k = mesh->ks(GridType::FULL); k <= mesh->ke(GridType::FULL); ++k) {
             for (uword i = mesh->is(GridType::FULL)-1; i <= mesh->ie(GridType::FULL)+1; ++i) {
-                vr(i, k)->level(timeIdx)(0) = v[0](timeIdx)(i, j, k);
+                vr(i, k)->level(timeIdx)(0) = v[0](timeIdx, i, j, k);
             }
         }
     }
@@ -68,13 +68,13 @@ update(const TimeLevelIndex<2> &timeIdx, Pole pole,
             for (uword k = mesh->ks(GridType::FULL); k <= mesh->ke(GridType::FULL); ++k) {
                 for (uword i = mesh->is(GridType::FULL)-1; i <= mesh->ie(GridType::FULL)+1; ++i) {
                     vr(i, k)->level(timeIdx)(2) =
-                        (v[2](timeIdx)(i, j, k)+v[2](timeIdx)(i, j, k+1))*0.5;
+                        (v[2](timeIdx, i, j, k)+v[2](timeIdx, i, j, k+1))*0.5;
                 }
             }
         } else if (v[2].staggerLocation() == Location::CENTER) { // A-grid
             for (uword k = mesh->ks(GridType::FULL); k <= mesh->ke(GridType::FULL); ++k) {
                 for (uword i = mesh->is(GridType::FULL)-1; i <= mesh->ie(GridType::FULL)+1; ++i) {
-                    vr(i, k)->level(timeIdx)(2) = v[2](timeIdx)(i, j, k);
+                    vr(i, k)->level(timeIdx)(2) = v[2](timeIdx, i, j, k);
                 }
             }
         }
@@ -82,7 +82,7 @@ update(const TimeLevelIndex<2> &timeIdx, Pole pole,
     // Set divergence.
     for (uword k = mesh->ks(GridType::FULL); k <= mesh->ke(GridType::FULL); ++k) {
         for (uword i = mesh->is(GridType::FULL)-1; i <= mesh->ie(GridType::FULL)+1; ++i) {
-            divr(i, k)->level(timeIdx) = div(timeIdx)(i, j, k);
+            divr(i, k)->level(timeIdx) = div(timeIdx, i, j, k);
         }
     }
     // Set meridional wind speed.
@@ -91,13 +91,13 @@ update(const TimeLevelIndex<2> &timeIdx, Pole pole,
         for (uword k = mesh->ks(GridType::FULL); k <= mesh->ke(GridType::FULL); ++k) {
             for (uword i = mesh->is(GridType::FULL)-1; i <= mesh->ie(GridType::FULL)+1; ++i) {
                 vr(i, k)->level(timeIdx)(1) =
-                    (v[1](timeIdx)(i, j, k)+v[1](timeIdx)(i, j+1, k))*0.5;
+                    (v[1](timeIdx, i, j, k)+v[1](timeIdx, i, j+1, k))*0.5;
             }
         }
     } else if (v[1].staggerLocation() == Location::CENTER) { // A-grid
         for (uword k = mesh->ks(GridType::FULL); k <= mesh->ke(GridType::FULL); ++k) {
             for (uword i = mesh->is(GridType::FULL)-1; i <= mesh->ie(GridType::FULL)+1; ++i) {
-                vr(i, k)->level(timeIdx)(1) = v[1](timeIdx)(i, j, k);
+                vr(i, k)->level(timeIdx)(1) = v[1](timeIdx, i, j, k);
             }
         }
     }
@@ -216,15 +216,15 @@ calcDivergence(const TimeLevelIndex<2> &timeIdx) {
         for (uword j = mesh().js(GridType::FULL)+1; j <= mesh().je(GridType::FULL)-1; ++j) {
             double ReCosLat = mesh().domain().radius()*mesh().cosLat(GridType::FULL, j);
             for (uword i = mesh().is(GridType::FULL); i <= mesh().ie(GridType::FULL); ++i) {
-                double u1 = v[0](timeIdx)(i-1, j);
-                double u2 = v[0](timeIdx)(i+1, j);
+                double u1 = v[0](timeIdx, i-1, j);
+                double u2 = v[0](timeIdx, i+1, j);
                 double dudlon = (u2-u1)/(2*mesh().gridInterval(0, GridType::HALF, 0));
-                double vCosLat1 = v[1](timeIdx)(i, j-1)*mesh().cosLat(GridType::FULL, j-1);
-                double vCosLat2 = v[1](timeIdx)(i, j+1)*mesh().cosLat(GridType::FULL, j+1);
+                double vCosLat1 = v[1](timeIdx, i, j-1)*mesh().cosLat(GridType::FULL, j-1);
+                double vCosLat2 = v[1](timeIdx, i, j+1)*mesh().cosLat(GridType::FULL, j+1);
                 double dlat = (mesh().gridInterval(1, GridType::FULL, j-1)+
                                mesh().gridInterval(1, GridType::FULL, j));
                 double dvCosLatdlat = (vCosLat2-vCosLat1)/dlat;
-                div(timeIdx)(i, j) = (dudlon+dvCosLatdlat)/ReCosLat;
+                div(timeIdx, i, j) = (dudlon+dvCosLatdlat)/ReCosLat;
             }
         }
     } else if (v[0].staggerLocation() == Location::X_FACE &&
@@ -232,13 +232,13 @@ calcDivergence(const TimeLevelIndex<2> &timeIdx) {
         for (uword j = mesh().js(GridType::FULL)+1; j <= mesh().je(GridType::FULL)-1; ++j) {
             double ReCosLat = mesh().domain().radius()*mesh().cosLat(GridType::FULL, j);
             for (uword i = mesh().is(GridType::FULL); i <= mesh().ie(GridType::FULL); ++i) {
-                double u1 = v[0](timeIdx)(i-1, j);
-                double u2 = v[0](timeIdx)(i,   j);
+                double u1 = v[0](timeIdx, i-1, j);
+                double u2 = v[0](timeIdx, i,   j);
                 double dudlon = (u2-u1)/mesh().gridInterval(0, GridType::HALF, 0);
-                double vCosLat1 = v[1](timeIdx)(i, j-1)*mesh().cosLat(GridType::HALF, j-1);
-                double vCosLat2 = v[1](timeIdx)(i, j)*mesh().cosLat(GridType::HALF, j);
+                double vCosLat1 = v[1](timeIdx, i, j-1)*mesh().cosLat(GridType::HALF, j-1);
+                double vCosLat2 = v[1](timeIdx, i, j)*mesh().cosLat(GridType::HALF, j);
                 double dvCosLatdlat = (vCosLat2-vCosLat1)/mesh().gridInterval(1, GridType::HALF, j);
-                div(timeIdx)(i, j) = (dudlon+dvCosLatdlat)/ReCosLat;
+                div(timeIdx, i, j) = (dudlon+dvCosLatdlat)/ReCosLat;
             }
         }
     } else {
@@ -254,15 +254,15 @@ calcVorticity(const TimeLevelIndex<2> &timeIdx) {
             for (uword j = mesh().js(GridType::FULL)+1; j <= mesh().je(GridType::FULL)-1; ++j) {
                 double ReCosLat = mesh().domain().radius()*mesh().cosLat(GridType::FULL, j);
                 for (uword i = mesh().is(GridType::FULL); i <= mesh().ie(GridType::FULL); ++i) {
-                    double v1 = v[1](timeIdx)(i-1, j);
-                    double v2 = v[1](timeIdx)(i, j);
+                    double v1 = v[1](timeIdx, i-1, j);
+                    double v2 = v[1](timeIdx, i, j);
                     double dvdlon = (v2-v1)/(2*mesh().gridInterval(0, GridType::HALF, 0));
-                    double uCosLat1 = v[0](timeIdx)(i, j-1)*mesh().cosLat(GridType::FULL, j-1);
-                    double uCosLat2 = v[0](timeIdx)(i, j+1)*mesh().cosLat(GridType::FULL, j+1);
+                    double uCosLat1 = v[0](timeIdx, i, j-1)*mesh().cosLat(GridType::FULL, j-1);
+                    double uCosLat2 = v[0](timeIdx, i, j+1)*mesh().cosLat(GridType::FULL, j+1);
                     double dlat = (mesh().gridInterval(1, GridType::FULL, j-1)+
                                    mesh().gridInterval(1, GridType::FULL, j));
                     double duCosLatdlat = (uCosLat2-uCosLat1)/dlat;
-                    vor[0](timeIdx)(i, j) = (dvdlon-duCosLatdlat)/ReCosLat;
+                    vor[0](timeIdx, i, j) = (dvdlon-duCosLatdlat)/ReCosLat;
                 }
             }
         } else {
@@ -274,19 +274,19 @@ calcVorticity(const TimeLevelIndex<2> &timeIdx) {
             for (uword j = mesh().js(GridType::FULL)+1; j <= mesh().je(GridType::FULL)-1; ++j) {
                 double ReCosLat = mesh().domain().radius()*mesh().cosLat(GridType::FULL, j);
                 for (uword i = mesh().is(GridType::FULL); i <= mesh().ie(GridType::FULL); ++i) {
-                    double v1 = v[1](timeIdx)(i-1, j-1);
-                    double v2 = v[1](timeIdx)(i-1, j );
-                    double v3 = v[1](timeIdx)(i+1, j-1);
-                    double v4 = v[1](timeIdx)(i+1, j  );
+                    double v1 = v[1](timeIdx, i-1, j-1);
+                    double v2 = v[1](timeIdx, i-1, j );
+                    double v3 = v[1](timeIdx, i+1, j-1);
+                    double v4 = v[1](timeIdx, i+1, j  );
                     double dvdlon = (v3+v4-v1-v2)*0.5/(2*mesh().gridInterval(0, GridType::HALF, 0));
-                    double uCosLat1 = v[0](timeIdx)(i-1, j-1)*mesh().cosLat(GridType::HALF, j-1);
-                    double uCosLat2 = v[0](timeIdx)(i,   j-1)*mesh().cosLat(GridType::HALF, j-1);
-                    double uCosLat3 = v[0](timeIdx)(i-1, j+1)*mesh().cosLat(GridType::HALF, j);
-                    double uCosLat4 = v[0](timeIdx)(i,   j+1)*mesh().cosLat(GridType::HALF, j);
+                    double uCosLat1 = v[0](timeIdx, i-1, j-1)*mesh().cosLat(GridType::HALF, j-1);
+                    double uCosLat2 = v[0](timeIdx, i,   j-1)*mesh().cosLat(GridType::HALF, j-1);
+                    double uCosLat3 = v[0](timeIdx, i-1, j+1)*mesh().cosLat(GridType::HALF, j);
+                    double uCosLat4 = v[0](timeIdx, i,   j+1)*mesh().cosLat(GridType::HALF, j);
                     double dlat = (mesh().gridInterval(1, GridType::FULL, j-1)+
                                    mesh().gridInterval(1, GridType::FULL, j));
                     double duCosLatdlat = (uCosLat4+uCosLat3-uCosLat2-uCosLat1)*0.5/dlat;
-                    vor[0](timeIdx)(i, j) = (dvdlon-duCosLatdlat)/ReCosLat;
+                    vor[0](timeIdx, i, j) = (dvdlon-duCosLatdlat)/ReCosLat;
                 }
             }
         } else {

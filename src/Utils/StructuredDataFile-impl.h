@@ -339,7 +339,7 @@ input(const TimeLevelIndex<NumTimeLevel> &timeIdx,
                     ret = nc_get_var_double(this->fileId, info.varId, x);
                     CHECK_NC_GET_VAR(ret, this->filePath, field->name());
                     for (int k = 0; k < n; ++k) {
-                        (*field)(timeIdx, k) = x[k];
+                        (*field).at(timeIdx, k) = x[k];
                     }
                     delete [] x;
                 } else if (info.xtype == NC_FLOAT) {
@@ -347,7 +347,7 @@ input(const TimeLevelIndex<NumTimeLevel> &timeIdx,
                     ret = nc_get_var_float(this->fileId, info.varId, x);
                     CHECK_NC_GET_VAR(ret, this->filePath, field->name());
                     for (int k = 0; k < n; ++k) {
-                        (*field)(timeIdx, k) = x[k];
+                        (*field).at(timeIdx, k) = x[k];
                     }
                     delete [] x;
                 } else if (info.xtype == NC_INT) {
@@ -355,7 +355,7 @@ input(const TimeLevelIndex<NumTimeLevel> &timeIdx,
                     ret = nc_get_var_int(this->fileId, info.varId, x);
                     CHECK_NC_GET_VAR(ret, this->filePath, field->name());
                     for (int k = 0; k < n; ++k) {
-                        (*field)(timeIdx, k) = x[k];
+                        (*field).at(timeIdx, k) = x[k];
                     }
                     delete [] x;
                 }
@@ -497,7 +497,7 @@ input(const TimeLevelIndex<NumTimeLevel> &timeIdx,
                     ret = nc_get_vara_double(this->fileId, info.varId, start, count, x);
                     CHECK_NC_GET_VAR(ret, this->filePath, field->name());
                     for (int k = 0; k < n; ++k) {
-                        (*field)(timeIdx, k) = x[k];
+                        (*field).at(timeIdx, k) = x[k];
                     }
                     delete [] x;
                 } else if (info.xtype == NC_FLOAT) {
@@ -505,7 +505,7 @@ input(const TimeLevelIndex<NumTimeLevel> &timeIdx,
                     ret = nc_get_vara_float(this->fileId, info.varId, start, count, x);
                     CHECK_NC_GET_VAR(ret, this->filePath, field->name());
                     for (int k = 0; k < n; ++k) {
-                        (*field)(timeIdx, k) = x[k];
+                        (*field).at(timeIdx, k) = x[k];
                     }
                     delete [] x;
                 } else if (info.xtype == NC_INT) {
@@ -513,7 +513,7 @@ input(const TimeLevelIndex<NumTimeLevel> &timeIdx,
                     ret = nc_get_vara_int(this->fileId, info.varId, start, count, x);
                     CHECK_NC_GET_VAR(ret, this->filePath, field->name());
                     for (int k = 0; k < n; ++k) {
-                        (*field)(timeIdx, k) = x[k];
+                        (*field).at(timeIdx, k) = x[k];
                     }
                     delete [] x;
                 }
@@ -653,7 +653,7 @@ output(const TimeLevelIndex<NumTimeLevel> &timeIdx,
                 if (info.xtype == NC_DOUBLE) {
                     double *x = new double[n];
                     for (int k = 0; k < n; ++k) {
-                        x[k] = (*field)(timeIdx, k);
+                        x[k] = (*field).at(timeIdx, k);
                     }
                     ret = nc_put_var_double(this->fileId, info.varId, x);
                     CHECK_NC_PUT_VAR(ret, this->filePath, field->name());
@@ -661,7 +661,7 @@ output(const TimeLevelIndex<NumTimeLevel> &timeIdx,
                 } else if (info.xtype == NC_FLOAT) {
                     float *x = new float[n];
                     for (int k = 0; k < n; ++k) {
-                        x[k] = (*field)(timeIdx, k);
+                        x[k] = (*field).at(timeIdx, k);
                     }
                     ret = nc_put_var_float(this->fileId, info.varId, x);
                     CHECK_NC_PUT_VAR(ret, this->filePath, field->name());
@@ -669,7 +669,7 @@ output(const TimeLevelIndex<NumTimeLevel> &timeIdx,
                 } else if (info.xtype == NC_INT) {
                     int *x = new int[n];
                     for (int k = 0; k < n; ++k) {
-                        x[k] = (*field)(timeIdx, k);
+                        x[k] = (*field).at(timeIdx, k);
                     }
                     ret = nc_put_var_int(this->fileId, info.varId, x);
                     CHECK_NC_PUT_VAR(ret, this->filePath, field->name());

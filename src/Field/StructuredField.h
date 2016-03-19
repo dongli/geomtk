@@ -28,26 +28,56 @@ public:
            const MeshType &mesh, int loc, int numDim, bool hasHalfLevel = false);
 
     const field<DataType>&
-    operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx) const;
+    operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
+        return data->level(timeIdx);
+    }
 
     field<DataType>&
-    operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx);
+    operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx) {
+        return data->level(timeIdx);
+    }
 
     const field<DataType>&
-    operator()() const;
+    operator()() const {
+        return data->level(0);
+    }
 
     field<DataType>&
-    operator()();
+    operator()() {
+        return data->level(0);
+    }
 
     const DataType&
-    operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) const;
+    operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j = 0, int k = 0) const {
+        return data->level(timeIdx)(i, j, k);
+    }
 
     DataType&
-    operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx);
+    operator()(const TimeLevelIndex<NumTimeLevel> &timeIdx, int i, int j = 0, int k = 0) {
+        return data->level(timeIdx)(i, j, k);
+    }
 
-    const DataType& operator()(int cellIdx) const;
+    const DataType&
+    operator()(int i, int j = 0, int k = 0) const {
+        return data->level(0)(i, j, k);
+    }
 
-    DataType& operator()(int cellIdx);
+    DataType&
+    operator()(int i, int j = 0, int k = 0) {
+        return data->level(0)(i, j, k);
+    }
+
+    const DataType&
+    at(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx) const;
+
+    DataType&
+    at(const TimeLevelIndex<NumTimeLevel> &timeIdx, int cellIdx);
+
+    const DataType&
+    at(int cellIdx) const;
+
+    DataType&
+    at(int cellIdx);
 
     StructuredField<MeshType, DataType, NumTimeLevel>&
     operator=(const StructuredField<MeshType, DataType, NumTimeLevel> &other);
@@ -164,8 +194,8 @@ public:
     max(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
         DataType res = -999999;
         for (uword i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
-            if (res < (*this)(timeIdx, i)) {
-                res = (*this)(timeIdx, i);
+            if (res < (*this).at(timeIdx, i)) {
+                res = (*this).at(timeIdx, i);
             }
         }
         return res;
@@ -176,8 +206,8 @@ public:
     max() const {
         DataType res = -999999;
         for (uword i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
-            if (res < (*this)(i)) {
-                res = (*this)(i);
+            if (res < (*this).at(i)) {
+                res = (*this).at(i);
             }
         }
         return res;
@@ -188,8 +218,8 @@ public:
     min(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
         DataType res = 999999;
         for (uword i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
-            if (res > (*this)(timeIdx, i)) {
-                res = (*this)(timeIdx, i);
+            if (res > (*this).at(timeIdx, i)) {
+                res = (*this).at(timeIdx, i);
             }
         }
         return res;
@@ -200,8 +230,8 @@ public:
     min() const {
         DataType res = 999999;
         for (uword i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
-            if (res > (*this)(i)) {
-                res = (*this)(i);
+            if (res > (*this).at(i)) {
+                res = (*this).at(i);
             }
         }
         return res;
@@ -212,7 +242,7 @@ public:
     sum(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
         DataType res = 0;
         for (uword i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
-            res += (*this)(timeIdx, i);
+            res += (*this).at(timeIdx, i);
         }
         return res;
     }
@@ -222,7 +252,7 @@ public:
     sum() const {
         DataType res = 0;
         for (uword i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
-            res += (*this)(i);
+            res += (*this).at(i);
         }
         return res;
     }
@@ -231,7 +261,7 @@ public:
     typename enable_if<is_arithmetic<Q>::value, bool>::type
     hasNan(const TimeLevelIndex<NumTimeLevel> &timeIdx) const {
         for (uword i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
-            if (std::isnan((*this)(timeIdx, i))) {
+            if (std::isnan((*this).at(timeIdx, i))) {
                 return true;
             }
         }
@@ -242,7 +272,7 @@ public:
     typename enable_if<is_arithmetic<Q>::value, bool>::type
     hasNan() const {
         for (uword i = 0; i < this->mesh().totalNumGrid(staggerLocation(), this->numDim()); ++i) {
-            if (std::isnan((*this)(i))) {
+            if (std::isnan((*this).at(i))) {
                 return true;
             }
         }

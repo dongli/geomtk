@@ -40,12 +40,12 @@ TEST_F(RLLVelocityFieldTest, Basics) {
 TEST_F(RLLVelocityFieldTest, RingVelocity) {
     for (auto j = mesh->js(FULL); j <= mesh->je(FULL); ++j) {
         for (auto i = mesh->is(HALF); i <= mesh->ie(HALF); ++i) {
-            v(0)(timeIdx)(i, j) = 5.0;
+            v(0)(timeIdx, i, j) = 5.0;
         }
     }
     for (auto j = mesh->js(HALF); j <= mesh->je(HALF); ++j) {
         for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
-            v(1)(timeIdx)(i, j) = 5.0;
+            v(1)(timeIdx, i, j) = 5.0;
         }
     }
     v.applyBndCond(timeIdx);
@@ -67,9 +67,9 @@ TEST_F(RLLVelocityFieldTest, RingVelocity) {
         for (auto i = mesh->is(FULL); i <= mesh->ie(FULL); ++i) {
             std::cout << "l = " << l << ", j = " << j << " i = " << i << std::endl;
             ASSERT_EQ(v.rings[l].originalData(0, timeIdx, i),
-                      (v(0)(timeIdx)(i, j)+v(0)(timeIdx)(i-1, j))*0.5);
+                      (v(0)(timeIdx, i, j)+v(0)(timeIdx, i-1, j))*0.5);
             ASSERT_EQ(v.rings[l].originalData(1, timeIdx, i),
-                      (v(1)(timeIdx)(i, j)+v(1)(timeIdx)(i, j-1))*0.5);
+                      (v(1)(timeIdx, i, j)+v(1)(timeIdx, i, j-1))*0.5);
         }
     }
     // Check transformed velocity on the rings.
