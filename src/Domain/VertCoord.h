@@ -7,10 +7,24 @@ enum VertCoordType {
     HEIGHT, PRESSURE, CLASSIC_PRESSURE_SIGMA, HYBRID_PRESSURE_SIGMA
 };
 
+struct VertCoordStagger {
+    struct Location {
+        static const int CENTER = 0;
+        static const int VERTEX = 1;
+    };
+    struct GridType {
+        static const int FULL = 0;
+        static const int HALF = 1;
+    };
+};
+
 /**
  *  This class is the interface for all the vertical coordinate.
  */
 class VertCoord {
+public:
+    typedef VertCoordStagger::GridType GridType;
+    typedef VertCoordStagger::Location Location;
 protected:
     VertCoordType _type;
 public:

@@ -13,7 +13,7 @@ public:
     TerrainFollowing() {}
     virtual ~TerrainFollowing() {}
 
-    virtual double calcPressure(double ps, int k) const = 0;
+    virtual double calcPressure(int gridType, double ps, int k) const = 0;
 };
 
 } // geomtk

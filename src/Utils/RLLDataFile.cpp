@@ -64,26 +64,26 @@ inputVerticalMesh() {
     CHECK_NC_INQ_DIMLEN(ret, filePath, domain.axisName(2));
     if (domain.vertCoord().type() == CLASSIC_PRESSURE_SIGMA) {
         ClassicPressureSigma &vertCoord = dynamic_cast<ClassicPressureSigma&>(domain.vertCoord());
-        vertCoord.fullSigma.set_size(len);
-        ret = nc_get_var(fileId, fullDimIDs[2], vertCoord.fullSigma.memptr());
+        vertCoord.sigma[VertCoord::GridType::FULL].set_size(len);
+        ret = nc_get_var(fileId, fullDimIDs[2], vertCoord.sigma[VertCoord::GridType::FULL].memptr());
         CHECK_NC_GET_VAR(ret, filePath, domain.axisName(2));
-        assert(vertCoord.fullSigma.min() >= 0 && vertCoord.fullSigma.max() <= 1);
-        vertCoord.halfSigma.set_size(len+1);
+        assert(vertCoord.sigma[VertCoord::GridType::FULL].min() >= 0 && vertCoord.sigma[VertCoord::GridType::FULL].max() <= 1);
+        vertCoord.sigma[VertCoord::GridType::HALF].set_size(len+1);
         ret = nc_inq_varid(fileId, "ilev", &varId);
         if (ret != NC_NOERR) {
-            vertCoord.halfSigma[0] = 0;
+            vertCoord.sigma[VertCoord::GridType::HALF][0] = 0;
             for (size_t k = 1; k < len; ++k) {
-                vertCoord.halfSigma[k] = (vertCoord.fullSigma[k-1]+vertCoord.fullSigma[k])*0.5;
+                vertCoord.sigma[VertCoord::GridType::HALF][k] = (vertCoord.sigma[VertCoord::GridType::FULL][k-1]+vertCoord.sigma[VertCoord::GridType::FULL][k])*0.5;
             }
-            vertCoord.halfSigma[len] = 1;
-            vertCoord.halfSigma.print();
-            assert(vertCoord.halfSigma.min() >= 0 && vertCoord.halfSigma.max() <= 1);
+            vertCoord.sigma[VertCoord::GridType::HALF][len] = 1;
+            vertCoord.sigma[VertCoord::GridType::HALF].print();
+            assert(vertCoord.sigma[VertCoord::GridType::HALF].min() >= 0 && vertCoord.sigma[VertCoord::GridType::HALF].max() <= 1);
         } else {
-            ret = nc_get_var(fileId, varId, vertCoord.halfSigma.memptr());
+            ret = nc_get_var(fileId, varId, vertCoord.sigma[VertCoord::GridType::HALF].memptr());
             CHECK_NC_GET_VAR(ret, filePath, "ilev");
         }
         domain.setAxis(2, "lev", "classic sigma", "1", 0, RIGID, 1, RIGID);
-        mesh().setGridCoordComps(2, len, vertCoord.fullSigma, vertCoord.halfSigma);
+        mesh().setGridCoordComps(2, len, vertCoord.sigma[VertCoord::GridType::FULL], vertCoord.sigma[VertCoord::GridType::HALF]);
         ret = nc_inq_varid(fileId, "pmtop", &varId);
         CHECK_NC_INQ_VARID(ret, filePath, "pmtop");
         memset(units, 0, sizeof(units));

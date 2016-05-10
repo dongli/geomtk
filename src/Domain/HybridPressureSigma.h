@@ -17,15 +17,17 @@ namespace geomtk {
  */
 class HybridPressureSigma : public TerrainFollowing {
 public:
-    vec fullA, halfA;
-    vec fullB, halfB;
+    vec A[2], B[2];
     double p0;
 
     HybridPressureSigma();
     virtual ~HybridPressureSigma();
 
+    virtual void
+    init(int size);
+    
     virtual double
-    calcPressure(double ps, int k) const;
+    calcPressure(int gridType, double ps, int k) const;
 }; // HybridPressureSigma
 
 } // geomtk

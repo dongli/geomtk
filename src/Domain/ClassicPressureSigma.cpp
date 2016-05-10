@@ -10,7 +10,4 @@ ClassicPressureSigma::~ClassicPressureSigma() {
 
 }
 
-double ClassicPressureSigma::calcPressure(double ps, int k) const {
-}
-
-}
+} // geomtk
